@@ -9,6 +9,7 @@ import { DateRange } from 'react-day-picker';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 // Define TypeScript interfaces for props
 interface UsageMetrics {
@@ -51,7 +52,8 @@ interface CompanyUsageClientProps {
   error?: string;
 }
 
-export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps) {
+export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsageClientProps) {
+  const [currentUsageData, setCurrentUsageData] = useState<UsageData | undefined>(initialData);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date()
@@ -59,8 +61,45 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'billing'>('overview');
 
+  // Synchronize local state with initialData if it changes
+  useEffect(() => {
+    if (initialData) setCurrentUsageData(initialData);
+  }, [initialData]);
+
+  // Real-time update subscription
+  useRealtimeSubscription('activity_logged', (event) => {
+    if (!currentUsageData) return;
+
+    setCurrentUsageData(prev => {
+      if (!prev) return prev;
+
+      const today = new Date().toISOString().split('T')[0];
+      const newHistory = [...prev.historicalUsage];
+      const todayIndex = newHistory.findIndex(h => h.date === today);
+
+      if (todayIndex >= 0) {
+        newHistory[todayIndex] = {
+          ...newHistory[todayIndex],
+          apiCalls: newHistory[todayIndex].apiCalls + 1
+        };
+      } else {
+        newHistory.push({ date: today, apiCalls: 1, storageUsedMB: 0 });
+      }
+
+      return {
+        ...prev,
+        metrics: {
+          ...prev.metrics,
+          apiCalls: prev.metrics.apiCalls + 1
+        },
+        historicalUsage: newHistory
+      };
+    });
+  });
+
+
   // Filter historical data based on date range
-  const filteredHistory = usageData?.historicalUsage.filter(item => {
+  const filteredHistory = currentUsageData?.historicalUsage.filter(item => {
     if (!dateRange?.from || !dateRange?.to) return true;
     const itemDate = new Date(item.date);
     return itemDate >= dateRange.from && itemDate <= dateRange.to;
@@ -68,11 +107,11 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
 
   // Calculate billing cycle progress
   const getBillingCycleProgress = () => {
-    if (!usageData) return { daysPassed: 0, daysRemaining: 0 };
+    if (!currentUsageData) return { daysPassed: 0, daysRemaining: 0 };
 
     const now = new Date().getTime();
-    const start = new Date(usageData.billing.currentCycleStart).getTime();
-    const end = new Date(usageData.billing.currentCycleEnd).getTime();
+    const start = new Date(currentUsageData.billing.currentCycleStart).getTime();
+    const end = new Date(currentUsageData.billing.currentCycleEnd).getTime();
 
     const totalDuration = end - start;
     const timePassed = now - start;
@@ -89,10 +128,10 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
   const billingCycleProgress = getBillingCycleProgress();
 
   // Calculate usage percentages
-  const apiUsagePercentage = usageData ? Math.min(100, (usageData.metrics.apiCalls / usageData.subscription.maxApiCalls) * 100) : 0;
-  const storageUsagePercentage = usageData ? Math.min(100, (usageData.metrics.storageUsedMB / usageData.subscription.maxStorageMB) * 100) : 0;
-  const usersUsagePercentage = usageData ? Math.min(100, (usageData.metrics.activeUsers / usageData.subscription.maxUsers) * 100) : 0;
-  const projectsUsagePercentage = usageData ? Math.min(100, (usageData.metrics.projectsCreated / usageData.subscription.maxProjects) * 100) : 0;
+  const apiUsagePercentage = currentUsageData ? Math.min(100, (currentUsageData.metrics.apiCalls / currentUsageData.subscription.maxApiCalls) * 100) : 0;
+  const storageUsagePercentage = currentUsageData ? Math.min(100, (currentUsageData.metrics.storageUsedMB / currentUsageData.subscription.maxStorageMB) * 100) : 0;
+  const usersUsagePercentage = currentUsageData ? Math.min(100, (currentUsageData.metrics.activeUsers / currentUsageData.subscription.maxUsers) * 100) : 0;
+  const projectsUsagePercentage = currentUsageData ? Math.min(100, (currentUsageData.metrics.projectsCreated / currentUsageData.subscription.maxProjects) * 100) : 0;
 
   if (error) {
     return (
@@ -116,7 +155,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
     );
   }
 
-  if (!usageData) {
+  if (!currentUsageData) {
     return (
       <div className="container mx-auto py-8" aria-busy="true">
         <div className="flex justify-center items-center h-64">
@@ -194,11 +233,11 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  Current Plan: {usageData.subscription.name}
+                  Current Plan: {currentUsageData.subscription.name}
                 </span>
                 <span className="text-2xl font-bold">
-                  ${usageData.subscription.price}/{
-                    usageData.subscription.billingCycle === 'monthly' ? 'month' : 'year'
+                  ${currentUsageData.subscription.price}/{
+                    currentUsageData.subscription.billingCycle === 'monthly' ? 'month' : 'year'
                   }
                 </span>
               </CardTitle>
@@ -213,7 +252,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                       <span className="text-sm font-medium text-gray-500">API Calls</span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.apiCalls} / {usageData.subscription.maxApiCalls}
+                      {currentUsageData.metrics.apiCalls} / {currentUsageData.subscription.maxApiCalls}
                     </span>
                   </div>
                   <Progress
@@ -234,7 +273,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                       <span className="text-sm font-medium text-gray-500">Storage</span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.storageUsedMB.toFixed(2)} / {usageData.subscription.maxStorageMB} MB
+                      {currentUsageData.metrics.storageUsedMB.toFixed(2)} / {currentUsageData.subscription.maxStorageMB} MB
                     </span>
                   </div>
                   <Progress
@@ -255,7 +294,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                       <span className="text-sm font-medium text-gray-500">Active Users</span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.activeUsers} / {usageData.subscription.maxUsers}
+                      {currentUsageData.metrics.activeUsers} / {currentUsageData.subscription.maxUsers}
                     </span>
                   </div>
                   <Progress
@@ -276,7 +315,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                       <span className="text-sm font-medium text-gray-500">Projects</span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.projectsCreated} / {usageData.subscription.maxProjects}
+                      {currentUsageData.metrics.projectsCreated} / {currentUsageData.subscription.maxProjects}
                     </span>
                   </div>
                   <Progress
@@ -423,7 +462,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-gray-500">
-                      Cycle: {new Date(usageData.billing.currentCycleStart).toLocaleDateString()} to {new Date(usageData.billing.currentCycleEnd).toLocaleDateString()}
+                      Cycle: {new Date(currentUsageData.billing.currentCycleStart).toLocaleDateString()} to {new Date(currentUsageData.billing.currentCycleEnd).toLocaleDateString()}
                     </span>
                     <span className="text-sm font-semibold">
                       {billingCycleProgress.daysPassed}% Complete
@@ -440,12 +479,12 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                     <p className="text-sm font-medium text-gray-500 mb-1">Payment Method</p>
                     <div className="flex items-center">
                       <CreditCard className="h-4 w-4 text-gray-400 mr-2" />
-                      <span>{usageData.billing.paymentMethod}</span>
+                      <span>{currentUsageData.billing.paymentMethod}</span>
                     </div>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">Next Payment</p>
-                    <p>{new Date(usageData.billing.nextPaymentDate).toLocaleDateString()}</p>
+                    <p>{new Date(currentUsageData.billing.nextPaymentDate).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
@@ -460,22 +499,22 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold mb-3">Current Plan: {usageData.subscription.name}</h3>
+                  <h3 className="font-semibold mb-3">Current Plan: {currentUsageData.subscription.name}</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="font-medium">Included Features:</p>
                       <ul className="space-y-1 mt-2 text-gray-600">
-                        <li>• {usageData.subscription.maxApiCalls.toLocaleString()} API calls/month</li>
-                        <li>• {usageData.subscription.maxStorageMB} MB storage</li>
-                        <li>• {usageData.subscription.maxUsers} team members</li>
-                        <li>• {usageData.subscription.maxProjects} projects</li>
+                        <li>• {currentUsageData.subscription.maxApiCalls.toLocaleString()} API calls/month</li>
+                        <li>• {currentUsageData.subscription.maxStorageMB} MB storage</li>
+                        <li>• {currentUsageData.subscription.maxUsers} team members</li>
+                        <li>• {currentUsageData.subscription.maxProjects} projects</li>
                       </ul>
                     </div>
                     <div>
                       <p className="font-medium">Billing:</p>
                       <ul className="space-y-1 mt-2 text-gray-600">
-                        <li>• ${usageData.subscription.price} per {usageData.subscription.billingCycle}</li>
-                        <li>• {usageData.subscription.billingCycle === 'annual' ? '10%' : '0'} discount for annual billing</li>
+                        <li>• ${currentUsageData.subscription.price} per {currentUsageData.subscription.billingCycle}</li>
+                        <li>• {currentUsageData.subscription.billingCycle === 'annual' ? '10%' : '0'} discount for annual billing</li>
                         <li>• Cancel anytime</li>
                       </ul>
                     </div>
