@@ -179,7 +179,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData })
                                         {distributionData.map((item, index) => (
                                             <div key={item.name} className="flex items-center justify-between">
                                                 <div className="flex items-center">
-                                                    <div className="h-2 w-2 rounded-full mr-3" style={{ backgroundColor: COLORS[index % COLORS.length] as string }} />
+                                                    <div className="h-2 w-2 rounded-full mr-3" style={{ backgroundColor: `var(--color-dot, ${COLORS[index % COLORS.length]})` } as any} />
                                                     <span className="text-sm text-gray-600 font-medium">{item.name}</span>
                                                 </div>
                                                 <Badge variant="outline">{Math.round((item.value / initialData.allocation.length) * 100)}%</Badge>
