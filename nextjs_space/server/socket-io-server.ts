@@ -130,7 +130,9 @@ export class SocketIOService {
           const projectMember = await prisma.projectTeamMember.findFirst({
             where: {
               projectId,
-              userId
+              teamMember: {
+                userId
+              }
             }
           });
 
