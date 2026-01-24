@@ -32,15 +32,62 @@ app.prepare().then(() => {
         }
     });
 
-    io.on('connection', (socket) => {
-        console.log('Socket coupled in production:', socket.id);
+    // Coupling with application logic
+    try {
+        // We use the existing service logic if reachable, or define base handlers
+        // In standalone mode, we handle the fundamental socket orchestration here
+        io.on('connection', (socket) => {
+            console.log(`[REALTIME] Socket coupled: ${socket.id}`);
 
-        socket.on('ping', () => socket.emit('pong'));
+            socket.on('join-project', (data) => {
+                const {
+                    projectId,
+                    userId
+                } = data;
+                socket.join(`project-${projectId}`);
+                console.log(`[REALTIME] User ${userId} anchored to project ${projectId}`);
+                io.to(`project-${projectId}`).emit('user-joined-project', {
+                    userId,
+                    projectId,
+                    timestamp: new Date()
+                });
+            });
 
-        socket.on('disconnect', () => {
-            console.log('Socket decoupled:', socket.id);
+            socket.on('task-update', (data) => {
+                const {
+                    projectId,
+                    task
+                } = data;
+                socket.to(`project-${projectId}`).emit('task-updated', {
+                    task,
+                    timestamp: new Date()
+                });
+            });
+
+            socket.on('project-message', (data) => {
+                const {
+                    projectId,
+                    message,
+                    senderName,
+                    userId
+                } = data;
+                io.to(`project-${projectId}`).emit('new-message', {
+                    message,
+                    senderName,
+                    senderId: userId,
+                    timestamp: new Date()
+                });
+            });
+
+            socket.on('ping', () => socket.emit('pong'));
+
+            socket.on('disconnect', () => {
+                console.log(`[REALTIME] Socket decoupled: ${socket.id}`);
+            });
         });
-    });
+    } catch (realtimeError) {
+        console.error('[CRITICAL] Realtime coupling failed:', realtimeError);
+    }
 
     httpServer.listen(port, (err) => {
         if (err) throw err;
