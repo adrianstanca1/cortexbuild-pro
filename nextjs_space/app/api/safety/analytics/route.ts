@@ -1,0 +1,326 @@
+export const dynamic = "force-dynamic";
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { startOfMonth, endOfMonth, subMonths, format, startOfWeek, endOfWeek } from "date-fns";
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const orgId = (session.user as any).organizationId;
+    if (!orgId) {
+      return NextResponse.json({ error: "No organization" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+    const period = searchParams.get('period') || '6months'; // 6months, 12months, all
+
+    // Calculate date range
+    const now = new Date();
+    let startDate: Date;
+    switch (period) {
+      case '12months':
+        startDate = subMonths(now, 12);
+        break;
+      case 'all':
+        startDate = new Date('2020-01-01');
+        break;
+      default:
+        startDate = subMonths(now, 6);
+    }
+
+    const projectFilter = projectId 
+      ? { projectId } 
+      : { project: { organizationId: orgId } };
+
+    // Fetch all safety data in parallel
+    const [
+      toolboxTalks,
+      mewpChecks,
+      toolChecks,
+      safetyIncidents,
+      inspections,
+      projects
+    ] = await Promise.all([
+      // Toolbox talks
+      prisma.toolboxTalk.findMany({
+        where: {
+          ...projectFilter,
+          date: { gte: startDate }
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+          presenter: { select: { name: true } },
+          _count: { select: { attendees: true } }
+        },
+        orderBy: { date: 'desc' }
+      }),
+      // MEWP checks
+      prisma.mEWPCheck.findMany({
+        where: {
+          ...projectFilter,
+          checkDate: { gte: startDate }
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+          operator: { select: { name: true } }
+        },
+        orderBy: { checkDate: 'desc' }
+      }),
+      // Tool checks
+      prisma.toolCheck.findMany({
+        where: {
+          ...projectFilter,
+          checkDate: { gte: startDate }
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+          inspector: { select: { name: true } }
+        },
+        orderBy: { checkDate: 'desc' }
+      }),
+      // Safety incidents
+      prisma.safetyIncident.findMany({
+        where: {
+          ...projectFilter,
+          incidentDate: { gte: startDate }
+        },
+        include: {
+          project: { select: { id: true, name: true } }
+        },
+        orderBy: { incidentDate: 'desc' }
+      }),
+      // Inspections
+      prisma.inspection.findMany({
+        where: {
+          ...projectFilter,
+          scheduledDate: { gte: startDate }
+        },
+        include: {
+          project: { select: { id: true, name: true } }
+        },
+        orderBy: { scheduledDate: 'desc' }
+      }),
+      // Projects for filtering
+      prisma.project.findMany({
+        where: { organizationId: orgId },
+        select: { id: true, name: true }
+      })
+    ]);
+
+    // Calculate summary stats
+    const summary = {
+      toolboxTalks: {
+        total: toolboxTalks.length,
+        completed: toolboxTalks.filter(t => t.status === 'COMPLETED').length,
+        totalAttendees: toolboxTalks.reduce((sum, t) => sum + (t._count?.attendees || 0), 0),
+        thisWeek: toolboxTalks.filter(t => {
+          const talkDate = new Date(t.date);
+          return talkDate >= startOfWeek(now) && talkDate <= endOfWeek(now);
+        }).length
+      },
+      mewpChecks: {
+        total: mewpChecks.length,
+        passed: mewpChecks.filter(c => c.overallStatus === 'PASS').length,
+        failed: mewpChecks.filter(c => c.overallStatus === 'FAIL').length,
+        needsAttention: mewpChecks.filter(c => c.overallStatus === 'NEEDS_ATTENTION').length,
+        safeToUse: mewpChecks.filter(c => c.isSafeToUse).length,
+        passRate: mewpChecks.length > 0 
+          ? Math.round((mewpChecks.filter(c => c.overallStatus === 'PASS').length / mewpChecks.length) * 100) 
+          : 0
+      },
+      toolChecks: {
+        total: toolChecks.length,
+        passed: toolChecks.filter(c => c.overallStatus === 'PASS').length,
+        failed: toolChecks.filter(c => c.overallStatus === 'FAIL').length,
+        needsAttention: toolChecks.filter(c => c.overallStatus === 'NEEDS_ATTENTION').length,
+        safeToUse: toolChecks.filter(c => c.isSafeToUse).length,
+        passRate: toolChecks.length > 0 
+          ? Math.round((toolChecks.filter(c => c.overallStatus === 'PASS').length / toolChecks.length) * 100) 
+          : 0,
+        byType: {
+          POWER_TOOL: toolChecks.filter(c => c.toolType === 'POWER_TOOL').length,
+          HAND_TOOL: toolChecks.filter(c => c.toolType === 'HAND_TOOL').length,
+          LADDER: toolChecks.filter(c => c.toolType === 'LADDER').length,
+          SCAFFOLD: toolChecks.filter(c => c.toolType === 'SCAFFOLD').length,
+          OTHER: toolChecks.filter(c => c.toolType === 'OTHER').length
+        }
+      },
+      safetyIncidents: {
+        total: safetyIncidents.length,
+        critical: safetyIncidents.filter(i => i.severity === 'CRITICAL').length,
+        high: safetyIncidents.filter(i => i.severity === 'HIGH').length,
+        medium: safetyIncidents.filter(i => i.severity === 'MEDIUM').length,
+        low: safetyIncidents.filter(i => i.severity === 'LOW').length,
+        resolved: safetyIncidents.filter(i => i.status === 'RESOLVED' || i.status === 'CLOSED').length
+      },
+      inspections: {
+        total: inspections.length,
+        passed: inspections.filter(i => i.status === 'PASSED').length,
+        failed: inspections.filter(i => i.status === 'FAILED').length,
+        pending: inspections.filter(i => i.status === 'SCHEDULED' || i.status === 'IN_PROGRESS').length,
+        passRate: inspections.filter(i => i.status === 'PASSED' || i.status === 'FAILED').length > 0
+          ? Math.round((inspections.filter(i => i.status === 'PASSED').length / 
+              inspections.filter(i => i.status === 'PASSED' || i.status === 'FAILED').length) * 100)
+          : 0
+      },
+      complianceScore: 0
+    };
+
+    // Calculate overall compliance score
+    const weights = {
+      toolboxTalks: 0.25,
+      mewpChecks: 0.25,
+      toolChecks: 0.25,
+      inspections: 0.25
+    };
+
+    const toolboxScore = summary.toolboxTalks.total > 0 
+      ? (summary.toolboxTalks.completed / summary.toolboxTalks.total) * 100 : 100;
+    const mewpScore = summary.mewpChecks.passRate;
+    const toolScore = summary.toolChecks.passRate;
+    const inspectionScore = summary.inspections.passRate;
+
+    summary.complianceScore = Math.round(
+      toolboxScore * weights.toolboxTalks +
+      mewpScore * weights.mewpChecks +
+      toolScore * weights.toolChecks +
+      inspectionScore * weights.inspections
+    );
+
+    // Generate monthly trend data
+    const monthlyData: any[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthStart = startOfMonth(subMonths(now, i));
+      const monthEnd = endOfMonth(subMonths(now, i));
+      const monthLabel = format(monthStart, 'MMM yyyy');
+
+      monthlyData.push({
+        month: monthLabel,
+        toolboxTalks: toolboxTalks.filter(t => {
+          const d = new Date(t.date);
+          return d >= monthStart && d <= monthEnd;
+        }).length,
+        mewpChecks: mewpChecks.filter(c => {
+          const d = new Date(c.checkDate);
+          return d >= monthStart && d <= monthEnd;
+        }).length,
+        toolChecks: toolChecks.filter(c => {
+          const d = new Date(c.checkDate);
+          return d >= monthStart && d <= monthEnd;
+        }).length,
+        incidents: safetyIncidents.filter(i => {
+          const d = new Date(i.incidentDate);
+          return d >= monthStart && d <= monthEnd;
+        }).length,
+        inspectionsPassed: inspections.filter(i => {
+          if (!i.scheduledDate) return false;
+          const d = new Date(i.scheduledDate);
+          return d >= monthStart && d <= monthEnd && i.status === 'PASSED';
+        }).length,
+        inspectionsFailed: inspections.filter(i => {
+          if (!i.scheduledDate) return false;
+          const d = new Date(i.scheduledDate);
+          return d >= monthStart && d <= monthEnd && i.status === 'FAILED';
+        }).length
+      });
+    }
+
+    // Project breakdown
+    const projectBreakdown = projects.map(p => {
+      const pToolbox = toolboxTalks.filter(t => t.projectId === p.id);
+      const pMewp = mewpChecks.filter(c => c.projectId === p.id);
+      const pTool = toolChecks.filter(c => c.projectId === p.id);
+      const pIncidents = safetyIncidents.filter(i => i.projectId === p.id);
+
+      return {
+        id: p.id,
+        name: p.name,
+        toolboxTalks: pToolbox.length,
+        toolboxCompleted: pToolbox.filter(t => t.status === 'COMPLETED').length,
+        mewpChecks: pMewp.length,
+        mewpPassRate: pMewp.length > 0 
+          ? Math.round((pMewp.filter(c => c.overallStatus === 'PASS').length / pMewp.length) * 100) 
+          : 0,
+        toolChecks: pTool.length,
+        toolPassRate: pTool.length > 0 
+          ? Math.round((pTool.filter(c => c.overallStatus === 'PASS').length / pTool.length) * 100) 
+          : 0,
+        incidents: pIncidents.length,
+        criticalIncidents: pIncidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH').length
+      };
+    }).filter(p => p.toolboxTalks > 0 || p.mewpChecks > 0 || p.toolChecks > 0 || p.incidents > 0);
+
+    // Recent activity
+    const recentActivity = [
+      ...toolboxTalks.slice(0, 5).map(t => ({
+        type: 'toolbox_talk',
+        title: t.title,
+        project: t.project.name,
+        date: t.date,
+        status: t.status,
+        details: `${t._count?.attendees || 0} attendees`
+      })),
+      ...mewpChecks.slice(0, 5).map(c => ({
+        type: 'mewp_check',
+        title: c.equipmentName || 'MEWP Check',
+        project: c.project.name,
+        date: c.checkDate,
+        status: c.overallStatus,
+        details: c.operator?.name || 'Unknown operator'
+      })),
+      ...toolChecks.slice(0, 5).map(c => ({
+        type: 'tool_check',
+        title: c.toolName || 'Tool Check',
+        project: c.project.name,
+        date: c.checkDate,
+        status: c.overallStatus,
+        details: c.toolType
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
+
+    // Equipment with issues (failed or needs attention)
+    const equipmentWithIssues = [
+      ...mewpChecks
+        .filter(c => c.overallStatus !== 'PASS')
+        .map(c => ({
+          type: 'MEWP',
+          name: c.equipmentName,
+          serialNumber: c.equipmentSerial,
+          project: c.project.name,
+          status: c.overallStatus,
+          defects: c.defectsFound,
+          checkDate: c.checkDate
+        })),
+      ...toolChecks
+        .filter(c => c.overallStatus !== 'PASS')
+        .map(c => ({
+          type: c.toolType,
+          name: c.toolName,
+          serialNumber: c.toolSerial,
+          project: c.project.name,
+          status: c.overallStatus,
+          defects: c.defectsFound,
+          checkDate: c.checkDate
+        }))
+    ].sort((a, b) => new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime());
+
+    return NextResponse.json({
+      summary,
+      monthlyData,
+      projectBreakdown,
+      recentActivity,
+      equipmentWithIssues,
+      projects
+    });
+  } catch (error) {
+    console.error('Error fetching safety analytics:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
