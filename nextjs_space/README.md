@@ -23,6 +23,7 @@ A comprehensive multi-tenant construction management platform built with Next.js
 - System health monitoring
 - User management
 
+<<<<<<< HEAD
 ### Authentication & Security
 - Role-based authentication (NextAuth.js)
 - Google OAuth integration
@@ -39,6 +40,10 @@ A comprehensive multi-tenant construction management platform built with Next.js
 
 ### Technical Features
 - Real-time updates via WebSocket and SSE
+=======
+### Technical Features
+- Real-time updates via SSE
+>>>>>>> desktop/main
 - Role-based authentication (NextAuth.js)
 - Data export (CSV)
 - Project templates
@@ -108,9 +113,12 @@ Create a `.env` file with:
 DATABASE_URL="postgresql://user:password@host:5432/database"
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
+<<<<<<< HEAD
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 NEXT_PUBLIC_WEBSOCKET_URL="http://localhost:3000"
+=======
+>>>>>>> desktop/main
 ```
 
 ## Project Structure
