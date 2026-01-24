@@ -2,19 +2,20 @@
 
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
+import { WebSocketProvider } from '@/contexts/WebSocketContext';
 import { useState, useEffect, ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   if (!mounted) {
     return <div style={{ visibility: 'hidden' }}>{children}</div>;
   }
-  
+
   return (
     <SessionProvider>
       <ThemeProvider
@@ -23,7 +24,9 @@ export function Providers({ children }: { children: ReactNode }) {
         enableSystem
         disableTransitionOnChange={false}
       >
-        {children}
+        <WebSocketProvider>
+          {children}
+        </WebSocketProvider>
       </ThemeProvider>
     </SessionProvider>
   );
