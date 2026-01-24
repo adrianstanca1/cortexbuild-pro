@@ -110,10 +110,17 @@ export default async function CompanyUsagePage() {
     // Parse entitlements
     const entitlements = parseEntitlements(organizationData.entitlements || '{}');
 
+    // Format historical data for the chart
+    const historicalDataFormatted = historicalData.map(item => ({
+      date: item.createdAt.toISOString().split('T')[0],
+      apiCalls: item._count.id,
+      storageUsedMB: 0 // Would need to join with storage data for accurate historical
+    }));
+
     // Construct usage data
     const usageData: UsageData = {
       metrics: {
-        apiCalls,
+        apiCalls: apiCalls,
         storageUsedMB: Math.round((Number(storageUsed._sum.fileSize || 0) / (1024 * 1024)) * 100) / 100,
         activeUsers: organizationData._count.users,
         projectsCreated: organizationData._count.projects,
@@ -121,7 +128,7 @@ export default async function CompanyUsagePage() {
       subscription: {
         name: organizationData.subscription?.planName || 'Free',
         maxApiCalls: entitlements.limits?.maxApiCalls || 1000,
-        maxStorageMB: entitlements.limits?.storageMB || 1024,
+        maxStorageMB: entitlements.limits?.maxStorageMB || 1024,
         maxUsers: entitlements.limits?.maxUsers || 5,
         maxProjects: entitlements.limits?.maxProjects || 10,
         price: organizationData.subscription?.price || 0,
@@ -133,11 +140,7 @@ export default async function CompanyUsagePage() {
         paymentMethod: organizationData.subscription?.paymentMethod || 'None',
         nextPaymentDate: organizationData.subscription?.nextPaymentDate || new Date(),
       },
-      historicalUsage: historicalData.map(item => ({
-        date: item.createdAt.toISOString().split('T')[0],
-        apiCalls: item._count.id,
-        storageUsedMB: 0 // Would need to join with storage data for accurate historical
-      })),
+      historicalUsage: historicalDataFormatted,
     };
 
     return (
