@@ -35,9 +35,9 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData })
         return acc;
     }, {});
 
-    const distributionData = Object.entries(projectSummaries).map(([name, count]) => ({
+    const distributionData: Array<{ name: string; value: number }> = Object.entries(projectSummaries).map(([name, count]) => ({
         name,
-        value: count
+        value: count as number
     }));
 
     return (
@@ -179,7 +179,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData })
                                         {distributionData.map((item, index) => (
                                             <div key={item.name} className="flex items-center justify-between">
                                                 <div className="flex items-center">
-                                                    <div className="h-2 w-2 rounded-full mr-3" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                                                    <div className="h-2 w-2 rounded-full mr-3" style={{ backgroundColor: COLORS[index % COLORS.length] as string }} />
                                                     <span className="text-sm text-gray-600 font-medium">{item.name}</span>
                                                 </div>
                                                 <Badge variant="outline">{Math.round((item.value / initialData.allocation.length) * 100)}%</Badge>
