@@ -60,13 +60,8 @@ export default async function CompanyUsagePage() {
     const organizationData = await prisma.organization.findUnique({
       where: { id: user.organizationId },
       include: {
-        _count: {
-          select: {
-            users: true,
-            projects: true,
-          }
-        },
-        subscription: true,
+        users: true,
+        projects: true,
       }
     });
 
@@ -74,10 +69,10 @@ export default async function CompanyUsagePage() {
       throw new Error('Organization not found');
     }
 
-    // Fetch usage metrics
-    const apiCalls = await prisma.apiCall.count({
+    // Fetch usage metrics - using activity logs as proxy for API calls
+    const activityLogs = await prisma.activityLog.count({
       where: {
-        organizationId: user.organizationId,
+        user: { organizationId: user.organizationId },
         createdAt: {
           gte: new Date(new Date().setDate(new Date().getDate() - 30)) // Last 30 days
         }
@@ -93,11 +88,11 @@ export default async function CompanyUsagePage() {
       }
     });
 
-    // Fetch historical usage data
-    const historicalData = await prisma.apiCall.groupBy({
+    // Fetch historical usage data - using activity logs
+    const historicalData = await prisma.activityLog.groupBy({
       by: ['createdAt'],
       where: {
-        organizationId: user.organizationId
+        user: { organizationId: user.organizationId }
       },
       _count: {
         id: true
@@ -113,32 +108,32 @@ export default async function CompanyUsagePage() {
     // Format historical data for the chart
     const historicalDataFormatted = historicalData.map(item => ({
       date: item.createdAt.toISOString().split('T')[0],
-      apiCalls: item._count.id,
+      apiCalls: item._count?.id || 0,
       storageUsedMB: 0 // Would need to join with storage data for accurate historical
     }));
 
     // Construct usage data
     const usageData: UsageData = {
       metrics: {
-        apiCalls: apiCalls,
+        apiCalls: activityLogs,
         storageUsedMB: Math.round((Number(storageUsed._sum.fileSize || 0) / (1024 * 1024)) * 100) / 100,
-        activeUsers: organizationData._count.users,
-        projectsCreated: organizationData._count.projects,
+        activeUsers: organizationData.users.length,
+        projectsCreated: organizationData.projects.length,
       },
       subscription: {
-        name: organizationData.subscription?.planName || 'Free',
-        maxApiCalls: entitlements.limits?.maxApiCalls || 1000,
-        maxStorageMB: entitlements.limits?.maxStorageMB || 1024,
+        name: 'Free', // Default to Free since we don't have a subscription model
+        maxApiCalls: 1000, // Hardcoded as it's not in current entitlements schema
+        maxStorageMB: (entitlements.limits?.storageGB || 10) * 1024,
         maxUsers: entitlements.limits?.maxUsers || 5,
         maxProjects: entitlements.limits?.maxProjects || 10,
-        price: organizationData.subscription?.price || 0,
-        billingCycle: organizationData.subscription?.billingCycle as 'monthly' | 'annual' || 'monthly',
+        price: 0, // Default to 0 since we don't have a subscription model
+        billingCycle: 'monthly',
       },
       billing: {
-        currentCycleStart: organizationData.subscription?.currentCycleStart || new Date(),
-        currentCycleEnd: organizationData.subscription?.currentCycleEnd || new Date(),
-        paymentMethod: organizationData.subscription?.paymentMethod || 'None',
-        nextPaymentDate: organizationData.subscription?.nextPaymentDate || new Date(),
+        currentCycleStart: new Date(),
+        currentCycleEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        paymentMethod: 'None',
+        nextPaymentDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
       },
       historicalUsage: historicalDataFormatted,
     };

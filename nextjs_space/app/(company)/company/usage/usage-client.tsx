@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DateRange } from 'react-day-picker';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 
 // Define TypeScript interfaces for props
 interface UsageMetrics {
@@ -66,15 +67,26 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
   }) || [];
 
   // Calculate billing cycle progress
-  const billingCycleProgress = usageData ? {
-    daysPassed: Math.min(99, Math.max(0,
-      Math.floor((new Date().getTime() - new Date(usageData.billing.currentCycleStart).getTime()) /
-        (new Date(usageData.billing.currentCycleEnd).getTime() - new Date(usageData.billing.currentCycleStart).getTime()) * 100)
-    )),
-    daysRemaining: Math.max(0,
-      Math.floor((new Date(usageData.billing.currentCycleEnd).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    )
-  } : { daysPassed: 0, daysRemaining: 0 };
+  const getBillingCycleProgress = () => {
+    if (!usageData) return { daysPassed: 0, daysRemaining: 0 };
+
+    const now = new Date().getTime();
+    const start = new Date(usageData.billing.currentCycleStart).getTime();
+    const end = new Date(usageData.billing.currentCycleEnd).getTime();
+
+    const totalDuration = end - start;
+    const timePassed = now - start;
+
+    const percentage = totalDuration > 0 ? Math.floor((timePassed / totalDuration) * 100) : 0;
+    const daysRemaining = Math.max(0, Math.floor((end - now) / (1000 * 60 * 60 * 24)));
+
+    return {
+      daysPassed: Math.min(99, Math.max(0, percentage)),
+      daysRemaining
+    };
+  };
+
+  const billingCycleProgress = getBillingCycleProgress();
 
   // Calculate usage percentages
   const apiUsagePercentage = usageData ? Math.min(100, (usageData.metrics.apiCalls / usageData.subscription.maxApiCalls) * 100) : 0;
@@ -143,8 +155,8 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
           <button
             onClick={() => setActiveTab('overview')}
             className={`${activeTab === 'overview'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             aria-current={activeTab === 'overview' ? 'page' : undefined}
           >
@@ -153,8 +165,8 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
           <button
             onClick={() => setActiveTab('history')}
             className={`${activeTab === 'history'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             aria-current={activeTab === 'history' ? 'page' : undefined}
           >
@@ -163,8 +175,8 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
           <button
             onClick={() => setActiveTab('billing')}
             className={`${activeTab === 'billing'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             aria-current={activeTab === 'billing' ? 'page' : undefined}
           >
