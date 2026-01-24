@@ -61,7 +61,7 @@ services:
       - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@cortexbuildpro.com}
       - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-CortexBuild Pro}
     volumes:
-      - nextjs_static:/app/.next/static
+      - nextjs_static:/app/shared_static
     depends_on:
       postgres:
         condition: service_healthy
