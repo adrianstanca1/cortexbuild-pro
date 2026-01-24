@@ -1,8 +1,6 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { getServerSession } from 'next-auth';
 import { decode } from 'next-auth/jwt';
-import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
 // Extended socket with custom properties
@@ -122,9 +120,15 @@ export class SocketIOService {
       });
 
       // Handle joining a project
-      socket.on('join-project', async (data: { projectId: string; userId: string }) => {
+      socket.on('join-project', async (data: { projectId: string }) => {
         try {
-          const { projectId, userId } = data;
+          const { projectId } = data;
+          const userId = socket.userId;
+
+          if (!userId) {
+            socket.emit('error', { message: 'Not authenticated' });
+            return;
+          }
 
           // Verify user has access to project
           const projectMember = await prisma.projectTeamMember.findFirst({
@@ -195,6 +199,10 @@ export class SocketIOService {
 
       // Handle task updates
       socket.on('task-update', (data: { projectId: string; task: any }) => {
+        if (!socket.userId || socket.projectId !== data.projectId) {
+          socket.emit('error', { message: 'Not authorized for this project' });
+          return;
+        }
         const { projectId, task } = data;
         socket.to(`project-${projectId}`).emit('task-updated', {
           task,
@@ -205,6 +213,10 @@ export class SocketIOService {
 
       // Handle project messages
       socket.on('project-message', (data: { projectId: string; message: string; senderName: string }) => {
+        if (!socket.userId || socket.projectId !== data.projectId) {
+          socket.emit('error', { message: 'Not authorized for this project' });
+          return;
+        }
         const { projectId, message, senderName } = data;
         socket.to(`project-${projectId}`).emit('new-message', {
           message,
@@ -216,6 +228,10 @@ export class SocketIOService {
 
       // Handle user status updates
       socket.on('user-status-update', (data: { projectId: string; status: string }) => {
+        if (!socket.userId || socket.projectId !== data.projectId) {
+          socket.emit('error', { message: 'Not authorized for this project' });
+          return;
+        }
         const { projectId, status } = data;
         socket.to(`project-${projectId}`).emit('user-status-changed', {
           userId: socket.userId,
@@ -226,6 +242,10 @@ export class SocketIOService {
 
       // Handle notifications
       socket.on('notification', (data: { projectId: string; notification: any }) => {
+        if (!socket.userId || socket.projectId !== data.projectId) {
+          socket.emit('error', { message: 'Not authorized for this project' });
+          return;
+        }
         const { projectId, notification } = data;
         socket.to(`project-${projectId}`).emit('notification-received', {
           notification,
