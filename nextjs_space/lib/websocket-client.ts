@@ -16,9 +16,10 @@ class WebSocketClient {
       }
 
       // Connect to the WebSocket server
-      this.socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3001', {
-        path: '/api/websocket',
-        transports: ['websocket'],
+      const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      this.socket = io(socketUrl, {
+        path: '/api/socket',
+        transports: ['websocket', 'polling'],
         auth: {
           token: token,
           userId: userId
@@ -29,7 +30,7 @@ class WebSocketClient {
         console.log('Connected to WebSocket server');
         this.isConnected = true;
         this.reconnectAttempts = 0;
-        
+
         // Authenticate with the server
         this.socket!.emit('authenticate', { token, userId });
         resolve();
@@ -48,7 +49,7 @@ class WebSocketClient {
       this.socket.on('disconnect', (reason) => {
         console.log('Disconnected from WebSocket server:', reason);
         this.isConnected = false;
-        
+
         // Attempt to reconnect if not manually disconnected
         if (reason !== 'io client disconnect') {
           this.attemptReconnect(token, userId);
@@ -67,7 +68,7 @@ class WebSocketClient {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
+
       setTimeout(() => {
         this.connect(token, userId).catch(error => {
           console.error('Reconnection failed:', error);
