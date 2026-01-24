@@ -86,10 +86,10 @@ Add the following line to run backups daily at 2 AM:
 
 ### Migrations
 
-To apply database migrations:
+Database migrations are now **automatic** on every deployment via the `entrypoint.sh` script. However, you can manually trigger them if needed:
 
 ```bash
-docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
+docker-compose -f deployment/docker-compose.yml exec app /app/entrypoint.sh --migrate-only
 ```
 
 ### Seeding

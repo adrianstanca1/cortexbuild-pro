@@ -52,22 +52,19 @@ RUN npm install -g prisma@^6.0.0
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy application files
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Copy standalone output
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY nextjs_space/production-server.js ./production-server.js
+COPY nextjs_space/entrypoint.sh ./entrypoint.sh
 
-# Create uploads directory
-RUN mkdir -p uploads && chown nextjs:nodejs uploads
+# Set permissions
+RUN chmod +x entrypoint.sh && \
+    mkdir -p uploads && \
+    chown -R nextjs:nodejs /app
 
 USER nextjs
 
@@ -76,4 +73,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "app/server.js"]
+ENTRYPOINT ["/app/entrypoint.sh"]
