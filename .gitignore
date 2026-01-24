@@ -33,3 +33,4 @@ build/
 npm-debug.log*
 .pnpm-debug.log*
 
+.env.prod
