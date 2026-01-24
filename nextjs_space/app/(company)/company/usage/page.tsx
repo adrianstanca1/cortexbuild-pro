@@ -1,21 +1,48 @@
-import { CompanyUsageClient } from './usage-client';
-
-export default function CompanyUsagePage() {
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Company Usage</h1>
-      <CompanyUsageClient />
-    </div>
-  );
-}
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { UsageClient } from "./_components/usage-client";
+import { CompanyUsageClient } from './usage-client';
 import { parseEntitlements } from "@/lib/entitlements";
 
-export default async function UsagePage() {
+// Define TypeScript interfaces for usage data
+interface UsageMetrics {
+  apiCalls: number;
+  storageUsedMB: number;
+  activeUsers: number;
+  projectsCreated: number;
+}
+
+interface SubscriptionPlan {
+  name: string;
+  maxApiCalls: number;
+  maxStorageMB: number;
+  maxUsers: number;
+  maxProjects: number;
+  price: number;
+  billingCycle: 'monthly' | 'annual';
+}
+
+interface BillingInfo {
+  currentCycleStart: Date;
+  currentCycleEnd: Date;
+  paymentMethod: string;
+  nextPaymentDate: Date;
+}
+
+interface UsageData {
+  metrics: UsageMetrics;
+  subscription: SubscriptionPlan;
+  billing: BillingInfo;
+  historicalUsage: Array<{
+    date: string;
+    apiCalls: number;
+    storageUsedMB: number;
+  }>;
+}
+
+export default async function CompanyUsagePage() {
+  // Server-side authentication
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -28,68 +55,100 @@ export default async function UsagePage() {
     redirect("/dashboard");
   }
 
-  const organizationData = await prisma.organization.findUnique({
-    where: { id: user.organizationId },
-    include: {
-      _count: {
-        select: {
-          users: true,
-          projects: true,
-          teamMembers: true,
+  try {
+    // Fetch organization data
+    const organizationData = await prisma.organization.findUnique({
+      where: { id: user.organizationId },
+      include: {
+        _count: {
+          select: {
+            users: true,
+            projects: true,
+          }
+        },
+        subscription: true,
+      }
+    });
+
+    if (!organizationData) {
+      throw new Error('Organization not found');
+    }
+
+    // Fetch usage metrics
+    const apiCalls = await prisma.apiCall.count({
+      where: {
+        organizationId: user.organizationId,
+        createdAt: {
+          gte: new Date(new Date().setDate(new Date().getDate() - 30)) // Last 30 days
         }
       }
-    }
-  });
+    });
 
-  // Convert BigInt to Number for serialization
-  const organization = organizationData ? {
-    ...organizationData,
-    storageUsedBytes: Number(organizationData.storageUsedBytes),
-  } : null;
+    const storageUsed = await prisma.document.aggregate({
+      where: {
+        project: { organizationId: user.organizationId }
+      },
+      _sum: {
+        fileSize: true
+      }
+    });
 
-  const entitlements = parseEntitlements(organization?.entitlements);
+    // Fetch historical usage data
+    const historicalData = await prisma.apiCall.groupBy({
+      by: ['createdAt'],
+      where: {
+        organizationId: user.organizationId
+      },
+      _count: {
+        id: true
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
 
-  // Get document count and total size
-  const documents = await prisma.document.findMany({
-    where: {
-      project: { organizationId: user.organizationId }
-    },
-    select: { fileSize: true, documentType: true }
-  });
+    // Parse entitlements
+    const entitlements = parseEntitlements(organizationData.entitlements);
 
-  const totalDocumentSize = documents.reduce((sum: number, doc: any) => sum + (Number(doc.fileSize) || 0), 0);
-  const documentsByType = documents.reduce((acc: any, doc: any) => {
-    acc[doc.documentType] = (acc[doc.documentType] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+    // Construct usage data
+    const usageData: UsageData = {
+      metrics: {
+        apiCalls,
+        storageUsedMB: Math.round((Number(storageUsed._sum.fileSize || 0) / (1024 * 1024)) * 100) / 100,
+        activeUsers: organizationData._count.users,
+        projectsCreated: organizationData._count.projects,
+      },
+      subscription: {
+        name: organizationData.subscription?.planName || 'Free',
+        maxApiCalls: entitlements.limits.maxApiCalls,
+        maxStorageMB: entitlements.limits.storageMB,
+        maxUsers: entitlements.limits.maxUsers,
+        maxProjects: entitlements.limits.maxProjects,
+        price: organizationData.subscription?.price || 0,
+        billingCycle: organizationData.subscription?.billingCycle as 'monthly' | 'annual' || 'monthly',
+      },
+      billing: {
+        currentCycleStart: organizationData.subscription?.currentCycleStart || new Date(),
+        currentCycleEnd: organizationData.subscription?.currentCycleEnd || new Date(),
+        paymentMethod: organizationData.subscription?.paymentMethod || 'None',
+        nextPaymentDate: organizationData.subscription?.nextPaymentDate || new Date(),
+      },
+      historicalUsage: historicalData.map(item => ({
+        date: item.createdAt.toISOString().split('T')[0],
+        apiCalls: item._count.id,
+        storageUsedMB: 0 // Would need to join with storage data for accurate historical
+      })),
+    };
 
-  // Get counts by project status
-  const projectsByStatus = await prisma.project.groupBy({
-    by: ["status"],
-    where: { organizationId: user.organizationId },
-    _count: { status: true }
-  });
+    return (
+      <CompanyUsageClient usageData={usageData} />
+    );
 
-  const usageData = {
-    teamMembers: organization?._count.teamMembers || 0,
-    maxUsers: entitlements.limits.maxUsers,
-    projects: organization?._count.projects || 0,
-    maxProjects: entitlements.limits.maxProjects,
-    storageUsedBytes: organization?.storageUsedBytes || 0,
-    storageGB: entitlements.limits.storageGB,
-    documentsCount: documents.length,
-    documentsByType,
-    totalDocumentSize,
-    projectsByStatus: projectsByStatus.reduce((acc: any, p: any) => {
-      acc[p.status] = p._count.status;
-      return acc;
-    }, {} as Record<string, number>),
-  };
-
-  return (
-    <UsageClient
-      usageData={usageData}
-      entitlements={entitlements}
-    />
-  );
+  } catch (error) {
+    console.error('Error fetching usage data:', error);
+    // Return error state to client
+    return (
+      <CompanyUsageClient error="Failed to load usage data. Please try again later." />
+    );
+  }
 }
