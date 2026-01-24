@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, X, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { useSession } from 'next-auth/react';
-import { RealTimeNotifications } from '@/lib/realtime-notifications';
+import { RealTimeNotifications as RealTimeNotificationService } from '@/lib/realtime-notifications';
 
 interface Notification {
   id: string;
@@ -79,7 +79,7 @@ const RealTimeNotifications: React.FC = () => {
     // Load initial notifications
     const loadNotifications = async () => {
       try {
-        const userNotifications = await RealTimeNotifications.getUserUnreadNotifications(userId);
+        const userNotifications = await RealTimeNotificationService.getUserUnreadNotifications(userId);
         setNotifications(userNotifications as unknown as Notification[]);
       } catch (error) {
         console.error('Failed to load notifications:', error);
@@ -97,7 +97,7 @@ const RealTimeNotifications: React.FC = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await RealTimeNotifications.markAsRead(notificationId, userId);
+      await RealTimeNotificationService.markAsRead(notificationId, userId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
@@ -107,7 +107,7 @@ const RealTimeNotifications: React.FC = () => {
   const markAllAsRead = async () => {
     try {
       for (const notification of notifications) {
-        await RealTimeNotifications.markAsRead(notification.id, userId);
+        await RealTimeNotificationService.markAsRead(notification.id, userId);
       }
       setNotifications([]);
     } catch (error) {

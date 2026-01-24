@@ -108,7 +108,7 @@ export default async function CompanyUsagePage() {
     });
 
     // Parse entitlements
-    const entitlements = parseEntitlements(organizationData.entitlements);
+    const entitlements = parseEntitlements(organizationData.entitlements || '{}');
 
     // Construct usage data
     const usageData: UsageData = {
@@ -120,10 +120,10 @@ export default async function CompanyUsagePage() {
       },
       subscription: {
         name: organizationData.subscription?.planName || 'Free',
-        maxApiCalls: entitlements.limits.maxApiCalls,
-        maxStorageMB: entitlements.limits.storageMB,
-        maxUsers: entitlements.limits.maxUsers,
-        maxProjects: entitlements.limits.maxProjects,
+        maxApiCalls: entitlements.limits?.maxApiCalls || 1000,
+        maxStorageMB: entitlements.limits?.storageMB || 1024,
+        maxUsers: entitlements.limits?.maxUsers || 5,
+        maxProjects: entitlements.limits?.maxProjects || 10,
         price: organizationData.subscription?.price || 0,
         billingCycle: organizationData.subscription?.billingCycle as 'monthly' | 'annual' || 'monthly',
       },

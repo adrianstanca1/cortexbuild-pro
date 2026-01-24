@@ -69,7 +69,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
     daysPassed: Math.min(99, Math.max(0,
       Math.floor((new Date().getTime() - new Date(usageData.billing.currentCycleStart).getTime()) /
         (new Date(usageData.billing.currentCycleEnd).getTime() - new Date(usageData.billing.currentCycleStart).getTime()) * 100)
-    ))),
+    )),
     daysRemaining: Math.max(0,
       Math.floor((new Date(usageData.billing.currentCycleEnd).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     )
