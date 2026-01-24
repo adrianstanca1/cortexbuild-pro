@@ -19,6 +19,13 @@ interface BackupOptions {
   outputPath: string;
 }
 
+/**
+ * Parse command-line flags and return backup configuration.
+ *
+ * Recognizes `--tables` (values: `all`, `core`, `custom`) and `--output`.
+ *
+ * @returns The resolved BackupOptions with `tables` (defaults to `core`) and `outputPath` (defaults to `./backups`).
+ */
 function parseArgs(): BackupOptions {
   const args = process.argv.slice(2);
   const options: BackupOptions = {
@@ -48,6 +55,11 @@ interface TableBackup {
   data: any[];
 }
 
+/**
+ * Creates a backup snapshot of the organizations table including counts of related users, projects, and team members.
+ *
+ * @returns A TableBackup object containing the table name `'organizations'`, the number of records, and the fetched data with related counts for `users`, `projects`, and `teamMembers`.
+ */
 async function backupOrganizations(): Promise<TableBackup> {
   const data = await prisma.organization.findMany({
     include: {
@@ -59,6 +71,11 @@ async function backupOrganizations(): Promise<TableBackup> {
   return { table: 'organizations', count: data.length, data };
 }
 
+/**
+ * Exports all user records for backup, omitting password hashes.
+ *
+ * @returns A TableBackup object with `table` set to `'users'`, `count` equal to the number of exported records, and `data` containing the exported user records.
+ */
 async function backupUsers(): Promise<TableBackup> {
   const data = await prisma.user.findMany({
     select: {
@@ -78,6 +95,11 @@ async function backupUsers(): Promise<TableBackup> {
   return { table: 'users', count: data.length, data };
 }
 
+/**
+ * Create a backup of all projects, including per-project counts for tasks, documents, and team members.
+ *
+ * @returns A `TableBackup` object with `table` set to `'projects'`, `count` equal to the number of projects backed up, and `data` containing the fetched project records
+ */
 async function backupProjects(): Promise<TableBackup> {
   const data = await prisma.project.findMany({
     include: {
@@ -89,16 +111,33 @@ async function backupProjects(): Promise<TableBackup> {
   return { table: 'projects', count: data.length, data };
 }
 
+/**
+ * Exports all task records from the database.
+ *
+ * @returns A TableBackup object with `table` set to 'tasks', `count` equal to the number of task records exported, and `data` containing the exported task records
+ */
 async function backupTasks(): Promise<TableBackup> {
   const data = await prisma.task.findMany();
   return { table: 'tasks', count: data.length, data };
 }
 
+/**
+ * Fetches all team member records and packages them as a table backup.
+ *
+ * @returns A `TableBackup` for the `teamMembers` table containing the number of records and the fetched records
+ */
 async function backupTeamMembers(): Promise<TableBackup> {
   const data = await prisma.teamMember.findMany();
   return { table: 'teamMembers', count: data.length, data };
 }
 
+/**
+ * Exports API connection records while omitting sensitive credential fields.
+ *
+ * The returned `TableBackup` contains the table name 'apiConnections', the number of exported records, and the exported records with credential fields excluded.
+ *
+ * @returns A `TableBackup` object with `table` set to 'apiConnections', `count` equal to the number of records exported, and `data` containing the records without credentials.
+ */
 async function backupApiConnections(): Promise<TableBackup> {
   // Backup API connections but mask credentials
   const data = await prisma.apiConnection.findMany({
@@ -121,36 +160,71 @@ async function backupApiConnections(): Promise<TableBackup> {
   return { table: 'apiConnections', count: data.length, data };
 }
 
+/**
+ * Fetches all Request for Information (RFI) records from the database for backup.
+ *
+ * @returns An object with `table` set to 'rfis', `count` equal to the number of RFI records, and `data` containing the fetched RFI records.
+ */
 async function backupRFIs(): Promise<TableBackup> {
   const data = await prisma.rFI.findMany();
   return { table: 'rfis', count: data.length, data };
 }
 
+/**
+ * Fetches all submittal records and prepares them for writing to the backup.
+ *
+ * @returns A TableBackup object containing the table name `'submittals'`, the number of records, and the fetched data array.
+ */
 async function backupSubmittals(): Promise<TableBackup> {
   const data = await prisma.submittal.findMany();
   return { table: 'submittals', count: data.length, data };
 }
 
+/**
+ * Creates a backup of all change order records.
+ *
+ * @returns A TableBackup for the `changeOrders` table containing the number of records and the retrieved data
+ */
 async function backupChangeOrders(): Promise<TableBackup> {
   const data = await prisma.changeOrder.findMany();
   return { table: 'changeOrders', count: data.length, data };
 }
 
+/**
+ * Fetches all document records from the database.
+ *
+ * @returns A TableBackup for the `documents` table containing `table`, `count`, and `data` (array of document records).
+ */
 async function backupDocuments(): Promise<TableBackup> {
   const data = await prisma.document.findMany();
   return { table: 'documents', count: data.length, data };
 }
 
+/**
+ * Produces a backup snapshot of all safety incident records.
+ *
+ * @returns A TableBackup with `table` set to `'safetyIncidents'`, `count` equal to the number of records, and `data` containing the retrieved records.
+ */
 async function backupSafetyIncidents(): Promise<TableBackup> {
   const data = await prisma.safetyIncident.findMany();
   return { table: 'safetyIncidents', count: data.length, data };
 }
 
+/**
+ * Fetches all daily report records for backup.
+ *
+ * @returns A TableBackup for `dailyReports` containing `count` (number of records) and `data` (the array of daily report records).
+ */
 async function backupDailyReports(): Promise<TableBackup> {
   const data = await prisma.dailyReport.findMany();
   return { table: 'dailyReports', count: data.length, data };
 }
 
+/**
+ * Collects activity log records created within the last 30 days.
+ *
+ * @returns A `TableBackup` with `table` equal to `'activityLogs'`, `count` set to the number of records, and `data` containing the matching activity log entries ordered by `createdAt` descending.
+ */
 async function backupActivityLogs(): Promise<TableBackup> {
   // Only backup recent activity logs (last 30 days)
   const thirtyDaysAgo = new Date();
@@ -163,6 +237,14 @@ async function backupActivityLogs(): Promise<TableBackup> {
   return { table: 'activityLogs', count: data.length, data };
 }
 
+/**
+ * Orchestrates a JSON backup of selected database tables and writes per-table files and a manifest.
+ *
+ * Parses command-line options to determine the backup scope and output directory, creates a timestamped
+ * backup folder, executes each table backup routine sequentially, writes each table's data as
+ * <table>.json, and writes a manifest.json containing timestamp, scope, per-table counts, totalRecords,
+ * and version. Logs progress and errors to the console.
+ */
 async function main() {
   const options = parseArgs();
 

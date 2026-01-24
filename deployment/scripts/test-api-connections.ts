@@ -22,6 +22,14 @@ interface TestResult {
   message: string;
 }
 
+/**
+ * Parse supported command-line flags and return normalized options for filtering and verbosity.
+ *
+ * @returns An object with:
+ * - `service`: optional service name from `--service <name>` (as provided)
+ * - `environment`: optional environment from `--environment <env>` converted to uppercase
+ * - `verbose`: `true` if `--verbose` or `-v` is present, `false` otherwise
+ */
 function parseArgs() {
   const args = process.argv.slice(2);
   const options: { service?: string; environment?: string; verbose: boolean } = {
@@ -41,7 +49,12 @@ function parseArgs() {
   return options;
 }
 
-// Decrypt credentials (matching encryption.ts logic)
+/**
+ * Parse credentials from a JSON string or an encrypted JSON string prefixed with `enc:`.
+ *
+ * @param encryptedData - A JSON string containing credentials, or an encrypted string starting with `enc:` followed by base64-encoded JSON
+ * @returns The parsed credentials as an object, or an empty object if parsing or decryption fails
+ */
 function decryptCredentials(encryptedData: string): Record<string, string> {
   try {
     if (encryptedData.startsWith('enc:')) {
@@ -54,7 +67,15 @@ function decryptCredentials(encryptedData: string): Record<string, string> {
   }
 }
 
-// Test SendGrid connection
+/**
+ * Checks a SendGrid API key by requesting the SendGrid account endpoint.
+ *
+ * @param credentials - Object containing connection credentials; must include `apiKey`
+ * @returns An object with:
+ *  - `success`: `true` if the request returned a successful status, `false` otherwise.
+ *  - `message`: human-readable result or error description.
+ *  - `responseTime`: elapsed time for the test in milliseconds.
+ */
 async function testSendGrid(credentials: Record<string, string>): Promise<{ success: boolean; message: string; responseTime: number }> {
   const start = Date.now();
   try {
@@ -84,7 +105,12 @@ async function testSendGrid(credentials: Record<string, string>): Promise<{ succ
   }
 }
 
-// Test OpenAI connection
+/**
+ * Checks whether provided OpenAI API credentials can access the OpenAI models endpoint.
+ *
+ * @param credentials - Object containing OpenAI credentials; must include `apiKey`.
+ * @returns An object with `success` indicating connectivity, `message` describing the outcome, and `responseTime` in milliseconds.
+ */
 async function testOpenAI(credentials: Record<string, string>): Promise<{ success: boolean; message: string; responseTime: number }> {
   const start = Date.now();
   try {
@@ -114,7 +140,12 @@ async function testOpenAI(credentials: Record<string, string>): Promise<{ succes
   }
 }
 
-// Test Stripe connection
+/**
+ * Validates Stripe API credentials by requesting the account balance.
+ *
+ * @param credentials - An object containing Stripe credentials; should include `secretKey` or `apiKey`
+ * @returns An object with `success` (`true` if the credentials allowed a successful request, `false` otherwise), `message` describing the outcome, and `responseTime` in milliseconds
+ */
 async function testStripe(credentials: Record<string, string>): Promise<{ success: boolean; message: string; responseTime: number }> {
   const start = Date.now();
   try {
@@ -145,7 +176,12 @@ async function testStripe(credentials: Record<string, string>): Promise<{ succes
   }
 }
 
-// Test Twilio connection
+/**
+ * Verifies Twilio account credentials by requesting the account resource.
+ *
+ * @param credentials - Object containing `accountSid` and `authToken`.
+ * @returns An object with `success` indicating whether the credentials are valid, `message` with a short result or error, and `responseTime` in milliseconds.
+ */
 async function testTwilio(credentials: Record<string, string>): Promise<{ success: boolean; message: string; responseTime: number }> {
   const start = Date.now();
   try {
@@ -176,7 +212,15 @@ async function testTwilio(credentials: Record<string, string>): Promise<{ succes
   }
 }
 
-// Generic URL test
+/**
+ * Checks whether an HTTP endpoint is reachable by sending a HEAD request.
+ *
+ * @param baseUrl - The full URL of the endpoint to test
+ * @returns An object with:
+ *  - `success`: `true` if the HTTP response status is less than 500 or indicates success (`response.ok`), `false` otherwise.
+ *  - `message`: A human-readable status description or error message.
+ *  - `responseTime`: Elapsed time in milliseconds for the request.
+ */
 async function testGenericUrl(baseUrl: string): Promise<{ success: boolean; message: string; responseTime: number }> {
   const start = Date.now();
   try {
@@ -195,7 +239,14 @@ async function testGenericUrl(baseUrl: string): Promise<{ success: boolean; mess
   }
 }
 
-// Test a single connection
+/**
+ * Validate and record a single API connection by performing a service-specific test.
+ *
+ * Performs the appropriate test for the connection's service (or a generic URL check when a baseUrl is provided), updates the connection's status and lastValidatedAt in the database, and creates an apiConnectionLog entry recording the test outcome.
+ *
+ * @param connection - Connection object to test. `credentials` may be a plain object or an encrypted string (e.g., starting with `enc:`) that will be decrypted; `baseUrl` is used for generic URL checks when no service-specific test exists.
+ * @returns A TestResult containing the connection id, serviceName, environment, previousStatus, newStatus, whether the test succeeded, the responseTime in milliseconds, and a human-readable message.
+ */
 async function testConnection(connection: {
   id: string;
   serviceName: string;
@@ -280,6 +331,11 @@ async function testConnection(connection: {
   };
 }
 
+/**
+ * Run API connection tests for connections filtered by command-line options and print results to the console.
+ *
+ * Retrieves matching API connections from the database, executes a connectivity check for each entry, updates the connection's status and last-validated timestamp, records a test log entry, and prints per-connection outcomes and an overall summary to stdout.
+ */
 async function main() {
   const options = parseArgs();
 

@@ -15,6 +15,20 @@ interface IntegrityIssue {
   message: string;
 }
 
+/**
+ * Performs a comprehensive data integrity validation across multiple database entities and prints a human-readable report and statistics.
+ *
+ * Checks performed include:
+ * - Tasks referencing non-existent projects
+ * - Team members referencing missing users or organizations
+ * - Projects with invalid managers or negative budgets
+ * - Cost items where actual > 2x estimated
+ * - RFIs referencing missing projects and duplicate RFI numbers within the same project
+ * - Users without an organization (excluding `SUPER_ADMIN`)
+ * - Safety incidents missing a reporter
+ *
+ * The function logs detected issues categorized as errors or warnings, prints counts and details, outputs counts for key entities, and ensures the Prisma client disconnects on completion.
+ */
 async function runIntegrityCheck(): Promise<void> {
   console.log('\n========================================');
   console.log('  CortexBuild Pro - Data Integrity Check');

@@ -11,6 +11,16 @@ export const metadata: Metadata = {
     description: 'Deep insights into project performance and resource allocation.',
 };
 
+/**
+ * Collects and aggregates analytics datasets for the specified organization.
+ *
+ * @param organizationId - The ID of the organization to scope analytics to
+ * @returns An object containing aggregated analytics:
+ * - `projects`: Array of `{ status, count }` summarizing projects by status
+ * - `productivity`: `{ total, completed, rate }` where `rate` is the percentage of completed tasks (0–100)
+ * - `allocation`: Array of `{ projectName, userName }` showing team member assignments per project
+ * - `finances`: Array of `{ amount, date, project }` where `date` is formatted as `YYYY-MM-DD`
+ */
 async function getAnalyticsData(organizationId: string) {
     // Fetch project distributions by status
     const projectStats = await prisma.project.groupBy({
@@ -71,6 +81,16 @@ async function getAnalyticsData(organizationId: string) {
     };
 }
 
+/**
+ * Server-side page component that renders the Advanced Analytics dashboard for an organization's authorized users.
+ *
+ * Verifies the current server session and user's organization and role, redirecting to `/login` if unauthenticated
+ * or to `/dashboard` if the user is not associated with an organization or lacks the required role. Retrieves
+ * analytics data scoped to the user's organization and renders the AnalyticsClient inside a Suspense boundary
+ * with the fetched data as initial input.
+ *
+ * @returns A JSX element containing the analytics dashboard UI
+ */
 export default async function AnalyticsPage() {
     const session = await getServerSession(authOptions);
 

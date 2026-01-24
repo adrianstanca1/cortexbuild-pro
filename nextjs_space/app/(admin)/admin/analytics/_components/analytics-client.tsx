@@ -26,6 +26,16 @@ interface AnalyticsData {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+/**
+ * Renders an interactive analytics dashboard showing KPI cards, a toggleable performance chart (productivity bar chart or finances line chart), and a resource allocation heatmap.
+ *
+ * @param initialData - Initial analytics payload containing:
+ *   - projects: array of { status, count } for the productivity chart
+ *   - productivity: { total, completed, rate } for KPI cards
+ *   - allocation: array of { projectName, userName } used to build the heatmap distribution
+ *   - finances: array of { amount, date, project } for the forecasting chart
+ * @returns The AnalyticsClient React element that displays KPIs, charts, and the resource heatmap based on `initialData`
+ */
 export function AnalyticsClient({ initialData }: { initialData: AnalyticsData }) {
     const [activeMetric, setActiveMetric] = useState<'productivity' | 'finances'>('productivity');
 

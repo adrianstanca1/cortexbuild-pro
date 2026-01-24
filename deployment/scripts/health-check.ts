@@ -35,7 +35,11 @@ interface SystemHealth {
   };
 }
 
-// Parse command line arguments
+/**
+ * Parse command-line flags to detect verbose and JSON output options.
+ *
+ * @returns An object with `verbose` set to `true` if `--verbose` or `-v` is present, and `json` set to `true` if `--json` is present.
+ */
 function parseArgs() {
   const args = process.argv.slice(2);
   return {
@@ -44,7 +48,13 @@ function parseArgs() {
   };
 }
 
-// Check database connectivity
+/**
+ * Performs a connectivity and basic integrity check against the PostgreSQL database.
+ *
+ * Measures response time and, on success, returns counts for organizations, users, and projects.
+ *
+ * @returns A HealthCheckResult for the "Database (PostgreSQL)" component. On success the result includes `responseTime` (milliseconds), `message`, and `details` with `organizations`, `users`, and `projects` counts; `status` is `healthy` if `responseTime` is less than 1000 ms or `degraded` otherwise. On failure the result has `status` set to `unhealthy` and includes an error `message`.
+ */
 async function checkDatabase(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -81,7 +91,13 @@ async function checkDatabase(): Promise<HealthCheckResult> {
   }
 }
 
-// Check API connections status
+/**
+ * Performs a health check of configured API connections.
+ *
+ * Marks the component as `degraded` if any connection has status `ERROR` or `EXPIRED`, or if all connections are `INACTIVE` or `DISABLED` (and there is at least one connection); `healthy` otherwise. On failure returns `unhealthy`.
+ *
+ * @returns A `HealthCheckResult` for the "API Connections" component containing the overall `status`, `responseTime` in milliseconds, a short `message`, and `details` with `total` connections, counts per status, and a per-connection summary (`service`, `status`, `environment`, `lastValidated`).
+ */
 async function checkApiConnections(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -140,7 +156,16 @@ async function checkApiConnections(): Promise<HealthCheckResult> {
   }
 }
 
-// Check Prisma connection pool
+/**
+ * Checks Prisma's connection pool by issuing concurrent lightweight queries to assess responsiveness.
+ *
+ * @returns A HealthCheckResult containing:
+ *  - `component`: "Connection Pool"
+ *  - `status`: `'healthy'` if the total response time is less than 2000 ms, `'degraded'` otherwise, or `'unhealthy'` on error
+ *  - `responseTime`: total elapsed time in milliseconds for the concurrent queries
+ *  - `message`: a brief human-readable summary or the error message on failure
+ *  - `details` (on success): an object with `concurrentQueries` (number of parallel queries) and `avgResponseTime` (average per-query time in milliseconds)
+ */
 async function checkConnectionPool(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -172,7 +197,15 @@ async function checkConnectionPool(): Promise<HealthCheckResult> {
   }
 }
 
-// Check data integrity
+/**
+ * Checks for orphaned records across team members, tasks, and documents.
+ *
+ * @returns A `HealthCheckResult` with:
+ * - `status`: `'healthy'` if no orphaned records were found, `'degraded'` otherwise
+ * - `responseTime`: elapsed time in milliseconds for the check
+ * - `message`: summary stating no orphaned records or the total number found
+ * - `details`: an object containing `orphanedTeamMembers`, `orphanedTasks`, and `orphanedDocuments` counts
+ */
 async function checkDataIntegrity(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -213,7 +246,11 @@ async function checkDataIntegrity(): Promise<HealthCheckResult> {
   }
 }
 
-// Check storage configuration
+/**
+ * Checks file storage configuration and reports usage and status.
+ *
+ * @returns A HealthCheckResult describing the storage component, where `status` is `healthy` if S3 or cloud storage is configured, `degraded` if no storage is configured, or `unhealthy` if an error occurred. `details` includes `s3Configured`, `cloudStorageEnabled`, `documentsStored`, and `bucket`.
+ */
 async function checkStorage(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -247,7 +284,17 @@ async function checkStorage(): Promise<HealthCheckResult> {
   }
 }
 
-// Check authentication configuration
+/**
+ * Validates NextAuth environment configuration and reports authentication health.
+ *
+ * Checks whether NEXTAUTH_SECRET and NEXTAUTH_URL are present and produces a HealthCheckResult
+ * for the "Authentication (NextAuth)" component.
+ *
+ * @returns A HealthCheckResult for the authentication component. `status` is `'healthy'` when both
+ * NEXTAUTH_SECRET and NEXTAUTH_URL are configured, otherwise `'unhealthy'`. The result includes
+ * `responseTime`, a human-readable `message`, and `details` with `secretConfigured` and
+ * `urlConfigured` booleans.
+ */
 async function checkAuthentication(): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -277,7 +324,15 @@ async function checkAuthentication(): Promise<HealthCheckResult> {
   }
 }
 
-// Main health check function
+/**
+ * Run all system health checks, aggregate their results, and print a formatted report.
+ *
+ * Executes each component checker concurrently, computes counts of healthy/degraded/unhealthy checks,
+ * determines the overall status, and outputs the report either as JSON or human-readable text
+ * depending on CLI options (`--json`, `--verbose`).
+ *
+ * @returns The aggregated SystemHealth object containing `timestamp`, `overall` status, `components`, and `summary`.
+ */
 async function runHealthCheck(): Promise<SystemHealth> {
   const options = parseArgs();
 

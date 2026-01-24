@@ -23,6 +23,11 @@ interface DiagnosticResult {
   }>;
 }
 
+/**
+ * Parse command-line flags for the diagnostics script.
+ *
+ * @returns An object with `full` indicating whether `--full` was provided, and `verbose` indicating whether `--verbose` or `-v` was provided.
+ */
 function parseArgs() {
   const args = process.argv.slice(2);
   return {
@@ -31,6 +36,15 @@ function parseArgs() {
   };
 }
 
+/**
+ * Validate presence of key environment variables and produce diagnostic checks summarizing their status.
+ *
+ * @returns A DiagnosticResult with category "Environment Variables" and an array of checks. Each check contains:
+ * - `name`: the environment variable and whether it's required or optional,
+ * - `status`: `'pass'`, `'warn'`, or `'fail'`,
+ * - `value`: redacted indicator (`'***set***'` or not-set text),
+ * - `message` (optional): explanation when a required variable is missing or other issue is present.
+ */
 async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
   const requiredVars = [
     'DATABASE_URL',
@@ -69,6 +83,13 @@ async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
   return { category: 'Environment Variables', checks };
 }
 
+/**
+ * Verify presence of expected Prisma models and report their existence and record counts.
+ *
+ * Each check corresponds to a model and indicates whether the table exists, includes the record count when available, and contains a failure message when the table is missing or an error occurred.
+ *
+ * @returns DiagnosticResult with category "Database Schema" and a list of checks for each expected model. Each check has `name`, `status` ('pass' | 'fail'), an optional `value` (e.g., "`42 records`" or "`exists`"), and an optional `message` for failures.
+ */
 async function checkDatabaseSchema(): Promise<DiagnosticResult> {
   const checks = [];
   
@@ -103,6 +124,17 @@ async function checkDatabaseSchema(): Promise<DiagnosticResult> {
   return { category: 'Database Schema', checks };
 }
 
+/**
+ * Verifies the existence and expected type (file or directory) of critical project paths.
+ *
+ * The function inspects a fixed list of required paths (e.g., package.json, prisma/schema.prisma, app, .next)
+ * and produces a diagnostic check for each entry indicating whether it is present and the correct type.
+ *
+ * @returns A DiagnosticResult with category "File System" and an array of checks. Each check contains:
+ * - `name`: the path and expected type (e.g., "package.json (file)")
+ * - `status`: `'pass'` when the path exists and matches the expected type, `'warn'` for `.next` when missing, or `'fail'` otherwise
+ * - optional `message`: a human-readable note such as "Not found", "Expected <type>", or guidance like "Run yarn build" for `.next`
+ */
 async function checkFileSystem(): Promise<DiagnosticResult> {
   const checks = [];
   const projectRoot = path.join(__dirname, '..');
@@ -141,6 +173,13 @@ async function checkFileSystem(): Promise<DiagnosticResult> {
   return { category: 'File System', checks };
 }
 
+/**
+ * Performs a set of database connectivity and write-capability diagnostics.
+ *
+ * Runs checks that verify basic query responsiveness, connection pool behavior under concurrent queries, and the ability to create and delete records.
+ *
+ * @returns DiagnosticResult with category "Database Connectivity" and a `checks` array containing individual check entries. Each check includes a `name`, `status` (`pass` | `warn` | `fail`), and optional `value` or `message` describing latency, counts, or errors.
+ */
 async function checkDatabaseConnectivity(): Promise<DiagnosticResult> {
   const checks = [];
 
@@ -228,6 +267,15 @@ async function checkDatabaseConnectivity(): Promise<DiagnosticResult> {
   return { category: 'Database Connectivity', checks };
 }
 
+/**
+ * Collects and evaluates configured API connections and produces diagnostic checks for integration status.
+ *
+ * @returns A DiagnosticResult with category "API Integrations" and an array of checks describing:
+ * - total configured connections,
+ * - counts per connection status,
+ * - stale connections not validated in the last 7 days (warning), or
+ * - a single failure check containing the error message if the check could not complete
+ */
 async function checkApiIntegrations(): Promise<DiagnosticResult> {
   const checks = [];
 
@@ -298,6 +346,17 @@ async function checkApiIntegrations(): Promise<DiagnosticResult> {
   return { category: 'API Integrations', checks };
 }
 
+/**
+ * Performs a set of data integrity checks for organizations, users, projects, and tasks.
+ *
+ * Checks performed:
+ * - Organizations without users
+ * - Users without an organization
+ * - Projects without managers
+ * - Overdue tasks (due date before now and not complete)
+ *
+ * @returns A DiagnosticResult with category `"Data Health"` and a `checks` array where each check includes `name`, `status` (`pass`/`warn`/`fail`), `value` (count or detail), and an optional `message` with contextual information.
+ */
 async function checkDataHealth(): Promise<DiagnosticResult> {
   const checks = [];
 
@@ -365,6 +424,14 @@ async function checkDataHealth(): Promise<DiagnosticResult> {
   return { category: 'Data Health', checks };
 }
 
+/**
+ * Runs all system diagnostic checks, prints a categorized report to stdout, and exits the process.
+ *
+ * Executes environment, filesystem, database connectivity/schema, API integrations, and data-health checks;
+ * aggregates their statuses, prints per-check details and a summary with counts, and recommends actions when failures exist.
+ *
+ * The process exits with code `0` when all checks pass or warn-only, and `1` if any check fails.
+ */
 async function main() {
   const options = parseArgs();
 
