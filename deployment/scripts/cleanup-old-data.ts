@@ -16,6 +16,11 @@ interface CleanupOptions {
   retentionDays: number;
 }
 
+/**
+ * Parse process command-line arguments into cleanup options.
+ *
+ * @returns CleanupOptions with `dryRun` set to `true` when `--dry-run` is present, and `retentionDays` set to the integer provided after `--days` or `90` if not specified.
+ */
 function parseArgs(): CleanupOptions {
   const args = process.argv.slice(2);
   const options: CleanupOptions = {
@@ -31,6 +36,11 @@ function parseArgs(): CleanupOptions {
   return options;
 }
 
+/**
+ * Removes activity log records older than the configured retention period or reports which records would be removed when running in dry-run mode.
+ *
+ * @param options - Cleanup options; `dryRun` simulates deletions when true, and `retentionDays` specifies how many days of activity logs to retain
+ */
 async function cleanupActivityLogs(options: CleanupOptions) {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - options.retentionDays);
@@ -59,6 +69,11 @@ async function cleanupActivityLogs(options: CleanupOptions) {
   }
 }
 
+/**
+ * Checks the database for orphaned RFI and Submittal attachments and logs the discovery counts.
+ *
+ * @param options - Cleanup options; when `options.dryRun` is true the function will only log what would be reviewed without performing any cleanup actions.
+ */
 async function cleanupOrphanedAttachments(options: CleanupOptions) {
   console.log(`\n📎 Orphaned Attachments Check`);
 
@@ -82,6 +97,11 @@ async function cleanupOrphanedAttachments(options: CleanupOptions) {
   }
 }
 
+/**
+ * Prints a snapshot of current database record counts for core models.
+ *
+ * @param options - Cleanup options (currently unused; reserved for future behavior flags)
+ */
 async function generateCleanupReport(options: CleanupOptions) {
   console.log(`\n📊 Database Statistics`);
   
@@ -111,6 +131,14 @@ async function generateCleanupReport(options: CleanupOptions) {
   });
 }
 
+/**
+ * Run the full database cleanup workflow for CortexBuild Pro.
+ *
+ * Parses command-line options, prints a header (and a dry-run warning when applicable),
+ * executes the cleanup steps (report generation, activity log pruning, orphaned attachment checks)
+ * in sequence, logs success or failure, exits the process with status 1 on error,
+ * and always disconnects the Prisma client before finishing.
+ */
 async function main() {
   const options = parseArgs();
 

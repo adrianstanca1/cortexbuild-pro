@@ -52,6 +52,13 @@ interface CompanyUsageClientProps {
   error?: string;
 }
 
+/**
+ * Render the company usage dashboard with overview, usage history, and billing views.
+ *
+ * @param props.usageData - Optional initial usage data used to populate the dashboard and derived metrics.
+ * @param props.error - Optional error message; when present the component displays an error panel with a retry action instead of the dashboard.
+ * @returns The React element for the Company Usage Dashboard UI.
+ */
 export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsageClientProps) {
   const [currentUsageData, setCurrentUsageData] = useState<UsageData | undefined>(initialData);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({

@@ -21,6 +21,12 @@ interface ProjectReport {
   recommendations: string[];
 }
 
+/**
+ * Generates and prints detailed project reports for a single project or for up to 10 in-progress projects.
+ *
+ * @param projectId - Optional project ID; when provided, generates the report only for that project. If omitted, generates reports for up to 10 projects with status "IN_PROGRESS".
+ * @throws Any error encountered while fetching data or generating reports; errors are logged and rethrown.
+ */
 async function generateProjectReport(projectId?: string): Promise<void> {
   console.log('\n========================================');
   console.log('    CortexBuild Pro - Project Report');
@@ -71,6 +77,18 @@ async function generateProjectReport(projectId?: string): Promise<void> {
   }
 }
 
+/**
+ * Prints a detailed, human-readable project report to the console for the given project.
+ *
+ * The report includes project information, timeline metrics, task summary, budget summary,
+ * change orders, RFIs, submittals, safety incidents, team metrics, and generated recommendations.
+ *
+ * @param project - Project data object. Expected to include at least: `id`, `name`, `status`,
+ *   optional relations `organization?.name`, `manager?.name`, `tasks[]` (with `status`, `dueDate`, `priority`),
+ *   `teamMembers[]`, `_count?.documents`, and optional fields `location`, `clientName`, `startDate`,
+ *   `endDate`, and `budget`. The function will also fetch related RFIs, submittals, safety incidents,
+ *   cost items, and change orders using `project.id`.
+ */
 async function generateSingleProjectReport(project: any): Promise<void> {
   console.log(`\n\n${'='.repeat(60)}`);
   console.log(`PROJECT: ${project.name}`);

@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+/**
+ * Seeds the database with default organizations, users, team members, projects, tasks, and activity logs.
+ *
+ * Creates a default organization and an additional organization, upserts platform and company admin accounts (including team member records), generates sample projects and tasks, assigns team members to projects, inserts activity logs, and logs progress and example credentials to the console.
+ */
 async function main() {
   console.log("Seeding database...");
 

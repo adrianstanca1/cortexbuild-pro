@@ -4,6 +4,16 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { addClient, removeClient, getOrganizationClientCount } from '@/lib/realtime-clients';
 
+/**
+ * Establishes a Server-Sent Events connection for the authenticated user and organization.
+ *
+ * Validates the server session, registers the client for real-time updates, and returns
+ * an SSE stream that immediately emits a connected message and a system synchronization
+ * payload, maintains the connection with periodic heartbeats, and removes the client on disconnect.
+ *
+ * @param request - The incoming Next.js request whose abort signal is used to detect client disconnection
+ * @returns An HTTP Response streaming Server-Sent Events (`text/event-stream`) that emits connection, sync, and heartbeat messages and cleans up on disconnect
+ */
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

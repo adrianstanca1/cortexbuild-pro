@@ -32,6 +32,13 @@ interface ReportOptions {
   organizationId?: string;
 }
 
+/**
+ * Parse CLI arguments and produce a configured ReportOptions object.
+ *
+ * Recognizes --type (summary, projects, users, api-usage, compliance, financial),
+ * --format (json, csv, txt), --output (output directory), and --org (organization id).
+ *
+ * @returns A ReportOptions object populated from command-line arguments with defaults: type 'summary', format 'json', and outputPath './reports'. The `organizationId` property is included when `--org` is provided. */
 function parseArgs(): ReportOptions {
   const args = process.argv.slice(2);
   const options: ReportOptions = {
@@ -69,6 +76,11 @@ function parseArgs(): ReportOptions {
   return options;
 }
 
+/**
+ * Format a numeric amount as British Pound sterling currency.
+ *
+ * @returns A string containing the amount formatted in GBP (e.g., "£1,234.56")
+ */
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
@@ -76,7 +88,14 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-// Generate executive summary report
+/**
+ * Build an executive summary report of platform or organization-scoped statistics.
+ *
+ * When `orgId` is provided, the report is limited to that organization; otherwise it covers the whole platform.
+ *
+ * @param orgId - Optional organization ID to scope the report
+ * @returns An object containing `generatedAt`, `reportType`, `scope`, a `metrics` map of totals (organizations, users, projects, tasks, documents, RFIs, submittals, change orders, safety incidents, API integrations, and recent activity in the last 7 days), and `taskBreakdown` / `projectBreakdown` objects mapping statuses to counts
+ */
 async function generateSummaryReport(orgId?: string) {
   const where = orgId ? { organizationId: orgId } : {};
 
@@ -140,7 +159,27 @@ async function generateSummaryReport(orgId?: string) {
   };
 }
 
-// Generate detailed projects report
+/**
+ * Builds a detailed projects report, optionally scoped to a single organization.
+ *
+ * @param orgId - Optional organization ID to filter projects; when omitted the report covers all organizations
+ * @returns An object containing:
+ *   - `generatedAt`: ISO timestamp when the report was created
+ *   - `reportType`: human-friendly report title
+ *   - `totalProjects`: total number of projects included
+ *   - `projects`: array of project entries, each with:
+ *       - `id`, `name`
+ *       - `organization`: organization name
+ *       - `status`
+ *       - `manager`: manager name or `"Unassigned"`
+ *       - `managerEmail`
+ *       - `budget`: formatted GBP string
+ *       - `startDate`, `endDate`: dates as `YYYY-MM-DD` or empty string
+ *       - `location`
+ *       - `counts`: counts for related entities (tasks, documents, teamMembers, rfis, submittals, changeOrders)
+ *       - `taskCompletion`: `{ total, completed, overdue, completionRate }` where `completionRate` is an integer percentage
+ *       - `createdAt`, `updatedAt`: ISO timestamps
+ */
 async function generateProjectsReport(orgId?: string) {
   const where = orgId ? { organizationId: orgId } : {};
 
@@ -216,7 +255,12 @@ async function generateProjectsReport(orgId?: string) {
   };
 }
 
-// Generate user activity report
+/**
+ * Produces a user activity report optionally scoped to a single organization.
+ *
+ * @param orgId - Optional organization ID to filter users to a specific organization
+ * @returns An object with `generatedAt`, `reportType`, `totalUsers`, `activeUsers`, `recentlyActiveUsers`, `roleBreakdown` (mapping role to count), and `users` (array of user entries with `id`, `name`, `email`, `role`, `organization`, `lastLogin`, `assignedTasks`, `activityCount`, and `createdAt`)
+ */
 async function generateUsersReport(orgId?: string) {
   const where = orgId ? { organizationId: orgId } : {};
 
@@ -273,7 +317,15 @@ async function generateUsersReport(orgId?: string) {
   };
 }
 
-// Generate API usage report
+/**
+ * Produces an API usage report summarizing API connections, recent actions, and breakdowns by status and type.
+ *
+ * The report includes metadata (generatedAt, reportType), total connection count, number of actions in the last 24 hours,
+ * per-status and per-type counts, and a list of connections with key details (id, name, serviceName, type, environment,
+ * status, baseUrl, rateLimitInfo, lastValidated, lastError, createdBy, recentActionsCount, createdAt).
+ *
+ * @returns An object with `generatedAt`, `reportType`, `totalConnections`, `actionsLast24Hours`, `statusBreakdown`, `typeBreakdown`, and a `connections` array of connection detail objects
+ */
 async function generateApiUsageReport() {
   const connections = await prisma.apiConnection.findMany({
     include: {
@@ -332,7 +384,12 @@ async function generateApiUsageReport() {
   };
 }
 
-// Generate financial report
+/**
+ * Produces a financial summary report for all projects, optionally scoped to a single organization.
+ *
+ * @param orgId - Optional organization ID to restrict the report to a single organization's projects
+ * @returns An object containing report metadata (`generatedAt`, `reportType`, `scope`), a `summary` with aggregated totals and averages for budgets and change orders, and a `projects` array with per-project financial entries (`projectId`, `projectName`, `organization`, `status`, `originalBudget`, `approvedChangeOrders`, `pendingChangeOrders`, `revisedBudget`, `changeOrderCount`)
+ */
 async function generateFinancialReport(orgId?: string) {
   const where = orgId ? { organizationId: orgId } : {};
 
@@ -413,7 +470,19 @@ async function generateFinancialReport(orgId?: string) {
   };
 }
 
-// Generate compliance report
+/**
+ * Produces a compliance and audit report for the platform or a single organization.
+ *
+ * @param orgId - Optional organization ID to scope the report to a single organization; if omitted the report is platform-wide.
+ * @returns An object containing:
+ *   - `generatedAt`: ISO timestamp when the report was created.
+ *   - `reportType`: human-readable report title.
+ *   - `scope`: "Single Organization" or "Platform-wide".
+ *   - `userAccessAudit`: totals and lists for user access including totalUsers, activeUsers, dormantUsers, and `dormantUsersList` (name, email, lastLogin, role).
+ *   - `apiAuditTrail`: API connection activity including `totalActions`, `actionsByType` (counts per action), and `recentActions` (service, action, result, performedBy, timestamp).
+ *   - `activityAudit`: activity log summary for the last 30 days including `totalActivitiesLast30Days` and `actionBreakdown`.
+ *   - `safetyCompliance`: safety incident summary including `totalIncidents`, `criticalIncidents`, `incidentsBySeverity`, and `criticalIncidentsList` (short description, project, reporter, date, status).
+ */
 async function generateComplianceReport(orgId?: string) {
   const where = orgId ? { organizationId: orgId } : {};
 
@@ -516,7 +585,17 @@ async function generateComplianceReport(orgId?: string) {
   };
 }
 
-// Convert report to CSV
+/**
+ * Convert report data into a CSV-formatted string.
+ *
+ * Accepts either an array of objects (produces a table with headers derived from the first element)
+ * or a single object (produces flattened "Key,Value" lines). Object-valued cells are JSON-stringified;
+ * array-valued fields in non-array input are represented as `"<n> items"`. An empty input array
+ * yields an empty string.
+ *
+ * @param data - The report data to convert: an array of objects or a single object to be flattened
+ * @returns A CSV string representing the provided data
+ */
 function toCSV(data: any): string {
   if (Array.isArray(data)) {
     if (data.length === 0) return '';
@@ -551,7 +630,13 @@ function toCSV(data: any): string {
   return 'Key,Value\n' + flatten(data).join('\n');
 }
 
-// Convert report to text summary
+/**
+ * Render a structured report object as a human-readable plain-text summary.
+ *
+ * @param data - The report payload. Must include `generatedAt`; other top-level keys will be rendered as indented sections. Arrays are summarized by item count and objects are expanded with nested keys.
+ * @param reportType - Short label for the report used in the header (e.g., "projects", "summary").
+ * @returns A multi-line string containing a bannered header with the report type and generation timestamp followed by formatted sections for the report contents.
+ */
 function toText(data: any, reportType: string): string {
   const lines: string[] = [
     '='.repeat(60),
@@ -584,6 +669,14 @@ function toText(data: any, reportType: string): string {
   return lines.join('\n');
 }
 
+/**
+ * Generate and write the selected report to disk based on parsed CLI options.
+ *
+ * Produces a report of the requested type and format (JSON, CSV, or plain text), ensures the output
+ * directory exists, writes a timestamped file, and logs progress and the output location.
+ *
+ * This function exits the process with code 1 when an unknown report type is specified.
+ */
 async function main() {
   const options = parseArgs();
 

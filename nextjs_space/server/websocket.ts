@@ -339,7 +339,12 @@ export class WebSocketService {
 // Initialize WebSocket service
 export const websocketService = WebSocketService.getInstance();
 
-// API route handler for Next.js
+/**
+ * Routes API requests for the WebSocket endpoint and rejects non-upgrade requests.
+ *
+ * If the incoming request is a GET for /api/websocket, the function returns immediately so the WebSocket server can handle the upgrade.
+ * For any other request method or path, it responds with HTTP 405 and a JSON `{ error: 'Method not allowed' }` payload.
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Upgrade to WebSocket connection
   if (req.method === 'GET' && req.url?.includes('/api/websocket')) {
