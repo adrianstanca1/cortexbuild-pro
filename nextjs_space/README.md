@@ -5,6 +5,7 @@ A comprehensive multi-tenant construction management platform built with Next.js
 ## Features
 
 ### Core Modules
+
 - **Projects** - Full project lifecycle management with templates
 - **Tasks** - List, Kanban, and Gantt chart views
 - **RFIs** - Request for Information tracking
@@ -17,15 +18,32 @@ A comprehensive multi-tenant construction management platform built with Next.js
 - **Team Management** - Role-based access control
 
 ### Admin Features
+
 - Multi-organization management
 - API connections and integrations
 - Audit logging
 - System health monitoring
 - User management
 
-### Technical Features
-- Real-time updates via SSE
+### Authentication & Security
+
 - Role-based authentication (NextAuth.js)
+- Google OAuth integration
+- Multi-factor authentication support
+- Secure session management
+
+### Real-time Collaboration
+
+- WebSocket-based real-time updates
+- Live task collaboration
+- Instant messaging between team members
+- Online user presence indicators
+- Real-time notifications
+- Live project status updates
+
+### Technical Features
+
+- Real-time updates via WebSocket (Socket.IO)
 - Data export (CSV)
 - Project templates
 - Weather widget integration
@@ -45,6 +63,7 @@ A comprehensive multi-tenant construction management platform built with Next.js
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL database
 - Yarn package manager
@@ -52,34 +71,40 @@ A comprehensive multi-tenant construction management platform built with Next.js
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/YOUR_USERNAME/cortex-abacus.git
 cd cortex-abacus
 ```
 
-2. Install dependencies:
+1. Install dependencies:
+
 ```bash
 yarn install
 ```
 
-3. Set up environment variables:
+1. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials
 ```
 
-4. Run database migrations:
+1. Run database migrations:
+
 ```bash
 yarn prisma generate
 yarn prisma db push
 ```
 
-5. Seed the database (optional):
+1. Seed the database (optional):
+
 ```bash
 yarn prisma db seed
 ```
 
-6. Start the development server:
+1. Start the development server:
+
 ```bash
 yarn dev
 ```
@@ -94,6 +119,9 @@ Create a `.env` file with:
 DATABASE_URL="postgresql://user:password@host:5432/database"
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+NEXT_PUBLIC_WEBSOCKET_URL="http://localhost:3000"
 ```
 
 ## Project Structure
@@ -116,6 +144,7 @@ NEXTAUTH_URL="http://localhost:3000"
 ## API Endpoints
 
 Key API routes include:
+
 - `/api/projects` - Project CRUD
 - `/api/tasks` - Task management
 - `/api/rfis` - RFI tracking

@@ -37,13 +37,31 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-cortexbuild}?schema=public
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
-      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME:-}
+      # AWS S3 Configuration
+      - AWS_PROFILE=${AWS_PROFILE:-}
       - AWS_REGION=${AWS_REGION:-}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME:-}
       - AWS_FOLDER_PREFIX=${AWS_FOLDER_PREFIX:-}
+      # AbacusAI API
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
+      - WEB_APP_ID=${WEB_APP_ID:-}
+      # Notification IDs
+      - NOTIF_ID_MILESTONE_DEADLINE_REMINDER=${NOTIF_ID_MILESTONE_DEADLINE_REMINDER:-}
+      - NOTIF_ID_TOOLBOX_TALK_COMPLETED=${NOTIF_ID_TOOLBOX_TALK_COMPLETED:-}
+      - NOTIF_ID_MEWP_CHECK_COMPLETED=${NOTIF_ID_MEWP_CHECK_COMPLETED:-}
+      - NOTIF_ID_TOOL_CHECK_COMPLETED=${NOTIF_ID_TOOL_CHECK_COMPLETED:-}
+      # Google OAuth (Optional)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      # Real-time Communication
+      - NEXT_PUBLIC_WEBSOCKET_URL=${NEXT_PUBLIC_WEBSOCKET_URL:-https://www.cortexbuildpro.com}
+      - WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}
+      # SendGrid Email Service
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@cortexbuildpro.com}
+      - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-CortexBuild Pro}
     volumes:
-      - nextjs_static:/app/.next/static
+      - nextjs_static:/app/shared_static
     depends_on:
       postgres:
         condition: service_healthy

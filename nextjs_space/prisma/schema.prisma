@@ -181,6 +181,7 @@ model User {
   verifiedCertifications WorkerCertification[]     @relation("CertVerifier")
   siteAccessLogs         SiteAccessLog[]           @relation("UserSiteAccess")
   recordedAccessLogs     SiteAccessLog[]           @relation("AccessRecorder")
+  notifications          Notification[]
 }
 
 model Project {
@@ -239,6 +240,7 @@ model Project {
   confinedSpacePermits ConfinedSpacePermit[]
   liftingOperations   LiftingOperation[]
   siteAccessLogs      SiteAccessLog[]
+  notifications       Notification[]
 }
 
 model Task {
@@ -2356,4 +2358,42 @@ model SiteAccessLog {
   @@index([accessTime])
   @@index([userId])
   @@index([accessType])
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMPLETED
+  PROJECT_MESSAGE
+  RFI_RESPONSE
+  SUBMITTAL_APPROVED
+  SUBMITTAL_REJECTED
+  DEADLINE_REMINDER
+  SAFETY_INCIDENT
+  SYSTEM_ALERT
+}
+
+model Notification {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  type        NotificationType  @default(INFO)
+  data        Json?             // Additional data associated with the notification
+  read        Boolean           @default(false)
+  readAt      DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([read])
+  @@index([createdAt])
 }

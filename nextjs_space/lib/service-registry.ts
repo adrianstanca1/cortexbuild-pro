@@ -278,7 +278,7 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     ]
   },
 
-  // REAL-TIME
+  // REAL-TIME (SSE)
   {
     id: "realtime-sse",
     name: "Real-time Events (SSE)",
@@ -295,6 +295,26 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
       { moduleId: "dashboard", moduleName: "Dashboard", usageDescription: "Live dashboard updates", isRequired: true },
       { moduleId: "tasks", moduleName: "Tasks", usageDescription: "Real-time task updates", isRequired: true },
       { moduleId: "notifications", moduleName: "Notifications", usageDescription: "Instant notification delivery", isRequired: true }
+    ]
+  },
+
+  // REAL-TIME (SOCKET.IO)
+  {
+    id: "socketio",
+    name: "Socket.IO Real-time",
+    description: "Bidirectional real-time communication with WebSocket and polling fallback",
+    category: "INTERNAL",
+    icon: "Radio",
+    baseUrl: "/api/socketio",
+    credentialFields: [],
+    isBuiltIn: true,
+    isPlatformCore: true,
+    defaultEnvironment: "PRODUCTION",
+    supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
+    dependencies: [
+      { moduleId: "project-collaboration", moduleName: "Project Collaboration", usageDescription: "Real-time project updates and collaboration", isRequired: true },
+      { moduleId: "live-chat", moduleName: "Live Chat", usageDescription: "Instant messaging within projects", isRequired: false },
+      { moduleId: "presence", moduleName: "User Presence", usageDescription: "Show who's currently active on projects", isRequired: false }
     ]
   },
 

@@ -30,6 +30,7 @@ const navItems = [
   { href: "/meetings", label: "Meetings", icon: Calendar, description: "Meeting minutes" },
   { href: "/documents", label: "Documents", icon: FileText, description: "Organization documents" },
   { href: "/reports", label: "Reports", icon: BarChart3, description: "Analytics & reports" },
+  { href: "/compliance", label: "Site Registry", icon: Shield, description: "Access, Certs & Permits" },
   { href: "/settings", label: "Settings", icon: Settings, description: "User settings" }
 ];
 
@@ -100,7 +101,7 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
               Navigation
             </p>
           )}
-          
+
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");
             return (

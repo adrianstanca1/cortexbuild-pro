@@ -1,0 +1,106 @@
+'use client';
+
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
+import { Shield, HardHat, Construction, Clock } from 'lucide-react';
+import { SiteAccessLogTable } from './site-access-log-table';
+import { WorkerCertsTable } from './worker-certs-table';
+import { LiftingOpsTable } from './lifting-ops-table';
+
+interface ComplianceClientProps {
+    initialAccessLogs: any[];
+    initialCerts: any[];
+    initialLifts: any[];
+    projects: any[];
+    teamMembers: any[];
+}
+
+export function ComplianceClient({
+    initialAccessLogs,
+    initialCerts,
+    initialLifts,
+    projects,
+    teamMembers
+}: ComplianceClientProps) {
+    const [activeTab, setActiveTab] = useState('access-logs');
+
+    return (
+        <div className="space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="bg-blue-50 border-blue-100">
+                    <CardContent className="pt-6 flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-blue-600">Active Site Personnel</p>
+                            <h3 className="text-2xl font-bold text-blue-900">
+                                {initialAccessLogs.filter((l: any) => l.accessType === 'ENTRY' && !l.entryLogId).length}
+                            </h3>
+                        </div>
+                        <Clock className="h-8 w-8 text-blue-500 opacity-50" />
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-amber-50 border-amber-100">
+                    <CardContent className="pt-6 flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-amber-600">Pending Cert Expiries</p>
+                            <h3 className="text-2xl font-bold text-amber-900">
+                                {initialCerts.filter((c: any) => {
+                                    if (!c.expiryDate) return false;
+                                    const expiry = new Date(c.expiryDate);
+                                    const now = new Date();
+                                    const diff = expiry.getTime() - now.getTime();
+                                    return diff > 0 && diff < 30 * 24 * 60 * 60 * 1000;
+                                }).length}
+                            </h3>
+                        </div>
+                        <HardHat className="h-8 w-8 text-amber-500 opacity-50" />
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-red-50 border-red-100">
+                    <CardContent className="pt-6 flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-red-600">Active Lift Permits</p>
+                            <h3 className="text-2xl font-bold text-red-900">
+                                {initialLifts.filter((l: any) => l.status === 'IN_PROGRESS').length}
+                            </h3>
+                        </div>
+                        <Construction className="h-8 w-8 text-red-500 opacity-50" />
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Main Content Tabs */}
+            <Tabs defaultValue="access-logs" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-8">
+                    <TabsTrigger value="access-logs" className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        Site Access Logs
+                    </TabsTrigger>
+                    <TabsTrigger value="worker-certs" className="flex items-center gap-2">
+                        <HardHat className="h-4 w-4" />
+                        Worker Certifications
+                    </TabsTrigger>
+                    <TabsTrigger value="lifting-ops" className="flex items-center gap-2">
+                        <Construction className="h-4 w-4" />
+                        Lifting Operations
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="access-logs" className="mt-0">
+                    <SiteAccessLogTable data={initialAccessLogs} projects={projects} teamMembers={teamMembers} />
+                </TabsContent>
+
+                <TabsContent value="worker-certs" className="mt-0">
+                    <WorkerCertsTable data={initialCerts} teamMembers={teamMembers} />
+                </TabsContent>
+
+                <TabsContent value="lifting-ops" className="mt-0">
+                    <LiftingOpsTable data={initialLifts} projects={projects} teamMembers={teamMembers} />
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
+}
