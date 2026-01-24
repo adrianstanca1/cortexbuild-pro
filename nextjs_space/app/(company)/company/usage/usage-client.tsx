@@ -380,7 +380,7 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                             <p className="font-semibold">{label}</p>
                             {payload.map((item: any) => (
                               <p key={item.dataKey} className="text-sm">
-                                <span style={{ color: `var(--item-color, ${item.stroke})` } as any} className="mr-2">●</span>
+                                <span className={`mr-2 ${item.dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>●</span>
                                 {item.dataKey}: {item.value}
                               </p>
                             ))}
