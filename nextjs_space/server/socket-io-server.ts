@@ -1,6 +1,7 @@
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { getServerSession } from 'next-auth';
+import { decode } from 'next-auth/jwt';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
@@ -21,7 +22,7 @@ export class SocketIOService {
   private io: SocketIOServer | null = null;
   private server: HTTPServer | null = null;
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): SocketIOService {
     if (!SocketIOService.instance) {
@@ -51,6 +52,32 @@ export class SocketIOService {
       // Handle authentication
       socket.on('authenticate', async (data: { token: string; userId: string }) => {
         try {
+          // Verify token first
+          if (!data.token) {
+            socket.emit('authentication-error', { message: 'Token required' });
+            socket.disconnect();
+            return;
+          }
+
+          const decoded = await decode({
+            token: data.token,
+            secret: process.env.NEXTAUTH_SECRET || ''
+          });
+
+          if (!decoded || !decoded.sub) {
+            socket.emit('authentication-error', { message: 'Invalid token' });
+            socket.disconnect();
+            return;
+          }
+
+          // Enforce that the token owner matches the claimed user ID
+          if (decoded.sub !== data.userId && decoded.id !== data.userId) {
+            console.warn(`Socket auth mismatch: Token owner ${decoded.sub} tried to claim ${data.userId}`);
+            socket.emit('authentication-error', { message: 'Identity mismatch' });
+            socket.disconnect();
+            return;
+          }
+
           // Verify user exists
           const user = await prisma.user.findUnique({
             where: { id: data.userId },

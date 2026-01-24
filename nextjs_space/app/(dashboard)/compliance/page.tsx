@@ -64,7 +64,7 @@ export default async function CompliancePage() {
     return (
         <div className="p-6">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Site Registry & Compliance</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Site Registry & Compliance</h1>
                 <p className="text-muted-foreground">Manage site access, worker qualifications, and high-risk permits</p>
             </div>
             <ComplianceClient
