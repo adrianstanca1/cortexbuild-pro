@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
@@ -125,12 +124,6 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
           <p className="text-gray-600">Monitor your usage, track limits, and manage your subscription</p>
         </div>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <DatePickerWithRange
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            className="w-full md:w-auto"
-            aria-label="Select date range for usage history"
-          />
           <Select value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
             <SelectTrigger className="w-[180px]" aria-label="Select view mode">
               <SelectValue placeholder="View Mode" />
