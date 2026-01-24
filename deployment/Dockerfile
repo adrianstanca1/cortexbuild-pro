@@ -1,7 +1,7 @@
 # ============================================
 # CortexBuild Pro - Production Dockerfile
 # ============================================
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -30,6 +30,12 @@ ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ARG NEXTAUTH_SECRET="build-time-secret"
 ARG NEXTAUTH_URL="http://localhost:3000"
 
+ENV DATABASE_URL=$DATABASE_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV NEXT_OUTPUT_MODE=standalone
+ENV PRISMA_SKIP_INIT=true
+
 RUN yarn build
 
 # Production image
@@ -39,8 +45,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install openssl for Prisma
+# Install openssl and prisma for migrations
 RUN apk add --no-cache openssl
+RUN npm install -g prisma@^6.0.0
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -55,6 +62,7 @@ RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
 # Copy standalone output
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

@@ -1,0 +1,265 @@
+export const dynamic = "force-dynamic";
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
+import { prisma } from '@/lib/db';
+import { getFileUrl } from '@/lib/s3';
+
+export interface GalleryPhoto {
+  id: string;
+  url: string;
+  caption: string | null;
+  source: 'daily_report' | 'safety_incident' | 'punch_list' | 'inspection' | 'document';
+  sourceId: string;
+  sourceTitle: string;
+  createdAt: Date;
+  mimeType?: string;
+  fileSize?: number;
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const projectId = params.id;
+    const { searchParams } = new URL(request.url);
+    const source = searchParams.get('source'); // Filter by source type
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
+
+    const orgId = session.user.organizationId;
+    if (!orgId) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 400 });
+    }
+
+    // Verify project access
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        organizationId: orgId
+      }
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const photos: GalleryPhoto[] = [];
+
+    // Fetch daily report photos
+    if (!source || source === 'daily_report') {
+      const dailyReportPhotos = await prisma.dailyReportPhoto.findMany({
+        where: {
+          dailyReport: {
+            projectId
+          }
+        },
+        include: {
+          dailyReport: {
+            select: {
+              id: true,
+              reportDate: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      for (const photo of dailyReportPhotos) {
+        const url = await getFileUrl(photo.cloudStoragePath, false);
+        photos.push({
+          id: photo.id,
+          url,
+          caption: photo.caption,
+          source: 'daily_report',
+          sourceId: photo.dailyReport.id,
+          sourceTitle: `Daily Report - ${new Date(photo.dailyReport.reportDate).toLocaleDateString('en-GB')}`,
+          createdAt: photo.createdAt
+        });
+      }
+    }
+
+    // Fetch safety incident photos
+    if (!source || source === 'safety_incident') {
+      // First get all safety incidents for this project
+      const safetyIncidents = await prisma.safetyIncident.findMany({
+        where: { projectId },
+        select: {
+          id: true,
+          description: true,
+          incidentDate: true,
+          photos: true
+        }
+      });
+
+      for (const incident of safetyIncidents) {
+        for (const photo of incident.photos) {
+          const url = await getFileUrl(photo.cloudStoragePath, false);
+          const shortDesc = incident.description.length > 30 
+            ? incident.description.substring(0, 30) + '...' 
+            : incident.description;
+          photos.push({
+            id: photo.id,
+            url,
+            caption: photo.caption,
+            source: 'safety_incident',
+            sourceId: incident.id,
+            sourceTitle: `Safety: ${shortDesc}`,
+            createdAt: photo.createdAt,
+            mimeType: photo.mimeType || undefined,
+            fileSize: photo.fileSize || undefined
+          });
+        }
+      }
+    }
+
+    // Fetch punch list photos
+    if (!source || source === 'punch_list') {
+      const punchListPhotos = await prisma.punchListPhoto.findMany({
+        where: {
+          punchList: {
+            projectId
+          }
+        },
+        include: {
+          punchList: {
+            select: {
+              id: true,
+              title: true,
+              number: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      for (const photo of punchListPhotos) {
+        const url = await getFileUrl(photo.cloudStoragePath, false);
+        photos.push({
+          id: photo.id,
+          url,
+          caption: photo.caption,
+          source: 'punch_list',
+          sourceId: photo.punchList.id,
+          sourceTitle: `Punch #${photo.punchList.number}: ${photo.punchList.title}`,
+          createdAt: photo.createdAt
+        });
+      }
+    }
+
+    // Fetch inspection photos
+    if (!source || source === 'inspection') {
+      const inspectionPhotos = await prisma.inspectionPhoto.findMany({
+        where: {
+          inspection: {
+            projectId
+          }
+        },
+        include: {
+          inspection: {
+            select: {
+              id: true,
+              title: true,
+              number: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      for (const photo of inspectionPhotos) {
+        const url = await getFileUrl(photo.cloudStoragePath, false);
+        photos.push({
+          id: photo.id,
+          url,
+          caption: photo.caption,
+          source: 'inspection',
+          sourceId: photo.inspection.id,
+          sourceTitle: `Inspection #${photo.inspection.number}: ${photo.inspection.title}`,
+          createdAt: photo.createdAt
+        });
+      }
+    }
+
+    // Fetch document photos (PHOTOS type documents)
+    if (!source || source === 'document') {
+      const documentPhotos = await prisma.document.findMany({
+        where: {
+          projectId,
+          documentType: 'PHOTOS',
+          OR: [
+            { mimeType: { startsWith: 'image/' } },
+            { name: { endsWith: '.jpg' } },
+            { name: { endsWith: '.jpeg' } },
+            { name: { endsWith: '.png' } },
+            { name: { endsWith: '.gif' } },
+            { name: { endsWith: '.webp' } }
+          ]
+        },
+        include: {
+          uploadedBy: {
+            select: {
+              name: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      for (const doc of documentPhotos) {
+        const url = await getFileUrl(doc.cloudStoragePath, doc.isPublic);
+        photos.push({
+          id: doc.id,
+          url,
+          caption: null,
+          source: 'document',
+          sourceId: doc.id,
+          sourceTitle: doc.name,
+          createdAt: doc.createdAt,
+          mimeType: doc.mimeType || undefined,
+          fileSize: doc.fileSize || undefined
+        });
+      }
+    }
+
+    // Sort all photos by date (newest first)
+    photos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Apply pagination
+    const paginatedPhotos = photos.slice(offset, offset + limit);
+
+    // Get counts by source
+    const counts = {
+      total: photos.length,
+      daily_report: photos.filter(p => p.source === 'daily_report').length,
+      safety_incident: photos.filter(p => p.source === 'safety_incident').length,
+      punch_list: photos.filter(p => p.source === 'punch_list').length,
+      inspection: photos.filter(p => p.source === 'inspection').length,
+      document: photos.filter(p => p.source === 'document').length
+    };
+
+    return NextResponse.json({
+      photos: paginatedPhotos,
+      counts,
+      pagination: {
+        total: photos.length,
+        limit,
+        offset,
+        hasMore: offset + limit < photos.length
+      }
+    });
+
+  } catch (error) {
+    console.error('Gallery fetch error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch gallery photos' },
+      { status: 500 }
+    );
+  }
+}

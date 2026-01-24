@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect x="40" y="140" width="176" height="24" fill="#ffd54f" rx="4"/>
+  <path d="M64 140 L64 100 Q64 60 128 60 Q192 60 192 100 L192 140 Z" fill="#5f46e5"/>
+  <path d="M80 100 L80 80 Q80 70 128 70 Q176 70 176 80 L176 100" fill="#7c3aed"/>
+  <text x="128" y="125" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#ffd54f" text-anchor="middle" dominant-baseline="middle">CB</text>
+</svg>
