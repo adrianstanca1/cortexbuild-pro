@@ -54,13 +54,14 @@ export async function GET(request: NextRequest) {
         userTimeMap[entry.userId] = (userTimeMap[entry.userId] || 0) + entry.hours;
       });
 
-      // Get tasks by assignee
+      // Get tasks by assignee (limited to 5000 recent tasks)
       const tasks = await prisma.task.findMany({
         where: {
           project: { organizationId },
           status: { not: 'COMPLETE' }
         },
-        select: { assigneeId: true, priority: true }
+        select: { assigneeId: true, priority: true },
+        take: 5000
       });
 
       const tasksByUser: Record<string, { total: number; critical: number }> = {};
@@ -146,31 +147,50 @@ export async function GET(request: NextRequest) {
       const projects = await prisma.project.findMany({
         where: { organizationId, status: 'IN_PROGRESS' },
         include: {
-          tasks: { select: { status: true, dueDate: true, priority: true } },
-          milestones: { select: { status: true, targetDate: true, percentComplete: true } }
-        }
+          tasks: { 
+            select: { status: true, dueDate: true, priority: true },
+            take: 1000  // Limit tasks per project
+          },
+          milestones: { 
+            select: { status: true, targetDate: true, percentComplete: true },
+            take: 100  // Limit milestones per project
+          }
+        },
+        take: 100  // Limit number of projects
       });
 
       const health = projects.map(project => {
-        const overdueTasks = project.tasks.filter(t =>
-          t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'COMPLETE'
-        ).length;
-        const completedTasks = project.tasks.filter(t => t.status === 'COMPLETE').length;
-        const totalTasks = project.tasks.length;
+        const now = new Date();
+        const taskMetrics = project.tasks.reduce((acc: any, t: any) => {
+          if (t.status === 'COMPLETE') {
+            acc.completedTasks++;
+          } else if (t.dueDate && new Date(t.dueDate) < now) {
+            acc.overdueTasks++;
+          }
+          acc.totalTasks++;
+          return acc;
+        }, { overdueTasks: 0, completedTasks: 0, totalTasks: 0 });
 
-        const overdueMilestones = project.milestones.filter(m =>
-          new Date(m.targetDate) < new Date() && m.status !== 'COMPLETED'
-        ).length;
-        const completedMilestones = project.milestones.filter(m => m.status === 'COMPLETED').length;
-        const totalMilestones = project.milestones.length;
+        const milestoneMetrics = project.milestones.reduce((acc: any, m: any) => {
+          if (m.status === 'COMPLETED') {
+            acc.completedMilestones++;
+          } else if (new Date(m.targetDate) < now) {
+            acc.overdueMilestones++;
+          }
+          if (new Date(m.targetDate) <= now) {
+            acc.plannedMilestones++;
+          }
+          acc.totalMilestones++;
+          return acc;
+        }, { overdueMilestones: 0, completedMilestones: 0, totalMilestones: 0, plannedMilestones: 0 });
 
         // Calculate SPI
-        const plannedProgress = totalMilestones > 0
-          ? project.milestones.filter(m => new Date(m.targetDate) <= new Date()).length / totalMilestones
-          : totalTasks > 0 ? completedTasks / totalTasks : 0;
-        const actualProgress = totalMilestones > 0
-          ? completedMilestones / totalMilestones
-          : totalTasks > 0 ? completedTasks / totalTasks : 0;
+        const plannedProgress = milestoneMetrics.totalMilestones > 0
+          ? milestoneMetrics.plannedMilestones / milestoneMetrics.totalMilestones
+          : taskMetrics.totalTasks > 0 ? taskMetrics.completedTasks / taskMetrics.totalTasks : 0;
+        const actualProgress = milestoneMetrics.totalMilestones > 0
+          ? milestoneMetrics.completedMilestones / milestoneMetrics.totalMilestones
+          : taskMetrics.totalTasks > 0 ? taskMetrics.completedTasks / taskMetrics.totalTasks : 0;
         const spi = plannedProgress > 0 ? actualProgress / plannedProgress : 1;
 
         let status = 'on-track';
@@ -183,10 +203,10 @@ export async function GET(request: NextRequest) {
           name: project.name,
           spi: Math.round(spi * 100) / 100,
           status,
-          overdueTasks,
-          overdueMilestones,
-          taskProgress: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
-          milestoneProgress: totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0,
+          overdueTasks: taskMetrics.overdueTasks,
+          overdueMilestones: milestoneMetrics.overdueMilestones,
+          taskProgress: taskMetrics.totalTasks > 0 ? Math.round((taskMetrics.completedTasks / taskMetrics.totalTasks) * 100) : 0,
+          milestoneProgress: milestoneMetrics.totalMilestones > 0 ? Math.round((milestoneMetrics.completedMilestones / milestoneMetrics.totalMilestones) * 100) : 0,
           endDate: project.endDate
         };
       });
