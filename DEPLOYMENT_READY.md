@@ -15,7 +15,7 @@ ssh root@72.62.132.43
 # Password: Cumparavinde1@
 
 # Then paste and run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
 ```
 
 This will automatically:

@@ -5,7 +5,7 @@
 SSH into your VPS and run this single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
 ```
 
 Or download and run:

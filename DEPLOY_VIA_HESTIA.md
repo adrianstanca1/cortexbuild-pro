@@ -2,8 +2,9 @@
 
 ## Server Information
 - **Control Panel URL**: https://72.62.132.43:8443/login
-- **Admin Username**: Admin
-- **Admin Password**: Cumparavinde1@
+- **Panel Username**: Admin
+- **SSH Username**: root
+- **Password**: Cumparavinde1@
 - **Server Hostname**: srv1262179.hstgr.cloud
 - **Server IP**: 72.62.132.43
 
@@ -94,12 +95,12 @@ If you have SSH access from your computer:
 
 ```bash
 # From your local terminal
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 # Or
-ssh Admin@srv1262179.hstgr.cloud
+ssh root@srv1262179.hstgr.cloud
 
 # Then run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
 ```
 
 ---

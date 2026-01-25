@@ -9,7 +9,8 @@
   Server IP:       72.62.132.43
   Hostname:        srv1262179.hstgr.cloud
   Control Panel:   https://72.62.132.43:8443/login
-  Username:        Admin
+  Panel User:      Admin
+  SSH User:        root
   Password:        Cumparavinde1@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -52,7 +53,7 @@ METHOD 2: Via SSH from Your Computer
 Step 1: Open terminal on your computer
 
 Step 2: Connect to server:
-  ssh Admin@72.62.132.43
+  ssh root@72.62.132.43
   Password: Cumparavinde1@
 
 Step 3: Run deployment command:
@@ -60,7 +61,7 @@ Step 3: Run deployment command:
 ┌────────────────────────────────────────────────────────────────┐
 │ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/   │
 │ cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/ │
-│ deploy-from-github.sh | sudo bash                              │
+│ deploy-from-github.sh | bash                                   │
 └────────────────────────────────────────────────────────────────┘
 
 

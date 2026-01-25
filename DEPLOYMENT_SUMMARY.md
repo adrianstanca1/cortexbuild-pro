@@ -45,8 +45,8 @@ I have successfully prepared your CortexBuild Pro application for production dep
 ### Your Server Details
 - **IP Address**: 72.62.132.43
 - **Hostname**: srv1262179.hstgr.cloud
-- **Control Panel**: https://72.62.132.43:8443/login
-- **Username**: Admin
+- **Control Panel**: https://72.62.132.43:8443/login (Panel User: Admin)
+- **SSH User**: root
 - **Password**: Cumparavinde1@
 
 ### Deployment Method 1: Via Hestia Control Panel (Recommended)
@@ -82,11 +82,11 @@ I have successfully prepared your CortexBuild Pro application for production dep
 If you prefer SSH from your local computer:
 
 ```bash
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 # Enter password: Cumparavinde1@
 
 # Then run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
 ```
 
 ---
@@ -205,7 +205,7 @@ Use the credentials you just created
 ### Step 4: Save Deployment Credentials
 The deployment script displays important credentials. You can also view them:
 ```bash
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 cat /var/www/cortexbuild-pro/DEPLOYMENT_CREDENTIALS.txt
 ```
 
@@ -222,7 +222,7 @@ All can be configured via Admin Dashboard or environment file:
 
 ### AWS S3 (File Storage)
 ```bash
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 nano /var/www/cortexbuild-pro/deployment/.env
 ```
 Add:
@@ -260,7 +260,7 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 
 ### View Logs
 ```bash
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 cd /var/www/cortexbuild-pro/deployment
 docker-compose logs -f
 ```
@@ -355,7 +355,7 @@ docker-compose up -d
 
 ### Configure SSL
 ```bash
-ssh Admin@72.62.132.43
+ssh root@72.62.132.43
 cd /var/www/cortexbuild-pro/deployment
 ./setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
