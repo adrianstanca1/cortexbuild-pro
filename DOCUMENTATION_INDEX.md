@@ -1,4 +1,4 @@
-# Documentation Index
+# CortexBuild Pro - Documentation Index
 
 This index provides an overview of all documentation available in the CortexBuild Pro repository.
 
@@ -6,16 +6,17 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ### Getting Started
 - **[README.md](README.md)** - Main project overview, features, and quick start guide
+- **[START_HERE.md](START_HERE.md)** - Begin here for an overview of the platform
 - **[QUICKSTART.md](QUICKSTART.md)** - Step-by-step guide to get the platform running quickly
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Comprehensive deployment instructions for production
+
+### Deployment & Operations
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Alternative deployment methods and CloudPanel instructions
+- **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
 
 ### Configuration
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Detailed guide for configuring API keys and external services
-
-### Operations
-- **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
-- **[BUILD_STATUS.md](BUILD_STATUS.md)** - Build configuration, resolved issues, and development setup
 
 ### Security & Compliance
 - **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices, compliance information, and audit details
@@ -23,7 +24,8 @@ This index provides an overview of all documentation available in the CortexBuil
 ### Development
 - **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Architecture overview and codebase organization
 - **[API_REFACTORING_GUIDE.md](API_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
-- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance optimizations and improvements
+- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning guide
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Latest performance improvements
 
 ### Status Reports
 - **[PLATFORM_COMPLETION_REPORT.md](PLATFORM_COMPLETION_REPORT.md)** - Comprehensive platform status and feature completeness
@@ -51,23 +53,23 @@ The `nextjs_space/` directory contains:
 - Test suites
 - Application-specific documentation
 
-## Documentation Removed
+## Recent Cleanup (January 2026)
 
-During the repository cleanup, the following redundant documents were removed:
-- `SETUP_COMPLETE.md` (consolidated into PLATFORM_COMPLETION_REPORT.md)
-- `REFACTORING_COMPLETE.md` (consolidated into API_REFACTORING_GUIDE.md)
-- `API_DEPLOYMENT_COMPLETE.md` (consolidated into DEPLOYMENT_GUIDE.md)
-- `COMPLETION_SUMMARY.txt` (consolidated into PLATFORM_COMPLETION_REPORT.md)
-- `CODE_DEDUPLICATION_SUMMARY.md` (consolidated into API_REFACTORING_GUIDE.md)
-- `PERFORMANCE_OPTIMIZATIONS.md` (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
+During repository cleanup, redundant documents were removed and consolidated:
+- Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md**
+- Removed: DEPLOYMENT_FINAL.md, DEPLOYMENT_SUMMARY.md, DEPLOYMENT_READY.md
+- Removed: DEPLOY_INSTRUCTIONS.md, DEPLOY_NOW.txt, DEPLOY_TO_VPS.md
+- Removed: BUILD_COMPLETION_SUMMARY.md, BUILD_STATUS.md, SETUP_COMPLETE.md
+- Removed: API_DEPLOYMENT_COMPLETE.md, CLEANUP_SUMMARY.md, DEPLOY_VIA_HESTIA.md
 
 ## Getting Help
 
 1. **Start here**: [README.md](README.md)
 2. **Quick setup**: [QUICKSTART.md](QUICKSTART.md)
-3. **Configuration**: [CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)
-4. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
-5. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
+3. **Deploy to production**: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
+4. **Configuration**: [CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)
+5. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
+6. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
 
 ## Contributing
 
@@ -77,3 +79,7 @@ When adding new documentation:
 3. Follow the existing documentation structure
 4. Use clear, concise language
 5. Include examples where appropriate
+
+---
+
+**Last Updated:** January 25, 2026
