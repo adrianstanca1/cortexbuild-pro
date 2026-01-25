@@ -51,21 +51,29 @@ const providers = [
 
 // Add Google OAuth provider if credentials are configured
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          role: "FIELD_WORKER", // Default role for Google-authenticated users
-        };
-      },
-    })
-  );
+  // Validate credentials are not empty strings
+  const clientId = process.env.GOOGLE_CLIENT_ID.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET.trim();
+  
+  if (clientId && clientSecret) {
+    providers.push(
+      GoogleProvider({
+        clientId,
+        clientSecret,
+        profile(profile) {
+          return {
+            id: profile.sub,
+            name: profile.name,
+            email: profile.email,
+            image: profile.picture,
+            role: "FIELD_WORKER", // Default role for Google-authenticated users
+          };
+        },
+      })
+    );
+  } else {
+    console.warn("Google OAuth credentials are set but empty. Google sign-in will not be available.");
+  }
 }
 
 export const authOptions: NextAuthOptions = {
