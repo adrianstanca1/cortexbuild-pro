@@ -124,6 +124,41 @@ GOOGLE_CLIENT_SECRET="your-google-client-secret"
 NEXT_PUBLIC_WEBSOCKET_URL="http://localhost:3000"
 ```
 
+### Optional Integrations
+
+#### Google OAuth Setup (Optional)
+To enable Google Sign-In:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" and create OAuth 2.0 Client ID
+5. Add authorized redirect URIs:
+   - Development: `http://localhost:3000/api/auth/callback/google`
+   - Production: `https://yourdomain.com/api/auth/callback/google`
+6. Copy the Client ID and Client Secret to your `.env` file
+
+If Google OAuth is not configured, users can still authenticate using email/password.
+
+#### SendGrid Email Service (Optional)
+SendGrid is used for sending email invitations, notifications, and password resets.
+
+**Option 1: Configure via Admin Dashboard** (Recommended)
+1. Log in as a Super Admin
+2. Navigate to Admin Console > API Management
+3. Click "Add Connection" for SendGrid
+4. Enter your SendGrid API Key and sender details
+5. Test the connection
+
+**Option 2: Alternative Email Provider**
+The system automatically falls back to Abacus AI email service if SendGrid is not configured and `ABACUSAI_API_KEY` is set in your environment.
+
+To get a SendGrid API Key:
+1. Sign up at [SendGrid](https://sendgrid.com/)
+2. Go to Settings > API Keys
+3. Create a new API key with "Mail Send" permissions
+4. Configure it in the Admin Dashboard
+
 ## Project Structure
 
 ```
