@@ -42,15 +42,11 @@ interface UsageData {
 }
 
 /**
- * Renders the company usage page populated with computed usage, subscription, billing, and historical metrics.
+ * Render the company usage page and provide computed usage, subscription, billing, and historical metrics to the client component.
  *
- * This server component:
- * - Ensures the user is authenticated and redirects to "/login" if not.
- * - Redirects to "/dashboard" when the authenticated user lacks an organizationId.
- * - Loads organization, activity log, and document data, computes usage metrics and subscription defaults, and passes the result to CompanyUsageClient.
- * - On failure, logs the error and renders CompanyUsageClient with an error message.
+ * Ensures the user is authenticated and has an organization; redirects to "/login" or "/dashboard" otherwise. On success, loads organization, activity log, and document data to assemble a `UsageData` object passed to `CompanyUsageClient`. On failure, logs the error and renders `CompanyUsageClient` with an error message.
  *
- * @returns A React element that renders the company usage client with either the assembled `UsageData` or an error state.
+ * @returns The React element for `CompanyUsageClient` configured with the assembled `UsageData` or an error prop when data loading fails.
  */
 export default async function CompanyUsagePage() {
   // Server-side authentication

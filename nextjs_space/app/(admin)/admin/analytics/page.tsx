@@ -82,12 +82,11 @@ async function getAnalyticsData(organizationId: string) {
 }
 
 /**
- * Server-side page component that renders the Advanced Analytics dashboard for an organization's authorized users.
+ * Render the Advanced Analytics dashboard for an authorized organization's users.
  *
- * Verifies the current server session and user's organization and role, redirecting to `/login` if unauthenticated
- * or to `/dashboard` if the user is not associated with an organization or lacks the required role. Retrieves
- * analytics data scoped to the user's organization and renders the AnalyticsClient inside a Suspense boundary
- * with the fetched data as initial input.
+ * Performs server-side authentication and authorization: redirects to `/login` when there is no authenticated user
+ * and to `/dashboard` when the user has no organization or lacks the required role. Fetches analytics data scoped
+ * to the user's organization and renders the AnalyticsClient inside a Suspense boundary using that data as initial input.
  *
  * @returns A JSX element containing the analytics dashboard UI
  */

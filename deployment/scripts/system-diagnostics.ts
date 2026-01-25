@@ -37,13 +37,11 @@ function parseArgs() {
 }
 
 /**
- * Validate presence of key environment variables and produce diagnostic checks summarizing their status.
+ * Checks for required and optional environment variables and reports their status.
  *
- * @returns A DiagnosticResult with category "Environment Variables" and an array of checks. Each check contains:
- * - `name`: the environment variable and whether it's required or optional,
- * - `status`: `'pass'`, `'warn'`, or `'fail'`,
- * - `value`: redacted indicator (`'***set***'` or not-set text),
- * - `message` (optional): explanation when a required variable is missing or other issue is present.
+ * Produces a diagnostic check for each variable indicating whether it is set, redacted value state, and an optional message when a required variable is missing.
+ *
+ * @returns A DiagnosticResult with category "Environment Variables" whose `checks` array contains entries with `name`, `status` (`'pass' | 'warn' | 'fail'`), `value`, and an optional `message`. 
  */
 async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
   const requiredVars = [
@@ -268,13 +266,9 @@ async function checkDatabaseConnectivity(): Promise<DiagnosticResult> {
 }
 
 /**
- * Collects and evaluates configured API connections and produces diagnostic checks for integration status.
+ * Collects configured API connections and produces diagnostic checks about their status.
  *
- * @returns A DiagnosticResult with category "API Integrations" and an array of checks describing:
- * - total configured connections,
- * - counts per connection status,
- * - stale connections not validated in the last 7 days (warning), or
- * - a single failure check containing the error message if the check could not complete
+ * @returns A DiagnosticResult whose category is "API Integrations" and whose checks include the total configured connections, counts per connection status, any stale connections not validated in the last 7 days (reported as warnings), or a single failing check containing the error message if the check could not complete
  */
 async function checkApiIntegrations(): Promise<DiagnosticResult> {
   const checks = [];
@@ -425,12 +419,9 @@ async function checkDataHealth(): Promise<DiagnosticResult> {
 }
 
 /**
- * Runs all system diagnostic checks, prints a categorized report to stdout, and exits the process.
+ * Run all system diagnostics, print a categorized report to stdout, and terminate the process with an appropriate exit code.
  *
- * Executes environment, filesystem, database connectivity/schema, API integrations, and data-health checks;
- * aggregates their statuses, prints per-check details and a summary with counts, and recommends actions when failures exist.
- *
- * The process exits with code `0` when all checks pass or warn-only, and `1` if any check fails.
+ * Executes environment, filesystem, database connectivity and schema, API integrations, and data-health checks; prints per-check results and a summary with totals. The process exits with code `0` when there are no failures (all checks pass or only warnings) and with code `1` if any check fails.
  */
 async function main() {
   const options = parseArgs();

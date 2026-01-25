@@ -29,6 +29,18 @@ interface SiteAccessLogTableProps {
     teamMembers: any[];
 }
 
+/**
+ * Render a searchable, project-filterable table of site access logs with a per-row "Sign Out" action.
+ *
+ * The table filters rows by person name or company and by the selected project. When a row's "Sign Out"
+ * button is clicked, the component sends a POST request to /api/site-access/{logId}/sign-out and displays
+ * a success or error toast based on the result.
+ *
+ * @param data - Array of site access log objects to display.
+ * @param projects - Array of project objects used to populate the project filter dropdown.
+ * @param teamMembers - Array of team member objects (provided for context/use by the table).
+ * @returns The rendered site access log table React element.
+ */
 export function SiteAccessLogTable({ data, projects, teamMembers }: SiteAccessLogTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [projectFilter, setProjectFilter] = useState('ALL');

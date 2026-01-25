@@ -11,9 +11,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
- * Runs a scripted check that verifies real-time broadcasting by creating a test activity and enumerating supported broadcast event types.
+ * Run a scripted check that verifies real-time broadcasting by creating a test activity and listing supported broadcast event types.
  *
- * Creates a test activity log tied to the first organization, user, and project found in the database to trigger broadcasting, prints progress and the list of broadcast event types to the console, returns early if required seed data is missing, logs any errors, and always disconnects the Prisma client when finished.
+ * Prints progress and the list of event types to the console, returns early if required seed data (organization, user, or project) is missing, and ensures the Prisma client is disconnected when finished.
  */
 async function testBroadcastSetup() {
   console.log('\n🔔 Real-time Broadcasting Test');

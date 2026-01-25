@@ -21,6 +21,17 @@ interface LiftingOpsTableProps {
     teamMembers: any[];
 }
 
+/**
+ * Render a searchable, filterable table of lifting operations with status badges and action controls.
+ *
+ * The table lists each lift's date, permit number, project, equipment, load details, supervisor, status, and actions.
+ * The search field filters rows by equipment name or project name (case-insensitive). If no rows match, a full-width placeholder row is shown.
+ *
+ * @param data - Array of lifting operation objects to display. Each item should include fields such as `id`, `liftDate`, `number`, `project`, `equipment`, `loadDescription`, `loadWeight`, `supervisor`, and `status`.
+ * @param projects - Array of project objects available to the component (used for context or lookups).
+ * @param teamMembers - Array of team member objects available to the component (used for context or lookups).
+ * @returns The rendered React element containing the searchable table of lifting operations.
+ */
 export function LiftingOpsTable({ data, projects, teamMembers }: LiftingOpsTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
 
