@@ -5,63 +5,80 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "./db";
 import bcrypt from "bcryptjs";
 
+// Build providers array conditionally
+const providers = [
+  CredentialsProvider({
+    name: "credentials",
+    credentials: {
+      email: { label: "Email", type: "email" },
+      password: { label: "Password", type: "password" }
+    },
+    async authorize(credentials) {
+      if (!credentials?.email || !credentials?.password) {
+        return null;
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: credentials.email },
+        include: { organization: true }
+      });
+
+      if (!user) {
+        return null;
+      }
+
+      const isValid = await bcrypt.compare(credentials.password, user.password);
+      if (!isValid) {
+        return null;
+      }
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() }
+      });
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        organizationId: user.organizationId,
+        avatarUrl: user.avatarUrl
+      };
+    }
+  })
+];
+
+// Add Google OAuth provider if credentials are configured
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  // Validate credentials are not empty strings
+  const clientId = process.env.GOOGLE_CLIENT_ID.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET.trim();
+  
+  if (clientId && clientSecret) {
+    providers.push(
+      GoogleProvider({
+        clientId,
+        clientSecret,
+        profile(profile) {
+          return {
+            id: profile.sub,
+            name: profile.name,
+            email: profile.email,
+            image: profile.picture,
+            role: "FIELD_WORKER", // Default role for Google-authenticated users
+          };
+        },
+      })
+    );
+  } else {
+    console.warn("Google OAuth credentials are set but empty. Google sign-in will not be available.");
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  providers: [
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          include: { organization: true }
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) {
-          return null;
-        }
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { lastLogin: new Date() }
-        });
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          organizationId: user.organizationId,
-          avatarUrl: user.avatarUrl
-        };
-      }
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          role: "FIELD_WORKER", // Default role for Google-authenticated users
-        };
-      },
-    })
-  ],
+  providers,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60
