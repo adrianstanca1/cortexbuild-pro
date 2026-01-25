@@ -213,7 +213,7 @@ docker-compose -f deployment/docker-compose.yml down
 docker-compose -f deployment/docker-compose.yml up -d
 
 # Run migrations (if needed)
-docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && npx prisma migrate deploy"
 ```
 
 ### Deployment Verification
