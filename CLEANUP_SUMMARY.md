@@ -46,8 +46,8 @@ Conducted comprehensive analysis of 6 unmerged branches mentioned in MERGE_COMPL
 
 **Credentials Exposed (Now Fixed):**
 ```
-VPS_HOST="72.62.132.43"
-VPS_PASSWORD="Cumparavinde1@"
+VPS_HOST="[REDACTED]"
+VPS_PASSWORD="[REDACTED]"
 ```
 
 **Impact:** Prevented unauthorized VPS access
@@ -56,7 +56,7 @@ VPS_PASSWORD="Cumparavinde1@"
 
 ### 3. File Duplication Cleanup ✅
 
-#### Redundant Scripts Removed (8 files)
+#### Redundant Scripts Removed (6 files)
 
 **Deployment Scripts:**
 - ❌ `deployment/deploy.sh` (duplicate of deploy-now.sh)
