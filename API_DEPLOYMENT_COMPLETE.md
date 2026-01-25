@@ -34,13 +34,13 @@ All API keys, server configurations, and deployment setup have been successfully
 
 #### 3. AWS S3 File Storage
 - **Status:** ✅ Fully Configured
-- **Bucket:** `abacusai-apps-53407cc3ddefcc549b4124cd-us-west-2`
+- **Bucket:** `<s3-bucket-name>`
 - **Region:** `us-west-2`
 - **Variables:**
   - ✅ `AWS_PROFILE` - hosted_storage
   - ✅ `AWS_REGION` - us-west-2
   - ✅ `AWS_BUCKET_NAME` - Configured
-  - ✅ `AWS_FOLDER_PREFIX` - 19754/
+  - ✅ `AWS_FOLDER_PREFIX` - `<folder-prefix>/`
 
 #### 4. AbacusAI API
 - **Status:** ✅ Fully Configured
