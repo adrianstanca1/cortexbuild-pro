@@ -197,15 +197,15 @@ else
     
     # Pull images
     echo -e "${BLUE}Pulling Docker images...${NC}"
-    docker-compose pull postgres nginx certbot 2>/dev/null || true
+    docker-compose -f docker-compose.yml pull postgres nginx certbot 2>/dev/null || true
     
     # Build application
     echo -e "${BLUE}Building application...${NC}"
-    docker-compose build app
+    docker-compose -f docker-compose.yml build app
     
     # Start services
     echo -e "${BLUE}Starting services...${NC}"
-    docker-compose up -d
+    docker-compose -f docker-compose.yml up -d
     
     # Wait for database
     echo -e "${BLUE}Waiting for database to be ready...${NC}"
@@ -213,7 +213,7 @@ else
     
     # Run migrations
     echo -e "${BLUE}Running database migrations...${NC}"
-    docker-compose exec -T app sh -c "cd /app && npx prisma migrate deploy" || echo "Migration may have failed - check logs"
+    docker-compose -f docker-compose.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" || echo "Migration may have failed - check logs"
 fi
 
 echo ""
@@ -221,11 +221,11 @@ echo -e "${CYAN}[6/6] Deployment Summary${NC}"
 echo ""
 
 # Check if services are running
-if docker-compose ps | grep -q "Up"; then
+if docker-compose -f docker-compose.yml ps | grep -q "Up"; then
     echo -e "${GREEN}✓ Services are running${NC}"
     echo ""
     echo "Container Status:"
-    docker-compose ps
+    docker-compose -f docker-compose.yml ps
     echo ""
     
     echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
@@ -252,7 +252,7 @@ if docker-compose ps | grep -q "Up"; then
     fi
     echo ""
     echo "4. Access database:"
-    echo "   → docker-compose -f deployment/docker-compose.yml exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB"
+    echo "   → docker-compose -f deployment/docker-compose.yml exec postgres psql -U \${POSTGRES_USER:-cortexbuild} -d \${POSTGRES_DB:-cortexbuild}"
     echo ""
     echo "5. Stop services:"
     echo "   → docker-compose -f deployment/docker-compose.yml down"
