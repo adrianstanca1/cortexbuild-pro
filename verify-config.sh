@@ -15,6 +15,12 @@ check_var() {
     local var_value=$2
     local required=$3
     
+    # Validate parameters
+    if [ -z "$var_name" ] || [ -z "$required" ]; then
+        echo "⚠️  Invalid parameters to check_var function"
+        return 1
+    fi
+    
     if [ -n "$var_value" ]; then
         echo "✅ $var_name: Configured"
         return 0

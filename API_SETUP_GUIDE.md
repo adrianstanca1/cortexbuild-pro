@@ -184,10 +184,9 @@ NOTIF_ID_TOOL_CHECK_COMPLETED=your_notif_id
 ```
 
 **Current Configuration**:
-The application is already configured with:
-- API Key: `aab7e27d61c14a81a2bcf4d395478e4c`
-- Web App ID: `e8ad110ab`
-- All notification IDs are set
+The application is already configured with existing credentials.
+**Note**: These are existing credentials already in the repository.
+For production use, generate new credentials following the steps below.
 
 **Setup New AbacusAI Account**:
 
