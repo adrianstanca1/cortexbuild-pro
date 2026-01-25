@@ -27,8 +27,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      const token = (session.user as any).accessToken || session.accessToken || 'fallback-token';
+      const token = (session.user as any).accessToken || session.accessToken;
       const userId = (session.user as any).id || session.user?.id;
+      
+      // Don't connect if we don't have a valid token
+      if (!token) {
+        console.error('WebSocket connection failed: No authentication token available');
+        return;
+      }
       
       // Connect to WebSocket
       websocketClient.connect(token, userId)
