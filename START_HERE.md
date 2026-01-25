@@ -9,18 +9,20 @@ All preparation work has been completed. Your CortexBuild Pro application is ful
 ## 🚀 DEPLOY NOW (Copy & Paste)
 
 ### Server Access Information
-- **Server IP**: 72.62.132.43
-- **Hostname**: srv1262179.hstgr.cloud
-- **Control Panel**: https://72.62.132.43:8443/login (Login: Admin / Cumparavinde1@)
-- **SSH User**: root
-- **SSH Password**: Cumparavinde1@
+- **Server IP**: [Your VPS IP Address]
+- **Hostname**: [Your VPS Hostname]
+- **Control Panel**: https://[YOUR_IP]:8443/login
+- **SSH User**: [Your SSH Username]
+- **SSH Password**: [Your SSH Password - Keep Secure!]
+
+> **Security Note**: Never commit actual credentials to version control. Store them securely.
 
 ### **Option 1: Deploy via Hestia Control Panel** (Recommended - Easiest)
 
 1. **Access Control Panel**:
-   - Open: https://72.62.132.43:8443/login
-   - Login: Admin / Cumparavinde1@
-   - Accept SSL certificate warning
+   - Open: https://[YOUR_IP]:8443/login
+   - Login with your admin credentials
+   - Accept SSL certificate warning (if self-signed)
 
 2. **Open Web Terminal** (in Hestia menu, look for SSH/Terminal)
 
@@ -36,8 +38,8 @@ See detailed instructions: **DEPLOY_VIA_HESTIA.md**
 Open your terminal and run:
 
 ```bash
-ssh root@72.62.132.43
-# When prompted, enter password: Cumparavinde1@
+ssh [username]@[your-vps-ip]
+# When prompted, enter your SSH password
 
 # Then paste and run this command:
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
