@@ -98,12 +98,49 @@ The deployment script automatically:
 
 ---
 
-## 📋 After Deployment
+## ⚠️ CRITICAL: Configure SSL/HTTPS Before First Use
 
-### 1. Access Your Application
+**DO NOT create accounts or log in over HTTP in production.** HTTP exposes credentials and session data to network attackers.
+
+### Required: Set Up SSL/HTTPS First
+
+Before accessing the application for the first time, configure SSL:
+
+1. **Point your domain** A record to: **72.62.132.43**
+2. **Wait for DNS propagation** (15 minutes to 24 hours)
+3. **Run SSL setup:**
+
+```bash
+ssh root@72.62.132.43
+cd /var/www/cortexbuild-pro/deployment
+./setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
-URL: http://72.62.132.43:3000
+
+4. **Update environment variables:**
+
+```bash
+nano /var/www/cortexbuild-pro/deployment/.env
+# Change:
+# NEXTAUTH_URL=https://yourdomain.com
+# NEXT_PUBLIC_WEBSOCKET_URL=https://yourdomain.com
 ```
+
+5. **Restart services:**
+
+```bash
+docker-compose restart
+```
+
+---
+
+## 📋 After SSL Configuration
+
+### 1. Access Your Application (HTTPS Required)
+```
+URL: https://yourdomain.com
+```
+
+**⚠️ For testing without domain:** You can temporarily use http://72.62.132.43:3000 for initial verification only, but **DO NOT create real accounts or use production data over HTTP**. This is for testing the deployment worked; immediately configure SSL before any authenticated use.
 
 ### 2. Create Admin Account
 - Click "Sign Up"
@@ -373,15 +410,18 @@ After deployment, all documentation is on the VPS:
 
 ## ✨ Success Criteria
 
-After deployment, verify:
+After deployment and SSL configuration, verify:
 
 1. ✅ **Containers Running**: `docker ps` shows 4 containers
-2. ✅ **Application Accessible**: http://72.62.132.43:3000 loads
-3. ✅ **API Responding**: http://72.62.132.43:3000/api/auth/providers returns JSON
+2. ✅ **Application Accessible**: https://yourdomain.com loads (or http://72.62.132.43:3000 for deployment verification only)
+3. ✅ **API Responding**: Check /api/auth/providers endpoint returns JSON
 4. ✅ **Database Connected**: No connection errors in logs
-5. ✅ **Can Create Account**: Sign up works
-6. ✅ **Can Log In**: Login works
-7. ✅ **Features Work**: Can create projects, tasks, etc.
+5. ✅ **SSL Certificate Valid**: Browser shows secure connection (for HTTPS)
+6. ✅ **Can Create Account**: Sign up works (over HTTPS only)
+7. ✅ **Can Log In**: Login works (over HTTPS only)
+8. ✅ **Features Work**: Can create projects, tasks, etc.
+
+**⚠️ Important:** Items 6-8 (authenticated features) should only be tested over HTTPS in production.
 
 ---
 

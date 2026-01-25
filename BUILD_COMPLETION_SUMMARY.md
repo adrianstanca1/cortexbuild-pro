@@ -97,12 +97,39 @@ The deployment script will:
 
 ---
 
-## 📍 After Deployment
+## ⚠️ SECURITY REQUIREMENT: Configure SSL/HTTPS First
 
-### 1. Access Your Application
+**CRITICAL:** Do not access the application over HTTP for production use. Configure SSL/HTTPS before creating any accounts or logging in.
+
+### Required First Step: Set Up SSL/HTTPS
+
+1. **Point domain A record** to: 72.62.132.43
+2. **Wait for DNS propagation** (15 minutes - 24 hours)
+3. **Configure SSL:**
+
+```bash
+ssh root@72.62.132.43
+cd /var/www/cortexbuild-pro/deployment
+./setup-ssl.sh yourdomain.com admin@yourdomain.com
+
+# Update environment
+nano .env
+# Change NEXTAUTH_URL and NEXT_PUBLIC_WEBSOCKET_URL to https://
+
+# Restart
+docker-compose restart
 ```
-URL: http://72.62.132.43:3000
+
+---
+
+## 📍 After SSL Configuration
+
+### 1. Access Your Application (HTTPS Only)
 ```
+URL: https://yourdomain.com
+```
+
+**Note:** HTTP access (http://72.62.132.43:3000) is available for deployment verification only. **Never use HTTP for authenticated access** as it exposes credentials and sessions to network attackers.
 
 ### 2. Create Admin Account
 - Click "Sign Up"
