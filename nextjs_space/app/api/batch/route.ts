@@ -81,13 +81,6 @@ export async function POST(request: NextRequest) {
               skipDuplicates: true,
             });
             processed = created.count;
-            
-            // Optionally fetch created tasks if needed for results
-            // results = await prisma.task.findMany({
-            //   where: { creatorId: user.id },
-            //   orderBy: { createdAt: 'desc' },
-            //   take: created.count
-            // });
           }
           broadcastToOrganization(user.organizationId, {
             type: 'task_created',

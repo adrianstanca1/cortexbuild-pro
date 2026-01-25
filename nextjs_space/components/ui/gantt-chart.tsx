@@ -58,6 +58,11 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
   
   const [viewStart, setViewStart] = useState(initialViewStart);
 
+  // Update viewStart when items change
+  useEffect(() => {
+    setViewStart(initialViewStart);
+  }, [initialViewStart]);
+
   // Calculate date range
   const dateRange = useMemo(() => {
     if (items.length === 0) {
