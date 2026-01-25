@@ -15,11 +15,16 @@ export const GET = withAuth(async (request: NextRequest, context) => {
   });
   const projectIds = projects.map((p: { id: string }) => p.id);
 
+  const where: Record<string, unknown> = {
+    projectId: projectId ? { equals: projectId } : { in: projectIds },
+  };
+  
+  if (status) {
+    where.status = status;
+  }
+
   const rfis = await prisma.rFI.findMany({
-    where: {
-      projectId: projectId ? { equals: projectId } : { in: projectIds },
-      ...(status && { status: status as never })
-    },
+    where,
     include: {
       project: { select: { id: true, name: true } },
       createdBy: { select: { id: true, name: true, email: true } },

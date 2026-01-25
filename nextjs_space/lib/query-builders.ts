@@ -3,36 +3,6 @@ import { ApiContext } from './api-utils';
 import { broadcastToOrganization } from './realtime-clients';
 
 /**
- * Standard query builder for fetching resources with organization filtering
- */
-export async function queryWithOrgFilter<T>(
-  model: keyof typeof prisma,
-  context: ApiContext,
-  options?: {
-    where?: Record<string, unknown>;
-    include?: Record<string, unknown>;
-    orderBy?: Record<string, unknown>;
-    skip?: number;
-    take?: number;
-  }
-) {
-  const prismaModel = prisma[model] as {
-    findMany: (args: unknown) => Promise<T[]>;
-  };
-
-  return prismaModel.findMany({
-    where: {
-      project: { organizationId: context.organizationId },
-      ...options?.where,
-    },
-    include: options?.include,
-    orderBy: options?.orderBy || { createdAt: 'desc' },
-    skip: options?.skip,
-    take: options?.take,
-  });
-}
-
-/**
  * Log activity with standard pattern
  */
 export async function logActivity(
@@ -91,6 +61,16 @@ export async function logAndBroadcast(
   entity: { id: string; name?: string; [key: string]: unknown },
   projectId?: string
 ): Promise<void> {
+  // Map action string to broadcast action type
+  let broadcastAction: 'created' | 'updated' | 'deleted' = 'updated';
+  const lowerAction = action.toLowerCase();
+  
+  if (lowerAction.includes('create') || lowerAction === 'created') {
+    broadcastAction = 'created';
+  } else if (lowerAction.includes('delete') || lowerAction === 'deleted') {
+    broadcastAction = 'deleted';
+  }
+
   await Promise.all([
     logActivity(
       context,
@@ -102,7 +82,7 @@ export async function logAndBroadcast(
     ),
     broadcastEntityChange(
       context.organizationId,
-      action.includes('create') ? 'created' : action.includes('update') ? 'updated' : 'deleted',
+      broadcastAction,
       entityType,
       entity,
       context.userId
