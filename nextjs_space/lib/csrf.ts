@@ -8,7 +8,13 @@
 import { randomBytes, createHmac } from 'crypto';
 import { cookies } from 'next/headers';
 
-const CSRF_SECRET = process.env.NEXTAUTH_SECRET || 'fallback-csrf-secret-change-in-production';
+const CSRF_SECRET = (() => {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error('CSRF secret is not configured. Set NEXTAUTH_SECRET to a strong, random value.');
+  }
+  return secret;
+})();
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const TOKEN_LENGTH = 32;
