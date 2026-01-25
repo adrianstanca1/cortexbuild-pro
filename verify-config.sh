@@ -49,8 +49,7 @@ fi
 if [ -f "deployment/.env" ]; then
     echo "✅ deployment/.env exists"
 else
-    echo "❌ deployment/.env NOT FOUND"
-    FAILED_CHECKS=$((FAILED_CHECKS + 1))
+    echo "⚠️  deployment/.env NOT FOUND (optional for development)"
 fi
 echo ""
 
