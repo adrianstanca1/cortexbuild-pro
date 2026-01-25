@@ -1,0 +1,180 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║     🚀 CortexBuild Pro - Deploy to Your Server NOW!          ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 YOUR SERVER DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Server IP:       72.62.132.43
+  Hostname:        srv1262179.hstgr.cloud
+  Control Panel:   https://72.62.132.43:8443/login
+  Username:        Admin
+  Password:        Cumparavinde1@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🎯 DEPLOY NOW - CHOOSE YOUR METHOD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METHOD 1: Via Hestia Control Panel (⭐ EASIEST - RECOMMENDED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Open browser and go to:
+  👉 https://72.62.132.43:8443/login
+
+Step 2: Login with:
+  Username: Admin
+  Password: Cumparavinde1@
+  (Accept SSL certificate warning - it's normal)
+
+Step 3: In Hestia Control Panel:
+  - Look for "SSH" or "Terminal" in the menu
+  - Click to open web terminal
+
+Step 4: Copy and paste this command:
+
+┌────────────────────────────────────────────────────────────────┐
+│ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/   │
+│ cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/ │
+│ deploy-from-github.sh | bash                                   │
+└────────────────────────────────────────────────────────────────┘
+
+Step 5: Wait 10-15 minutes for deployment to complete
+
+Step 6: Access your application at:
+  👉 http://72.62.132.43:3000
+
+
+METHOD 2: Via SSH from Your Computer
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Open terminal on your computer
+
+Step 2: Connect to server:
+  ssh Admin@72.62.132.43
+  Password: Cumparavinde1@
+
+Step 3: Run deployment command:
+
+┌────────────────────────────────────────────────────────────────┐
+│ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/   │
+│ cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/ │
+│ deploy-from-github.sh | sudo bash                              │
+└────────────────────────────────────────────────────────────────┘
+
+
+⏱️ WHAT HAPPENS DURING DEPLOYMENT?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅ Install Docker & dependencies      (2-3 min)
+  ✅ Configure firewall                 (30 sec)
+  ✅ Download application from GitHub   (1 min)
+  ✅ Generate secure credentials        (5 sec)
+  ✅ Build Docker images                (5-8 min)
+  ✅ Start database & application       (2 min)
+  ✅ Run database migrations            (30 sec)
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⏰ TOTAL TIME: 10-15 minutes
+
+
+✅ AFTER DEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open browser and go to:
+   👉 http://72.62.132.43:3000
+   👉 http://srv1262179.hstgr.cloud:3000
+
+2. Click "Sign Up" to create your admin account
+
+3. Log in and start using CortexBuild Pro!
+
+4. Save deployment credentials:
+   The script will display:
+   - Database password
+   - NextAuth secret
+   - Server IP
+   📌 SAVE THESE SECURELY!
+
+
+📦 WHAT YOU GET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅ Full construction management platform
+  ✅ 12 core modules (Projects, Tasks, RFIs, etc.)
+  ✅ Real-time collaboration via WebSocket
+  ✅ PostgreSQL database
+  ✅ Nginx web server
+  ✅ SSL/HTTPS ready
+  ✅ File management system
+  ✅ Multi-tenant architecture
+  ✅ Role-based access control
+  ✅ Admin dashboard
+  ✅ API endpoints (172+)
+  ✅ Mobile-responsive UI
+
+
+🔧 USEFUL COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+View logs:
+  cd /var/www/cortexbuild-pro/deployment
+  docker-compose logs -f
+
+Restart application:
+  docker-compose restart
+
+Check status:
+  docker-compose ps
+
+Stop services:
+  docker-compose down
+
+
+📚 DETAILED DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📖 START_HERE.md          - Complete deployment guide
+  📖 DEPLOY_VIA_HESTIA.md   - Hestia panel specific guide
+  📖 DEPLOYMENT_READY.md    - Comprehensive instructions
+  📖 BUILD_STATUS.md        - System and build information
+
+All documentation is in the GitHub repository and will be
+available on your server after deployment at:
+  /var/www/cortexbuild-pro/
+
+
+🆘 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Can't access control panel?
+  - Clear browser cache
+  - Try incognito mode
+  - Verify server is running
+
+Deployment fails?
+  - Check internet connection
+  - Verify Docker installed: docker --version
+  - Check disk space: df -h
+  - View logs for errors
+
+Application won't load?
+  - Wait 2-3 minutes after deployment
+  - Check containers: docker ps
+  - View logs: docker-compose logs app
+  - Restart: docker-compose restart
+
+
+📞 NEED HELP?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. Check deployment logs
+  2. Review documentation files
+  3. Verify all services running: docker-compose ps
+  4. Check firewall: ufw status
+
+
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║  🎉 READY TO DEPLOY - JUST FOLLOW THE STEPS ABOVE!           ║
+║                                                                ║
+║  Your complete construction management platform               ║
+║  will be running in 15 minutes!                               ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
