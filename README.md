@@ -249,6 +249,291 @@ cd nextjs_space
 npx prisma studio
 ```
 
+## 🐛 Debug API and Backend
+
+CortexBuild Pro includes comprehensive debugging tools for monitoring and troubleshooting API and backend services.
+
+### CLI Debugging Tools
+
+#### System Health Check
+Real-time health monitoring of all system components:
+
+```bash
+cd nextjs_space
+
+# Basic health check
+npx tsx scripts/health-check.ts
+
+# Verbose output with details
+npx tsx scripts/health-check.ts --verbose
+
+# JSON output for programmatic use
+npx tsx scripts/health-check.ts --json
+```
+
+**Checks:**
+- ✅ Database connectivity and connection pool status
+- ✅ API connections and service availability
+- ✅ AWS S3 storage service health
+- ✅ WebSocket/real-time services
+- ✅ Response times and performance metrics
+
+#### System Diagnostics
+Comprehensive diagnostics for troubleshooting:
+
+```bash
+cd nextjs_space
+
+# Standard diagnostics
+npx tsx scripts/system-diagnostics.ts
+
+# Full diagnostics with detailed checks
+npx tsx scripts/system-diagnostics.ts --full
+```
+
+**Diagnostics Include:**
+- 🔍 Environment variable validation
+- 🗄️ Database schema verification
+- 📁 File system and permissions check
+- ⚙️ Configuration status and completeness
+- 🔗 Service integration verification
+
+#### API Connection Testing
+Test and validate all configured API connections:
+
+```bash
+cd nextjs_space
+
+# Test all API connections
+npx tsx scripts/test-api-connections.ts
+
+# Test specific service
+npx tsx scripts/test-api-connections.ts --service "AWS S3"
+
+# Test with environment filter
+npx tsx scripts/test-api-connections.ts --environment production
+
+# Verbose mode with detailed output
+npx tsx scripts/test-api-connections.ts --verbose
+```
+
+**Features:**
+- 🔌 Tests all configured API endpoints
+- 🔐 Validates credentials and authentication
+- ⏱️ Measures response times
+- 📊 Updates connection status in database
+- 📝 Logs test results for audit trail
+
+### API Debug Endpoints
+
+#### System Health Monitoring
+**Endpoint:** `GET /api/admin/system-health`
+
+**Authentication:** SUPER_ADMIN role required
+
+**Response includes:**
+- Overall health score (0-100)
+- Active users and organizations
+- Project and task statistics
+- Real-time WebSocket connections
+- Recent system errors
+- Activity metrics (hourly and daily)
+
+```bash
+# Example request
+curl -X GET https://your-domain.com/api/admin/system-health \
+  -H "Cookie: your-session-cookie"
+```
+
+#### API Connection Health
+**Endpoint:** `GET /api/admin/api-connections/health`
+
+**Query Parameters:**
+- `serviceId` - Check specific service
+- `timeRange` - Uptime calculation period (7d, 30d, 90d)
+
+**Features:**
+- Service uptime statistics
+- Health check history
+- Response time trends
+- Module dependency status
+
+```bash
+# Check all services
+curl -X GET https://your-domain.com/api/admin/api-connections/health
+
+# Check specific service
+curl -X GET https://your-domain.com/api/admin/api-connections/health?serviceId=abc123
+
+# With time range for uptime
+curl -X GET https://your-domain.com/api/admin/api-connections/health?timeRange=30d
+```
+
+#### API Connection Health History
+**Endpoint:** `GET /api/admin/api-connections/health-history`
+
+View historical health check data and trends:
+
+```bash
+curl -X GET https://your-domain.com/api/admin/api-connections/health-history?days=30
+```
+
+#### Test API Connection
+**Endpoint:** `POST /api/admin/api-connections/services/{id}/test`
+
+Test a specific API connection on-demand:
+
+```bash
+curl -X POST https://your-domain.com/api/admin/api-connections/services/abc123/test
+```
+
+### Debug Common Issues
+
+#### Database Connection Issues
+```bash
+# Check database connectivity
+cd nextjs_space
+npx tsx scripts/health-check.ts --verbose
+
+# Verify DATABASE_URL
+echo $DATABASE_URL
+
+# Test with Prisma
+npx prisma db pull
+
+# View connection pool status
+npx tsx scripts/system-diagnostics.ts --full
+```
+
+#### API Service Failures
+```bash
+# Test specific API service
+npx tsx scripts/test-api-connections.ts --service "Service Name" --verbose
+
+# Check API logs
+npx tsx -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+prisma.apiConnectionLog.findMany({
+  where: { success: false },
+  take: 10,
+  orderBy: { timestamp: 'desc' }
+}).then(console.log);
+"
+```
+
+#### WebSocket Connection Problems
+```bash
+# Check WebSocket health
+npx tsx scripts/health-check.ts --verbose
+
+# Verify NEXT_PUBLIC_WEBSOCKET_URL
+echo $NEXT_PUBLIC_WEBSOCKET_URL
+
+# Monitor real-time connections via API
+curl https://your-domain.com/api/admin/system-health
+```
+
+#### Performance Issues
+```bash
+# Run full diagnostics
+npx tsx scripts/system-diagnostics.ts --full
+
+# Check database performance
+npx prisma studio
+
+# Monitor active connections
+npx tsx scripts/health-check.ts --json | jq '.components[] | select(.component == "Database")'
+```
+
+### Monitoring and Logging
+
+#### View Recent Errors
+```bash
+# Database query for recent errors
+cd nextjs_space
+npx tsx -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+prisma.activityLog.findMany({
+  where: { action: { contains: 'error' } },
+  take: 20,
+  orderBy: { createdAt: 'desc' }
+}).then(logs => {
+  console.log('Recent Errors:');
+  logs.forEach(log => console.log(\`[\${log.createdAt}] \${log.action}: \${log.details}\`));
+});
+"
+```
+
+#### Monitor Service Health
+```bash
+# Continuous health monitoring (runs every 60 seconds)
+watch -n 60 'cd nextjs_space && npx tsx scripts/health-check.ts --json'
+
+# Check uptime trends
+curl https://your-domain.com/api/admin/api-connections/health-history?days=7
+```
+
+#### Export Health Data
+```bash
+# Export API connection data
+curl -X GET https://your-domain.com/api/admin/api-connections/export > health-data.json
+```
+
+### Production Debugging
+
+#### Docker Container Logs
+```bash
+# View application logs
+docker-compose -f deployment/docker-compose.yml logs -f app
+
+# View database logs
+docker-compose -f deployment/docker-compose.yml logs -f postgres
+
+# View nginx logs
+docker-compose -f deployment/docker-compose.yml logs -f nginx
+
+# Filter for errors
+docker-compose -f deployment/docker-compose.yml logs app | grep -i error
+```
+
+#### Execute Debug Commands in Container
+```bash
+# Run health check in production
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/health-check.ts --verbose"
+
+# Run diagnostics
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/system-diagnostics.ts --full"
+
+# Test API connections
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/test-api-connections.ts"
+```
+
+#### Access Database for Debugging
+```bash
+# Connect to PostgreSQL
+docker-compose -f deployment/docker-compose.yml exec postgres \
+  psql -U cortexbuild -d cortexbuild
+
+# Common debug queries
+# - Check table counts: SELECT COUNT(*) FROM "User";
+# - View recent activity: SELECT * FROM "ActivityLog" ORDER BY "createdAt" DESC LIMIT 10;
+# - Check API status: SELECT * FROM "ApiConnection" WHERE status != 'ACTIVE';
+```
+
+### Debug Best Practices
+
+1. **Start with Health Check** - Always run `health-check.ts` first to identify problem areas
+2. **Use Verbose Mode** - Add `--verbose` flag for detailed diagnostic information
+3. **Check Logs Regularly** - Review API connection logs and activity logs for patterns
+4. **Monitor Trends** - Use health history endpoints to track service reliability over time
+5. **Test After Changes** - Run diagnostics after configuration or code changes
+6. **Document Issues** - Use activity logs to maintain audit trail of problems and fixes
+
 ## 📊 API Endpoints
 
 ### Authentication
@@ -268,6 +553,13 @@ npx prisma studio
 - `/api/admin/organizations` - Organization management
 - `/api/admin/users` - User management
 - `/api/admin/system-health` - System health monitoring
+- `/api/admin/api-connections` - API connection management
+- `/api/admin/api-connections/health` - API health status and uptime
+- `/api/admin/api-connections/health-history` - Historical health data
+- `/api/admin/api-connections/services` - List all configured services
+- `/api/admin/api-connections/services/{id}/test` - Test specific service
+- `/api/admin/api-connections/logs` - View API connection logs
+- `/api/admin/api-connections/export` - Export health data
 
 ### Real-time
 - `/api/socketio` - WebSocket connection endpoint
