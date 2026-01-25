@@ -63,10 +63,12 @@ export async function GET(request: NextRequest) {
           _count: { select: { projectAssignments: true } }
         }
       }),
-      // All tasks for productivity metrics
+      // All tasks for productivity metrics (limited to recent 10000)
       prisma.task.findMany({
         where: { project: { organizationId: user.organizationId } },
-        select: { id: true, status: true, priority: true, completedAt: true, createdAt: true, assigneeId: true }
+        select: { id: true, status: true, priority: true, completedAt: true, createdAt: true, assigneeId: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10000
       }),
       // RFIs
       prisma.rFI.findMany({
@@ -83,10 +85,12 @@ export async function GET(request: NextRequest) {
         where: { project: { organizationId: user.organizationId } },
         select: { id: true, severity: true, status: true, incidentDate: true }
       }),
-      // Cost items
+      // Cost items (limited to recent 5000)
       prisma.costItem.findMany({
         where: { project: { organizationId: user.organizationId } },
-        select: { id: true, estimatedAmount: true, actualAmount: true, committedAmount: true, category: true }
+        select: { id: true, estimatedAmount: true, actualAmount: true, committedAmount: true, category: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5000
       }),
       // Time entries (recent)
       prisma.timeEntry.findMany({
@@ -111,26 +115,30 @@ export async function GET(request: NextRequest) {
       },
       projectMetrics: {
         total: projects.length,
-        byStatus: {
-          planning: projects.filter((p: any) => p.status === 'PLANNING').length,
-          inProgress: projects.filter((p: any) => p.status === 'IN_PROGRESS').length,
-          onHold: projects.filter((p: any) => p.status === 'ON_HOLD').length,
-          completed: projects.filter((p: any) => p.status === 'COMPLETED').length
-        },
+        byStatus: projects.reduce((acc: any, p: any) => {
+          const status = p.status.toLowerCase().replace('_', '');
+          const statusKey = status === 'inprogress' ? 'inProgress' : status === 'onhold' ? 'onHold' : status;
+          acc[statusKey] = (acc[statusKey] || 0) + 1;
+          return acc;
+        }, { planning: 0, inProgress: 0, onHold: 0, completed: 0 }),
         totalBudget: projects.reduce((sum: number, p: any) => sum + (p.budget || 0), 0),
         avgTeamSize: projects.length > 0
           ? Math.round(projects.reduce((sum: number, p: any) => sum + p._count.teamMembers, 0) / projects.length)
           : 0
       },
-      taskMetrics: {
-        total: tasks.length,
-        completed: tasks.filter(t => t.status === 'COMPLETE').length,
-        inProgress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
-        completionRate: tasks.length > 0
-          ? Math.round((tasks.filter(t => t.status === 'COMPLETE').length / tasks.length) * 100)
-          : 0,
-        criticalTasks: tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'COMPLETE').length
-      },
+      taskMetrics: (() => {
+        const metrics = tasks.reduce((acc: any, t: any) => {
+          acc.total++;
+          if (t.status === 'COMPLETE') acc.completed++;
+          if (t.status === 'IN_PROGRESS') acc.inProgress++;
+          if (t.priority === 'CRITICAL' && t.status !== 'COMPLETE') acc.criticalTasks++;
+          return acc;
+        }, { total: 0, completed: 0, inProgress: 0, criticalTasks: 0 });
+        metrics.completionRate = metrics.total > 0
+          ? Math.round((metrics.completed / metrics.total) * 100)
+          : 0;
+        return metrics;
+      })(),
       financialMetrics: {
         totalEstimated: costItems.reduce((sum: number, c: any) => sum + (c.estimatedAmount || 0), 0),
         totalActual: costItems.reduce((sum: number, c: any) => sum + (c.actualAmount || 0), 0),
@@ -143,22 +151,27 @@ export async function GET(request: NextRequest) {
           }, {})
         ).map(([category, amount]) => ({ category, amount }))
       },
-      safetyMetrics: {
-        totalIncidents: safetyIncidents.length,
-        openIncidents: safetyIncidents.filter((i: any) => i.status === 'OPEN' || i.status === 'INVESTIGATING').length,
-        criticalIncidents: safetyIncidents.filter((i: any) => i.severity === 'CRITICAL' || i.severity === 'HIGH').length,
-        incidentRate: projects.length > 0 ? (safetyIncidents.length / projects.length).toFixed(2) : 0
-      },
+      safetyMetrics: (() => {
+        const metrics = safetyIncidents.reduce((acc: any, i: any) => {
+          acc.totalIncidents++;
+          if (i.status === 'OPEN' || i.status === 'INVESTIGATING') acc.openIncidents++;
+          if (i.severity === 'CRITICAL' || i.severity === 'HIGH') acc.criticalIncidents++;
+          return acc;
+        }, { totalIncidents: 0, openIncidents: 0, criticalIncidents: 0 });
+        metrics.incidentRate = projects.length > 0 ? (metrics.totalIncidents / projects.length).toFixed(2) : 0;
+        return metrics;
+      })(),
       rfiMetrics: {
         total: rfis.length,
-        open: rfis.filter((r: any) => r.status === 'OPEN' || r.status === 'DRAFT').length,
+        open: rfis.reduce((count: number, r: any) => count + ((r.status === 'OPEN' || r.status === 'DRAFT') ? 1 : 0), 0),
         avgResponseDays: calculateAvgDays(rfis, 'createdAt', 'answeredAt')
       },
-      submittalMetrics: {
-        total: submittals.length,
-        approved: submittals.filter((s: any) => s.status === 'APPROVED').length,
-        pending: submittals.filter((s: any) => s.status === 'SUBMITTED' || s.status === 'UNDER_REVIEW').length
-      },
+      submittalMetrics: submittals.reduce((acc: any, s: any) => {
+        acc.total++;
+        if (s.status === 'APPROVED') acc.approved++;
+        if (s.status === 'SUBMITTED' || s.status === 'UNDER_REVIEW') acc.pending++;
+        return acc;
+      }, { total: 0, approved: 0, pending: 0 }),
       teamProductivity: {
         totalHoursLogged: timeEntries.reduce((sum: number, t: any) => sum + (t.hours || 0), 0),
         activeUsers: new Set(timeEntries.map((t: any) => t.userId)).size,
@@ -196,10 +209,12 @@ function calculateAvgDays(items: any[], startField: string, endField: string): n
 }
 
 function getTopPerformers(tasks: any[], teamMembers: any[]) {
-  const tasksByUser: Record<string, number> = {};
-  tasks.filter(t => t.status === 'COMPLETE' && t.assigneeId).forEach(t => {
-    tasksByUser[t.assigneeId] = (tasksByUser[t.assigneeId] || 0) + 1;
-  });
+  const tasksByUser = tasks.reduce((acc: Record<string, number>, t: any) => {
+    if (t.status === 'COMPLETE' && t.assigneeId) {
+      acc[t.assigneeId] = (acc[t.assigneeId] || 0) + 1;
+    }
+    return acc;
+  }, {});
 
   return Object.entries(tasksByUser)
     .sort(([, a], [, b]) => b - a)

@@ -42,7 +42,7 @@ export const prisma = new Proxy({} as PrismaClient, {
   }
 });
 
-// Helper function to safely execute database operations with retry
+// Helper function to safely execute database operations with retry and exponential backoff
 export async function withRetry<T>(
   operation: () => Promise<T>,
   maxRetries: number = 3,
@@ -65,10 +65,11 @@ export async function withRetry<T>(
         errorMessage.includes('too many connections')
       ) {
         if (attempt < maxRetries) {
-          // Try to reconnect
+          // Try to reconnect with exponential backoff
+          const backoffDelay = delayMs * Math.pow(2, attempt - 1);
           try {
             await prisma.$disconnect();
-            await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
             await prisma.$connect();
           } catch {
             // Ignore reconnection errors, will retry the operation
