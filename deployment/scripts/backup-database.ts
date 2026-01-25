@@ -20,11 +20,11 @@ interface BackupOptions {
 }
 
 /**
- * Parse command-line flags and return backup configuration.
+ * Parse process arguments for backup options and produce a BackupOptions object.
  *
- * Recognizes `--tables` (values: `all`, `core`, `custom`) and `--output`.
+ * Recognizes `--tables` (allowed values: `all`, `core`, `custom`) and `--output` (directory path).
  *
- * @returns The resolved BackupOptions with `tables` (defaults to `core`) and `outputPath` (defaults to `./backups`).
+ * @returns The resolved BackupOptions: `tables` is `'all' | 'core' | 'custom'` (defaults to `'core'`); `outputPath` is the target directory path (defaults to `'./backups'`).
  */
 function parseArgs(): BackupOptions {
   const args = process.argv.slice(2);
@@ -72,9 +72,9 @@ async function backupOrganizations(): Promise<TableBackup> {
 }
 
 /**
- * Exports all user records for backup, omitting password hashes.
+ * Export user records for backup while excluding password hashes.
  *
- * @returns A TableBackup object with `table` set to `'users'`, `count` equal to the number of exported records, and `data` containing the exported user records.
+ * @returns A TableBackup with `table` set to `'users'`, `count` equal to the number of exported users, and `data` containing the exported user records
  */
 async function backupUsers(): Promise<TableBackup> {
   const data = await prisma.user.findMany({
@@ -211,9 +211,9 @@ async function backupSafetyIncidents(): Promise<TableBackup> {
 }
 
 /**
- * Fetches all daily report records for backup.
+ * Create a TableBackup for the dailyReports table.
  *
- * @returns A TableBackup for `dailyReports` containing `count` (number of records) and `data` (the array of daily report records).
+ * @returns A TableBackup for `dailyReports` with `count` equal to the number of records and `data` containing all daily report records.
  */
 async function backupDailyReports(): Promise<TableBackup> {
   const data = await prisma.dailyReport.findMany();
@@ -238,12 +238,12 @@ async function backupActivityLogs(): Promise<TableBackup> {
 }
 
 /**
- * Orchestrates a JSON backup of selected database tables and writes per-table files and a manifest.
+ * Orchestrates a JSON backup of selected database tables to a timestamped directory.
  *
- * Parses command-line options to determine the backup scope and output directory, creates a timestamped
- * backup folder, executes each table backup routine sequentially, writes each table's data as
- * <table>.json, and writes a manifest.json containing timestamp, scope, per-table counts, totalRecords,
- * and version. Logs progress and errors to the console.
+ * Parses command-line options to determine backup scope and output directory, creates a timestamped
+ * backup folder, executes each table backup routine sequentially, writes each table's data as a
+ * JSON file alongside a generated manifest containing per-table counts and total records, and logs
+ * progress and any per-table errors to the console.
  */
 async function main() {
   const options = parseArgs();

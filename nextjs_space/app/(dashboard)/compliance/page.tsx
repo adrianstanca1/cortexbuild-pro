@@ -4,6 +4,15 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { ComplianceClient } from "./_components/compliance-client";
 
+/**
+ * Render the server-side Compliance page for the authenticated user's organization.
+ *
+ * Redirects to `/login` when there is no authenticated user or no organization ID on the session.
+ * Fetches site access logs, worker certifications, lifting operations, projects, and team members for the organization
+ * and supplies them as initial data to the client component.
+ *
+ * @returns A React element for the compliance page with the ComplianceClient initialized with server-fetched data.
+ */
 export default async function CompliancePage() {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

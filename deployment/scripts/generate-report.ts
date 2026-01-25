@@ -77,9 +77,10 @@ function parseArgs(): ReportOptions {
 }
 
 /**
- * Format a numeric amount as British Pound sterling currency.
+ * Format an amount as a British Pound sterling (GBP) currency string.
  *
- * @returns A string containing the amount formatted in GBP (e.g., "£1,234.56")
+ * @param amount - The monetary value in pounds (major currency units)
+ * @returns The amount formatted as GBP (for example, "£1,234.56")
  */
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-GB', {
@@ -586,15 +587,15 @@ async function generateComplianceReport(orgId?: string) {
 }
 
 /**
- * Convert report data into a CSV-formatted string.
+ * Converts report data to CSV.
  *
- * Accepts either an array of objects (produces a table with headers derived from the first element)
- * or a single object (produces flattened "Key,Value" lines). Object-valued cells are JSON-stringified;
- * array-valued fields in non-array input are represented as `"<n> items"`. An empty input array
- * yields an empty string.
+ * Supports two input shapes: an array of objects produces a table where headers come from the first element;
+ * a single object is flattened into `Key,Value` lines using dot notation for nested objects. Object-valued
+ * cell values are JSON-stringified; for non-array inputs, array fields are represented as `"<n> items"`.
+ * An empty input array yields an empty string.
  *
- * @param data - The report data to convert: an array of objects or a single object to be flattened
- * @returns A CSV string representing the provided data
+ * @param data - An array of objects to render as rows or a single object to flatten into key/value lines
+ * @returns A CSV-formatted string (empty string for an empty input array)
  */
 function toCSV(data: any): string {
   if (Array.isArray(data)) {
@@ -670,12 +671,11 @@ function toText(data: any, reportType: string): string {
 }
 
 /**
- * Generate and write the selected report to disk based on parsed CLI options.
+ * Generate the selected report and write it to disk using parsed CLI options.
  *
- * Produces a report of the requested type and format (JSON, CSV, or plain text), ensures the output
- * directory exists, writes a timestamped file, and logs progress and the output location.
- *
- * This function exits the process with code 1 when an unknown report type is specified.
+ * Ensures the output directory exists, formats the report as JSON, CSV, or plain text,
+ * writes a timestamped file under the provided output path, and logs progress and file info.
+ * Exits the process with code 1 for an unknown report type.
  */
 async function main() {
   const options = parseArgs();

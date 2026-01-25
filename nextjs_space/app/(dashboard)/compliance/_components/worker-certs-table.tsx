@@ -20,6 +20,17 @@ interface WorkerCertsTableProps {
     teamMembers: any[];
 }
 
+/**
+ * Render a searchable table of worker certifications with expiry status badges and verification info.
+ *
+ * Filters rows by worker name or certification name based on the search input, shows an avatar initial,
+ * card/license number, formatted expiry date (e.g., "Jan 1, 2025" or "No Expiry"), a status badge derived
+ * from the expiry date (Lifetime, Expired, Expiring Soon, Valid), verifier name or "Pending", and an empty state.
+ *
+ * @param data - Array of certification objects. Each object is expected to include: `id`, `certificationName`, `expiryDate` (ISO string or `null`), `cardNumber`, `worker` (object with `name`), and optional `verifiedBy` (object with `name`).
+ * @param teamMembers - Array of team member objects available in the component context (currently used for UI operations like adding/assigning certifications).
+ * @returns The rendered JSX element containing the certifications table and search UI.
+ */
 export function WorkerCertsTable({ data, teamMembers }: WorkerCertsTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
 

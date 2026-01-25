@@ -36,7 +36,7 @@ interface SystemHealth {
 }
 
 /**
- * Parse command-line flags to detect verbose and JSON output options.
+ * Parse CLI flags and detect verbose and JSON output options.
  *
  * @returns An object with `verbose` set to `true` if `--verbose` or `-v` is present, and `json` set to `true` if `--json` is present.
  */
@@ -157,14 +157,9 @@ async function checkApiConnections(): Promise<HealthCheckResult> {
 }
 
 /**
- * Checks Prisma's connection pool by issuing concurrent lightweight queries to assess responsiveness.
+ * Assess Prisma connection pool responsiveness by issuing several concurrent lightweight queries.
  *
- * @returns A HealthCheckResult containing:
- *  - `component`: "Connection Pool"
- *  - `status`: `'healthy'` if the total response time is less than 2000 ms, `'degraded'` otherwise, or `'unhealthy'` on error
- *  - `responseTime`: total elapsed time in milliseconds for the concurrent queries
- *  - `message`: a brief human-readable summary or the error message on failure
- *  - `details` (on success): an object with `concurrentQueries` (number of parallel queries) and `avgResponseTime` (average per-query time in milliseconds)
+ * @returns A HealthCheckResult for the "Connection Pool" component including `responseTime` in milliseconds; `status` is `healthy` if total response time is less than 2000 ms, `degraded` otherwise, or `unhealthy` on error. On success `details` contains `concurrentQueries` (number of parallel queries) and `avgResponseTime` (average per-query time in milliseconds).
  */
 async function checkConnectionPool(): Promise<HealthCheckResult> {
   const start = Date.now();
@@ -198,13 +193,9 @@ async function checkConnectionPool(): Promise<HealthCheckResult> {
 }
 
 /**
- * Checks for orphaned records across team members, tasks, and documents.
+ * Detects potential orphaned records across team members, tasks, and documents.
  *
- * @returns A `HealthCheckResult` with:
- * - `status`: `'healthy'` if no orphaned records were found, `'degraded'` otherwise
- * - `responseTime`: elapsed time in milliseconds for the check
- * - `message`: summary stating no orphaned records or the total number found
- * - `details`: an object containing `orphanedTeamMembers`, `orphanedTasks`, and `orphanedDocuments` counts
+ * @returns A `HealthCheckResult` describing the data-integrity check, including `status` (`'healthy'` if zero orphaned records, `'degraded'` otherwise), `responseTime` in milliseconds, a summary `message`, and `details` with counts for `orphanedTeamMembers`, `orphanedTasks`, and `orphanedDocuments`.
  */
 async function checkDataIntegrity(): Promise<HealthCheckResult> {
   const start = Date.now();
@@ -247,9 +238,9 @@ async function checkDataIntegrity(): Promise<HealthCheckResult> {
 }
 
 /**
- * Checks file storage configuration and reports usage and status.
+ * Report file storage configuration, usage, and overall storage health.
  *
- * @returns A HealthCheckResult describing the storage component, where `status` is `healthy` if S3 or cloud storage is configured, `degraded` if no storage is configured, or `unhealthy` if an error occurred. `details` includes `s3Configured`, `cloudStorageEnabled`, `documentsStored`, and `bucket`.
+ * @returns A HealthCheckResult describing the storage component. `status` is `healthy` when S3 or cloud storage is configured, `degraded` when neither is configured, and `unhealthy` when an error occurs. `details` includes `s3Configured`, `cloudStorageEnabled`, `documentsStored`, and `bucket` (redacted when configured).
  */
 async function checkStorage(): Promise<HealthCheckResult> {
   const start = Date.now();

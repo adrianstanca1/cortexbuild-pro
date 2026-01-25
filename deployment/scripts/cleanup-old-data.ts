@@ -37,9 +37,13 @@ function parseArgs(): CleanupOptions {
 }
 
 /**
- * Removes activity log records older than the configured retention period or reports which records would be removed when running in dry-run mode.
+ * Delete activity log records older than the configured retention period or report which records would be deleted when running in dry-run mode.
  *
- * @param options - Cleanup options; `dryRun` simulates deletions when true, and `retentionDays` specifies how many days of activity logs to retain
+ * Logs the retention policy, cutoff date, the number of matching records, and whether records were deleted or would be deleted in dry-run mode.
+ *
+ * @param options - Cleanup options containing:
+ *   - `dryRun`: if true, simulate deletions and only report what would be removed
+ *   - `retentionDays`: number of days of activity logs to retain; records older than this are targeted for removal
  */
 async function cleanupActivityLogs(options: CleanupOptions) {
   const cutoffDate = new Date();
@@ -70,9 +74,11 @@ async function cleanupActivityLogs(options: CleanupOptions) {
 }
 
 /**
- * Checks the database for orphaned RFI and Submittal attachments and logs the discovery counts.
+ * Detects orphaned RFI and Submittal attachments and logs the discovery counts.
  *
- * @param options - Cleanup options; when `options.dryRun` is true the function will only log what would be reviewed without performing any cleanup actions.
+ * Logs the total number of orphaned attachments and a per-type breakdown; in non-dry-run mode it notes that manual verification is required before deletion, and in dry-run mode it reports how many attachments would be reviewed.
+ *
+ * @param options - Cleanup options; when `options.dryRun` is true the function only logs what would be reviewed without performing any cleanup actions.
  */
 async function cleanupOrphanedAttachments(options: CleanupOptions) {
   console.log(`\n📎 Orphaned Attachments Check`);
@@ -132,12 +138,11 @@ async function generateCleanupReport(options: CleanupOptions) {
 }
 
 /**
- * Run the full database cleanup workflow for CortexBuild Pro.
+ * Orchestrates the database cleanup workflow for CortexBuild Pro.
  *
- * Parses command-line options, prints a header (and a dry-run warning when applicable),
- * executes the cleanup steps (report generation, activity log pruning, orphaned attachment checks)
- * in sequence, logs success or failure, exits the process with status 1 on error,
- * and always disconnects the Prisma client before finishing.
+ * Parses command-line options, prints a header and a dry-run warning when applicable,
+ * runs the report generation, activity log pruning, and orphaned attachment checks in sequence,
+ * exits the process with status 1 on error, and always disconnects the Prisma client.
  */
 async function main() {
   const options = parseArgs();

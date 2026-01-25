@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+/**
+ * Performs a sequence of platform integrity checks by counting records across key database models.
+ *
+ * Checks users, projects, site access logs, worker certifications, lifting operations, and webhooks,
+ * logging each count. If no users are found or any count operation fails, the process is terminated with exit code 1.
+ * The Prisma client is disconnected when verification completes or on failure.
+ */
 async function verifyPlatform() {
   console.log('🚀 Starting CortexBuild Pro Platform Verification...');
   

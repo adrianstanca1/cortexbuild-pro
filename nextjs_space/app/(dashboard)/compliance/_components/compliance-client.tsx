@@ -16,6 +16,16 @@ interface ComplianceClientProps {
     teamMembers: any[];
 }
 
+/**
+ * Render the compliance dashboard client with KPI summary cards and a tabbed interface for related tables.
+ *
+ * @param initialAccessLogs - Array of site access log records used for the Access Logs table and KPI counts
+ * @param initialCerts - Array of worker certification records used for the Certifications table and expiry KPIs
+ * @param initialLifts - Array of lifting operation records used for the Lifting Operations table and KPI counts
+ * @param projects - Array of project metadata passed to tables that require project context
+ * @param teamMembers - Array of team member metadata passed to tables for member lookup and display
+ * @returns A React element that displays KPI cards and a three-tab layout for Site Access Logs, Worker Certifications, and Lifting Operations
+ */
 export function ComplianceClient({
     initialAccessLogs,
     initialCerts,

@@ -38,6 +38,15 @@ interface DashboardSidebarProps {
   userRole?: string;
 }
 
+/**
+ * Render the dashboard sidebar with navigation links, administration links (when allowed), and a collapse toggle.
+ *
+ * Renders null until client hydration completes to avoid SSR/content mismatches. Navigation items reflect
+ * the current pathname for active styling; admin links are shown when `userRole` indicates super- or company-level access.
+ *
+ * @param userRole - Optional role string used to determine whether administration links are displayed (`"SUPER_ADMIN"`, `"COMPANY_OWNER"`, or `"ADMIN"`)
+ * @returns The sidebar JSX element for use in the dashboard layout, or `null` before the component is mounted
+ */
 export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);

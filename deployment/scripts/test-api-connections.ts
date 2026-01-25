@@ -240,12 +240,18 @@ async function testGenericUrl(baseUrl: string): Promise<{ success: boolean; mess
 }
 
 /**
- * Validate and record a single API connection by performing a service-specific test.
+ * Test an API connection, update its status and lastValidatedAt, and record the outcome in apiConnectionLog.
  *
- * Performs the appropriate test for the connection's service (or a generic URL check when a baseUrl is provided), updates the connection's status and lastValidatedAt in the database, and creates an apiConnectionLog entry recording the test outcome.
- *
- * @param connection - Connection object to test. `credentials` may be a plain object or an encrypted string (e.g., starting with `enc:`) that will be decrypted; `baseUrl` is used for generic URL checks when no service-specific test exists.
- * @returns A TestResult containing the connection id, serviceName, environment, previousStatus, newStatus, whether the test succeeded, the responseTime in milliseconds, and a human-readable message.
+ * @param connection - Connection to validate. `credentials` may be a plain object or an encrypted string (e.g., prefixed with `enc:` and base64-encoded); `baseUrl` is used when no service-specific test exists.
+ * @returns An object with:
+ *   - `connectionId`: the connection's id
+ *   - `serviceName`: the connection's service name
+ *   - `environment`: the connection's environment
+ *   - `previousStatus`: status before the test
+ *   - `newStatus`: status after the test (`ACTIVE` on success, `ERROR` on failure)
+ *   - `success`: `true` if the test succeeded, `false` otherwise
+ *   - `responseTime`: test elapsed time in milliseconds
+ *   - `message`: human-readable result or error message
  */
 async function testConnection(connection: {
   id: string;
