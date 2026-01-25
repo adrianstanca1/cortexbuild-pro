@@ -210,6 +210,30 @@ export function withErrorHandler<T>(
   };
 }
 
+// Middleware wrapper that combines auth and error handling
+export function withAuth<TParams = Record<string, string>>(
+  handler: (
+    request: NextRequest,
+    context: ApiContext,
+    params?: TParams
+  ) => Promise<NextResponse>
+) {
+  return withErrorHandler(
+    async (
+      request: NextRequest,
+      routeContext?: { params: TParams }
+    ): Promise<NextResponse> => {
+      const { context, error } = await getApiContext();
+      
+      if (error || !context) {
+        return error || errorResponse('UNAUTHORIZED');
+      }
+      
+      return handler(request, context, routeContext?.params);
+    }
+  );
+}
+
 // Log API activity
 export async function logActivity(
   prisma: { activityLog: { create: (args: { data: Record<string, unknown> }) => Promise<unknown> } },
