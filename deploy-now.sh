@@ -100,10 +100,22 @@ if [ ! -f .env ]; then
     echo "  5. SSL_EMAIL - Your email for SSL certificates"
     echo ""
     echo -e "Edit the .env file now? ${YELLOW}(Recommended)${NC}"
-    read -p "Open .env in nano? (Y/n) " -n 1 -r
+    read -p "Open .env in editor? (Y/n) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-        nano .env
+        # Use preferred editor or fallback to common editors
+        if [ ! -z "$EDITOR" ]; then
+            $EDITOR .env
+        elif command -v nano &> /dev/null; then
+            nano .env
+        elif command -v vim &> /dev/null; then
+            vim .env
+        elif command -v vi &> /dev/null; then
+            vi .env
+        else
+            echo -e "${YELLOW}No editor found. Please edit deployment/.env manually.${NC}"
+            exit 0
+        fi
     else
         echo -e "${YELLOW}Please edit deployment/.env before continuing with deployment.${NC}"
         echo "Then run this script again or use: ./deployment/deploy.sh"
@@ -119,7 +131,15 @@ source .env
 # Auto-generate NEXTAUTH_SECRET if needed
 if [ -z "$NEXTAUTH_SECRET" ] || [ "$NEXTAUTH_SECRET" = "your_secure_secret_here" ]; then
     echo -e "${YELLOW}Generating secure NEXTAUTH_SECRET...${NC}"
-    NEW_SECRET=$(openssl rand -base64 32)
+    
+    # Check if openssl is available
+    if command -v openssl &> /dev/null; then
+        NEW_SECRET=$(openssl rand -base64 32)
+    else
+        # Fallback to /dev/urandom if openssl not available
+        NEW_SECRET=$(head -c 32 /dev/urandom | base64)
+    fi
+    
     sed -i "s/NEXTAUTH_SECRET=.*/NEXTAUTH_SECRET=$NEW_SECRET/" .env
     export NEXTAUTH_SECRET=$NEW_SECRET
     echo -e "${GREEN}✓ Generated NEXTAUTH_SECRET${NC}"
@@ -195,6 +215,7 @@ if [ -f deploy.sh ]; then
 else
     echo -e "${YELLOW}deploy.sh not found, running manual deployment...${NC}"
     
+    # Note: We're already in $DEPLOYMENT_DIR, so docker-compose.yml path is relative
     # Pull images
     echo -e "${BLUE}Pulling Docker images...${NC}"
     docker-compose -f docker-compose.yml pull postgres nginx certbot 2>/dev/null || true
@@ -207,9 +228,24 @@ else
     echo -e "${BLUE}Starting services...${NC}"
     docker-compose -f docker-compose.yml up -d
     
-    # Wait for database
+    # Wait for database with health check
     echo -e "${BLUE}Waiting for database to be ready...${NC}"
-    sleep 10
+    MAX_WAIT=60  # Maximum wait time in seconds
+    WAITED=0
+    while [ $WAITED -lt $MAX_WAIT ]; do
+        if docker-compose -f docker-compose.yml exec -T postgres pg_isready -U "${POSTGRES_USER:-cortexbuild}" -d "${POSTGRES_DB:-cortexbuild}" &> /dev/null; then
+            echo -e "${GREEN}✓ Database is ready${NC}"
+            break
+        fi
+        sleep 2
+        WAITED=$((WAITED + 2))
+        echo -n "."
+    done
+    echo ""
+    
+    if [ $WAITED -ge $MAX_WAIT ]; then
+        echo -e "${YELLOW}⚠ Database health check timed out, but continuing...${NC}"
+    fi
     
     # Run migrations
     echo -e "${BLUE}Running database migrations...${NC}"
