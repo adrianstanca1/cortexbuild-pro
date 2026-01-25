@@ -2,9 +2,14 @@
 # Quick verification script to check API keys and server configuration
 # This script checks that all required environment variables are set
 
+set -e
+
 echo "🔍 CortexBuild Pro - Configuration Verification"
 echo "================================================"
 echo ""
+
+# Track overall status
+FAILED_CHECKS=0
 
 # Function to check if a variable is set
 check_var() {
@@ -18,6 +23,7 @@ check_var() {
     else
         if [ "$required" = "required" ]; then
             echo "❌ $var_name: NOT SET (REQUIRED)"
+            FAILED_CHECKS=$((FAILED_CHECKS + 1))
             return 1
         else
             echo "⚠️  $var_name: Not set (optional)"
@@ -44,7 +50,10 @@ echo ""
 
 # Load environment variables from nextjs_space/.env
 if [ -f "nextjs_space/.env" ]; then
-    export $(cat nextjs_space/.env | grep -v '^#' | grep -v '^$' | xargs)
+    set -a
+    # shellcheck disable=SC1091
+    . nextjs_space/.env
+    set +a
 fi
 
 # Check required variables
@@ -88,7 +97,14 @@ echo ""
 # Summary
 echo "📊 Configuration Summary:"
 echo "--------------------------------"
-echo "All required API keys and servers are configured!"
+
+if [ $FAILED_CHECKS -eq 0 ]; then
+    echo "✅ All required API keys and servers are configured!"
+else
+    echo "❌ $FAILED_CHECKS required configuration(s) missing!"
+    echo "   Please review the errors above and configure missing variables."
+fi
+
 echo ""
 echo "✅ Core Services:"
 echo "   - PostgreSQL Database"
@@ -111,4 +127,11 @@ echo "   2. Check CONFIGURATION_CHECKLIST.md for deployment checklist"
 echo "   3. For development: cd nextjs_space && npm install && npm run dev"
 echo "   4. For production: cd deployment && docker-compose up -d"
 echo ""
-echo "✨ Configuration verification complete!"
+
+if [ $FAILED_CHECKS -eq 0 ]; then
+    echo "✨ Configuration verification complete!"
+    exit 0
+else
+    echo "⚠️  Configuration has missing required variables!"
+    exit 1
+fi
