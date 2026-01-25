@@ -4,7 +4,6 @@ import { getScriptPrismaClient, disconnectScriptPrisma } from "../lib/script-db"
 
 const prisma = getScriptPrismaClient();
 
-
 async function main() {
   console.log("Seeding database...");
 
