@@ -4,6 +4,7 @@ import { getScriptPrismaClient, disconnectScriptPrisma } from "./script-db-helpe
 
 const prisma = getScriptPrismaClient();
 
+
 /**
  * Seeds the database with default organizations, users, team members, projects, tasks, and activity logs.
  *

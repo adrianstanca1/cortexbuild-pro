@@ -191,6 +191,7 @@ To get a SendGrid API Key:
 3. Create a new API key with "Mail Send" permissions
 4. Configure it in the Admin Dashboard
 
+
 ## Project Structure
 
 ```

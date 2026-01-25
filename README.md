@@ -534,6 +534,7 @@ docker-compose -f deployment/docker-compose.yml exec postgres \
 5. **Test After Changes** - Run diagnostics after configuration or code changes
 6. **Document Issues** - Use activity logs to maintain audit trail of problems and fixes
 
+
 ## 📊 API Endpoints
 
 ### Authentication
@@ -560,6 +561,7 @@ docker-compose -f deployment/docker-compose.yml exec postgres \
 - `/api/admin/api-connections/services/{id}/test` - Test specific service
 - `/api/admin/api-connections/logs` - View API connection logs
 - `/api/admin/api-connections/export` - Export health data
+
 
 ### Real-time
 - `/api/socketio` - WebSocket connection endpoint
