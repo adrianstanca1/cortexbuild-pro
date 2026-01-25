@@ -180,6 +180,14 @@ GRANT ALL PRIVILEGES ON DATABASE cortexbuild TO cortexbuild_user;
 \q
 ```
 
+**⚠️ SECURITY WARNING:** Replace `'your_secure_password'` with a strong, unique password. Never use example passwords in production!
+
+Generate a secure password:
+```bash
+openssl rand -base64 32
+# Or use a password manager to generate a 32+ character password
+```
+
 ### Connection String Format
 
 ```
@@ -238,8 +246,10 @@ docker-compose exec app sh -c "cd /app && npx prisma db seed"
 ### 6. Verify Deployment
 
 ```bash
-# Check service status
-docker-compose ps
+# Verify deployment
+docker compose ps        # Docker Compose V2 (current)
+# OR
+docker-compose ps        # Docker Compose V1 (legacy)
 
 # Test application
 curl http://localhost:3000/api/health

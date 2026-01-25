@@ -33,6 +33,9 @@ build/
 coverage/
 *.lcov
 .nyc_output/
+.c8_output/
+lcov.info
+clover.xml
 
 # Debug
 npm-debug.log*
