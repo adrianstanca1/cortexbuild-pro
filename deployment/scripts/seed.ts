@@ -314,9 +314,9 @@ async function main() {
   console.log("  Email: adrian@ascladdingltd.co.uk");
   console.log(`  Password: ${passwordSecret} (Set via ADMIN_PASSWORD env var)`);
   console.log("\n** DEMO ACCOUNTS (CortexBuild Demo Org) **");
-  console.log("  Admin: john@doe.com / johndoe123");
-  console.log("  Project Manager: sarah@cortexbuild.com / manager123");
-  console.log("  Field Worker: mike@cortexbuild.com / worker123");
+  console.log(`  Admin: john@doe.com / ${passwordSecret}`);
+  console.log(`  Project Manager: sarah@cortexbuild.com / ${passwordSecret}`);
+  console.log(`  Field Worker: mike@cortexbuild.com / ${passwordSecret}`);
 }
 
 main()
