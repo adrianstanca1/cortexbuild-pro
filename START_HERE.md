@@ -26,7 +26,7 @@ All preparation work has been completed. Your CortexBuild Pro application is ful
 
 3. **Run Deployment**:
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
    ```
 
 See detailed instructions: **DEPLOY_VIA_HESTIA.md**
@@ -40,7 +40,7 @@ ssh root@72.62.132.43
 # When prompted, enter password: Cumparavinde1@
 
 # Then paste and run this command:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 **That's it!** The script will automatically:
@@ -394,7 +394,7 @@ Everything is ready for deployment. The entire process from start to finish shou
 ### The Deployment Command (Again)
 ```bash
 ssh root@72.62.132.43
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | sudo bash
 ```
 
 **Questions or Issues?**

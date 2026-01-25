@@ -67,7 +67,7 @@ I have successfully prepared your CortexBuild Pro application for production dep
 
 4. **Copy and paste this command**:
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
    ```
 
 5. **Wait 10-15 minutes** for the automated deployment to complete
@@ -86,7 +86,7 @@ ssh root@72.62.132.43
 # Enter password: Cumparavinde1@
 
 # Then run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 ---
@@ -396,7 +396,7 @@ docker-compose restart
 
 ### All Changes Committed
 All changes have been committed to the branch:
-`copilot/build-and-deploy-full-app`
+`copilot/merge-and-commit-recent-changes`
 
 ---
 
@@ -425,7 +425,7 @@ All changes have been committed to the branch:
 1. Go to: https://72.62.132.43:8443/login
 2. Login: Admin / Cumparavinde1@
 3. Open web terminal
-4. Run: `curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash`
+4. Run: `curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash`
 5. Wait 10-15 minutes
 6. Access: http://72.62.132.43:3000
 7. Create your admin account

@@ -5,7 +5,7 @@
 SSH into your VPS and run this single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 Or download and run:
@@ -15,7 +15,7 @@ ssh root@72.62.132.43
 # Password: Cumparavinde1@
 
 # Then run:
-wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh
+wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh
 chmod +x deploy-from-github.sh
 ./deploy-from-github.sh
 ```

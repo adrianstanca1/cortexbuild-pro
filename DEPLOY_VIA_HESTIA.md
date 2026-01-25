@@ -31,7 +31,7 @@ In the web terminal, run:
 
 ```bash
 # One-command deployment
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 Or download and run manually:
@@ -39,7 +39,7 @@ Or download and run manually:
 ```bash
 # Download script
 cd /root
-wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh
+wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh
 
 # Make executable
 chmod +x deploy-from-github.sh
@@ -79,7 +79,7 @@ If web terminal is not available:
 
 ### Step 2: Upload Deployment Script
 1. Download this script to your local computer:
-   https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh
+   https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh
 2. Upload it via File Manager to `/root/`
 
 ### Step 3: Set Permissions and Execute
@@ -100,7 +100,7 @@ ssh root@72.62.132.43
 ssh root@srv1262179.hstgr.cloud
 
 # Then run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 ---
@@ -219,7 +219,7 @@ ufw allow 3000/tcp
 
 1. ✅ Login to https://72.62.132.43:8443/login
 2. ✅ Open web terminal or SSH
-3. ✅ Run: `curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash`
+3. ✅ Run: `curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash`
 4. ✅ Wait 10-15 minutes
 5. ✅ Access: http://72.62.132.43:3000
 6. ✅ Create admin account

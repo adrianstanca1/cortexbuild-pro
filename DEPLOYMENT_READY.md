@@ -15,7 +15,7 @@ ssh root@72.62.132.43
 # Password: Cumparavinde1@
 
 # Then paste and run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
 ```
 
 This will automatically:
@@ -39,7 +39,7 @@ ssh root@72.62.132.43
 # Password: Cumparavinde1@
 
 # 2. Download deployment script
-wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh
+wget https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh
 
 # 3. Make it executable
 chmod +x deploy-from-github.sh
