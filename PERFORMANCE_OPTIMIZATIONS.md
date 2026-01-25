@@ -181,7 +181,7 @@ These performance optimizations are already integrated into the codebase and wil
 Use the automated deployment script which handles all steps:
 
 ```bash
-cd /home/runner/work/cortexbuild-pro/cortexbuild-pro
+cd /path/to/cortexbuild-pro
 ./deployment/deploy.sh
 ```
 
@@ -198,7 +198,7 @@ If you prefer manual control:
 
 ```bash
 # Navigate to project directory
-cd /home/runner/work/cortexbuild-pro/cortexbuild-pro
+cd /path/to/cortexbuild-pro
 
 # Pull latest changes
 git pull
@@ -222,6 +222,8 @@ After deployment, verify the optimizations are working:
 
 1. **Check Application Health**:
    ```bash
+   # Local/Development: http://localhost:3000
+   # Production: https://your-domain.com
    curl http://localhost:3000/api/health
    ```
 
