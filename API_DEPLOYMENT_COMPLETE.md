@@ -19,7 +19,7 @@ All API keys, server configurations, and deployment setup have been successfully
 #### 1. PostgreSQL Database
 - **Status:** ✅ Fully Configured
 - **Type:** Hosted PostgreSQL Database
-- **Connection:** `db-ddaacb0a0.db003.hosteddb.reai.io:5432`
+- **Connection:** `<database-host>:5432`
 - **Variables:**
   - ✅ `DATABASE_URL` - Configured with hosted database
   - ✅ `POSTGRES_USER` - Set for Docker deployment
