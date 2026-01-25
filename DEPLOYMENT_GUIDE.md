@@ -57,8 +57,8 @@ docker-compose -f deployment/docker-compose.yml up -d
 ### 5. Run Database Migrations and Seeding
 
 ```bash
-docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && npx prisma migrate deploy"
-docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && npx prisma db seed"
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma db seed"
 ```
 
 ### 6. Configure CloudPanel
@@ -97,7 +97,7 @@ docker-compose -f deployment/docker-compose.yml exec app /app/entrypoint.sh --mi
 To seed the database with initial data:
 
 ```bash
-docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && npx prisma db seed"
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma db seed"
 ```
 
 ### Backups

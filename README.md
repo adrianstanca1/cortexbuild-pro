@@ -8,33 +8,18 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 
 ## 🚀 Quick Start
 
-> **New!** Use our automated deployment script for the easiest setup:
-> ```bash
-> ./deploy-now.sh
-> ```
-> See [QUICKSTART.md](QUICKSTART.md) for detailed quick start guide.
-
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database
 - Docker & Docker Compose (for production)
 
-### One-Command Deployment (Recommended)
+### Development Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro
 
-# Run the automated deployment script
-./deploy-now.sh
-```
-
-The script will check prerequisites, configure environment, and deploy all services automatically!
-
-### Development Setup
-
-```bash
 # Navigate to the application
 cd nextjs_space
 
@@ -47,7 +32,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Manual Production Deployment
+### Production Deployment
 
 ```bash
 # Navigate to deployment directory
@@ -86,10 +71,9 @@ All API keys and server connections are **fully configured** and ready for use!
 ## 📚 Documentation
 
 ### Core Documentation
-- **[QUICKSTART.md](QUICKSTART.md)** - ⚡ Quick start guide for rapid deployment
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Production deployment instructions with Docker
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Complete guide for setting up all API keys and services
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Quick reference checklist for configuration status
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Production deployment instructions with Docker
 - **[BUILD_STATUS.md](BUILD_STATUS.md)** - Current build status and deployment readiness
 - **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning and optimization guide
 

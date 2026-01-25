@@ -2,8 +2,6 @@
 .env
 .env.local
 .env.*.local
-.env.backup
-.env.prod
 deployment/.env
 
 # IDE
@@ -30,8 +28,9 @@ node_modules/
 out/
 dist/
 build/
-*.tsbuildinfo
 
 # Debug
 npm-debug.log*
 .pnpm-debug.log*
+
+.env.prod
