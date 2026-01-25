@@ -2,8 +2,6 @@
 # Quick verification script to check API keys and server configuration
 # This script checks that all required environment variables are set
 
-set -e
-
 echo "🔍 CortexBuild Pro - Configuration Verification"
 echo "================================================"
 echo ""
@@ -39,12 +37,14 @@ if [ -f "nextjs_space/.env" ]; then
     echo "✅ nextjs_space/.env exists"
 else
     echo "❌ nextjs_space/.env NOT FOUND"
+    FAILED_CHECKS=$((FAILED_CHECKS + 1))
 fi
 
 if [ -f "deployment/.env" ]; then
     echo "✅ deployment/.env exists"
 else
     echo "❌ deployment/.env NOT FOUND"
+    FAILED_CHECKS=$((FAILED_CHECKS + 1))
 fi
 echo ""
 
