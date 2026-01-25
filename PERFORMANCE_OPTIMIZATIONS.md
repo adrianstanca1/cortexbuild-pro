@@ -170,6 +170,120 @@ All changes maintain backward compatibility:
 - Same data returned (up to pagination limits)
 - No breaking changes to client code
 
+## Deployment
+
+These performance optimizations are already integrated into the codebase and will be deployed automatically using the standard deployment process.
+
+### Deploying the Optimizations
+
+#### Option 1: Automated Deployment (Recommended)
+
+Use the automated deployment script which handles all steps:
+
+```bash
+cd /home/runner/work/cortexbuild-pro/cortexbuild-pro
+./deployment/deploy.sh
+```
+
+This script will:
+1. Pull latest images
+2. Build the application with optimizations
+3. Run database migrations
+4. Start all services
+5. Perform health checks
+
+#### Option 2: Manual Deployment
+
+If you prefer manual control:
+
+```bash
+# Navigate to project directory
+cd /home/runner/work/cortexbuild-pro/cortexbuild-pro
+
+# Pull latest changes
+git pull
+
+# Build the Docker image
+docker-compose -f deployment/docker-compose.yml build app
+
+# Stop existing containers
+docker-compose -f deployment/docker-compose.yml down
+
+# Start services
+docker-compose -f deployment/docker-compose.yml up -d
+
+# Run migrations (if needed)
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
+```
+
+### Deployment Verification
+
+After deployment, verify the optimizations are working:
+
+1. **Check Application Health**:
+   ```bash
+   curl http://localhost:3000/api/health
+   ```
+
+2. **Monitor Response Times**:
+   - Access analytics endpoints: `/api/company/analytics`, `/api/dashboard/analytics`, `/api/safety/analytics`
+   - Verify response times are improved (50-75% faster for large datasets)
+
+3. **Check Logs**:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml logs -f app
+   ```
+
+4. **Test Export Functionality**:
+   - Try exporting data from `/api/export` endpoint
+   - Verify memory usage stays within limits
+
+### Rollback Procedure
+
+If issues arise after deployment:
+
+1. **Quick Rollback**:
+   ```bash
+   git checkout <previous-commit-sha>
+   ./deployment/deploy.sh
+   ```
+
+2. **Verify Previous Version**:
+   ```bash
+   docker-compose -f deployment/docker-compose.yml logs -f
+   ```
+
+3. **Report Issues**:
+   - Document any performance regressions
+   - Include error logs and specific endpoints affected
+
+### Monitoring Post-Deployment
+
+Monitor these metrics for 24-48 hours after deployment:
+
+- **Response Times**: Analytics endpoints should be 50-75% faster
+- **Memory Usage**: Should remain stable under 2GB for typical loads
+- **Error Rates**: Should not increase
+- **Database Connections**: Should show better resilience with exponential backoff
+
+### Environment-Specific Considerations
+
+#### Production
+- Schedule deployment during low-traffic periods
+- Have database backups ready before deployment
+- Monitor closely for the first hour after deployment
+
+#### Staging
+- Deploy to staging first to validate optimizations
+- Run load tests to compare before/after performance
+- Verify all analytics calculations remain accurate
+
+### Additional Resources
+
+- Full deployment guide: [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+- Backup procedures: `deployment/backup.sh`
+- SSL setup: `deployment/setup-ssl.sh`
+
 ## Future Optimization Opportunities
 
 1. **Caching**: Implement Redis caching for frequently accessed analytics
