@@ -60,32 +60,38 @@ export async function POST(request: NextRequest) {
         const results: unknown[] = [];
 
         if (operation === 'create') {
-          for (const task of tasks) {
-            if (task.title && task.projectId) {
-              const created = await prisma.task.create({
-                data: {
-                  title: task.title,
-                  description: task.description || '',
-                  status: task.status || 'TODO',
-                  priority: task.priority || 'MEDIUM',
-                  projectId: task.projectId,
-                  assigneeId: task.assigneeId || null,
-                  dueDate: task.dueDate ? new Date(task.dueDate) : null,
-                  creatorId: user.id,
-                },
-              });
-              results.push(created);
-              processed++;
-            }
+          // Use createMany for bulk insert (much faster)
+          const validTasks = tasks.filter(task => task.title && task.projectId);
+          
+          if (validTasks.length > 0) {
+            const tasksData = validTasks.map(task => ({
+              title: task.title!,
+              description: task.description || '',
+              status: task.status || 'TODO',
+              priority: task.priority || 'MEDIUM',
+              projectId: task.projectId!,
+              assigneeId: task.assigneeId || null,
+              dueDate: task.dueDate ? new Date(task.dueDate) : null,
+              creatorId: user.id,
+            }));
+
+            // Use createMany for batch insert
+            const created = await prisma.task.createMany({
+              data: tasksData,
+              skipDuplicates: true,
+            });
+            processed = created.count;
           }
           broadcastToOrganization(user.organizationId, {
             type: 'task_created',
             payload: { count: processed, message: `${processed} tasks created` },
           });
         } else if (operation === 'update') {
-          for (const task of tasks) {
-            if (task.id) {
-              const updated = await prisma.task.update({
+          // Batch updates using Promise.all for parallel execution
+          const updatePromises = tasks
+            .filter(task => task.id)
+            .map(task => 
+              prisma.task.update({
                 where: { id: task.id },
                 data: {
                   ...(task.title && { title: task.title }),
@@ -95,11 +101,13 @@ export async function POST(request: NextRequest) {
                   ...(task.assigneeId && { assigneeId: task.assigneeId }),
                   ...(task.dueDate && { dueDate: new Date(task.dueDate) }),
                 },
-              });
-              results.push(updated);
-              processed++;
-            }
-          }
+              })
+            );
+          
+          const updated = await Promise.all(updatePromises);
+          processed = updated.length;
+          results.push(...updated);
+          
           broadcastToOrganization(user.organizationId, {
             type: 'task_updated',
             payload: { count: processed, message: `${processed} tasks updated` },

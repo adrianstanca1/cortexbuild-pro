@@ -19,49 +19,125 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     include: {
       manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
       tasks: {
-        include: { 
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          dueDate: true,
+          createdAt: true,
           assignee: { select: { id: true, name: true, avatarUrl: true } },
           creator: { select: { id: true, name: true } }
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
+        take: 100 // Limit initial load
       },
       documents: {
-        include: { uploadedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          name: true,
+          documentType: true,
+          fileSize: true,
+          mimeType: true,
+          cloudStoragePath: true,
+          isPublic: true,
+          createdAt: true,
+          uploadedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit initial load
       },
       teamMembers: {
         include: { teamMember: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } } } }
       },
       rfis: {
-        include: { 
+        select: {
+          id: true,
+          number: true,
+          subject: true,
+          status: true,
+          priority: true,
+          createdAt: true,
+          responseDate: true,
           createdBy: { select: { id: true, name: true } },
           assignedTo: { select: { id: true, name: true } }
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit initial load
       },
       submittals: {
-        include: { submittedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          status: true,
+          submittalType: true,
+          createdAt: true,
+          dueDate: true,
+          submittedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit initial load
       },
       changeOrders: {
-        include: { requestedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          status: true,
+          costImpact: true,
+          createdAt: true,
+          requestedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit initial load
       },
       safetyIncidents: {
-        include: { reportedBy: { select: { id: true, name: true } } },
-        orderBy: { incidentDate: "desc" }
+        select: {
+          id: true,
+          incidentNumber: true,
+          description: true,
+          severity: true,
+          status: true,
+          incidentDate: true,
+          reportedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { incidentDate: "desc" },
+        take: 30 // Limit initial load
       },
       dailyReports: {
-        include: { createdBy: { select: { id: true, name: true } } },
+        select: {
+          id: true,
+          reportDate: true,
+          weatherCondition: true,
+          temperature: true,
+          workCompleted: true,
+          createdAt: true,
+          createdBy: { select: { id: true, name: true } }
+        },
         orderBy: { reportDate: "desc" },
         take: 30
       },
       // Additional construction modules
       milestones: {
-        orderBy: { targetDate: "asc" }
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          targetDate: true,
+          status: true,
+          completionPercentage: true
+        },
+        orderBy: { targetDate: "asc" },
+        take: 50 // Limit milestones
       },
       timeEntries: {
-        include: { 
+        select: {
+          id: true,
+          date: true,
+          hours: true,
+          description: true,
           user: { select: { id: true, name: true } },
           task: { select: { id: true, title: true } }
         },
@@ -69,41 +145,134 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       costItems: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          description: true,
+          category: true,
+          amount: true,
+          status: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 100 // Limit cost items
       },
       materials: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          name: true,
+          quantity: true,
+          unit: true,
+          unitCost: true,
+          supplier: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 100 // Limit materials
       },
       subcontracts: {
-        include: { subcontractor: { select: { id: true, companyName: true, trade: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          description: true,
+          value: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          subcontractor: { select: { id: true, companyName: true, trade: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit subcontracts
       },
       permits: {
-        orderBy: { expirationDate: "asc" }
+        select: {
+          id: true,
+          permitNumber: true,
+          permitType: true,
+          status: true,
+          issueDate: true,
+          expirationDate: true
+        },
+        orderBy: { expirationDate: "asc" },
+        take: 50 // Limit permits
       },
       drawings: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          drawingNumber: true,
+          title: true,
+          revision: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit drawings
       },
       siteDiaries: {
+        select: {
+          id: true,
+          date: true,
+          entries: true,
+          createdAt: true
+        },
         orderBy: { date: "desc" },
         take: 30
       },
       defects: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          severity: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit defects
       },
       punchLists: {
-        include: { assignedTo: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          status: true,
+          priority: true,
+          dueDate: true,
+          assignedTo: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit punch lists
       },
       inspections: {
-        orderBy: { scheduledDate: "desc" }
+        select: {
+          id: true,
+          title: true,
+          number: true,
+          status: true,
+          inspectionType: true,
+          scheduledDate: true
+        },
+        orderBy: { scheduledDate: "desc" },
+        take: 50 // Limit inspections
       },
       progressClaims: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          claimNumber: true,
+          periodStart: true,
+          periodEnd: true,
+          amount: true,
+          status: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50 // Limit progress claims
       },
       // Toolbox talks and daily checks
       toolboxTalks: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          topic: true,
+          date: true,
+          status: true,
           presenter: { select: { id: true, name: true } },
           attendees: {
             include: { user: { select: { id: true, name: true } } }
@@ -114,7 +283,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       mewpChecks: {
-        include: {
+        select: {
+          id: true,
+          checkDate: true,
+          overallStatus: true,
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
           equipment: { select: { id: true, name: true, equipmentNumber: true } }
@@ -123,7 +295,11 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       toolChecks: {
-        include: {
+        select: {
+          id: true,
+          checkDate: true,
+          toolName: true,
+          overallStatus: true,
           inspector: { select: { id: true, name: true } }
         },
         orderBy: { checkDate: "desc" },
@@ -131,17 +307,29 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       },
       // Enhanced construction features
       riskAssessments: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          riskLevel: true,
+          createdAt: true,
+          approvedAt: true,
           createdBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
-          hazards: true,
+          hazards: { select: { id: true, description: true, riskLevel: true } },
           _count: { select: { acknowledgements: true, hazards: true } }
         },
         orderBy: { createdAt: "desc" },
         take: 50
       },
       hotWorkPermits: {
-        include: {
+        select: {
+          id: true,
+          permitNumber: true,
+          workType: true,
+          status: true,
+          startDate: true,
+          expiryDate: true,
           requestedBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
           completedBy: { select: { id: true, name: true } }
