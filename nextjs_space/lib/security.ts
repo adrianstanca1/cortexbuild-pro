@@ -92,15 +92,40 @@ export const corsConfig: CorsOptions = {
  */
 export function applyCorsHeaders(response: Response, origin?: string): Response {
   const headers = new Headers(response.headers);
-  
+
   // Handle origin
   if (corsConfig.origin === '*' || corsConfig.origin === true) {
-    headers.set('Access-Control-Allow-Origin', '*');
+    // When credentials are enabled, we cannot use a wildcard origin.
+    // Reflect the request origin (if provided) and vary by Origin.
+    if (corsConfig.credentials && origin) {
+      headers.set('Access-Control-Allow-Origin', origin);
+      const existingVary = headers.get('Vary');
+      if (existingVary) {
+        const varyValues = existingVary.split(',').map(v => v.trim().toLowerCase());
+        if (!varyValues.includes('origin')) {
+          headers.set('Vary', existingVary + ', Origin');
+        }
+      } else {
+        headers.set('Vary', 'Origin');
+      }
+    } else if (!corsConfig.credentials) {
+      headers.set('Access-Control-Allow-Origin', '*');
+    }
   } else if (typeof corsConfig.origin === 'string') {
     headers.set('Access-Control-Allow-Origin', corsConfig.origin);
   } else if (Array.isArray(corsConfig.origin) && origin) {
     if (corsConfig.origin.includes(origin)) {
       headers.set('Access-Control-Allow-Origin', origin);
+      // Response may differ per allowed origin, so vary by Origin.
+      const existingVary = headers.get('Vary');
+      if (existingVary) {
+        const varyValues = existingVary.split(',').map(v => v.trim().toLowerCase());
+        if (!varyValues.includes('origin')) {
+          headers.set('Vary', existingVary + ', Origin');
+        }
+      } else {
+        headers.set('Vary', 'Origin');
+      }
     }
   }
   
