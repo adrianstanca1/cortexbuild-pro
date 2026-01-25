@@ -16,7 +16,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 REPO_URL="https://github.com/adrianstanca1/cortexbuild-pro.git"
-BRANCH="copilot/build-and-deploy-full-app"
+BRANCH="copilot/merge-and-commit-recent-changes"
 DEPLOY_DIR="/var/www/cortexbuild-pro"
 
 echo "Deployment Configuration:"
