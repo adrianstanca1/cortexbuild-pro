@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { getScriptPrismaClient, disconnectScriptPrisma } from "../lib/script-db";
 
-const prisma = new PrismaClient();
+const prisma = getScriptPrismaClient();
 
 async function main() {
   console.log("Seeding database...");
@@ -319,5 +320,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await disconnectScriptPrisma();
   });

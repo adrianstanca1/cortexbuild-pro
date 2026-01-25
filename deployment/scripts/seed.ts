@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { getScriptPrismaClient, disconnectScriptPrisma } from "./script-db-helper";
 
-const prisma = new PrismaClient();
+const prisma = getScriptPrismaClient();
 
 /**
  * Seeds the database with default organizations, users, team members, projects, tasks, and activity logs.
@@ -324,5 +325,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await disconnectScriptPrisma();
   });
