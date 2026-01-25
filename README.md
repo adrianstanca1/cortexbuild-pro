@@ -418,7 +418,7 @@ prisma.apiConnectionLog.findMany({
   where: { success: false },
   take: 10,
   orderBy: { timestamp: 'desc' }
-}).then(console.log);
+}).then(console.log).finally(() => prisma.\$disconnect());
 "
 ```
 
@@ -462,7 +462,7 @@ prisma.activityLog.findMany({
 }).then(logs => {
   console.log('Recent Errors:');
   logs.forEach(log => console.log(\`[\${log.createdAt}] \${log.action}: \${log.details}\`));
-});
+}).catch(console.error).finally(() => prisma.\$disconnect());
 "
 ```
 
