@@ -45,13 +45,18 @@ const statusColors: Record<string, string> = {
 export function GanttChart({ items, onItemClick }: GanttChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<"day" | "week" | "month">("week");
-  const [viewStart, setViewStart] = useState(() => {
+  
+  // Memoize the initial view start calculation
+  const initialViewStart = useMemo(() => {
+    if (items.length === 0) return startOfMonth(new Date());
     const minDate = items.reduce((min, item) => {
       const d = parseISO(item.startDate);
       return d < min ? d : min;
     }, new Date());
     return startOfMonth(minDate);
-  });
+  }, [items]);
+  
+  const [viewStart, setViewStart] = useState(initialViewStart);
 
   // Calculate date range
   const dateRange = useMemo(() => {
