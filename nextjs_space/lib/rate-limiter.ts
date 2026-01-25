@@ -140,32 +140,33 @@ export function getRateLimitIdentifier(req: Request, userId?: string): string {
  */
 export async function checkRateLimit(
   limiter: ReturnType<typeof createRateLimiter>,
-  identifier: string
+  identifier: string,
+  config: RateLimitConfig
 ): Promise<{ ok: true } | { ok: false; response: Response }> {
   const result = await limiter(identifier);
-  
+
   if (!result.allowed) {
     const resetDate = new Date(result.resetTime);
+    const retryAfterSeconds = Math.ceil((result.resetTime - Date.now()) / 1000);
     const response = new Response(
       JSON.stringify({
         error: 'Too many requests',
-        message: 'Rate limit exceeded. Please try again later.',
-        retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
+        message: config.message ?? 'Rate limit exceeded. Please try again later.',
+        retryAfter: retryAfterSeconds,
       }),
       {
         status: 429,
         headers: {
           'Content-Type': 'application/json',
-          'Retry-After': Math.ceil((result.resetTime - Date.now()) / 1000).toString(),
-          'X-RateLimit-Limit': '100',
+          'Retry-After': retryAfterSeconds.toString(),
+          'X-RateLimit-Limit': config.maxRequests.toString(),
           'X-RateLimit-Remaining': '0',
           'X-RateLimit-Reset': resetDate.toISOString(),
         },
       }
     );
-    
+
     return { ok: false, response };
   }
-  
   return { ok: true };
 }
