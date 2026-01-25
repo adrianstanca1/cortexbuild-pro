@@ -8,12 +8,35 @@ All preparation work has been completed. Your CortexBuild Pro application is ful
 
 ## 🚀 DEPLOY NOW (Copy & Paste)
 
-### **Option 1: One-Command Deploy** (Recommended - Takes 5-10 minutes)
+### Server Access Information
+- **Server IP**: 72.62.132.43
+- **Hostname**: srv1262179.hstgr.cloud
+- **Control Panel**: https://72.62.132.43:8443/login
+- **Admin User**: Admin
+- **Password**: Cumparavinde1@
+
+### **Option 1: Deploy via Hestia Control Panel** (Recommended - Easiest)
+
+1. **Access Control Panel**:
+   - Open: https://72.62.132.43:8443/login
+   - Login: Admin / Cumparavinde1@
+   - Accept SSL certificate warning
+
+2. **Open Web Terminal** (in Hestia menu, look for SSH/Terminal)
+
+3. **Run Deployment**:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-full-app/deployment/deploy-from-github.sh | bash
+   ```
+
+See detailed instructions: **DEPLOY_VIA_HESTIA.md**
+
+### **Option 2: SSH Deploy** (If SSH is accessible)
 
 Open your terminal and run:
 
 ```bash
-ssh root@72.62.132.43
+ssh Admin@72.62.132.43
 # When prompted, enter password: Cumparavinde1@
 
 # Then paste and run this command:
