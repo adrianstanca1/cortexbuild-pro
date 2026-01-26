@@ -5,28 +5,79 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Deployment](https://img.shields.io/badge/deployment-ready-blue)
 ![Security](https://img.shields.io/badge/vulnerabilities-0-success)
+![Docker](https://img.shields.io/badge/docker-published-blue)
 
-**🌐 Production URL:** https://www.cortexbuildpro.com
+**🌐 Production URL:** https://www.cortexbuildpro.com  
+**🐳 Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
 
-## 🚀 Quick Start
+---
+
+## 🚀 Quick Deployment
+
+Deploy CortexBuild Pro in 5 minutes using our pre-built Docker image:
+
+```bash
+# 1. Clone deployment scripts
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# 2. Configure environment
+cp .env.example .env
+nano .env  # Set POSTGRES_PASSWORD
+
+# 3. Deploy from published Docker image
+./deploy-from-published-image.sh
+```
+
+**📖 Full deployment guide:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
+
+---
+
+## 📦 Docker Image
+
+CortexBuild Pro is available as a ready-to-use Docker image:
+
+```bash
+# Pull the latest version
+docker pull ghcr.io/adrianstanca1/cortexbuild-pro:latest
+
+# Run with Docker Compose
+docker compose up -d
+```
+
+**Supported Tags:**
+- `latest` - Latest stable release
+- `main` - Main branch build
+- `v1.0.0` - Specific version tags
+
+---
+
+## 🛠️ Development Setup
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database
+- Node.js 20+
+- PostgreSQL 14+
 - Docker & Docker Compose (for production)
 
-### Development Setup
+### Local Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro
-
-# Navigate to the application
-cd nextjs_space
+cd cortexbuild-pro/nextjs_space
 
 # Install dependencies
 npm install --legacy-peer-deps
+
+# Setup environment
+cp .env.example .env
+# Configure DATABASE_URL and other settings
+
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev
 
 # Start development server
 npm run dev
@@ -34,40 +85,58 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Production Deployment to www.cortexbuildpro.com
+---
 
-**Quick Deploy:**
+## 🌐 Production Deployment Options
+
+### Option 1: Deploy from Published Image (Fastest ⚡)
+
+Use our pre-built Docker image from GitHub Container Registry:
+
 ```bash
-# Clone repository on your server
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro/deployment
+cd deployment
+./deploy-from-published-image.sh
+```
 
-# Run automated deployment script
+**Time:** ~5 minutes | **Build:** Not required
+
+### Option 2: Deploy to www.cortexbuildpro.com
+
+Automated deployment script for the official domain:
+
+```bash
+cd deployment
 ./deploy-production.sh
 ```
 
-**Manual Deploy:**
+**Time:** ~15 minutes | **Includes:** SSL setup
+
+### Option 3: Manual Deployment
+
+Full control over the deployment process:
+
 ```bash
-# Navigate to deployment directory
 cd deployment
 
-# Configure environment (already set for www.cortexbuildpro.com)
-nano .env  # Set secure database password
+# Configure environment
+cp .env.example .env
+nano .env
 
-# Start services with Docker Compose
+# Build and start services
+docker compose build
 docker compose up -d
 
 # Run migrations
 docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 
-# Setup SSL
-./setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com
-
-# Monitor logs
-docker compose logs -f
+# Setup SSL (optional)
+./setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
 
-**📖 Complete deployment guide:** [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)
+**📖 Detailed guides:**
+- [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
+- [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md) - Official domain deployment
+- [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
 
 ## 📋 Configuration Status
 
