@@ -9,7 +9,7 @@ This document provides a comprehensive list of all available API endpoints in Co
 
 ## Authentication
 
-All API endpoints (except `/api/auth/*` and `/api/signup`) require authentication via NextAuth.js session cookies.
+All API endpoints (except `/api/auth/*`, `/api/signup`, `/api/openapi`, and `/api/csrf-token`) require authentication via NextAuth.js session cookies.
 
 ### Authentication Endpoints
 
