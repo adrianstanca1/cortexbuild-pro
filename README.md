@@ -5,28 +5,79 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Deployment](https://img.shields.io/badge/deployment-ready-blue)
 ![Security](https://img.shields.io/badge/vulnerabilities-0-success)
+![Docker](https://img.shields.io/badge/docker-published-blue)
 
-**🌐 Production URL:** https://www.cortexbuildpro.com
+**🌐 Production URL:** https://www.cortexbuildpro.com  
+**🐳 Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
 
-## 🚀 Quick Start
+---
+
+## 🚀 Quick Deployment
+
+Deploy CortexBuild Pro in 5 minutes using our pre-built Docker image:
+
+```bash
+# 1. Clone deployment scripts
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# 2. Configure environment
+cp .env.example .env
+nano .env  # Set POSTGRES_PASSWORD
+
+# 3. Deploy from published Docker image
+./deploy-from-published-image.sh
+```
+
+**📖 Full deployment guide:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
+
+---
+
+## 📦 Docker Image
+
+CortexBuild Pro is available as a ready-to-use Docker image:
+
+```bash
+# Pull the latest version
+docker pull ghcr.io/adrianstanca1/cortexbuild-pro:latest
+
+# Run with Docker Compose
+docker compose up -d
+```
+
+**Supported Tags:**
+- `latest` - Latest stable release
+- `main` - Main branch build
+- `v1.0.0` - Specific version tags
+
+---
+
+## 🛠️ Development Setup
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database
+- Node.js 20+
+- PostgreSQL 14+
 - Docker & Docker Compose (for production)
 
-### Development Setup
+### Local Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro
-
-# Navigate to the application
-cd nextjs_space
+cd cortexbuild-pro/nextjs_space
 
 # Install dependencies
 npm install --legacy-peer-deps
+
+# Setup environment
+cp .env.example .env
+# Configure DATABASE_URL and other settings
+
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev
 
 # Start development server
 npm run dev
@@ -34,40 +85,58 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Production Deployment to www.cortexbuildpro.com
+---
 
-**Quick Deploy:**
+## 🌐 Production Deployment Options
+
+### Option 1: Deploy from Published Image (Fastest ⚡)
+
+Use our pre-built Docker image from GitHub Container Registry:
+
 ```bash
-# Clone repository on your server
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro/deployment
+cd deployment
+./deploy-from-published-image.sh
+```
 
-# Run automated deployment script
+**Time:** ~5 minutes | **Build:** Not required
+
+### Option 2: Deploy to www.cortexbuildpro.com
+
+Automated deployment script for the official domain:
+
+```bash
+cd deployment
 ./deploy-production.sh
 ```
 
-**Manual Deploy:**
+**Time:** ~15 minutes | **Includes:** SSL setup
+
+### Option 3: Manual Deployment
+
+Full control over the deployment process:
+
 ```bash
-# Navigate to deployment directory
 cd deployment
 
-# Configure environment (already set for www.cortexbuildpro.com)
-nano .env  # Set secure database password
+# Configure environment
+cp .env.example .env
+nano .env
 
-# Start services with Docker Compose
+# Build and start services
+docker compose build
 docker compose up -d
 
 # Run migrations
 docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 
-# Setup SSL
-./setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com
-
-# Monitor logs
-docker compose logs -f
+# Setup SSL (optional)
+./setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
 
-**📖 Complete deployment guide:** [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)
+**📖 Detailed guides:**
+- [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
+- [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md) - Official domain deployment
+- [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
 
 ## 📋 Configuration Status
 
@@ -94,20 +163,61 @@ All API keys and server connections are **fully configured** and ready for use!
 
 ## 📚 Documentation
 
-### Core Documentation
-- **[REPOSITORY_MERGE_COMPLETE.md](REPOSITORY_MERGE_COMPLETE.md)** - Complete repository merge and progress summary
-- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Production deployment instructions with Docker
+### Deployment Guides
+- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Complete public deployment guide (10K+ words)
+- **[DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)** - Official domain deployment guide
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Advanced production deployment options
+- **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick command reference
+- **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release information
+
+### API & Configuration
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Complete guide for setting up all API keys and services
-- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Quick reference checklist for configuration status
-- **[RUNBOOK.md](RUNBOOK.md)** - Operations guide and troubleshooting
-- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security guidelines and best practices
-- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning and optimization guide
+- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - API reference with 172+ endpoints
+- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Configuration verification checklist
+- **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Project structure and architecture
+
+### Security & Performance
+- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices and compliance
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance optimizations
+
+### Getting Started
+- **[START_HERE.md](START_HERE.md)** - New user guide
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[RUNBOOK.md](RUNBOOK.md)** - Operational runbook
 - **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation map
 
 ### Application Documentation
 - **[nextjs_space/README.md](nextjs_space/README.md)** - Application overview and features
 
-## 🏗️ Architecture
+---
+
+## 🔍 Verification & Testing
+
+### Verify Your Build
+```bash
+# Run build verification
+./deployment/scripts/verify-build.sh
+```
+
+### Verify Your Deployment
+```bash
+# After deployment, verify everything is working
+./deployment/scripts/verify-deployment.sh
+```
+
+### Run Health Checks
+```bash
+# Check system health
+curl http://localhost:3000/api/auth/providers
+
+# View service status
+docker compose ps
+
+# Check logs
+docker compose logs -f
+```
+
+--- 🏗️ Architecture
 
 ### Frontend
 - **Framework**: Next.js 14 (App Router)

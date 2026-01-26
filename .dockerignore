@@ -1,0 +1,41 @@
+# Ignore everything by default
+*
+
+# Include only necessary files for build
+!nextjs_space/
+!deployment/
+
+# Exclude from nextjs_space
+nextjs_space/.next/
+nextjs_space/node_modules/
+nextjs_space/.env*
+nextjs_space/.git/
+nextjs_space/coverage/
+nextjs_space/*.log
+nextjs_space/.DS_Store
+nextjs_space/.vscode/
+nextjs_space/.idea/
+nextjs_space/test/
+nextjs_space/__tests__/
+nextjs_space/**/*.test.ts
+nextjs_space/**/*.test.tsx
+nextjs_space/**/*.spec.ts
+nextjs_space/**/*.spec.tsx
+
+# Exclude from deployment
+deployment/.env
+deployment/backups/
+deployment/ssl/
+deployment/*.log
+
+# Documentation
+*.md
+!nextjs_space/README.md
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
