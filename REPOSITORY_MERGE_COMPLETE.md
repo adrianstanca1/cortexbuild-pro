@@ -91,11 +91,10 @@ Historical documentation moved to `.github/historical/`:
 **Risk Level:** High  
 **Impact:** Prevented unauthorized VPS access
 
-**Credentials Exposed (Now Fixed):**
-```bash
-VPS_HOST="[REDACTED]"
-VPS_PASSWORD="[REDACTED]"
-```
+**Security Issues Fixed:**
+- Removed hardcoded VPS credentials from deployment scripts
+- Sanitized documentation to remove IP addresses and passwords
+- All sensitive deployment information now requires environment variables
 
 **Files Sanitized:**
 - `START_HERE.md` - Redacted hardcoded IP addresses and passwords
@@ -711,7 +710,7 @@ curl https://your-domain.com/api/auth/providers
 **Repository:** adrianstanca1/cortexbuild-pro  
 **Version:** 1.0.0  
 
-**🚀 Ready for deployment to cortexbuildpro.abacusai.app**
+**🚀 Ready for production deployment**
 
 ---
 
