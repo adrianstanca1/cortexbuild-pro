@@ -409,16 +409,30 @@ if (isError) {
 ### 1. CSRF Protection
 
 ```typescript
-// Backend generates token
+// Backend: app/api/csrf-token/route.ts
+import { NextResponse } from "next/server";
+import { getCsrfTokenForClient } from "@/lib/csrf";
+
 export async function GET() {
-  const token = await getToken();
-  return NextResponse.json({ csrfToken: token });
+  const csrfToken = await getCsrfTokenForClient();
+  return NextResponse.json({ csrfToken });
 }
 
-// Frontend includes in mutations
-headers: {
-  'X-CSRF-Token': csrfToken
-}
+// Frontend: fetch token, then include in mutations
+const csrfResponse = await fetch("/api/csrf-token", {
+  method: "GET",
+  credentials: "include",
+});
+const { csrfToken } = await csrfResponse.json();
+
+await fetch("/api/projects", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-csrf-token": csrfToken,
+  },
+  body: JSON.stringify(payload),
+});
 ```
 
 ### 2. Session Validation
