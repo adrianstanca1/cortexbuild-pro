@@ -35,6 +35,12 @@ This index provides an overview of all documentation available in the CortexBuil
   - CLEANUP_SUMMARY.md - Repository cleanup summary (January 2026)
   - BRANCH_ANALYSIS.md - Detailed branch analysis (January 2026)
   - PLATFORM_STATUS_JANUARY_2026.md - Platform completion report (January 2026)
+  - TASK_COMPLETION_SUMMARY.md - Task completion status (January 2026)
+  - BUILD_COMPLETION_REPORT.md - Build completion status (January 2026)
+  - DEPLOYMENT_SUMMARY.md - Historical deployment summary (January 2026)
+  - DEPLOYMENT_COMPLETE.txt - Deployment completion status (January 2026)
+  - DEPLOY_TO_CORTEXBUILDPRO.md - Domain-specific deployment guide (archived)
+  - QUICK_REFERENCE.md - Quick reference guide (consolidated into PRODUCTION_DEPLOYMENT.md)
 
 ## Quick Reference Scripts
 
@@ -67,15 +73,15 @@ During repository cleanup, redundant and insecure documents were removed:
 ### Consolidation
 - Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md** (primary guide)
 - Streamlined **deployment/README.md** to quick reference (points to PRODUCTION_DEPLOYMENT.md)
-- Removed: DEPLOYMENT_GUIDE.md, DEPLOYMENT_SUMMARY.md
-- Removed: PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
+- Removed: DEPLOYMENT_GUIDE.md, PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
 - Removed redundant deployment scripts with security vulnerabilities
 - Removed manual test files: manual-seed.js, test-materials.ts, test-rfis.js
-- Archived historical documentation:
-  - MERGE_COMPLETE.md → .github/historical/
-  - CLEANUP_SUMMARY.md → .github/historical/
-  - BRANCH_ANALYSIS.md → .github/historical/
-  - PLATFORM_COMPLETION_REPORT.md → .github/historical/PLATFORM_STATUS_JANUARY_2026.md
+- Archived historical documentation to .github/historical/:
+  - MERGE_COMPLETE.md, CLEANUP_SUMMARY.md, BRANCH_ANALYSIS.md
+  - PLATFORM_COMPLETION_REPORT.md → PLATFORM_STATUS_JANUARY_2026.md
+  - TASK_COMPLETION_SUMMARY.md, BUILD_COMPLETION_REPORT.md
+  - DEPLOYMENT_SUMMARY.md, DEPLOYMENT_COMPLETE.txt
+  - DEPLOY_TO_CORTEXBUILDPRO.md, QUICK_REFERENCE.md
 - Created **REPOSITORY_MERGE_COMPLETE.md** - Comprehensive summary of all merged work
 
 ### Scripts Consolidated
@@ -108,4 +114,5 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** January 26, 2026
+**Last Updated:** January 26, 2026  
+**Latest Cleanup:** Archived 6 additional completion/summary documents to maintain clean root directory
