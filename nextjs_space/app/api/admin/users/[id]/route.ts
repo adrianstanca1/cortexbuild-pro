@@ -45,9 +45,8 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Don't return password in response
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
+    // Don't return password
+    const { password: _password, ...userWithoutPassword } = user;
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {
     console.error("Error fetching user:", error);
