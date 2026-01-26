@@ -9,8 +9,8 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Copy package files
-COPY nextjs_space/package.json ./
-RUN yarn install --production=false
+COPY nextjs_space/package.json nextjs_space/package-lock.json ./
+RUN npm ci --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -19,7 +19,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ .
 
 # Generate Prisma client
-RUN yarn prisma generate
+RUN npx prisma generate
 
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -36,7 +36,7 @@ ENV NEXTAUTH_URL=$NEXTAUTH_URL
 ENV NEXT_OUTPUT_MODE=standalone
 ENV PRISMA_SKIP_INIT=true
 
-RUN yarn build
+RUN npm run build
 
 # Production image
 FROM base AS runner
