@@ -96,7 +96,18 @@ export async function requireRole(allowedRoles: string[]): Promise<AuthResult> {
     return { session: null, error };
   }
   
-  const userRole = session?.user?.role || 'FIELD_WORKER';
+  const userRole = session?.user?.role;
+  
+  // Security: Deny access if role is undefined rather than defaulting
+  if (!userRole) {
+    return {
+      session,
+      error: NextResponse.json(
+        { error: 'User role not defined' },
+        { status: 403 }
+      ),
+    };
+  }
   
   if (!allowedRoles.includes(userRole)) {
     return {
