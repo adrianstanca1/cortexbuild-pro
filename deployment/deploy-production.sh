@@ -27,7 +27,7 @@ EOF
 echo -e "${NC}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEPLOYMENT_DIR="$SCRIPT_DIR/deployment"
+DEPLOYMENT_DIR="$SCRIPT_DIR"
 
 # Check if running with proper privileges
 if [ "$EUID" -eq 0 ]; then 
@@ -51,9 +51,10 @@ echo ""
 
 ALL_DEPS_OK=true
 check_command "docker" || ALL_DEPS_OK=false
-check_command "docker-compose" || check_command "docker compose" || ALL_DEPS_OK=false
+(check_command "docker-compose" || check_command "docker compose") || ALL_DEPS_OK=false
 check_command "git" || ALL_DEPS_OK=false
 check_command "curl" || ALL_DEPS_OK=false
+check_command "dig" || echo -e "${YELLOW}⚠ dig not found (optional for DNS checks)${NC}"
 
 echo ""
 
@@ -114,8 +115,14 @@ echo "Checking DNS resolution for $DOMAIN and $WWW_DOMAIN..."
 echo ""
 
 # Check if domain resolves (non-blocking check)
-DOMAIN_IP=$(dig +short $DOMAIN | head -n1)
-WWW_DOMAIN_IP=$(dig +short $WWW_DOMAIN | head -n1)
+if command -v dig &> /dev/null; then
+    DOMAIN_IP=$(dig +short $DOMAIN | head -n1)
+    WWW_DOMAIN_IP=$(dig +short $WWW_DOMAIN | head -n1)
+else
+    # Fallback to nslookup if dig is not available
+    DOMAIN_IP=$(nslookup $DOMAIN 2>/dev/null | grep -A1 "Name:" | tail -n1 | awk '{print $2}')
+    WWW_DOMAIN_IP=$(nslookup $WWW_DOMAIN 2>/dev/null | grep -A1 "Name:" | tail -n1 | awk '{print $2}')
+fi
 
 if [ -z "$DOMAIN_IP" ] || [ -z "$WWW_DOMAIN_IP" ]; then
     echo -e "${YELLOW}⚠ Warning: Domain DNS may not be fully propagated${NC}"
