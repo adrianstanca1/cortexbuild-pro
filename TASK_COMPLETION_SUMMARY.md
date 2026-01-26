@@ -57,7 +57,7 @@ Created and configured `.env` file with:
 - **Status**: ✅ Fully operational
 
 #### Real-time WebSocket Connection
-- **Server**: Socket.IO server on `/api/socketio`
+- **Server**: Socket.IO server on `/api/socket`
 - **Client**: WebSocket client library integrated
 - **Authentication**: JWT token validation
 - **Features**: Bidirectional real-time communication
