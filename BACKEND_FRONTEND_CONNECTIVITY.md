@@ -195,7 +195,7 @@ import { io } from 'socket.io-client';
 function RealtimeComponent() {
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL, {
-      path: '/api/socketio'
+      path: '/api/socket'
     });
     
     socket.on('connect', () => {
