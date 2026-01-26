@@ -1,5 +1,10 @@
 # CortexBuild Pro - Quick Start Guide
 
+> 📖 **Documentation Guide:**
+> - **This guide** - Quick start for local development and Docker deployment
+> - **[START_HERE.md](START_HERE.md)** - VPS-specific deployment with Hestia control panel
+> - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Comprehensive production deployment guide
+
 Welcome to CortexBuild Pro! This guide will help you get started quickly.
 
 ## 🚀 Quick Deployment (Recommended)
