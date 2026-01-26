@@ -14,13 +14,15 @@ export async function GET() {
     }
 
     const orgId = (session.user as { organizationId?: string })?.organizationId;
+    // Add limit to prevent fetching thousands of tasks
     const tasks = await prisma.task.findMany({
       where: orgId ? { project: { organizationId: orgId } } : {},
       include: {
         project: { select: { id: true, name: true } },
         assignee: { select: { id: true, name: true, avatarUrl: true } }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      take: 1000 // Limit to 1000 most recent tasks
     });
 
     return NextResponse.json({ tasks });

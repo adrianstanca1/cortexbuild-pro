@@ -71,18 +71,22 @@ export async function GET(
         orderBy: { createdAt: 'desc' }
       });
 
-      for (const photo of dailyReportPhotos) {
-        const url = await getFileUrl(photo.cloudStoragePath, false);
+      // Batch fetch URLs in parallel for better performance
+      const urls = await Promise.all(
+        dailyReportPhotos.map(photo => getFileUrl(photo.cloudStoragePath, false))
+      );
+      
+      dailyReportPhotos.forEach((photo, index) => {
         photos.push({
           id: photo.id,
-          url,
+          url: urls[index],
           caption: photo.caption,
           source: 'daily_report',
           sourceId: photo.dailyReport.id,
           sourceTitle: `Daily Report - ${new Date(photo.dailyReport.reportDate).toLocaleDateString('en-GB')}`,
           createdAt: photo.createdAt
         });
-      }
+      });
     }
 
     // Fetch safety incident photos
@@ -98,25 +102,31 @@ export async function GET(
         }
       });
 
-      for (const incident of safetyIncidents) {
-        for (const photo of incident.photos) {
-          const url = await getFileUrl(photo.cloudStoragePath, false);
-          const shortDesc = incident.description.length > 30 
-            ? incident.description.substring(0, 30) + '...' 
-            : incident.description;
-          photos.push({
-            id: photo.id,
-            url,
-            caption: photo.caption,
-            source: 'safety_incident',
-            sourceId: incident.id,
-            sourceTitle: `Safety: ${shortDesc}`,
-            createdAt: photo.createdAt,
-            mimeType: photo.mimeType || undefined,
-            fileSize: photo.fileSize || undefined
-          });
-        }
-      }
+      // Flatten all photos and batch fetch URLs in parallel
+      const allIncidentPhotos = safetyIncidents.flatMap(incident => 
+        incident.photos.map(photo => ({ photo, incident }))
+      );
+      
+      const urls = await Promise.all(
+        allIncidentPhotos.map(({ photo }) => getFileUrl(photo.cloudStoragePath, false))
+      );
+      
+      allIncidentPhotos.forEach(({ photo, incident }, index) => {
+        const shortDesc = incident.description.length > 30 
+          ? incident.description.substring(0, 30) + '...' 
+          : incident.description;
+        photos.push({
+          id: photo.id,
+          url: urls[index],
+          caption: photo.caption,
+          source: 'safety_incident',
+          sourceId: incident.id,
+          sourceTitle: `Safety: ${shortDesc}`,
+          createdAt: photo.createdAt,
+          mimeType: photo.mimeType || undefined,
+          fileSize: photo.fileSize || undefined
+        });
+      });
     }
 
     // Fetch punch list photos
@@ -139,18 +149,22 @@ export async function GET(
         orderBy: { createdAt: 'desc' }
       });
 
-      for (const photo of punchListPhotos) {
-        const url = await getFileUrl(photo.cloudStoragePath, false);
+      // Batch fetch URLs in parallel for better performance
+      const urls = await Promise.all(
+        punchListPhotos.map(photo => getFileUrl(photo.cloudStoragePath, false))
+      );
+      
+      punchListPhotos.forEach((photo, index) => {
         photos.push({
           id: photo.id,
-          url,
+          url: urls[index],
           caption: photo.caption,
           source: 'punch_list',
           sourceId: photo.punchList.id,
           sourceTitle: `Punch #${photo.punchList.number}: ${photo.punchList.title}`,
           createdAt: photo.createdAt
         });
-      }
+      });
     }
 
     // Fetch inspection photos
@@ -173,18 +187,22 @@ export async function GET(
         orderBy: { createdAt: 'desc' }
       });
 
-      for (const photo of inspectionPhotos) {
-        const url = await getFileUrl(photo.cloudStoragePath, false);
+      // Batch fetch URLs in parallel for better performance
+      const urls = await Promise.all(
+        inspectionPhotos.map(photo => getFileUrl(photo.cloudStoragePath, false))
+      );
+      
+      inspectionPhotos.forEach((photo, index) => {
         photos.push({
           id: photo.id,
-          url,
+          url: urls[index],
           caption: photo.caption,
           source: 'inspection',
           sourceId: photo.inspection.id,
           sourceTitle: `Inspection #${photo.inspection.number}: ${photo.inspection.title}`,
           createdAt: photo.createdAt
         });
-      }
+      });
     }
 
     // Fetch document photos (PHOTOS type documents)
@@ -212,11 +230,15 @@ export async function GET(
         orderBy: { createdAt: 'desc' }
       });
 
-      for (const doc of documentPhotos) {
-        const url = await getFileUrl(doc.cloudStoragePath, doc.isPublic);
+      // Batch fetch URLs in parallel for better performance
+      const urls = await Promise.all(
+        documentPhotos.map(doc => getFileUrl(doc.cloudStoragePath, doc.isPublic))
+      );
+      
+      documentPhotos.forEach((doc, index) => {
         photos.push({
           id: doc.id,
-          url,
+          url: urls[index],
           caption: null,
           source: 'document',
           sourceId: doc.id,
@@ -225,7 +247,7 @@ export async function GET(
           mimeType: doc.mimeType || undefined,
           fileSize: doc.fileSize || undefined
         });
-      }
+      });
     }
 
     // Sort all photos by date (newest first)
