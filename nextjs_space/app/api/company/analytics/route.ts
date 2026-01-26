@@ -115,19 +115,19 @@ export async function GET(request: NextRequest) {
       },
       projectMetrics: {
         total: projects.length,
-        byStatus: projects.reduce((acc: any, p: any) => {
+        byStatus: projects.reduce((acc: Record<string, number>, p: { status: string }) => {
           const status = p.status.toLowerCase().replace('_', '');
           const statusKey = status === 'inprogress' ? 'inProgress' : status === 'onhold' ? 'onHold' : status;
           acc[statusKey] = (acc[statusKey] || 0) + 1;
           return acc;
         }, { planning: 0, inProgress: 0, onHold: 0, completed: 0 }),
-        totalBudget: projects.reduce((sum: number, p: any) => sum + (p.budget || 0), 0),
+        totalBudget: projects.reduce((sum: number, p: { budget?: number | null }) => sum + (p.budget || 0), 0),
         avgTeamSize: projects.length > 0
-          ? Math.round(projects.reduce((sum: number, p: any) => sum + p._count.teamMembers, 0) / projects.length)
+          ? Math.round(projects.reduce((sum: number, p: { _count: { teamMembers: number } }) => sum + p._count.teamMembers, 0) / projects.length)
           : 0
       },
       taskMetrics: (() => {
-        const metrics = tasks.reduce((acc: any, t: any) => {
+        const metrics = tasks.reduce((acc: { total: number; completed: number; inProgress: number; criticalTasks: number }, t: { status: string; priority: string }) => {
           acc.total++;
           if (t.status === 'COMPLETE') acc.completed++;
           if (t.status === 'IN_PROGRESS') acc.inProgress++;

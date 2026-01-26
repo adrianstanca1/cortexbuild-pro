@@ -14,10 +14,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
     // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can view invitations
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
