@@ -5,7 +5,11 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl
+# Update package index and install dependencies with retry logic
+RUN apk update || apk update --no-cache || true
+RUN apk add --no-cache libc6-compat openssl || \
+    (sleep 5 && apk add --no-cache libc6-compat openssl) || \
+    apk add --no-cache libc6-compat openssl3
 WORKDIR /app
 
 # Copy package files
@@ -46,7 +50,10 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install openssl and prisma for migrations
-RUN apk add --no-cache openssl
+RUN apk update || true
+RUN apk add --no-cache openssl || \
+    (sleep 5 && apk add --no-cache openssl) || \
+    apk add --no-cache openssl3
 RUN npm install -g prisma@^6.0.0
 
 RUN addgroup --system --gid 1001 nodejs
