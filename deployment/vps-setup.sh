@@ -3,8 +3,8 @@
 # This script configures a fresh VPS for CortexBuild Pro deployment
 set -e
 
-DOMAIN="cortexbuildpro.com"
-IP="34.16.55.142"
+DOMAIN="www.cortexbuildpro.com"
+IP="72.62.132.43"
 
 echo "=========================================="
 echo "CortexBuild Pro - VPS Setup"
