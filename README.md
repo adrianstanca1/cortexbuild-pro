@@ -134,9 +134,35 @@ docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 ```
 
 **📖 Detailed guides:**
+- [BUILD_AND_DEPLOY.md](BUILD_AND_DEPLOY.md) - Complete build and deployment guide ⭐
 - [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
-- [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md) - Official domain deployment
 - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
+- [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Production security checklist 🔒
+
+---
+
+## ✅ Production Readiness Verification
+
+Verify your deployment is ready for production:
+
+```bash
+# Run comprehensive readiness check
+bash verify-production-readiness.sh
+```
+
+This script verifies:
+- ✅ Repository structure and required files
+- ✅ Node.js dependencies and build artifacts
+- ✅ Prisma ORM configuration
+- ✅ Environment variable templates
+- ✅ Docker configuration
+- ✅ Security settings (.gitignore, secrets)
+- ✅ Documentation completeness
+- ✅ Deployment scripts and syntax
+
+**Expected Result:** All checks pass with 0 errors, ready for production! 🚀
+
+---
 
 ## 📋 Configuration Status
 
