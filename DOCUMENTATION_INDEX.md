@@ -26,13 +26,14 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning guide and latest improvements
 
 ### Status Reports
-- **[PLATFORM_COMPLETION_REPORT.md](PLATFORM_COMPLETION_REPORT.md)** - Comprehensive platform status and feature completeness
+- **Platform Status** - See archived reports in [.github/historical/](.github/historical/)
 
 ### Historical Documentation
-- **[.github/historical/](.github/historical/)** - Archived merge and cleanup documentation
+- **[.github/historical/](.github/historical/)** - Archived merge and platform status documentation
   - MERGE_COMPLETE.md - Branch merge history (January 2026)
   - CLEANUP_SUMMARY.md - Repository cleanup summary (January 2026)
   - BRANCH_ANALYSIS.md - Detailed branch analysis (January 2026)
+  - PLATFORM_STATUS_JANUARY_2026.md - Platform completion report (January 2026)
 
 ## Quick Reference Scripts
 
@@ -41,11 +42,8 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ## Deployment Directory
 
-The `deployment/` directory contains:
-- Docker Compose configuration
-- Nginx configuration templates
-- Production environment examples
-- Deployment scripts and utilities
+The `deployment/` directory contains Docker configuration and deployment scripts. 
+See [deployment/README.md](deployment/README.md) for quick reference or [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) for comprehensive deployment guide.
 
 ## Next.js Application
 
@@ -66,12 +64,17 @@ During repository cleanup, redundant and insecure documents were removed:
 - Redacted sensitive information from START_HERE.md
 
 ### Consolidation
-- Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md**
+- Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md** (primary guide)
+- Streamlined **deployment/README.md** to quick reference (points to PRODUCTION_DEPLOYMENT.md)
 - Removed: DEPLOYMENT_GUIDE.md, DEPLOYMENT_SUMMARY.md
 - Removed: PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
 - Removed redundant deployment scripts with security vulnerabilities
 - Removed manual test files: manual-seed.js, test-materials.ts, test-rfis.js
-- Archived historical merge documentation to .github/historical/
+- Archived historical documentation:
+  - MERGE_COMPLETE.md → .github/historical/
+  - CLEANUP_SUMMARY.md → .github/historical/
+  - BRANCH_ANALYSIS.md → .github/historical/
+  - PLATFORM_COMPLETION_REPORT.md → .github/historical/PLATFORM_STATUS_JANUARY_2026.md
 
 ### Scripts Consolidated
 - Kept: `deploy-now.sh` (local Docker deployment)
