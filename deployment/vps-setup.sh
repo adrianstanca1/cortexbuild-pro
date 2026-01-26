@@ -41,7 +41,8 @@ sudo apt-get install -y \
     unzip \
     htop \
     ufw \
-    fail2ban
+    fail2ban \
+    openssl
 
 # Install Docker
 echo ""
