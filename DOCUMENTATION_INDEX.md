@@ -28,6 +28,12 @@ This index provides an overview of all documentation available in the CortexBuil
 ### Status Reports
 - **[PLATFORM_COMPLETION_REPORT.md](PLATFORM_COMPLETION_REPORT.md)** - Comprehensive platform status and feature completeness
 
+### Historical Documentation
+- **[.github/historical/](.github/historical/)** - Archived merge and cleanup documentation
+  - MERGE_COMPLETE.md - Branch merge history (January 2026)
+  - CLEANUP_SUMMARY.md - Repository cleanup summary (January 2026)
+  - BRANCH_ANALYSIS.md - Detailed branch analysis (January 2026)
+
 ## Quick Reference Scripts
 
 - **[deploy-now.sh](deploy-now.sh)** - Automated deployment script
@@ -64,11 +70,18 @@ During repository cleanup, redundant and insecure documents were removed:
 - Removed: DEPLOYMENT_GUIDE.md, DEPLOYMENT_SUMMARY.md
 - Removed: PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
 - Removed redundant deployment scripts with security vulnerabilities
+- Removed manual test files: manual-seed.js, test-materials.ts, test-rfis.js
+- Archived historical merge documentation to .github/historical/
 
 ### Scripts Consolidated
 - Kept: `deploy-now.sh` (local Docker deployment)
 - Kept: `deployment/deploy-from-github.sh` (GitHub-based remote deployment)
 - Removed: Multiple redundant deployment scripts
+
+### Script Duplication Note
+- Scripts in `deployment/scripts/` are intentionally duplicated from `nextjs_space/scripts/`
+- This duplication supports standalone VPS deployment scenarios
+- See `deployment/scripts/README.md` for detailed explanation
 
 ## Getting Help
 
@@ -90,4 +103,4 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** January 25, 2026
+**Last Updated:** January 26, 2026
