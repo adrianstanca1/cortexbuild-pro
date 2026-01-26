@@ -11,7 +11,6 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ### Deployment & Operations
 - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Alternative deployment methods and CloudPanel instructions
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
 
 ### Configuration
@@ -24,8 +23,7 @@ This index provides an overview of all documentation available in the CortexBuil
 ### Development
 - **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Architecture overview and codebase organization
 - **[API_REFACTORING_GUIDE.md](API_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
-- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning guide
-- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Latest performance improvements
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning guide and latest improvements
 
 ### Status Reports
 - **[PLATFORM_COMPLETION_REPORT.md](PLATFORM_COMPLETION_REPORT.md)** - Comprehensive platform status and feature completeness
@@ -55,12 +53,22 @@ The `nextjs_space/` directory contains:
 
 ## Recent Cleanup (January 2026)
 
-During repository cleanup, redundant documents were removed and consolidated:
+During repository cleanup, redundant and insecure documents were removed:
+
+### Security Improvements
+- **Removed files with hardcoded credentials** for enhanced security
+- Redacted sensitive information from START_HERE.md
+
+### Consolidation
 - Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md**
-- Removed: DEPLOYMENT_FINAL.md, DEPLOYMENT_SUMMARY.md, DEPLOYMENT_READY.md
-- Removed: DEPLOY_INSTRUCTIONS.md, DEPLOY_NOW.txt, DEPLOY_TO_VPS.md
-- Removed: BUILD_COMPLETION_SUMMARY.md, BUILD_STATUS.md, SETUP_COMPLETE.md
-- Removed: API_DEPLOYMENT_COMPLETE.md, CLEANUP_SUMMARY.md, DEPLOY_VIA_HESTIA.md
+- Removed: DEPLOYMENT_GUIDE.md, DEPLOYMENT_SUMMARY.md
+- Removed: PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
+- Removed redundant deployment scripts with security vulnerabilities
+
+### Scripts Consolidated
+- Kept: `deploy-now.sh` (local Docker deployment)
+- Kept: `deployment/deploy-from-github.sh` (GitHub-based remote deployment)
+- Removed: Multiple redundant deployment scripts
 
 ## Getting Help
 

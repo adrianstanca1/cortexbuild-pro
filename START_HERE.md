@@ -2,25 +2,27 @@
 
 ## ✅ Status: READY TO DEPLOY
 
-All preparation work has been completed. Your CortexBuild Pro application is fully configured and ready for production deployment to your VPS at **72.62.132.43**.
+All preparation work has been completed. Your CortexBuild Pro application is fully configured and ready for production deployment to your VPS at **[YOUR_VPS_IP]**.
 
 ---
 
 ## 🚀 DEPLOY NOW (Copy & Paste)
 
 ### Server Access Information
-- **Server IP**: 72.62.132.43
-- **Hostname**: srv1262179.hstgr.cloud
-- **Control Panel**: https://72.62.132.43:8443/login (Login: Admin / Cumparavinde1@)
-- **SSH User**: root
-- **SSH Password**: Cumparavinde1@
+- **Server IP**: [Your VPS IP Address]
+- **Hostname**: [Your VPS Hostname]
+- **Control Panel**: https://[YOUR_IP]:8443/login
+- **SSH User**: [Your SSH Username]
+- **SSH Password**: [Your SSH Password - Keep Secure!]
+
+> **Security Note**: Never commit actual credentials to version control. Store them securely.
 
 ### **Option 1: Deploy via Hestia Control Panel** (Recommended - Easiest)
 
 1. **Access Control Panel**:
-   - Open: https://72.62.132.43:8443/login
-   - Login: Admin / Cumparavinde1@
-   - Accept SSL certificate warning
+   - Open: https://[YOUR_IP]:8443/login
+   - Login with your admin credentials
+   - Accept SSL certificate warning (if self-signed)
 
 2. **Open Web Terminal** (in Hestia menu, look for SSH/Terminal)
 
@@ -29,15 +31,13 @@ All preparation work has been completed. Your CortexBuild Pro application is ful
    curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
    ```
 
-See detailed instructions: **DEPLOY_VIA_HESTIA.md**
-
 ### **Option 2: SSH Deploy** (If SSH is accessible)
 
 Open your terminal and run:
 
 ```bash
-ssh root@72.62.132.43
-# When prompted, enter password: Cumparavinde1@
+ssh [username]@[your-vps-ip]
+# When prompted, enter your SSH password
 
 # Then paste and run this command:
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | bash
@@ -58,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copil
 ## 📋 What You Get After Deployment
 
 ### Application Access
-- **URL**: http://72.62.132.43:3000
+- **URL**: http://[YOUR_VPS_IP]:3000
 - **First User**: Create via signup (becomes admin automatically)
 
 ### Services Running
@@ -86,7 +86,7 @@ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copil
 ## 📱 After Deployment - Next Steps
 
 ### 1. Access Your Application
-Open browser: **http://72.62.132.43:3000**
+Open browser: **http://[YOUR_VPS_IP]:3000**
 
 ### 2. Create Admin Account
 - Click "Sign Up"
@@ -95,7 +95,7 @@ Open browser: **http://72.62.132.43:3000**
 
 ### 3. View & Save Credentials
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cat /var/www/cortexbuild-pro/DEPLOYMENT_CREDENTIALS.txt
 ```
 
@@ -110,35 +110,35 @@ rm /var/www/cortexbuild-pro/DEPLOYMENT_CREDENTIALS.txt
 
 ### View Application Logs
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose logs -f app
 ```
 
 ### Restart Application
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose restart
 ```
 
 ### Check Service Status
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose ps
 ```
 
 ### Stop All Services
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose down
 ```
 
 ### Update Application (Future)
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro
 git pull
 cd deployment
@@ -151,12 +151,12 @@ docker-compose up -d --build
 
 ### Prerequisites
 1. Have a domain (e.g., cortexbuildpro.com)
-2. Point A record to: **72.62.132.43**
+2. Point A record to: **[YOUR_VPS_IP]**
 3. Wait for DNS propagation (1-24 hours)
 
 ### Steps
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 
 # Run SSL setup
@@ -180,7 +180,7 @@ All these can be configured via the Admin Dashboard or environment variables:
 
 ### AWS S3 (File Storage)
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 nano /var/www/cortexbuild-pro/deployment/.env
 ```
 
@@ -254,7 +254,7 @@ All documentation is in the repository and will be on your VPS after deployment:
 ### Application Not Loading?
 ```bash
 # Check containers
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose ps
 
@@ -295,7 +295,7 @@ docker-compose up -d
 
 ### Need to Start Over?
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 cd /var/www/cortexbuild-pro/deployment
 docker-compose down -v  # ⚠️ Deletes all data!
 rm -rf /var/www/cortexbuild-pro
@@ -365,20 +365,20 @@ Automatically configured:
 After deployment, you should see:
 
 1. ✅ **Containers Running**: `docker ps` shows 4 containers
-2. ✅ **Application Accessible**: http://72.62.132.43:3000 loads
-3. ✅ **API Responding**: http://72.62.132.43:3000/api/auth/providers returns JSON
+2. ✅ **Application Accessible**: http://[YOUR_VPS_IP]:3000 loads
+3. ✅ **API Responding**: http://[YOUR_VPS_IP]:3000/api/auth/providers returns JSON
 4. ✅ **Database Connected**: No connection errors in logs
-5. ✅ **Nginx Working**: http://72.62.132.43 redirects to port 3000
+5. ✅ **Nginx Working**: http://[YOUR_VPS_IP] redirects to port 3000
 
 ---
 
 ## 🎯 Quick Start Checklist
 
-- [ ] SSH into VPS: `ssh root@72.62.132.43`
+- [ ] SSH into VPS: `ssh [username]@[YOUR_VPS_IP]`
 - [ ] Run deployment command
 - [ ] Wait 5-10 minutes for completion
 - [ ] Save displayed credentials
-- [ ] Open http://72.62.132.43:3000 in browser
+- [ ] Open http://[YOUR_VPS_IP]:3000 in browser
 - [ ] Create admin account via signup
 - [ ] Log in and verify features work
 - [ ] Configure optional services (S3, SendGrid, etc.)
@@ -393,7 +393,7 @@ Everything is ready for deployment. The entire process from start to finish shou
 
 ### The Deployment Command (Again)
 ```bash
-ssh root@72.62.132.43
+ssh [username]@[YOUR_VPS_IP]
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/merge-and-commit-recent-changes/deployment/deploy-from-github.sh | sudo bash
 ```
 
