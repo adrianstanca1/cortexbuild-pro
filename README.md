@@ -71,11 +71,14 @@ All API keys and server connections are **fully configured** and ready for use!
 ## 📚 Documentation
 
 ### Core Documentation
+- **[REPOSITORY_MERGE_COMPLETE.md](REPOSITORY_MERGE_COMPLETE.md)** - Complete repository merge and progress summary
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Production deployment instructions with Docker
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Complete guide for setting up all API keys and services
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Quick reference checklist for configuration status
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Production deployment instructions with Docker
-- **[BUILD_STATUS.md](BUILD_STATUS.md)** - Current build status and deployment readiness
-- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning and optimization guide
+- **[RUNBOOK.md](RUNBOOK.md)** - Operations guide and troubleshooting
+- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security guidelines and best practices
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning and optimization guide
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation map
 
 ### Application Documentation
 - **[nextjs_space/README.md](nextjs_space/README.md)** - Application overview and features

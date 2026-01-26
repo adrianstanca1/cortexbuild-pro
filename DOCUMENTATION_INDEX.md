@@ -25,8 +25,9 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[API_REFACTORING_GUIDE.md](API_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
 - **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning guide and latest improvements
 
-### Status Reports
-- **Platform Status** - See archived reports in [.github/historical/](.github/historical/)
+### Repository Status
+- **[REPOSITORY_MERGE_COMPLETE.md](REPOSITORY_MERGE_COMPLETE.md)** - ⭐ **Complete merge summary** - All repositories and progress consolidated
+- **[REPOSITORY_CLEANUP_REPORT.md](REPOSITORY_CLEANUP_REPORT.md)** - Latest cleanup report (January 2026)
 
 ### Historical Documentation
 - **[.github/historical/](.github/historical/)** - Archived merge and platform status documentation
@@ -75,6 +76,7 @@ During repository cleanup, redundant and insecure documents were removed:
   - CLEANUP_SUMMARY.md → .github/historical/
   - BRANCH_ANALYSIS.md → .github/historical/
   - PLATFORM_COMPLETION_REPORT.md → .github/historical/PLATFORM_STATUS_JANUARY_2026.md
+- Created **REPOSITORY_MERGE_COMPLETE.md** - Comprehensive summary of all merged work
 
 ### Scripts Consolidated
 - Kept: `deploy-now.sh` (local Docker deployment)
