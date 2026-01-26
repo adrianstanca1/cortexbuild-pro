@@ -126,14 +126,29 @@ export function DashboardClient({
     criticalAlerts.push(`${constructionMetrics.failedInspections} failed inspection(s)`);
   }
 
-  // Calculate urgency metrics
-  const urgentTasks = tasks?.filter(t => {
-    if (!t.dueDate || t.status === 'COMPLETE') return false;
-    const dueDate = new Date(t.dueDate);
-    return isPast(dueDate) || isToday(dueDate);
-  }).length ?? 0;
-
-  const criticalTasks = tasks?.filter(t => t.priority === 'CRITICAL' && t.status !== 'COMPLETE').length ?? 0;
+  // Calculate urgency metrics in a single pass for better performance
+  const { urgentTasks, criticalTasks } = useMemo(() => {
+    let urgent = 0, critical = 0;
+    const now = new Date();
+    
+    (tasks ?? []).forEach(t => {
+      if (t.status !== 'COMPLETE') {
+        // Check urgent (overdue or due today)
+        if (t.dueDate) {
+          const dueDate = new Date(t.dueDate);
+          if (isPast(dueDate) || isToday(dueDate)) {
+            urgent++;
+          }
+        }
+        // Check critical priority
+        if (t.priority === 'CRITICAL') {
+          critical++;
+        }
+      }
+    });
+    
+    return { urgentTasks: urgent, criticalTasks: critical };
+  }, [tasks]);
 
   return (
     <div className="space-y-6 pb-8">

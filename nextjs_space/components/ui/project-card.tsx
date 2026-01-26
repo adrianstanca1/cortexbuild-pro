@@ -39,12 +39,25 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
   const metrics = useMemo(() => {
     const tasks = project?.tasks ?? [];
     const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t: any) => t?.status === "COMPLETE").length;
-    const overdueTasks = tasks.filter((t: any) => {
-      if (!t?.dueDate || t?.status === "COMPLETE") return false;
-      return isBefore(new Date(t.dueDate), new Date());
-    }).length;
-    const criticalTasks = tasks.filter((t: any) => t?.priority === "CRITICAL" && t?.status !== "COMPLETE").length;
+    
+    // Single-pass task analysis for better performance
+    let completedTasks = 0, overdueTasks = 0, criticalTasks = 0;
+    const now = new Date();
+    
+    tasks.forEach((t: any) => {
+      const isComplete = t?.status === "COMPLETE";
+      if (isComplete) {
+        completedTasks++;
+      } else {
+        // Only check for overdue/critical if not complete
+        if (t?.dueDate && isBefore(new Date(t.dueDate), now)) {
+          overdueTasks++;
+        }
+        if (t?.priority === "CRITICAL") {
+          criticalTasks++;
+        }
+      }
+    });
     
     // Task completion percentage
     const taskCompletion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -52,7 +65,6 @@ export function ProjectCard({ project, index = 0 }: ProjectCardProps) {
     // Schedule health
     const startDate = project?.startDate ? new Date(project.startDate) : null;
     const endDate = project?.endDate ? new Date(project.endDate) : null;
-    const now = new Date();
     
     let scheduleHealth = 100;
     let daysRemaining = 0;
