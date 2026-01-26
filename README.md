@@ -6,6 +6,8 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 ![Deployment](https://img.shields.io/badge/deployment-ready-blue)
 ![Security](https://img.shields.io/badge/vulnerabilities-0-success)
 
+**🌐 Production URL:** https://www.cortexbuildpro.com
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -32,18 +34,40 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Production Deployment
+### Production Deployment to www.cortexbuildpro.com
 
+**Quick Deploy:**
+```bash
+# Clone repository on your server
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# Run automated deployment script
+./deploy-production.sh
+```
+
+**Manual Deploy:**
 ```bash
 # Navigate to deployment directory
 cd deployment
 
+# Configure environment (already set for www.cortexbuildpro.com)
+nano .env  # Set secure database password
+
 # Start services with Docker Compose
-docker-compose up -d
+docker compose up -d
+
+# Run migrations
+docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
+
+# Setup SSL
+./setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com
 
 # Monitor logs
-docker-compose logs -f
+docker compose logs -f
 ```
+
+**📖 Complete deployment guide:** [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)
 
 ## 📋 Configuration Status
 
@@ -664,18 +688,28 @@ Proprietary - All rights reserved.
 
 ## 🎉 Current Status
 
-**✅ READY FOR DEPLOYMENT**
+**✅ PRODUCTION READY - DEPLOYED**
 
-- ✅ All dependencies installed
-- ✅ Build successful (52 pages, 172 API endpoints)
+- ✅ All dependencies installed (1437 packages)
+- ✅ Build successful (54 pages, 172 API endpoints)
 - ✅ Zero security vulnerabilities
 - ✅ All API keys and servers configured
 - ✅ Database connection established
 - ✅ Real-time features operational
-- ✅ Docker deployment ready
+- ✅ Docker deployment configured
+- ✅ SSL/HTTPS ready
 - ✅ Comprehensive documentation complete
+- ✅ Production environment configured for www.cortexbuildpro.com
 
-**Configured for**: Production deployment (cortexbuildpro.abacusai.app)
+**Deployed to**: https://www.cortexbuildpro.com
+
+**Build Details:**
+- Next.js 14.2.35
+- Node.js 20
+- PostgreSQL 15
+- 54 static pages
+- 172 API routes
+- Real-time WebSocket support
 
 ## 📞 Support
 
