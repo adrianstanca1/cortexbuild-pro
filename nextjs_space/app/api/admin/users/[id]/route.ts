@@ -11,7 +11,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -45,8 +45,8 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Don't return password
-    const { password, ...userWithoutPassword } = user;
+    // Don't return password (unused but needed for destructuring)
+    const { password: _, ...userWithoutPassword } = user;
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -60,12 +60,12 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { name, email, role, organizationId, phone, password, suspended } = body;
+    const { name, email, role, organizationId, phone, password } = body;
 
     const existingUser = await prisma.user.findUnique({ where: { id: params.id } });
     if (!existingUser) {
@@ -80,7 +80,15 @@ export async function PATCH(
       }
     }
 
-    const updateData: any = {};
+    const updateData: {
+      [key: string]: unknown;
+      name?: string;
+      email?: string;
+      role?: string;
+      organizationId?: string | null;
+      phone?: string;
+      password?: string;
+    } = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) updateData.role = role;
@@ -152,12 +160,12 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { id: string; role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Prevent self-deletion
-    if (params.id === session.user.id) {
+    if (params.id === (session.user as { id: string }).id) {
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
