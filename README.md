@@ -14,36 +14,7 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 
 ## 🚀 Quick Deployment
 
-### Deploy to Your VPS in 10 Minutes
-
-**Automated one-command deployment:**
-
-```bash
-# On your VPS, run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-setup.sh | bash && \
-cd /var/www && \
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git && \
-cd cortexbuild-pro/deployment && \
-./deploy-vps.sh
-```
-
-This will:
-- ✅ Install Docker & Docker Compose
-- ✅ Configure firewall and security
-- ✅ Generate secure credentials automatically
-- ✅ Build and start all services
-- ✅ Run database migrations
-- ✅ Make your app available at `http://YOUR_SERVER_IP:3000`
-
-**Requirements:** Ubuntu 20.04+ VPS with 2GB+ RAM
-
-**📖 Full guides:** 
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - Complete step-by-step guide
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick reference
-
-### Alternative: Deploy with Pre-built Image
-
-Use our Docker image (fastest for existing Docker setups):
+Deploy CortexBuild Pro in 5 minutes using our pre-built Docker image:
 
 ```bash
 # 1. Clone deployment scripts
@@ -58,7 +29,7 @@ nano .env  # Set POSTGRES_PASSWORD
 ./deploy-from-published-image.sh
 ```
 
-**📖 More options:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
+**📖 Full deployment guide:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
 
 ---
 
@@ -118,31 +89,7 @@ npm run dev
 
 ## 🌐 Production Deployment Options
 
-### Option 1: Deploy to Your VPS (Recommended 🎯)
-
-**One-command deployment to any VPS:**
-
-```bash
-# On your VPS, run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-setup.sh | bash && \
-cd /var/www && \
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git && \
-cd cortexbuild-pro/deployment && \
-./deploy-vps.sh
-```
-
-**Time:** ~10-15 minutes | **Includes:** Docker, security, auto-config
-
-**Requirements:**
-- Ubuntu 20.04+ or Debian-based VPS
-- 2GB+ RAM, 2+ CPU cores
-- Root or sudo access
-
-**📖 Guides:**
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - Complete VPS deployment guide
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick reference
-
-### Option 2: Deploy from Published Image (Fastest ⚡)
+### Option 1: Deploy from Published Image (Fastest ⚡)
 
 Use our pre-built Docker image from GitHub Container Registry:
 
@@ -153,7 +100,7 @@ cd deployment
 
 **Time:** ~5 minutes | **Build:** Not required
 
-### Option 3: Deploy to www.cortexbuildpro.com
+### Option 2: Deploy to www.cortexbuildpro.com
 
 Automated deployment script for the official domain:
 
@@ -164,7 +111,7 @@ cd deployment
 
 **Time:** ~15 minutes | **Includes:** SSL setup
 
-### Option 4: Manual Deployment
+### Option 3: Manual Deployment
 
 Full control over the deployment process:
 
@@ -187,11 +134,9 @@ docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 ```
 
 **📖 Detailed guides:**
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - VPS deployment (NEW! ⭐)
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick VPS reference (NEW! ⭐)
 - [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
+- [DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md) - Official domain deployment
 - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
-- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - VPS best practices
 
 ## 📋 Configuration Status
 
