@@ -211,7 +211,7 @@ cortexbuild-pro/
 - ✅ Database connections verified
 - ✅ Real-time broadcasting functional
 - ✅ Error handling implemented
-- ✅ Rate limiting configured
+- ⏳ Rate limiting planned (not yet enabled on API routes)
 - ✅ CORS configured
 - ✅ CSRF protection enabled
 
