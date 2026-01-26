@@ -8,13 +8,28 @@
 import { randomBytes, createHmac } from 'crypto';
 import { cookies } from 'next/headers';
 
-const CSRF_SECRET = (() => {
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) {
-    throw new Error('CSRF secret is not configured. Set NEXTAUTH_SECRET to a strong, random value.');
+let cachedCsrfSecret: string | undefined;
+
+function getCsrfSecret(): string {
+  if (cachedCsrfSecret) {
+    return cachedCsrfSecret;
   }
-  return secret;
-})();
+
+  const envSecret = process.env.NEXTAUTH_SECRET;
+
+  if (envSecret) {
+    cachedCsrfSecret = envSecret;
+    return envSecret;
+  }
+
+  const generated = randomBytes(32).toString('hex');
+  cachedCsrfSecret = generated;
+  console.warn(
+    'CSRF secret not configured. Generated ephemeral secret for this process. Set NEXTAUTH_SECRET to persist sessions.'
+  );
+  return generated;
+}
+const CSRF_SECRET = getCsrfSecret();
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const TOKEN_LENGTH = 32;
