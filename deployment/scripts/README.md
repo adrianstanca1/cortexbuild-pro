@@ -101,5 +101,5 @@ chmod +x scripts/*.ts
 ## Learn More
 
 - See `/CODE_STRUCTURE.md` for comprehensive documentation on code patterns
-- See `/PRODUCTION_DEPLOYMENT.md` for full deployment instructions
+- See `/DEPLOYMENT_GUIDE.md` for full deployment instructions
 - See `../nextjs_space/scripts/README.md` for Next.js script usage
