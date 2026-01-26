@@ -135,9 +135,12 @@ TABLE_COUNT=$(docker compose exec -T postgres psql -U cortexbuild -d cortexbuild
 if [ "$TABLE_COUNT" -gt 20 ]; then
     echo -e "${GREEN}✓ Database has $TABLE_COUNT tables${NC}"
     pass_check
-else
-    echo -e "${YELLOW}⚠ Database only has $TABLE_COUNT tables (expected 50+)${NC}"
+elif [ "$TABLE_COUNT" -gt 10 ]; then
+    echo -e "${YELLOW}⚠ Database has $TABLE_COUNT tables (full schema has 50+)${NC}"
     warn_check
+else
+    echo -e "${RED}✗ Database has only $TABLE_COUNT tables (expected 50+)${NC}"
+    fail_check
 fi
 
 echo ""
