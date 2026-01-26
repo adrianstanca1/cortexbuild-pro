@@ -131,7 +131,11 @@ if [ -d ".next" ]; then
     
     if [ -f ".next/BUILD_ID" ]; then
         BUILD_ID=$(cat .next/BUILD_ID)
-        print_success "Build ID: $BUILD_ID"
+        if [ -n "$BUILD_ID" ] && [[ "$BUILD_ID" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            print_success "Build ID: $BUILD_ID"
+        else
+            print_warning "Build ID exists but appears invalid"
+        fi
     fi
 else
     print_warning "Build artifacts not found - run 'npm run build'"

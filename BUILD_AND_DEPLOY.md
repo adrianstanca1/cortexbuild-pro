@@ -183,11 +183,11 @@ WEB_APP_ID=your_web_app_id
 ### Generating Secure Secrets
 
 ```bash
-# Generate NEXTAUTH_SECRET
+# Generate NEXTAUTH_SECRET (32 characters minimum)
 openssl rand -base64 32
 
-# Generate strong password
-openssl rand -base64 24
+# Generate strong database password (32 characters recommended for production)
+openssl rand -base64 32
 ```
 
 ---

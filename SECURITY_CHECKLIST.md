@@ -41,8 +41,8 @@ openssl rand -base64 32
 
 **Action Required:**
 ```bash
-# Generate a secure database password
-openssl rand -base64 24
+# Generate a secure database password (32 characters recommended for production)
+openssl rand -base64 32
 
 # Setup automated backups
 crontab -e
@@ -270,8 +270,8 @@ cd deployment
    # NEXTAUTH_SECRET (add to .env)
    openssl rand -base64 32
    
-   # Database password (add to .env)
-   openssl rand -base64 24
+   # Database password (add to .env) - 32 characters for production
+   openssl rand -base64 32
    ```
 
 2. **Enable HTTPS/SSL**
