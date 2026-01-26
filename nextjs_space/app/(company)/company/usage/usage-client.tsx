@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DateRange } from 'react-day-picker';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { useRealtimeSubscription } from '@/components/realtime-provider';

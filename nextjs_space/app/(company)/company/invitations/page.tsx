@@ -10,7 +10,7 @@ export default async function TeamInvitationsPage() {
     redirect("/login");
   }
 
-  const user = session.user as any;
+  const user = session.user as { role: string };
 
   if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
     redirect("/dashboard");
