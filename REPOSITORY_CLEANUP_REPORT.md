@@ -114,7 +114,8 @@ Scripts in deployment/scripts/ and nextjs_space/scripts/:
 - **Removed:** ~250 lines (test files)
 - **Reduced:** ~200 lines (deployment/README.md consolidation)
 - **Added:** ~20 lines (cross-references)
-- **Net Reduction:** ~430 lines
+- **Net Reduction (for items above, excluding archived docs):** ~430 lines
+- **Repository-wide net change (per PR):** -113 lines (removed 526 redundant lines, added 413 improved documentation, including archived historical docs)
 
 ### Benefits
 - ✅ **Clearer documentation hierarchy** - Users can easily find the right guide
