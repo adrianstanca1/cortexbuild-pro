@@ -163,20 +163,61 @@ All API keys and server connections are **fully configured** and ready for use!
 
 ## 📚 Documentation
 
-### Core Documentation
-- **[REPOSITORY_MERGE_COMPLETE.md](REPOSITORY_MERGE_COMPLETE.md)** - Complete repository merge and progress summary
-- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Production deployment instructions with Docker
+### Deployment Guides
+- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Complete public deployment guide (10K+ words)
+- **[DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)** - Official domain deployment guide
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Advanced production deployment options
+- **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick command reference
+- **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release information
+
+### API & Configuration
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Complete guide for setting up all API keys and services
-- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Quick reference checklist for configuration status
-- **[RUNBOOK.md](RUNBOOK.md)** - Operations guide and troubleshooting
-- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security guidelines and best practices
-- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning and optimization guide
+- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - API reference with 172+ endpoints
+- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Configuration verification checklist
+- **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Project structure and architecture
+
+### Security & Performance
+- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices and compliance
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance optimizations
+
+### Getting Started
+- **[START_HERE.md](START_HERE.md)** - New user guide
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[RUNBOOK.md](RUNBOOK.md)** - Operational runbook
 - **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation map
 
 ### Application Documentation
 - **[nextjs_space/README.md](nextjs_space/README.md)** - Application overview and features
 
-## 🏗️ Architecture
+---
+
+## 🔍 Verification & Testing
+
+### Verify Your Build
+```bash
+# Run build verification
+./deployment/scripts/verify-build.sh
+```
+
+### Verify Your Deployment
+```bash
+# After deployment, verify everything is working
+./deployment/scripts/verify-deployment.sh
+```
+
+### Run Health Checks
+```bash
+# Check system health
+curl http://localhost:3000/api/auth/providers
+
+# View service status
+docker compose ps
+
+# Check logs
+docker compose logs -f
+```
+
+--- 🏗️ Architecture
 
 ### Frontend
 - **Framework**: Next.js 14 (App Router)
