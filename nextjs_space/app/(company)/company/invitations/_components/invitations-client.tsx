@@ -51,7 +51,18 @@ interface TeamInvitationsClientProps {
 }
 
 export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) {
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<Array<{
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    status: string;
+    token: string;
+    invitedAt: string;
+    acceptedAt?: string;
+    expiresAt: string;
+    invitedBy?: { name: string };
+  }>>([]);
   const [counts, setCounts] = useState({ total: 0, PENDING: 0, ACCEPTED: 0, EXPIRED: 0, REVOKED: 0 });
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -89,6 +100,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
 
   useEffect(() => {
     fetchInvitations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleCreate = async () => {
@@ -168,7 +180,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
       inv.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
+  const statusConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string; bg: string }> = {
     PENDING: { icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
     ACCEPTED: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-100" },
     EXPIRED: { icon: AlertCircle, color: "text-gray-600", bg: "bg-gray-100" },

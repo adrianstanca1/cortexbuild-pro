@@ -20,7 +20,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 interface CompanySettingsClientProps {
-  organization: any;
+  organization: {
+    name?: string;
+    description?: string;
+    website?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    logoUrl?: string;
+  } | null;
   userRole: string;
 }
 
@@ -90,7 +98,7 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
               {organization?.logoUrl ? (
                 <img
                   src={organization.logoUrl}
-                  alt={organization.name}
+                  alt={organization.name || 'Organization logo'}
                   className="h-20 w-20 rounded-lg object-cover"
                 />
               ) : (
