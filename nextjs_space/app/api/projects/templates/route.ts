@@ -123,30 +123,33 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create tasks from template phases
+    // Create tasks from template phases - batch all task data first, then createMany
     let currentDate = new Date(projectStartDate);
-    const createdTasks = [];
+    const tasksData = [];
 
     for (const phase of template.phases) {
       for (const taskName of phase.tasks) {
         const taskEndDate = new Date(currentDate);
         taskEndDate.setDate(taskEndDate.getDate() + Math.ceil(phase.duration / phase.tasks.length));
         
-        const task = await prisma.task.create({
-          data: {
-            title: `${phase.name}: ${taskName}`,
-            description: `Task from ${template.name} template - ${phase.name} phase`,
-            status: 'TODO',
-            priority: 'MEDIUM',
-            projectId: project.id,
-            dueDate: taskEndDate,
-            creatorId: user.id
-          }
+        tasksData.push({
+          title: `${phase.name}: ${taskName}`,
+          description: `Task from ${template.name} template - ${phase.name} phase`,
+          status: 'TODO',
+          priority: 'MEDIUM',
+          projectId: project.id,
+          dueDate: taskEndDate,
+          creatorId: user.id
         });
-        createdTasks.push(task);
       }
       currentDate.setDate(currentDate.getDate() + phase.duration);
     }
+
+    // Bulk insert all tasks at once - much faster than individual creates
+    await prisma.task.createMany({
+      data: tasksData,
+      skipDuplicates: true
+    });
 
     // Log activity
     await prisma.activityLog.create({
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
         entityType: 'Project',
         entityId: project.id,
         entityName: project.name,
-        details: `Created project from "${template.name}" template with ${createdTasks.length} tasks`,
+        details: `Created project from "${template.name}" template with ${tasksData.length} tasks`,
         userId: user.id,
         projectId: project.id
       }
