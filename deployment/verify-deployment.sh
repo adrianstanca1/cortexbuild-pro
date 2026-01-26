@@ -25,7 +25,7 @@ check_service() {
     
     echo -n "Checking $description... "
     
-    if docker compose ps | grep -q "$service.*Up"; then
+    if docker compose ps | grep -q "^$service.*Up"; then
         echo -e "${GREEN}✅ Running${NC}"
         return 0
     else
@@ -59,10 +59,10 @@ check_port() {
     
     echo -n "Checking $description (port $port)... "
     
-    if netstat -tulpn 2>/dev/null | grep -q ":$port "; then
+    if netstat -tulpn 2>/dev/null | grep -qE ":$port[[:space:]]"; then
         echo -e "${GREEN}✅ Listening${NC}"
         return 0
-    elif ss -tulpn 2>/dev/null | grep -q ":$port "; then
+    elif ss -tulpn 2>/dev/null | grep -qE ":$port[[:space:]]"; then
         echo -e "${GREEN}✅ Listening${NC}"
         return 0
     else
