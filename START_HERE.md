@@ -1,8 +1,13 @@
-# 🎉 CortexBuild Pro - Production Deployment Complete
+# 🎉 CortexBuild Pro - VPS Quick Deploy Guide
+
+> 📖 **For comprehensive deployment guide, see [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)**
+> 
+> This guide is for quick VPS deployment with Hestia control panel or direct SSH access.
+> For local development or detailed instructions, see [QUICKSTART.md](QUICKSTART.md).
 
 ## ✅ Status: READY TO DEPLOY
 
-All preparation work has been completed. Your CortexBuild Pro application is fully configured and ready for production deployment to your VPS at **[YOUR_VPS_IP]**.
+All preparation work has been completed. Your CortexBuild Pro application is fully configured and ready for production deployment to your VPS.
 
 ---
 

@@ -1,249 +1,163 @@
-# CortexBuild Pro - VPS Deployment Guide
+# CortexBuild Pro - VPS Deployment Quick Reference
 
-Complete guide to deploy CortexBuild Pro on your private VPS.
+> 📖 **For complete deployment instructions, see [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)**
 
-## 📦 Prerequisites
-
-### Server Requirements
-- **OS**: Ubuntu 20.04+ / Debian 11+ / CentOS 8+
-- **RAM**: Minimum 2GB (4GB recommended)
-- **CPU**: 2+ cores
-- **Storage**: 20GB+ SSD
-- **Network**: Open ports 80, 443, 22
-
-### Required Software
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# Verify installation
-docker --version
-docker-compose --version
-```
+This directory contains Docker configuration and scripts for deploying CortexBuild Pro on a VPS.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Deploy
 
-### 1. Upload Project to Server
 ```bash
-# Option A: SCP from local machine
-scp -r cortexbuild_pro user@your-server:/home/user/
+# 1. Clone and navigate
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
 
-# Option B: Git clone (if hosted)
-git clone https://github.com/your-repo/cortexbuild_pro.git
-```
-
-### 2. Configure Environment
-```bash
-cd cortexbuild_pro/deployment
+# 2. Configure environment
 cp .env.example .env
 nano .env
+
+# 3. Deploy with script
+./deploy-from-github.sh
 ```
 
-**Required settings in `.env`:**
-```env
-# Database
-POSTGRES_PASSWORD=choose_a_strong_password_here
-
-# Auth (generate with: openssl rand -base64 32)
-NEXTAUTH_SECRET=your_generated_secret
-NEXTAUTH_URL=https://your-domain.com
-
-# Domain
-DOMAIN=your-domain.com
-SSL_EMAIL=admin@your-domain.com
-```
-
-### 3. Deploy
-```bash
-chmod +x *.sh
-./deploy.sh
-```
-
-### 4. Setup SSL (Optional but Recommended)
-```bash
-./setup-ssl.sh your-domain.com admin@your-domain.com
-```
-
-### 5. Seed Database (First time only)
-```bash
-./seed-db.sh
-```
+For detailed instructions, troubleshooting, and production best practices, see [../PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md).
 
 ---
 
-## 📁 Project Structure
+## 📁 Files in This Directory
 
-```
-deployment/
-├── .env.example      # Environment template
-├── docker-compose.yml # Container orchestration
-├── Dockerfile        # App build instructions
-├── nginx.conf        # Reverse proxy config
-├── deploy.sh         # Main deployment script
-├── setup-ssl.sh      # SSL certificate setup
-├── backup.sh         # Database backup
-├── restore.sh        # Database restore
-└── seed-db.sh        # Seed initial data
-```
-
----
-
-## 🔧 Configuration Options
-
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `POSTGRES_PASSWORD` | Yes | Database password |
-| `NEXTAUTH_SECRET` | Yes | Auth encryption key |
-| `NEXTAUTH_URL` | Yes | Full domain URL |
-| `DOMAIN` | Yes | Domain without https |
-| `AWS_*` | No | S3 for file uploads |
-
-### Using External Database
-
-To use an external PostgreSQL (AWS RDS, DigitalOcean, etc.):
-
-1. Comment out the `postgres` service in `docker-compose.yml`
-2. Set `DATABASE_URL` in `.env`:
-```env
-DATABASE_URL="postgresql://user:pass@host:5432/dbname?schema=public"
-```
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | Container orchestration configuration |
+| `Dockerfile` | Application container build instructions |
+| `nginx.conf` | Reverse proxy and SSL configuration |
+| `.env.example` | Environment variables template |
+| `deploy-from-github.sh` | Automated deployment from GitHub |
+| `vps-setup.sh` | VPS initial setup script |
+| `setup-ssl.sh` | SSL certificate setup (Let's Encrypt) |
+| `backup.sh` | Database backup utility |
+| `restore.sh` | Database restore utility |
+| `seed-db.sh` | Initialize database with sample data |
 
 ---
 
-## 🛠️ Management Commands
+## 🛠️ Common Commands
 
 ### View Logs
 ```bash
-# All services
-docker-compose logs -f
-
-# Specific service
-docker-compose logs -f app
-docker-compose logs -f nginx
-docker-compose logs -f postgres
+docker-compose logs -f          # All services
+docker-compose logs -f app      # App only
 ```
 
-### Container Management
+### Restart Services
 ```bash
-# Status
-docker-compose ps
-
-# Restart app
-docker-compose restart app
-
-# Stop all
-docker-compose down
-
-# Stop and remove volumes (CAUTION: deletes data)
-docker-compose down -v
+docker-compose restart app      # Restart application
+docker-compose restart nginx    # Restart nginx
 ```
 
 ### Database Operations
 ```bash
-# Run migrations
-docker-compose exec app npx prisma migrate deploy
-
-# Open Prisma Studio (database GUI)
-docker-compose exec app npx prisma studio
-
-# Direct database access
-docker-compose exec postgres psql -U cortexbuild -d cortexbuild
+docker-compose exec app npx prisma migrate deploy    # Run migrations
+docker-compose exec app npx prisma studio            # Database GUI
+./backup.sh                                           # Backup database
 ```
-
-### Backup & Restore
-```bash
-# Create backup
-./backup.sh
-
-# List backups
-ls -la backups/
-
-# Restore
-./restore.sh backups/cortexbuild_backup_20240123.sql.gz
-```
-
----
-
-## 🔒 SSL Certificate Management
-
-### Initial Setup
-```bash
-./setup-ssl.sh your-domain.com
-```
-
-### Manual Renewal
-```bash
-docker-compose run --rm certbot renew
-docker-compose restart nginx
-```
-
-### Auto-Renewal (Cron)
-Add to crontab (`crontab -e`):
-```cron
-0 3 * * * cd /home/user/cortexbuild_pro/deployment && docker-compose run --rm certbot renew && docker-compose restart nginx
-```
-
----
-
-## 🔄 Updating the Application
-
-```bash
-cd cortexbuild_pro/deployment
-
-# Pull latest code (if using git)
-git pull origin main
-
-# Rebuild and deploy
-docker-compose build --no-cache app
-docker-compose up -d app
-
-# Run any new migrations
-docker-compose exec app npx prisma migrate deploy
-```
-
----
-
-## 🌐 DNS Configuration
-
-Point your domain to your server:
-
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| A | @ | YOUR_SERVER_IP | 300 |
-| A | www | YOUR_SERVER_IP | 300 |
-
----
-
-## 📊 Monitoring
 
 ### Health Check
 ```bash
-curl -I http://localhost:3000/api/auth/providers
+# Run system diagnostics
+docker-compose exec app npx tsx scripts/health-check.ts
 ```
 
-### Resource Usage
-```bash
-docker stats
+---
+
+## 📦 Scripts Directory
+
+The `scripts/` subdirectory contains utility scripts for:
+- Database seeding and management
+- System diagnostics and health checks
+- Data integrity checks
+- Backup and maintenance tasks
+
+See [scripts/README.md](scripts/README.md) for details.
+
+---
+
+## 🔧 Configuration
+
+### Required Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `POSTGRES_PASSWORD` | ✅ Yes | Database password |
+| `NEXTAUTH_SECRET` | ✅ Yes | Auth encryption key (32+ chars) |
+| `NEXTAUTH_URL` | ✅ Yes | Full URL (https://your-domain.com) |
+| `DOMAIN` | ✅ Yes | Domain without protocol |
+
+### Optional Services
+
+| Service | Variables | Purpose |
+|---------|-----------|---------|
+| AWS S3 | `AWS_*` | File storage |
+| Google OAuth | `GOOGLE_*` | OAuth authentication |
+| SendGrid | `SENDGRID_*` | Email notifications |
+| AbacusAI | `ABACUS_*` | AI features |
+
+See [../API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md) for detailed configuration of each service.
+
+---
+
+## 🌐 DNS Setup
+
+Point your domain's A records to your VPS IP:
+
+```
+A    @      YOUR_VPS_IP
+A    www    YOUR_VPS_IP
 ```
 
-### Disk Usage
+Wait for DNS propagation (5-30 minutes), then run SSL setup:
 ```bash
-docker system df
+./setup-ssl.sh your-domain.com admin@your-domain.com
+```
 
-# Clean unused images/containers
+---
+
+## 🔒 Security Checklist
+
+- [x] Docker and Docker Compose installed
+- [ ] Strong database password set in `.env`
+- [ ] NEXTAUTH_SECRET generated (32+ random characters)
+- [ ] Firewall configured (ports 22, 80, 443)
+- [ ] SSL certificate installed
+- [ ] Default admin password changed after first login
+- [ ] Regular backups scheduled
+
+---
+
+## 📊 Monitoring & Maintenance
+
+### Check Application Health
+```bash
+curl https://your-domain.com/api/health
+```
+
+### View Resource Usage
+```bash
+docker stats                    # Container resource usage
+docker system df               # Disk usage
+```
+
+### Regular Maintenance
+```bash
+# Weekly: Check logs for errors
+docker-compose logs --tail=100
+
+# Monthly: Update Docker images
+docker-compose pull
+docker-compose up -d
+
+# Monthly: Clean unused Docker resources
 docker system prune -a
 ```
 
@@ -251,105 +165,42 @@ docker system prune -a
 
 ## ⚠️ Troubleshooting
 
-### App Won't Start
+### Quick Diagnostics
 ```bash
-# Check logs
-docker-compose logs app
+# Check all containers are running
+docker-compose ps
 
-# Check if database is running
-docker-compose ps postgres
+# View recent logs
+docker-compose logs --tail=50
 
 # Verify environment variables
-docker-compose exec app env | grep -E 'DATABASE|NEXTAUTH'
+docker-compose config
+
+# Test database connection
+docker-compose exec app npx prisma db push
 ```
 
-### Database Connection Issues
-```bash
-# Test connection
-docker-compose exec app sh -c "npx prisma db pull"
-
-# Check PostgreSQL logs
-docker-compose logs postgres
-```
-
-### SSL Issues
-```bash
-# Verify certificates exist
-docker run --rm -v cortexbuild_certbot-etc:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/
-
-# Check nginx config
-docker-compose exec nginx nginx -t
-```
-
-### Port Already in Use
-```bash
-# Find process using port
-sudo lsof -i :80
-sudo lsof -i :443
-
-# Kill process or stop service
-sudo systemctl stop apache2
-```
+For detailed troubleshooting, see [../RUNBOOK.md](../RUNBOOK.md).
 
 ---
 
-## 📈 Performance Tuning
+## 📚 Additional Resources
 
-### PostgreSQL
-Edit `docker-compose.yml` to add PostgreSQL config:
-```yaml
-postgres:
-  command: postgres -c shared_buffers=256MB -c max_connections=100
-```
-
-### Nginx
-Adjust worker connections in `nginx.conf`:
-```nginx
-worker_processes auto;
-events {
-    worker_connections 4096;
-}
-```
+- **[PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)** - Complete deployment guide
+- **[RUNBOOK.md](../RUNBOOK.md)** - Operations and troubleshooting
+- **[API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md)** - Configure external services
+- **[CONFIGURATION_CHECKLIST.md](../CONFIGURATION_CHECKLIST.md)** - Verify setup
+- **[SECURITY_COMPLIANCE.md](../SECURITY_COMPLIANCE.md)** - Security best practices
 
 ---
 
-## 🔐 Security Checklist
+## 🆘 Getting Help
 
-- [ ] Change default database password
-- [ ] Generate strong NEXTAUTH_SECRET
-- [ ] Enable firewall (UFW)
-- [ ] Disable root SSH login
-- [ ] Enable SSL/HTTPS
-- [ ] Regular backups scheduled
-- [ ] Keep Docker images updated
-
-### Firewall Setup (UFW)
-```bash
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-```
+1. **Check logs**: `docker-compose logs -f`
+2. **Run diagnostics**: `docker-compose exec app npx tsx scripts/system-diagnostics.ts`
+3. **Verify configuration**: Review `.env` file
+4. **Consult documentation**: See [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
 
 ---
 
-## 📞 Support
-
-For issues:
-1. Check logs: `docker-compose logs -f`
-2. Verify `.env` configuration
-3. Ensure DNS is properly configured
-4. Check firewall rules
-
----
-
-## 📄 Default Accounts
-
-After running `seed-db.sh`:
-
-| Email | Role | Organization |
-|-------|------|-------------|
-| adrian.stanca1@gmail.com | Super Admin | All |
-| adrian@ascladdingltd.co.uk | Company Owner | AS Cladding Ltd |
-
-**Note**: Check `scripts/seed.ts` for default passwords.
+**Last Updated:** January 26, 2026
