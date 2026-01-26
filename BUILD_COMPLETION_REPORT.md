@@ -24,7 +24,7 @@ The CortexBuild Pro application has been successfully built and configured. All 
   - `NEXTAUTH_SECRET` - Secure authentication secret (generated)
   - `NEXTAUTH_URL` - Application URL
   - `NEXT_PUBLIC_WEBSOCKET_URL` - WebSocket endpoint
-  - `WEBSOCKET_PORT` - WebSocket server port
+  - `PORT` - HTTP/WebSocket server port used by the production server
   - `GOOGLE_CLIENT_ID` - OAuth provider
   - `GOOGLE_CLIENT_SECRET` - OAuth provider
   - `AWS_REGION` - File storage region
