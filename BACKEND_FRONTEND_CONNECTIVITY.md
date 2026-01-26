@@ -339,7 +339,6 @@ NEXTAUTH_URL="http://localhost:3000"
 
 # WebSocket
 NEXT_PUBLIC_WEBSOCKET_URL="http://localhost:3000"
-WEBSOCKET_PORT="3000"
 ```
 
 ### Frontend Configuration
