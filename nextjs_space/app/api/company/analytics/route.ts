@@ -115,19 +115,19 @@ export async function GET(request: NextRequest) {
       },
       projectMetrics: {
         total: projects.length,
-        byStatus: projects.reduce((acc: any, p: any) => {
+        byStatus: projects.reduce((acc: Record<string, number>, p: { status: string }) => {
           const status = p.status.toLowerCase().replace('_', '');
           const statusKey = status === 'inprogress' ? 'inProgress' : status === 'onhold' ? 'onHold' : status;
           acc[statusKey] = (acc[statusKey] || 0) + 1;
           return acc;
         }, { planning: 0, inProgress: 0, onHold: 0, completed: 0 }),
-        totalBudget: projects.reduce((sum: number, p: any) => sum + (p.budget || 0), 0),
+        totalBudget: projects.reduce((sum: number, p: { budget?: number | null }) => sum + (p.budget || 0), 0),
         avgTeamSize: projects.length > 0
-          ? Math.round(projects.reduce((sum: number, p: any) => sum + p._count.teamMembers, 0) / projects.length)
+          ? Math.round(projects.reduce((sum: number, p: { _count: { teamMembers: number } }) => sum + p._count.teamMembers, 0) / projects.length)
           : 0
       },
       taskMetrics: (() => {
-        const metrics = tasks.reduce((acc: any, t: any) => {
+        const metrics = tasks.reduce((acc: { total: number; completed: number; inProgress: number; criticalTasks: number }, t: { status: string; priority: string }) => {
           acc.total++;
           if (t.status === 'COMPLETE') acc.completed++;
           if (t.status === 'IN_PROGRESS') acc.inProgress++;
@@ -140,19 +140,19 @@ export async function GET(request: NextRequest) {
         return metrics;
       })(),
       financialMetrics: {
-        totalEstimated: costItems.reduce((sum: number, c: any) => sum + (c.estimatedAmount || 0), 0),
-        totalActual: costItems.reduce((sum: number, c: any) => sum + (c.actualAmount || 0), 0),
-        totalCommitted: costItems.reduce((sum: number, c: any) => sum + (c.committedAmount || 0), 0),
-        variance: costItems.reduce((sum: number, c: any) => sum + ((c.estimatedAmount || 0) - (c.actualAmount || 0)), 0),
+        totalEstimated: costItems.reduce((sum: number, c: { estimatedAmount?: number }) => sum + (c.estimatedAmount || 0), 0),
+        totalActual: costItems.reduce((sum: number, c: { actualAmount?: number }) => sum + (c.actualAmount || 0), 0),
+        totalCommitted: costItems.reduce((sum: number, c: { committedAmount?: number }) => sum + (c.committedAmount || 0), 0),
+        variance: costItems.reduce((sum: number, c: { estimatedAmount?: number; actualAmount?: number }) => sum + ((c.estimatedAmount || 0) - (c.actualAmount || 0)), 0),
         byCategory: Object.entries(
-          costItems.reduce((acc: Record<string, number>, c: any) => {
+          costItems.reduce((acc: Record<string, number>, c: { category: string; actualAmount?: number }) => {
             acc[c.category] = (acc[c.category] || 0) + (c.actualAmount || 0);
             return acc;
           }, {})
         ).map(([category, amount]) => ({ category, amount }))
       },
       safetyMetrics: (() => {
-        const metrics = safetyIncidents.reduce((acc: any, i: any) => {
+        const metrics = safetyIncidents.reduce((acc: { totalIncidents: number; openIncidents: number; criticalIncidents: number }, i: { status: string; severity: string }) => {
           acc.totalIncidents++;
           if (i.status === 'OPEN' || i.status === 'INVESTIGATING') acc.openIncidents++;
           if (i.severity === 'CRITICAL' || i.severity === 'HIGH') acc.criticalIncidents++;
@@ -163,25 +163,25 @@ export async function GET(request: NextRequest) {
       })(),
       rfiMetrics: {
         total: rfis.length,
-        open: rfis.reduce((count: number, r: any) => count + ((r.status === 'OPEN' || r.status === 'DRAFT') ? 1 : 0), 0),
+        open: rfis.reduce((count: number, r: { status: string }) => count + ((r.status === 'OPEN' || r.status === 'DRAFT') ? 1 : 0), 0),
         avgResponseDays: calculateAvgDays(rfis, 'createdAt', 'answeredAt')
       },
-      submittalMetrics: submittals.reduce((acc: any, s: any) => {
+      submittalMetrics: submittals.reduce((acc: { total: number; approved: number; pending: number }, s: { status: string }) => {
         acc.total++;
         if (s.status === 'APPROVED') acc.approved++;
         if (s.status === 'SUBMITTED' || s.status === 'UNDER_REVIEW') acc.pending++;
         return acc;
       }, { total: 0, approved: 0, pending: 0 }),
       teamProductivity: {
-        totalHoursLogged: timeEntries.reduce((sum: number, t: any) => sum + (t.hours || 0), 0),
-        activeUsers: new Set(timeEntries.map((t: any) => t.userId)).size,
+        totalHoursLogged: timeEntries.reduce((sum: number, t: { hours?: number }) => sum + (t.hours || 0), 0),
+        activeUsers: new Set(timeEntries.map((t: { userId: string }) => t.userId)).size,
         avgHoursPerDay: timeEntries.length > 0
-          ? (timeEntries.reduce((sum: number, t: any) => sum + (t.hours || 0), 0) / timeRange).toFixed(1)
+          ? (timeEntries.reduce((sum: number, t: { hours?: number }) => sum + (t.hours || 0), 0) / timeRange).toFixed(1)
           : 0,
         topPerformers: getTopPerformers(tasks, teamMembers)
       },
       activityTrend: getActivityTrend(activities, timeRange),
-      recentProjects: projects.slice(0, 5).map((p: any) => ({
+      recentProjects: projects.slice(0, 5).map((p: { id: string; name: string; status: string; manager?: { name: string } | null; _count: { tasks: number }; budget?: number | null }) => ({
         id: p.id,
         name: p.name,
         status: p.status,
@@ -198,18 +198,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function calculateAvgDays(items: any[], startField: string, endField: string): number {
+function calculateAvgDays(items: Array<Record<string, unknown>>, startField: string, endField: string): number {
   const completed = items.filter(i => i[endField]);
   if (completed.length === 0) return 0;
-  const totalDays = completed.reduce((sum: number, i: any) => {
-    const diff = new Date(i[endField]).getTime() - new Date(i[startField]).getTime();
+  const totalDays = completed.reduce((sum: number, i: Record<string, unknown>) => {
+    const diff = new Date(i[endField] as string).getTime() - new Date(i[startField] as string).getTime();
     return sum + (diff / (1000 * 60 * 60 * 24));
   }, 0);
   return Math.round(totalDays / completed.length);
 }
 
-function getTopPerformers(tasks: any[], teamMembers: any[]) {
-  const tasksByUser = tasks.reduce((acc: Record<string, number>, t: any) => {
+function getTopPerformers(tasks: Array<{ status: string; assigneeId?: string | null }>, teamMembers: Array<{ userId: string; user?: { name: string } | null }>) {
+  const tasksByUser = tasks.reduce((acc: Record<string, number>, t: { status: string; assigneeId?: string | null }) => {
     if (t.status === 'COMPLETE' && t.assigneeId) {
       acc[t.assigneeId] = (acc[t.assigneeId] || 0) + 1;
     }
@@ -225,7 +225,7 @@ function getTopPerformers(tasks: any[], teamMembers: any[]) {
     });
 }
 
-function getActivityTrend(activities: any[], days: number) {
+function getActivityTrend(activities: Array<{ createdAt: Date }>, days: number) {
   const trend: Record<string, number> = {};
   for (let i = 0; i < days; i++) {
     const date = new Date();
