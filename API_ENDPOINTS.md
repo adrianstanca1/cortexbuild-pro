@@ -436,9 +436,10 @@ All API endpoints (except `/api/auth/*`, `/api/signup`, `/api/openapi`, and `/ap
 
 ## Rate Limiting
 
-API requests are rate limited to:
-- **Authenticated users**: 1000 requests per hour
-- **Unauthenticated**: 100 requests per hour
+API requests are rate limited using a shared middleware configured in `lib/rate-limiter.ts`.
+The current default API limiter (`rateLimiters.api`) is set to **100 requests per minute** per client.
+Some newer App Router endpoints under `app/api/**` may not yet use this middleware; refer to the route
+implementation to confirm whether rate limiting is applied for a specific endpoint.
 
 ## API Count Summary
 
