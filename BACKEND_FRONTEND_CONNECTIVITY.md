@@ -158,10 +158,16 @@ function MyComponent() {
 
 ```javascript
 // production-server.js
+const allowedOrigins = [
+  process.env.NEXTAUTH_URL,
+  process.env.NEXT_PUBLIC_APP_URL,
+].filter(Boolean);
+
 const io = new Server(httpServer, {
   path: '/api/socketio',
   cors: {
-    origin: process.env.NEXTAUTH_URL || "*",
+    // Allow authenticated WebSocket connections only from trusted frontend URLs
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }
