@@ -48,6 +48,7 @@ echo ""
 ALL_DEPS_OK=true
 check_command "docker" || ALL_DEPS_OK=false
 check_command "git" || ALL_DEPS_OK=false
+check_command "openssl" || ALL_DEPS_OK=false
 
 # Check for docker compose (either as command or plugin)
 if ! docker compose version &> /dev/null; then
@@ -63,6 +64,7 @@ if [ "$ALL_DEPS_OK" = false ]; then
     echo -e "${YELLOW}Please install the missing dependencies:${NC}"
     echo "  Docker: curl -fsSL https://get.docker.com | sh"
     echo "  Docker Compose: apt install docker-compose-plugin"
+    echo "  OpenSSL: apt install openssl"
     exit 1
 fi
 
@@ -308,8 +310,9 @@ echo "  ./setup-ssl.sh yourdomain.com admin@yourdomain.com"
 echo ""
 
 echo -e "${CYAN}Documentation:${NC}"
-echo "  Full guide:     cat ../DEPLOY_TO_VPS.md"
-echo "  README:         cat ../README.md"
+echo "  Full guide:     cat DEPLOY_TO_VPS.md"
+echo "  README:         cat README.md"
+echo "  Location:       /var/www/cortexbuild-pro/"
 echo ""
 
 echo -e "${GREEN}Deployment completed at: $(date)${NC}"

@@ -72,7 +72,7 @@ cp .env.example .env
 nano .env  # Set POSTGRES_PASSWORD and other settings
 
 # Deploy!
-./deploy-production.sh
+./deploy-vps.sh
 ```
 
 **That's it!** The script will:
