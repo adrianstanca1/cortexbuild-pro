@@ -45,8 +45,14 @@ This automated script will:
 
 **📖 Documentation:** 
 - **[DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)** - 🆕 Simple deployment guide (START HERE!)
+- **[VPS_QUICK_REFERENCE.md](VPS_QUICK_REFERENCE.md)** - 🆕 One-page command reference
 - [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete step-by-step guide
 - [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Command reference
+
+**🔧 Deployment Tools:**
+- `deploy-to-vps.sh` - Automated deployment script
+- `verify-deployment.sh` - Post-deployment verification
+- `rollback-deployment.sh` - Rollback utility
 
 ### Alternative: Deploy with Pre-built Image
 

@@ -1,19 +1,35 @@
 # CortexBuild Pro - VPS Deployment Quick Reference
 
-> 📖 **For complete deployment instructions, see [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)**
+> 📖 **For complete deployment instructions, see [DEPLOY_TO_VPS.md](../DEPLOY_TO_VPS.md)** - NEW Simplified Guide!
 > 🔧 **For VPS and connection configuration, see [VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md)**
+> 📋 **For command reference, see [VPS_QUICK_REFERENCE.md](../VPS_QUICK_REFERENCE.md)** - NEW One-Page Reference!
 
 This directory contains Docker configuration and scripts for deploying CortexBuild Pro on a VPS.
 
 ---
 
-## 🚀 Quick Deploy
+## 🚀 Quick Deploy (Easiest Method)
 
-### Option 1: Automated Quick Start (Recommended)
+### Option 1: One-Command Deploy (Recommended) 🆕
+
+Run this single command on your fresh VPS:
+
 ```bash
-# Run the automated deployment script
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/quick-start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
 ```
+
+This automated script handles **everything**:
+- ✅ Installs Docker & Docker Compose
+- ✅ Configures firewall (UFW) and security (Fail2Ban)
+- ✅ Clones repository
+- ✅ Generates secure credentials
+- ✅ Builds and deploys all services
+- ✅ Runs database migrations
+- ✅ Verifies deployment
+- ✅ Provides next steps
+
+⏱️ **Time:** 10-15 minutes
+📋 **Requirements:** Ubuntu 20.04+ or Debian 10+, 2GB+ RAM, root/sudo access
 
 ### Option 2: Manual Step-by-Step
 ```bash
