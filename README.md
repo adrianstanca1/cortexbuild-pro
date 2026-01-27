@@ -38,8 +38,8 @@ This will:
 **Requirements:** Ubuntu 20.04+ VPS with 2GB+ RAM
 
 **📖 Full guides:** 
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - Complete step-by-step guide
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick reference
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete step-by-step VPS guide
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
 
 ### Alternative: Deploy with Pre-built Image
 
@@ -139,8 +139,8 @@ cd cortexbuild-pro/deployment && \
 - Root or sudo access
 
 **📖 Guides:**
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - Complete VPS deployment guide
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick reference
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete VPS deployment guide
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
 
 ### Option 2: Deploy from Published Image (Fastest ⚡)
 
@@ -187,11 +187,10 @@ docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 ```
 
 **📖 Detailed guides:**
-- [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md) - VPS deployment (NEW! ⭐)
-- [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md) - Quick VPS reference (NEW! ⭐)
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete VPS deployment guide ⭐
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
 - [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
 - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
-- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - VPS best practices
 
 ## 📋 Configuration Status
 
@@ -219,8 +218,8 @@ All API keys and server connections are **fully configured** and ready for use!
 ## 📚 Documentation
 
 ### Deployment Guides
-- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Complete public deployment guide (10K+ words)
-- **[DEPLOY_TO_CORTEXBUILDPRO.md](DEPLOY_TO_CORTEXBUILDPRO.md)** - Official domain deployment guide
+- **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
+- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Docker image deployment guide
 - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Advanced production deployment options
 - **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick command reference
 - **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release information
@@ -236,9 +235,9 @@ All API keys and server connections are **fully configured** and ready for use!
 - **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance optimizations
 
 ### Getting Started
-- **[START_HERE.md](START_HERE.md)** - New user guide
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational runbook
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 - **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation map
 
 ### Application Documentation
