@@ -28,6 +28,7 @@ node_modules/
 out/
 dist/
 build/
+*.tsbuildinfo
 
 # Test coverage
 coverage/
