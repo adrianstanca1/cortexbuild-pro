@@ -243,21 +243,25 @@ if [ -f .env ]; then
     pass_test ".env file exists"
     
     # Check critical environment variables
-    source .env
-    
-    if [ ! -z "$POSTGRES_PASSWORD" ] && [ "$POSTGRES_PASSWORD" != "your_secure_password_here" ]; then
-        pass_test "POSTGRES_PASSWORD is configured"
+    if ! source .env 2>/dev/null; then
+        fail_test "Failed to load .env file"
     else
+        pass_test ".env file loaded successfully"
+    fi
+    
+    if [ -z "$POSTGRES_PASSWORD" ] || [ "$POSTGRES_PASSWORD" = "your_secure_password_here" ]; then
         fail_test "POSTGRES_PASSWORD is not properly configured"
-    fi
-    
-    if [ ! -z "$NEXTAUTH_SECRET" ] && [ "$NEXTAUTH_SECRET" != "your_secure_secret_here" ]; then
-        pass_test "NEXTAUTH_SECRET is configured"
     else
-        fail_test "NEXTAUTH_SECRET is not properly configured"
+        pass_test "POSTGRES_PASSWORD is configured"
     fi
     
-    if [ ! -z "$NEXTAUTH_URL" ]; then
+    if [ -z "$NEXTAUTH_SECRET" ] || [ "$NEXTAUTH_SECRET" = "your_secure_secret_here" ]; then
+        fail_test "NEXTAUTH_SECRET is not properly configured"
+    else
+        pass_test "NEXTAUTH_SECRET is configured"
+    fi
+    
+    if [ -n "$NEXTAUTH_URL" ] && [ "$NEXTAUTH_URL" != "https://your-domain.com" ]; then
         pass_test "NEXTAUTH_URL is configured ($NEXTAUTH_URL)"
     else
         warn_test "NEXTAUTH_URL is not configured"

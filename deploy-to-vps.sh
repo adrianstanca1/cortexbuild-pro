@@ -272,8 +272,25 @@ REPO_DIR="/var/www/cortexbuild-pro"
 if [ -d "$REPO_DIR" ]; then
     print_info "Repository already exists. Updating..."
     cd "$REPO_DIR"
-    git fetch origin
-    git pull origin main
+    
+    # Check for uncommitted changes
+    if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+        print_warning "Found uncommitted changes. Stashing them..."
+        git stash save "Auto-stash before deployment $(date +%Y%m%d_%H%M%S)"
+    fi
+    
+    # Update repository
+    if ! git fetch origin 2>/dev/null; then
+        print_error "Failed to fetch from remote repository"
+        exit 1
+    fi
+    
+    if ! git pull origin main 2>/dev/null; then
+        print_error "Failed to pull latest changes"
+        print_info "You may need to resolve conflicts manually"
+        exit 1
+    fi
+    
     print_success "Repository updated"
 else
     print_info "Cloning repository..."
@@ -302,11 +319,11 @@ if [ ! -f .env ]; then
     POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
     NEXTAUTH_SECRET=$(openssl rand -base64 32)
     
-    # Update .env file
-    sed -i "s/POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=${POSTGRES_PASSWORD}/" .env
-    sed -i "s/NEXTAUTH_SECRET=.*/NEXTAUTH_SECRET=${NEXTAUTH_SECRET}/" .env
+    # Update .env file with safer sed delimiter
+    sed -i "s|POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=${POSTGRES_PASSWORD}|" .env
+    sed -i "s|NEXTAUTH_SECRET=.*|NEXTAUTH_SECRET=${NEXTAUTH_SECRET}|" .env
     
-    # Update DATABASE_URL
+    # Update DATABASE_URL with proper escaping
     sed -i "s|DATABASE_URL=.*|DATABASE_URL=\"postgresql://cortexbuild:${POSTGRES_PASSWORD}@postgres:5432/cortexbuild?schema=public\"|" .env
     
     print_success "Secure credentials generated"
@@ -351,7 +368,11 @@ else
 fi
 
 # Load environment variables
-source .env
+if ! source .env 2>/dev/null; then
+    print_error "Failed to load .env file"
+    print_info "Please check .env file for syntax errors"
+    exit 1
+fi
 
 # Validate configuration
 print_info "Validating configuration..."
@@ -431,9 +452,24 @@ fi
 print_info "Starting application server..."
 docker compose up -d app
 
-# Wait for application to start
+# Wait for application to start with health checks
 print_info "Waiting for application to initialize..."
-sleep 20
+MAX_APP_WAIT=60
+WAITED=0
+while [ $WAITED -lt $MAX_APP_WAIT ]; do
+    if curl -sf http://localhost:3000/api/auth/providers >/dev/null 2>&1; then
+        print_success "Application is ready"
+        break
+    fi
+    sleep 3
+    WAITED=$((WAITED + 3))
+    echo -n "."
+done
+echo ""
+
+if [ $WAITED -ge $MAX_APP_WAIT ]; then
+    print_warning "Application health check timed out, but continuing..."
+fi
 
 # Start nginx
 print_info "Starting web server..."

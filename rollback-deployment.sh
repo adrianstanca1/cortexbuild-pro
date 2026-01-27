@@ -158,12 +158,18 @@ case $CHOICE in
         
         echo ""
         echo -e "${RED}⚠️  This will reset code to commit: $COMMIT${NC}"
+        echo -e "${YELLOW}All uncommitted changes will be permanently lost!${NC}"
         read -p "Are you sure? (yes/no): " CONFIRM
         
         if [ "$CONFIRM" != "yes" ]; then
             echo "Cancelled"
             exit 0
         fi
+        
+        echo ""
+        echo -e "${CYAN}Creating backup branch before reset...${NC}"
+        cd /var/www/cortexbuild-pro
+        git branch "backup-$(date +%Y%m%d_%H%M%S)" || true
         
         echo ""
         echo -e "${CYAN}Rolling back to commit $COMMIT...${NC}"
@@ -212,7 +218,17 @@ case $CHOICE in
         echo ""
         echo -e "${CYAN}Pulling latest code...${NC}"
         cd /var/www/cortexbuild-pro
-        git pull origin main
+        
+        # Check for uncommitted changes
+        if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+            echo -e "${YELLOW}Found uncommitted changes. Stashing them...${NC}"
+            git stash save "Auto-stash before redeployment $(date +%Y%m%d_%H%M%S)"
+        fi
+        
+        if ! git pull origin main; then
+            echo -e "${RED}Failed to pull latest code${NC}"
+            exit 1
+        fi
         
         echo ""
         echo -e "${CYAN}Rebuilding application...${NC}"
