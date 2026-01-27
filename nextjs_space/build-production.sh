@@ -16,8 +16,12 @@ if [ ! -f "package.json" ]; then
 fi
 
 echo "Step 1: Cleaning previous build artifacts..."
-rm -rf .next node_modules || true
-echo "✓ Cleaned"
+if [ -d ".next" ] || [ -d "node_modules" ]; then
+    rm -rf .next node_modules
+    echo "✓ Cleaned"
+else
+    echo "✓ No artifacts to clean"
+fi
 echo ""
 
 echo "Step 2: Installing dependencies..."
