@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Target, TrendingUp, Users, DollarSign, Activity, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -40,7 +40,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData })
     const [activeMetric, setActiveMetric] = useState<'productivity' | 'finances'>('productivity');
 
     // Process allocation data for heatmap-style display
-    const projectSummaries = initialData.allocation.reduce((acc: Record<string, number>, curr) => {
+    const projectSummaries = initialData.allocation.reduce((acc: any, curr) => {
         acc[curr.projectName] = (acc[curr.projectName] || 0) + 1;
         return acc;
     }, {});

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const changeOrders = await prisma.changeOrder.findMany({
       where: {
         projectId: projectId ? { equals: projectId } : { in: projectIds },
-        ...(status && { status })
+        ...(status && { status: status as any })
       },
       include: {
         project: { select: { id: true, name: true, budget: true } },

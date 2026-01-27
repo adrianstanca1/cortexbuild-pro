@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -16,12 +16,9 @@ export async function GET(req: NextRequest) {
     const organizationId = searchParams.get("organizationId");
     const role = searchParams.get("role");
     const search = searchParams.get("search");
+    const status = searchParams.get("status"); // active, suspended
 
-    const where: { 
-      organizationId?: string; 
-      role?: string; 
-      OR?: Array<{ name: { contains: string; mode: string } } | { email: { contains: string; mode: string } }>
-    } = {};
+    const where: any = {};
     
     if (organizationId) where.organizationId = organizationId;
     if (role) where.role = role;
@@ -70,7 +67,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

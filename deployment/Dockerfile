@@ -5,16 +5,12 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-# Update package index and install dependencies with retry logic
-RUN apk update || apk update --no-cache || true
-RUN apk add --no-cache libc6-compat openssl || \
-    (sleep 5 && apk add --no-cache libc6-compat openssl) || \
-    apk add --no-cache libc6-compat openssl3
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Copy package files
-COPY nextjs_space/package.json nextjs_space/package-lock.json ./
-RUN npm ci --legacy-peer-deps
+COPY nextjs_space/package.json ./
+RUN yarn install --production=false
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -23,7 +19,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ .
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN yarn prisma generate
 
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -40,7 +36,7 @@ ENV NEXTAUTH_URL=$NEXTAUTH_URL
 ENV NEXT_OUTPUT_MODE=standalone
 ENV PRISMA_SKIP_INIT=true
 
-RUN npm run build
+RUN yarn build
 
 # Production image
 FROM base AS runner
@@ -50,10 +46,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install openssl and prisma for migrations
-RUN apk update || true
-RUN apk add --no-cache openssl || \
-    (sleep 5 && apk add --no-cache openssl) || \
-    apk add --no-cache openssl3
+RUN apk add --no-cache openssl
 RUN npm install -g prisma@^6.0.0
 
 RUN addgroup --system --gid 1001 nodejs

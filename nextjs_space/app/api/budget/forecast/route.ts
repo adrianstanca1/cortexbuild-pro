@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    const where: { projectId?: string; project: { organizationId: string | undefined } } = projectId 
+    const where: any = projectId 
       ? { projectId, project: { organizationId: session.user.organizationId } }
       : { project: { organizationId: session.user.organizationId } };
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     // Risk assessment
     const overBudgetCategories = Object.entries(categoryBreakdown)
-      .filter(([, data]) => data.actual > data.estimated)
+      .filter(([_, data]) => data.actual > data.estimated)
       .map(([category, data]) => ({
         category,
         overBy: data.actual - data.estimated,

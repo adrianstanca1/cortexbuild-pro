@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const fileName = file.name.toLowerCase();
     const fileType = file.type;
-    let messages: Array<{ role: string; content: unknown }> = [];
+    let messages: any[] = [];
 
     if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
       // Handle PDF - send base64 to LLM

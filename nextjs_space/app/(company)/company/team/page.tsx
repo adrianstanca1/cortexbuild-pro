@@ -11,7 +11,7 @@ export default async function CompanyTeamPage() {
     redirect("/login");
   }
 
-  const user = session.user as { id: string; role: string; organizationId?: string };
+  const user = session.user as any;
 
   if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
     redirect("/dashboard");

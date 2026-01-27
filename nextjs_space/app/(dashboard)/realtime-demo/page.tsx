@@ -1,63 +1,43 @@
 // app/(dashboard)/realtime-demo/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useRealtimeContext, useRealtimeSubscription } from '@/components/realtime-provider';
+import { Label } from '@/components/ui/label';
+import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import { useSession } from 'next-auth/react';
 import RealTimeNotifications from '@/components/ui/realtime-notifications';
-import { toast } from 'sonner';
-import type { RealtimeEvent } from '@/lib/realtime';
-
-interface Task {
-  id: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  priority?: string;
-}
 
 const RealTimeDemoPage = () => {
   const { data: session } = useSession();
-  const { isConnected, connectedClients } = useRealtimeContext();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [eventCount, setEventCount] = useState(0);
+  const userId = (session?.user as any)?.id || session?.user?.id;
+  const projectId = 'demo-project'; // Using a demo project ID
+  
+  const {
+    isConnected,
+    tasks,
+    messages,
+    onlineUsers,
+    sendTaskUpdate,
+    sendProjectMessage
+  } = useRealTimeUpdates(projectId);
 
-  // Subscribe to task updates
-  useRealtimeSubscription(['task_created', 'task_updated', 'task_deleted'], (event: RealtimeEvent) => {
-    setEventCount(prev => prev + 1);
-    const payload = event.payload as any;
-    
-    if (event.type === 'task_created' || event.type === 'task_updated') {
-      setTasks(prev => {
-        const existingIndex = prev.findIndex(t => t.id === payload.id);
-        const task: Task = {
-          id: payload.id,
-          title: payload.title,
-          description: payload.description,
-          status: payload.status,
-          priority: payload.priority,
-        };
-        
-        if (existingIndex >= 0) {
-          const updated = [...prev];
-          updated[existingIndex] = task;
-          return updated;
-        }
-        return [...prev, task];
-      });
-    } else if (event.type === 'task_deleted') {
-      setTasks(prev => prev.filter(t => t.id !== payload.id));
+  const [newMessage, setNewMessage] = React.useState('');
+
+  const handleSendMessage = () => {
+    if (newMessage.trim() && session?.user?.name) {
+      sendProjectMessage(newMessage, session.user.name);
+      setNewMessage('');
     }
-  });
+  };
 
-  const handleSendNotification = () => {
-    toast.success('Test notification sent!', {
-      description: 'This demonstrates the notification system',
-      duration: 5000,
-    });
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
@@ -67,119 +47,112 @@ const RealTimeDemoPage = () => {
         <div className="flex items-center gap-4">
           <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
           <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
-          <span className="text-sm text-gray-600">({connectedClients} clients)</span>
           <RealTimeNotifications />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tasks Panel */}
         <Card>
           <CardHeader>
-            <CardTitle>Live Task Updates</CardTitle>
+            <CardTitle>Live Tasks</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-sm text-gray-600 mb-4">
-                Real-time events received: <span className="font-bold">{eventCount}</span>
-              </p>
               {tasks.length > 0 ? (
                 tasks.map((task) => (
-                  <div key={task.id} className="border p-3 rounded-md bg-gray-50">
+                  <div key={task.id} className="border p-3 rounded-md">
                     <h3 className="font-medium">{task.title}</h3>
-                    {task.description && (
-                      <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                    )}
-                    <div className="mt-2 flex gap-2">
-                      {task.status && (
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                          {task.status}
-                        </span>
-                      )}
-                      {task.priority && (
-                        <span className="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded">
-                          {task.priority}
-                        </span>
-                      )}
+                    <p className="text-sm text-gray-600">{task.description}</p>
+                    <div className="mt-2 text-xs text-gray-500">
+                      Status: {task.status} | Priority: {task.priority}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No live task updates yet</p>
-                  <p className="text-sm mt-2">Create or update a task in any project to see updates here</p>
-                </div>
+                <p className="text-gray-500">No live task updates yet</p>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Demo Actions Panel */}
+        {/* Chat Panel */}
         <Card>
           <CardHeader>
-            <CardTitle>Test Actions</CardTitle>
+            <CardTitle>Project Chat</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-medium mb-2">Connection Status</h3>
-              <div className="p-4 border rounded-md bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <span>Server Connection:</span>
-                  <span className={`font-bold ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-                    {isConnected ? 'Connected' : 'Disconnected'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span>Connected Clients:</span>
-                  <span className="font-bold">{connectedClients}</span>
-                </div>
+          <CardContent>
+            <div className="flex flex-col h-96">
+              <div className="flex-1 overflow-y-auto mb-4 space-y-3">
+                {messages.length > 0 ? (
+                  messages.map((msg) => (
+                    <div key={msg.id} className="border-b pb-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{msg.senderName}</span>
+                        <span className="text-xs text-gray-500">
+                          {msg.timestamp.toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-sm">{msg.message}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No messages yet</p>
+                )}
+              </div>
+              
+              <div className="flex gap-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Type a message..."
+                />
+                <Button onClick={handleSendMessage}>Send</Button>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Online Users Panel */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Online Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {onlineUsers.length > 0 ? (
+                onlineUsers.map((user, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                    <span>User {user.substring(0, 8)}...</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No other users online</p>
+              )}
+            </div>
             
-            <div>
+            <div className="mt-6">
               <h3 className="font-medium mb-2">Send Test Notification</h3>
               <Button 
-                onClick={handleSendNotification}
+                onClick={() => {
+                  // In a real implementation, this would send a notification
+                  console.log('Sending test notification...');
+                }}
                 className="w-full"
-                disabled={!isConnected}
               >
                 Send Test Notification
               </Button>
-              <p className="text-xs text-gray-500 mt-2">
-                Sends a test notification to demonstrate the notification system
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-2">How It Works</h3>
-              <div className="text-sm text-gray-600 space-y-2">
-                <p>✓ This page uses Server-Sent Events (SSE) to receive real-time updates</p>
-                <p>✓ Any task created, updated, or deleted will appear here instantly</p>
-                <p>✓ Multiple users can view updates simultaneously</p>
-                <p>✓ Automatic reconnection on connection loss</p>
-              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>About This Demo</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-gray-600">
-          <p>This demo showcases the real-time collaboration features of CortexBuild Pro:</p>
-          <ul className="list-disc list-inside mt-2 space-y-1">
-            <li>Live task updates across all connected clients</li>
-            <li>Server-Sent Events (SSE) for efficient real-time communication</li>
-            <li>Automatic reconnection with exponential backoff</li>
-            <li>Toast notifications for important events</li>
-            <li>Connection status monitoring</li>
-          </ul>
-          <p className="mt-4 font-medium">Try it out:</p>
-          <p className="mt-1">Open this page in multiple browsers or tabs, then create or update a task in any project to see the updates appear here in real-time!</p>
-        </CardContent>
-      </Card>
+      <div className="mt-8 text-center text-sm text-gray-500">
+        <p>This demo shows real-time collaboration features including live task updates, instant messaging, and online user presence.</p>
+        <p className="mt-2">Open this page in multiple browsers/tabs to see the real-time updates in action!</p>
+      </div>
     </div>
   );
 };

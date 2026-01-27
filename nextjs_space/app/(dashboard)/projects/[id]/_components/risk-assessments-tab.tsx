@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SignaturePad, SignatureDisplay } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface RiskAssessmentsTabProps {
   project: any;

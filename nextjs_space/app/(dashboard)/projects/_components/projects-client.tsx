@@ -60,50 +60,38 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
   );
 
   const portfolioKPIs = useMemo(() => {
-    // Single-pass calculation for better performance - O(n) instead of O(n*m)
-    let activeCount = 0, completedCount = 0, totalBudget = 0;
+    const activeProjects = (projects ?? []).filter((p: any) => 
+      p?.status === "IN_PROGRESS" || p?.status === "PLANNING"
+    );
+    const completedProjects = (projects ?? []).filter((p: any) => p?.status === "COMPLETED");
+    const totalBudget = (projects ?? []).reduce((sum: number, p: any) => sum + (p?.budget ?? 0), 0);
+    
     let totalTasks = 0, completedTasks = 0, overdueTasks = 0, criticalTasks = 0;
-    let atRiskProjects = 0;
     
     (projects ?? []).forEach((p: any) => {
-      // Count project statuses
-      if (p?.status === "IN_PROGRESS" || p?.status === "PLANNING") activeCount++;
-      if (p?.status === "COMPLETED") completedCount++;
-      totalBudget += p?.budget ?? 0;
-      
-      // Process tasks in single pass
       const tasks = p?.tasks ?? [];
-      let projectHasOverdue = false;
-      let projectHasCritical = false;
-      
-      tasks.forEach((t: any) => {
-        totalTasks++;
-        
-        const isComplete = t?.status === "COMPLETE";
-        const isOverdue = t?.dueDate && !isComplete && isBefore(new Date(t.dueDate), new Date());
-        const isCritical = t?.priority === "CRITICAL" && !isComplete;
-        
-        if (isComplete) completedTasks++;
-        if (isOverdue) {
-          overdueTasks++;
-          projectHasOverdue = true;
-        }
-        if (isCritical) {
-          criticalTasks++;
-          projectHasCritical = true;
-        }
-      });
-      
-      // Track at-risk projects
-      if (projectHasOverdue || projectHasCritical) atRiskProjects++;
+      totalTasks += tasks.length;
+      completedTasks += tasks.filter((t: any) => t?.status === "COMPLETE").length;
+      overdueTasks += tasks.filter((t: any) => {
+        if (!t?.dueDate || t?.status === "COMPLETE") return false;
+        return isBefore(new Date(t.dueDate), new Date());
+      }).length;
+      criticalTasks += tasks.filter((t: any) => t?.priority === "CRITICAL" && t?.status !== "COMPLETE").length;
     });
     
     const avgCompletion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const atRiskProjects = (projects ?? []).filter((p: any) => {
+      const tasks = p?.tasks ?? [];
+      return tasks.some((t: any) => {
+        if (!t?.dueDate || t?.status === "COMPLETE") return false;
+        return isBefore(new Date(t.dueDate), new Date());
+      }) || tasks.some((t: any) => t?.priority === "CRITICAL" && t?.status !== "COMPLETE");
+    }).length;
     
     return {
       total: (projects ?? []).length,
-      active: activeCount,
-      completed: completedCount,
+      active: activeProjects.length,
+      completed: completedProjects.length,
       totalBudget,
       avgCompletion,
       overdueTasks,
