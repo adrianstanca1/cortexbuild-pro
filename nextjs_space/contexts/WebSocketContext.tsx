@@ -27,14 +27,22 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      const token = (session.user as any).accessToken || session.accessToken || 'fallback-token';
+      const token = (session.user as any).accessToken || session.accessToken;
       const userId = (session.user as any).id || session.user?.id;
+      
+      // Only connect if we have a valid token
+      if (!token) {
+        console.warn('WebSocket: No access token available');
+        return;
+      }
       
       // Connect to WebSocket
       websocketClient.connect(token, userId)
         .then(() => {
           setIsConnected(true);
-          console.log('WebSocket connected successfully');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('WebSocket connected successfully');
+          }
         })
         .catch(error => {
           console.error('Failed to connect WebSocket:', error);
@@ -42,7 +50,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
       // Set up listeners
       websocketClient.on('authenticated', (data) => {
-        console.log('WebSocket authenticated:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('WebSocket authenticated:', data);
+        }
       });
 
       websocketClient.on('authentication-error', (error) => {

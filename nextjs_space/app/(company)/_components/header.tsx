@@ -3,13 +3,18 @@
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, User, ChevronDown, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 interface CompanyHeaderProps {
-  user: any;
-  organization: any;
+  user: {
+    name?: string;
+    email?: string;
+    role?: string;
+  };
+  organization: {
+    name?: string;
+  };
 }
 
 export function CompanyHeader({ user, organization }: CompanyHeaderProps) {

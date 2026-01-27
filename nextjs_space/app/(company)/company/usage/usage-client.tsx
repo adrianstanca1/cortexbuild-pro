@@ -5,10 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DateRange } from 'react-day-picker';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 // Define TypeScript interfaces for props
@@ -61,11 +59,6 @@ interface CompanyUsageClientProps {
  */
 export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsageClientProps) {
   const [currentUsageData, setCurrentUsageData] = useState<UsageData | undefined>(initialData);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(new Date().setDate(new Date().getDate() - 30)),
-    to: new Date()
-  });
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'billing'>('overview');
 
   // Synchronize local state with initialData if it changes
@@ -74,7 +67,7 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
   }, [initialData]);
 
   // Real-time update subscription
-  useRealtimeSubscription('activity_logged', (event) => {
+  useRealtimeSubscription('activity_logged', () => {
     if (!currentUsageData) return;
 
     setCurrentUsageData(prev => {
@@ -385,7 +378,7 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                         return (
                           <div className="bg-white p-3 border rounded-lg shadow-sm">
                             <p className="font-semibold">{label}</p>
-                            {payload.map((item: any) => (
+                            {payload.map((item: { dataKey: string; value: number; color?: string }) => (
                               <p key={item.dataKey} className="text-sm">
                                 <span className={`mr-2 ${item.dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>●</span>
                                 {item.dataKey}: {item.value}

@@ -196,4 +196,7 @@ app.prepare().then(() => {
         if (err) throw err;
         console.log(`> Production environment live on http://localhost:${port}`);
     });
+}).catch((err) => {
+    console.error('[FATAL] Failed to prepare Next.js application:', err);
+    process.exit(1);
 });

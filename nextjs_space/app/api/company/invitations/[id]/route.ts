@@ -15,9 +15,9 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -54,9 +54,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -183,9 +183,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

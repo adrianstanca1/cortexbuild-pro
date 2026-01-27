@@ -54,7 +54,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    const updateData: any = { ...data };
+    const updateData: { 
+      [key: string]: unknown;
+      verifiedById?: string;
+      verifiedAt?: Date;
+      issueDate?: Date;
+      expiryDate?: Date;
+    } = { ...data };
 
     // Handle verification
     if (data.isVerified && !existing.isVerified) {

@@ -253,28 +253,59 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Project breakdown
+    // Project breakdown - Use Map-based grouping for O(n) complexity instead of O(n*m)
+    // Group data by project ID for efficient lookup
+    const toolboxByProject = new Map<string, typeof toolboxTalks>();
+    const mewpByProject = new Map<string, typeof mewpChecks>();
+    const toolByProject = new Map<string, typeof toolChecks>();
+    const incidentsByProject = new Map<string, typeof safetyIncidents>();
+
+    toolboxTalks.forEach(t => {
+      if (!toolboxByProject.has(t.projectId)) toolboxByProject.set(t.projectId, []);
+      toolboxByProject.get(t.projectId)!.push(t);
+    });
+    mewpChecks.forEach(c => {
+      if (!mewpByProject.has(c.projectId)) mewpByProject.set(c.projectId, []);
+      mewpByProject.get(c.projectId)!.push(c);
+    });
+    toolChecks.forEach(c => {
+      if (!toolByProject.has(c.projectId)) toolByProject.set(c.projectId, []);
+      toolByProject.get(c.projectId)!.push(c);
+    });
+    safetyIncidents.forEach(i => {
+      if (!incidentsByProject.has(i.projectId)) incidentsByProject.set(i.projectId, []);
+      incidentsByProject.get(i.projectId)!.push(i);
+    });
+
     const projectBreakdown = projects.map(p => {
-      const pToolbox = toolboxTalks.filter(t => t.projectId === p.id);
-      const pMewp = mewpChecks.filter(c => c.projectId === p.id);
-      const pTool = toolChecks.filter(c => c.projectId === p.id);
-      const pIncidents = safetyIncidents.filter(i => i.projectId === p.id);
+      const pToolbox = toolboxByProject.get(p.id) || [];
+      const pMewp = mewpByProject.get(p.id) || [];
+      const pTool = toolByProject.get(p.id) || [];
+      const pIncidents = incidentsByProject.get(p.id) || [];
+
+      // Single-pass calculations using reduce for better performance
+      const toolboxCompleted = pToolbox.reduce((sum, t) => sum + (t.status === 'COMPLETED' ? 1 : 0), 0);
+      const mewpPassed = pMewp.reduce((sum, c) => sum + (c.overallStatus === 'PASS' ? 1 : 0), 0);
+      const toolPassed = pTool.reduce((sum, c) => sum + (c.overallStatus === 'PASS' ? 1 : 0), 0);
+      const criticalIncidents = pIncidents.reduce((sum, i) => 
+        sum + ((i.severity === 'CRITICAL' || i.severity === 'HIGH') ? 1 : 0), 0
+      );
 
       return {
         id: p.id,
         name: p.name,
         toolboxTalks: pToolbox.length,
-        toolboxCompleted: pToolbox.filter(t => t.status === 'COMPLETED').length,
+        toolboxCompleted,
         mewpChecks: pMewp.length,
         mewpPassRate: pMewp.length > 0 
-          ? Math.round((pMewp.filter(c => c.overallStatus === 'PASS').length / pMewp.length) * 100) 
+          ? Math.round((mewpPassed / pMewp.length) * 100) 
           : 0,
         toolChecks: pTool.length,
         toolPassRate: pTool.length > 0 
-          ? Math.round((pTool.filter(c => c.overallStatus === 'PASS').length / pTool.length) * 100) 
+          ? Math.round((toolPassed / pTool.length) * 100) 
           : 0,
         incidents: pIncidents.length,
-        criticalIncidents: pIncidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH').length
+        criticalIncidents
       };
     }).filter(p => p.toolboxTalks > 0 || p.mewpChecks > 0 || p.toolChecks > 0 || p.incidents > 0);
 
