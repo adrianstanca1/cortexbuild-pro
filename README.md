@@ -14,32 +14,39 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 
 ## 🚀 Quick Deployment
 
-### Deploy to Your VPS in 10 Minutes
+### Deploy to Your VPS in 10 Minutes ⚡
 
-**Automated one-command deployment:**
+**🎯 NEW: One-command deployment (Easiest):**
 
 ```bash
-# On your VPS, run:
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-setup.sh | bash && \
-cd /var/www && \
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git && \
-cd cortexbuild-pro/deployment && \
-./deploy-vps.sh
+# On your VPS, run this single command:
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
 ```
 
-This will:
+**OR** clone and run locally:
+
+```bash
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro
+./deploy-to-vps.sh
+```
+
+This automated script will:
 - ✅ Install Docker & Docker Compose
-- ✅ Configure firewall and security
+- ✅ Configure firewall and security (UFW + Fail2Ban)
+- ✅ Clone repository
 - ✅ Generate secure credentials automatically
-- ✅ Build and start all services
+- ✅ Build and start all services (PostgreSQL, App, Nginx, Certbot)
 - ✅ Run database migrations
+- ✅ Verify deployment
 - ✅ Make your app available at `http://YOUR_SERVER_IP:3000`
 
-**Requirements:** Ubuntu 20.04+ VPS with 2GB+ RAM
+**Requirements:** Ubuntu 20.04+ or Debian 10+ VPS with 2GB+ RAM, root/sudo access
 
-**📖 Full guides:** 
-- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete step-by-step VPS guide
-- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
+**📖 Documentation:** 
+- **[DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)** - 🆕 Simple deployment guide (START HERE!)
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete step-by-step guide
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Command reference
 
 ### Alternative: Deploy with Pre-built Image
 
