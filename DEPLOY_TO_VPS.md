@@ -126,9 +126,19 @@ docker compose restart app
 docker compose ps
 ```
 
+### Verify Deployment
+```bash
+./verify-deployment.sh
+```
+
 ### Backup Database
 ```bash
 ./backup.sh
+```
+
+### Rollback if Needed
+```bash
+./rollback-deployment.sh
 ```
 
 ### Stop Services
@@ -319,6 +329,40 @@ docker compose restart app
 2. **Run diagnostics:** `docker compose exec app npx tsx scripts/system-diagnostics.ts`
 3. **Review documentation** in `/var/www/cortexbuild-pro/`
 4. **GitHub Issues:** https://github.com/adrianstanca1/cortexbuild-pro/issues
+
+---
+
+## Advanced Tools
+
+### Deployment Verification
+
+Run comprehensive deployment verification:
+```bash
+./verify-deployment.sh
+```
+
+This script checks:
+- ✅ Docker services status
+- ✅ Database connectivity
+- ✅ Application health
+- ✅ Web server configuration
+- ✅ Network and firewall
+- ✅ Environment configuration
+- ✅ Security settings
+
+### Rollback Utility
+
+If something goes wrong, use the rollback script:
+```bash
+./rollback-deployment.sh
+```
+
+Options include:
+1. **Restart services** - Quick fix for most issues
+2. **Restore from backup** - Restore database from previous backup
+3. **Git rollback** - Rollback to previous code version
+4. **Complete redeployment** - Rebuild everything from scratch
+5. **Stop all services** - Emergency stop
 
 ---
 
