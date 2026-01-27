@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format, differenceInMinutes } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface SiteAccessTabProps {
   project: any;
