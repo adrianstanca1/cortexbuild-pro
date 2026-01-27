@@ -6,46 +6,62 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ### Getting Started
 - **[README.md](README.md)** - Main project overview, features, and quick start guide
-- **[START_HERE.md](START_HERE.md)** - Begin here for an overview of the platform
 - **[QUICKSTART.md](QUICKSTART.md)** - Step-by-step guide to get the platform running quickly
 
 ### Deployment & Operations
 - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
+- **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide with step-by-step instructions
+- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Docker image deployment from GitHub Container Registry
+- **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick reference for common deployment commands
+- **[DEPLOYMENT_COMPLETE.md](DEPLOYMENT_COMPLETE.md)** - Current deployment status and verification
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 
 ### Configuration
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Detailed guide for configuring API keys and external services
+- **[VPS_CONNECTION_CONFIG.md](VPS_CONNECTION_CONFIG.md)** - VPS connection and WebSocket configuration
+- **[VPS_DEPLOYMENT_CHECKLIST.md](VPS_DEPLOYMENT_CHECKLIST.md)** - Deployment checklist for VPS
+- **[PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Production readiness checklist
 
 ### Security & Compliance
 - **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices, compliance information, and audit details
+- **[SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md)** - Pre-deployment security verification checklist
+- **[SECURITY_ADVISORY.md](SECURITY_ADVISORY.md)** - Security status and vulnerability reports
 
-### Development
+### Development & Architecture
 - **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Architecture overview and codebase organization
 - **[API_REFACTORING_GUIDE.md](API_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
+- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - Complete API endpoint documentation
+- **[API_WEBSOCKET_REFERENCE.md](API_WEBSOCKET_REFERENCE.md)** - WebSocket API reference
+- **[BACKEND_FRONTEND_CONNECTIVITY.md](BACKEND_FRONTEND_CONNECTIVITY.md)** - Backend-frontend integration guide
 - **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning guide and latest improvements
 
-### Repository Status
-- **[REPOSITORY_MERGE_COMPLETE.md](REPOSITORY_MERGE_COMPLETE.md)** - ⭐ **Complete merge summary** - All repositories and progress consolidated
-- **[REPOSITORY_CLEANUP_REPORT.md](REPOSITORY_CLEANUP_REPORT.md)** - Latest cleanup report (January 2026)
+### Release Information
+- **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release notes
 
 ### Historical Documentation
-- **[.github/historical/](.github/historical/)** - Archived merge and platform status documentation
-  - MERGE_COMPLETE.md - Branch merge history (January 2026)
-  - CLEANUP_SUMMARY.md - Repository cleanup summary (January 2026)
-  - BRANCH_ANALYSIS.md - Detailed branch analysis (January 2026)
-  - PLATFORM_STATUS_JANUARY_2026.md - Platform completion report (January 2026)
-  - TASK_COMPLETION_SUMMARY.md - Task completion status (January 2026)
-  - BUILD_COMPLETION_REPORT.md - Build completion status (January 2026)
-  - DEPLOYMENT_SUMMARY.md - Historical deployment summary (January 2026)
-  - DEPLOYMENT_COMPLETE.txt - Deployment completion status (January 2026)
-  - DEPLOY_TO_CORTEXBUILDPRO.md - Domain-specific deployment guide (archived)
-  - QUICK_REFERENCE.md - Quick reference guide (consolidated into PRODUCTION_DEPLOYMENT.md)
+- **[.github/historical/archive/](.github/historical/archive/)** - Archived completion reports and status documentation
+  - All historical completion reports from January 2026 cleanup
+  - Branch merge and build completion summaries
+  - Deployment verification and status reports
+  - Domain-specific deployment guides
 
 ## Quick Reference Scripts
 
-- **[deploy-now.sh](deploy-now.sh)** - Automated deployment script
+### Root Directory Scripts
+- **[deploy-now.sh](deploy-now.sh)** - Quick deployment script with interactive guidance
 - **[verify-config.sh](verify-config.sh)** - Configuration verification utility
+- **[verify-production-readiness.sh](verify-production-readiness.sh)** - Production readiness checker
+- **[cleanup-remote-branches.sh](cleanup-remote-branches.sh)** - Git branch cleanup utility
+
+### Deployment Scripts
+See [deployment/README.md](deployment/README.md) for deployment-specific scripts including:
+- deploy-production.sh - Production deployment automation
+- deploy-vps.sh - VPS deployment
+- setup-ssl.sh - SSL/HTTPS configuration
+- backup.sh / restore.sh - Database backup/restore
+- And more...
 
 ## Deployment Directory
 
@@ -64,35 +80,31 @@ The `nextjs_space/` directory contains:
 
 ## Recent Cleanup (January 2026)
 
-During repository cleanup, redundant and insecure documents were removed:
+### Latest Cleanup (January 27, 2026)
+- **Archived 22 historical completion reports** to `.github/historical/archive/`
+- **Removed 5 redundant deployment documentation files**
+- **Consolidated deployment guides**: Kept VPS_DEPLOYMENT_GUIDE.md as primary VPS guide
+- **Removed duplicate scripts**: Consolidated verify-deployment.sh versions
+- **File reduction**: From 44 to 25 markdown files in root (43% reduction)
 
-### Security Improvements
-- **Removed files with hardcoded credentials** for enhanced security
-- Redacted sensitive information from START_HERE.md
+### Files Archived
+- All completion reports (BUILD_COMPLETE, DEPLOYMENT_STATUS, etc.)
+- Historical merge and status reports (REPOSITORY_MERGE_COMPLETE, etc.)
+- Domain-specific guides (START_HERE.md for cortexbuildpro.com)
+- Redundant deployment status files (DEPLOYMENT_READY variants)
 
-### Consolidation
-- Multiple deployment guides → **PRODUCTION_DEPLOYMENT.md** (primary guide)
-- Streamlined **deployment/README.md** to quick reference (points to PRODUCTION_DEPLOYMENT.md)
-- Removed: DEPLOYMENT_GUIDE.md, PERFORMANCE_OPTIMIZATIONS.md (superseded by PERFORMANCE_IMPROVEMENTS_2026.md)
-- Removed redundant deployment scripts with security vulnerabilities
-- Removed manual test files: manual-seed.js, test-materials.ts, test-rfis.js
-- Archived historical documentation to .github/historical/:
-  - MERGE_COMPLETE.md, CLEANUP_SUMMARY.md, BRANCH_ANALYSIS.md
-  - PLATFORM_COMPLETION_REPORT.md → PLATFORM_STATUS_JANUARY_2026.md
-  - TASK_COMPLETION_SUMMARY.md, BUILD_COMPLETION_REPORT.md
-  - DEPLOYMENT_SUMMARY.md, DEPLOYMENT_COMPLETE.txt
-  - DEPLOY_TO_CORTEXBUILDPRO.md, QUICK_REFERENCE.md
-- Created **REPOSITORY_MERGE_COMPLETE.md** - Comprehensive summary of all merged work
+### Files Removed
+- DEPLOYMENT_READY.md, DEPLOYMENT_READY_SUMMARY.md (consolidated into DEPLOYMENT_COMPLETE.md)
+- PRODUCTION_DEPLOYMENT_READY.md (redundant)
+- DEPLOY_TO_VPS.md (duplicate of VPS_DEPLOYMENT_GUIDE.md)
+- QUICK_VPS_DEPLOY.md (kept DEPLOYMENT_QUICK_REFERENCE.md)
+- verify-deployment.sh from root (kept in deployment/scripts/)
 
-### Scripts Consolidated
-- Kept: `deploy-now.sh` (local Docker deployment)
-- Kept: `deployment/deploy-from-github.sh` (GitHub-based remote deployment)
-- Removed: Multiple redundant deployment scripts
-
-### Script Duplication Note
-- Scripts in `deployment/scripts/` are intentionally duplicated from `nextjs_space/scripts/`
-- This duplication supports standalone VPS deployment scenarios
-- See `deployment/scripts/README.md` for detailed explanation
+### Result
+- Cleaner root directory with essential documentation only
+- Better organized with historical files properly archived
+- Reduced duplication and confusion
+- Maintained all important operational guides
 
 ## Getting Help
 
@@ -114,5 +126,5 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** January 26, 2026  
-**Latest Cleanup:** Archived 6 additional completion/summary documents to maintain clean root directory
+**Last Updated:** January 27, 2026  
+**Latest Cleanup:** Comprehensive cleanup - 27 files archived/removed, 43% reduction in root directory files

@@ -310,8 +310,8 @@ docker stats
 
 ## Support Resources
 
-- **Full Deployment Guide:** [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)
-- **Quick Reference:** [QUICK_VPS_DEPLOY.md](QUICK_VPS_DEPLOY.md)
+- **Full Deployment Guide:** [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)
+- **Quick Reference:** [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)
 - **Troubleshooting:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **Repository:** https://github.com/adrianstanca1/cortexbuild-pro
 
