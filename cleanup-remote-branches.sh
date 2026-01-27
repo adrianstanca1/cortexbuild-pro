@@ -55,21 +55,14 @@ echo "Repository: ${REPO_OWNER}/${REPO_NAME}"
 echo "=========================================="
 echo ""
 
-# Check if gh CLI is installed
-if ! command -v gh &> /dev/null; then
-    echo -e "${RED}Error: GitHub CLI (gh) is not installed${NC}"
-    echo "Install it from: https://cli.github.com/"
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+    echo -e "${RED}Error: Git is not installed or not available in PATH${NC}"
+    echo "Please install Git before running this script: https://git-scm.com/downloads"
     exit 1
 fi
 
-# Check if authenticated
-if ! gh auth status &> /dev/null; then
-    echo -e "${RED}Error: Not authenticated with GitHub CLI${NC}"
-    echo "Run: gh auth login"
-    exit 1
-fi
-
-echo -e "${GREEN}✓${NC} GitHub CLI is installed and authenticated"
+echo -e "${GREEN}✓${NC} Git is installed"
 echo ""
 
 # List branches to be deleted
