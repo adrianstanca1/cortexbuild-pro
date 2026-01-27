@@ -145,8 +145,8 @@ This checklist ensures all critical aspects of production deployment are verifie
   - Strict-Transport-Security
   - X-Frame-Options
   - X-Content-Type-Options
-  - X-XSS-Protection
   - Referrer-Policy
+  - Content-Security-Policy
 
 ---
 

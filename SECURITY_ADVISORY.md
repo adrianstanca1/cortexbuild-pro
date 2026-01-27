@@ -176,9 +176,8 @@ networks:
 ```nginx
 add_header X-Frame-Options "SAMEORIGIN" always;
 add_header X-Content-Type-Options "nosniff" always;
-add_header X-XSS-Protection "1; mode=block" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss: https:;" always;
 ```
 
 ---
@@ -371,9 +370,7 @@ docker-compose exec app npx tsx scripts/seed.ts
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2026-01-27 | Initial security advisory created |
-| 1.0.0 | 2026-01-27 | Fixed exposed OAuth credentials |
-| 1.0.0 | 2026-01-27 | Documented Next.js DoS vulnerability (non-affecting) |
+| 1.0.0 | 2026-01-27 | Initial security advisory created with OAuth credential fix, security headers update, and comprehensive documentation |
 
 ---
 
