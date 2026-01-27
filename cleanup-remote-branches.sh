@@ -12,7 +12,6 @@ set -e
 
 REPO_OWNER="adrianstanca1"
 REPO_NAME="cortexbuild-pro"
-MAIN_BRANCH="cortexbuildpro"
 
 # Color codes for output
 RED='\033[0;31m'
