@@ -23,6 +23,7 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
+      - '.github/workflows/**'
 
 env:
   REGISTRY: ghcr.io
@@ -145,8 +146,6 @@ jobs:
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-          # Add cleanup trap
-          trap "rm -f ~/.ssh/id_rsa" EXIT
 
       - name: Deploy to VPS
         env:
