@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { fetchResourceWithProjectAccess } from '@/lib/resource-middleware';
 
 export async function GET(
   request: NextRequest,
@@ -17,22 +18,20 @@ export async function GET(
 
     const { id } = await params;
 
-    const changeOrder = await prisma.changeOrder.findUnique({
-      where: { id },
-      include: {
+    // Use helper to fetch and validate access
+    const { resource: changeOrder, error } = await fetchResourceWithProjectAccess(
+      'Change order',
+      id,
+      session,
+      'changeOrder',
+      {
         project: { select: { id: true, name: true, organizationId: true, budget: true } },
         requestedBy: { select: { id: true, name: true, email: true } },
         approvedBy: { select: { id: true, name: true, email: true } }
       }
-    });
+    );
 
-    if (!changeOrder) {
-      return NextResponse.json({ error: 'Change order not found' }, { status: 404 });
-    }
-
-    if (changeOrder.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     return NextResponse.json(changeOrder);
   } catch (error) {
@@ -55,18 +54,16 @@ export async function PATCH(
     const body = await request.json();
     const { status, title, description, reason, costChange, scheduleChange } = body;
 
-    const existingCO = await prisma.changeOrder.findUnique({
-      where: { id },
-      include: { project: { select: { organizationId: true, budget: true } } }
-    });
+    // Use helper to fetch and validate access
+    const { resource: existingCO, error } = await fetchResourceWithProjectAccess(
+      'Change order',
+      id,
+      session,
+      'changeOrder',
+      { project: { select: { organizationId: true, budget: true } } }
+    );
 
-    if (!existingCO) {
-      return NextResponse.json({ error: 'Change order not found' }, { status: 404 });
-    }
-
-    if (existingCO.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     const updateData: { 
       [key: string]: unknown;
@@ -156,18 +153,16 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const changeOrder = await prisma.changeOrder.findUnique({
-      where: { id },
-      include: { project: { select: { organizationId: true } } }
-    });
+    // Use helper to fetch and validate access
+    const { resource: changeOrder, error } = await fetchResourceWithProjectAccess(
+      'Change order',
+      id,
+      session,
+      'changeOrder',
+      { project: { select: { organizationId: true } } }
+    );
 
-    if (!changeOrder) {
-      return NextResponse.json({ error: 'Change order not found' }, { status: 404 });
-    }
-
-    if (changeOrder.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     // Only allow deletion of draft/rejected COs
     if (!['DRAFT', 'REJECTED'].includes(changeOrder.status)) {
