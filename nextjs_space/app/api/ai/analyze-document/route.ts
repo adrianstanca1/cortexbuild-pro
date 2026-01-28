@@ -2,12 +2,20 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
+import { generateAIResponse, isAIConfigured } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.organizationId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if AI is configured
+    if (!isAIConfigured()) {
+      return NextResponse.json({ 
+        error: 'AI service not configured. Please configure Abacus AI or Google Gemini API.' 
+      }, { status: 503 });
     }
 
     const formData = await request.formData();
@@ -63,57 +71,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Add system context for construction domain
-    messages.unshift({
-      role: 'system',
+    const systemMessage = {
+      role: 'system' as const,
       content: 'You are an AI assistant specializing in construction document analysis for CortexBuildPro. Analyze documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
+    };
+
+    // Use unified AI service with automatic provider selection
+    const result = await generateAIResponse({
+      messages: [systemMessage, ...messages as any],
+      stream: true,
+      maxTokens: 3000
     });
 
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        messages,
-        stream: true,
-        max_tokens: 3000
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`LLM API error: ${response.status}`);
+    if (!result.success || !result.stream) {
+      throw new Error(result.error || 'AI service failed');
     }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            controller.enqueue(encoder.encode(chunk));
-          }
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.error(error);
-        } finally {
-          controller.close();
-        }
-      }
+    // Add provider info header for debugging
+    const headers = new Headers({
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-AI-Provider': result.provider
     });
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      }
-    });
+    return new Response(result.stream, { headers });
   } catch (error) {
     console.error('Document analysis error:', error);
     return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });

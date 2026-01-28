@@ -34,6 +34,10 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[REPOSITORY_SECRETS_SUMMARY.md](REPOSITORY_SECRETS_SUMMARY.md)** - Quick summary of repository secrets
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Detailed guide for configuring API keys and external services
+- **[API_KEYS_SETUP.md](API_KEYS_SETUP.md)** - ⭐ **NEW** - Step-by-step guide for SendGrid, Gemini, and Abacus AI
+- **[API_KEYS_QUICK_REFERENCE.md](API_KEYS_QUICK_REFERENCE.md)** - ⭐ **NEW** - Quick reference for API configuration
+- **[ENVIRONMENT_SETUP_GUIDE.md](ENVIRONMENT_SETUP_GUIDE.md)** - Complete environment variables guide
+- **[GITHUB_SECRETS_GUIDE.md](GITHUB_SECRETS_GUIDE.md)** - GitHub Actions secrets configuration
 - **[VPS_CONNECTION_CONFIG.md](VPS_CONNECTION_CONFIG.md)** - VPS connection and WebSocket configuration
 - **[VPS_DEPLOYMENT_CHECKLIST.md](VPS_DEPLOYMENT_CHECKLIST.md)** - Deployment checklist for VPS
 - **[PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Production readiness checklist
