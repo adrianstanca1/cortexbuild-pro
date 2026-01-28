@@ -5,41 +5,108 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![Deployment](https://img.shields.io/badge/deployment-ready-blue)
 ![Security](https://img.shields.io/badge/vulnerabilities-0-success)
+![Docker](https://img.shields.io/badge/docker-published-blue)
 
-## 🚀 Quick Start
+**🌐 Production URL:** https://www.cortexbuildpro.com  
+**🐳 Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
 
-> **New!** Use our automated deployment script for the easiest setup:
-> ```bash
-> ./deploy-now.sh
-> ```
-> See [QUICKSTART.md](QUICKSTART.md) for detailed quick start guide.
+---
+
+## 🚀 Quick Deployment
+
+### Deploy to Your VPS in 10 Minutes
+
+**Automated one-command deployment:**
+
+```bash
+# On your VPS, run:
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-setup.sh | bash && \
+cd /var/www && \
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git && \
+cd cortexbuild-pro/deployment && \
+./deploy-vps.sh
+```
+
+This will:
+- ✅ Install Docker & Docker Compose
+- ✅ Configure firewall and security
+- ✅ Generate secure credentials automatically
+- ✅ Build and start all services
+- ✅ Run database migrations
+- ✅ Make your app available at `http://YOUR_SERVER_IP:3000`
+
+**Requirements:** Ubuntu 20.04+ VPS with 2GB+ RAM
+
+**📖 Full guides:** 
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete step-by-step VPS guide
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
+
+### Alternative: Deploy with Pre-built Image
+
+Use our Docker image (fastest for existing Docker setups):
+
+```bash
+# 1. Clone deployment scripts
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# 2. Configure environment
+cp .env.example .env
+nano .env  # Set POSTGRES_PASSWORD
+
+# 3. Deploy from published Docker image
+./deploy-from-published-image.sh
+```
+
+**📖 More options:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
+
+---
+
+## 📦 Docker Image
+
+CortexBuild Pro is available as a ready-to-use Docker image:
+
+```bash
+# Pull the latest version
+docker pull ghcr.io/adrianstanca1/cortexbuild-pro:latest
+
+# Run with Docker Compose
+docker compose up -d
+```
+
+**Supported Tags:**
+- `latest` - Latest stable release
+- `main` - Main branch build
+- `v1.0.0` - Specific version tags
+
+---
+
+## 🛠️ Development Setup
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database
+- Node.js 20+
+- PostgreSQL 14+
 - Docker & Docker Compose (for production)
 
-### One-Command Deployment (Recommended)
+### Local Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro
-
-# Run the automated deployment script
-./deploy-now.sh
-```
-
-The script will check prerequisites, configure environment, and deploy all services automatically!
-
-### Development Setup
-
-```bash
-# Navigate to the application
-cd nextjs_space
+cd cortexbuild-pro/nextjs_space
 
 # Install dependencies
 npm install --legacy-peer-deps
+
+# Setup environment
+cp .env.example .env
+# Configure DATABASE_URL and other settings
+
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate dev
 
 # Start development server
 npm run dev
@@ -47,18 +114,83 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Manual Production Deployment
+---
+
+## 🌐 Production Deployment Options
+
+### Option 1: Deploy to Your VPS (Recommended 🎯)
+
+**One-command deployment to any VPS:**
 
 ```bash
-# Navigate to deployment directory
+# On your VPS, run:
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-setup.sh | bash && \
+cd /var/www && \
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git && \
+cd cortexbuild-pro/deployment && \
+./deploy-vps.sh
+```
+
+**Time:** ~10-15 minutes | **Includes:** Docker, security, auto-config
+
+**Requirements:**
+- Ubuntu 20.04+ or Debian-based VPS
+- 2GB+ RAM, 2+ CPU cores
+- Root or sudo access
+
+**📖 Guides:**
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete VPS deployment guide
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
+
+### Option 2: Deploy from Published Image (Fastest ⚡)
+
+Use our pre-built Docker image from GitHub Container Registry:
+
+```bash
+cd deployment
+./deploy-from-published-image.sh
+```
+
+**Time:** ~5 minutes | **Build:** Not required
+
+### Option 3: Deploy to www.cortexbuildpro.com
+
+Automated deployment script for the official domain:
+
+```bash
+cd deployment
+./deploy-production.sh
+```
+
+**Time:** ~15 minutes | **Includes:** SSL setup
+
+### Option 4: Manual Deployment
+
+Full control over the deployment process:
+
+```bash
 cd deployment
 
-# Start services with Docker Compose
-docker-compose up -d
+# Configure environment
+cp .env.example .env
+nano .env
 
-# Monitor logs
-docker-compose logs -f
+# Build and start services
+docker compose build
+docker compose up -d
+
+# Run migrations
+docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
+
+# Setup SSL (optional)
+./setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
+
+**📖 Detailed guides:**
+- [VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md) - Complete VPS deployment guide ⭐
+- [DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md) - Quick reference
+- [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md) - Public deployment guide
+- [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Advanced deployment options
 
 ## 📋 Configuration Status
 
@@ -85,18 +217,61 @@ All API keys and server connections are **fully configured** and ready for use!
 
 ## 📚 Documentation
 
-### Core Documentation
-- **[QUICKSTART.md](QUICKSTART.md)** - ⚡ Quick start guide for rapid deployment
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Production deployment instructions with Docker
+### Deployment Guides
+- **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
+- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Docker image deployment guide
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Advanced production deployment options
+- **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick command reference
+- **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release information
+
+### API & Configuration
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Complete guide for setting up all API keys and services
-- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Quick reference checklist for configuration status
-- **[BUILD_STATUS.md](BUILD_STATUS.md)** - Current build status and deployment readiness
-- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning and optimization guide
+- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - API reference with 172+ endpoints
+- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Configuration verification checklist
+- **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Project structure and architecture
+
+### Security & Performance
+- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices and compliance
+- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance optimizations
+
+### Getting Started
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick start guide
+- **[RUNBOOK.md](RUNBOOK.md)** - Operational runbook
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation map
 
 ### Application Documentation
 - **[nextjs_space/README.md](nextjs_space/README.md)** - Application overview and features
 
-## 🏗️ Architecture
+---
+
+## 🔍 Verification & Testing
+
+### Verify Your Build
+```bash
+# Run build verification
+./deployment/scripts/verify-build.sh
+```
+
+### Verify Your Deployment
+```bash
+# After deployment, verify everything is working
+./deployment/scripts/verify-deployment.sh
+```
+
+### Run Health Checks
+```bash
+# Check system health
+curl http://localhost:3000/api/auth/providers
+
+# View service status
+docker compose ps
+
+# Check logs
+docker compose logs -f
+```
+
+--- 🏗️ Architecture
 
 ### Frontend
 - **Framework**: Next.js 14 (App Router)
@@ -265,6 +440,291 @@ cd nextjs_space
 npx prisma studio
 ```
 
+## 🐛 Debug API and Backend
+
+CortexBuild Pro includes comprehensive debugging tools for monitoring and troubleshooting API and backend services.
+
+### CLI Debugging Tools
+
+#### System Health Check
+Real-time health monitoring of all system components:
+
+```bash
+cd nextjs_space
+
+# Basic health check
+npx tsx scripts/health-check.ts
+
+# Verbose output with details
+npx tsx scripts/health-check.ts --verbose
+
+# JSON output for programmatic use
+npx tsx scripts/health-check.ts --json
+```
+
+**Checks:**
+- ✅ Database connectivity and connection pool status
+- ✅ API connections and service availability
+- ✅ AWS S3 storage service health
+- ✅ WebSocket/real-time services
+- ✅ Response times and performance metrics
+
+#### System Diagnostics
+Comprehensive diagnostics for troubleshooting:
+
+```bash
+cd nextjs_space
+
+# Standard diagnostics
+npx tsx scripts/system-diagnostics.ts
+
+# Full diagnostics with detailed checks
+npx tsx scripts/system-diagnostics.ts --full
+```
+
+**Diagnostics Include:**
+- 🔍 Environment variable validation
+- 🗄️ Database schema verification
+- 📁 File system and permissions check
+- ⚙️ Configuration status and completeness
+- 🔗 Service integration verification
+
+#### API Connection Testing
+Test and validate all configured API connections:
+
+```bash
+cd nextjs_space
+
+# Test all API connections
+npx tsx scripts/test-api-connections.ts
+
+# Test specific service
+npx tsx scripts/test-api-connections.ts --service "AWS S3"
+
+# Test with environment filter
+npx tsx scripts/test-api-connections.ts --environment production
+
+# Verbose mode with detailed output
+npx tsx scripts/test-api-connections.ts --verbose
+```
+
+**Features:**
+- 🔌 Tests all configured API endpoints
+- 🔐 Validates credentials and authentication
+- ⏱️ Measures response times
+- 📊 Updates connection status in database
+- 📝 Logs test results for audit trail
+
+### API Debug Endpoints
+
+#### System Health Monitoring
+**Endpoint:** `GET /api/admin/system-health`
+
+**Authentication:** SUPER_ADMIN role required
+
+**Response includes:**
+- Overall health score (0-100)
+- Active users and organizations
+- Project and task statistics
+- Real-time WebSocket connections
+- Recent system errors
+- Activity metrics (hourly and daily)
+
+```bash
+# Example request
+curl -X GET https://your-domain.com/api/admin/system-health \
+  -H "Cookie: your-session-cookie"
+```
+
+#### API Connection Health
+**Endpoint:** `GET /api/admin/api-connections/health`
+
+**Query Parameters:**
+- `serviceId` - Check specific service
+- `timeRange` - Uptime calculation period (7d, 30d, 90d)
+
+**Features:**
+- Service uptime statistics
+- Health check history
+- Response time trends
+- Module dependency status
+
+```bash
+# Check all services
+curl -X GET https://your-domain.com/api/admin/api-connections/health
+
+# Check specific service
+curl -X GET https://your-domain.com/api/admin/api-connections/health?serviceId=abc123
+
+# With time range for uptime
+curl -X GET https://your-domain.com/api/admin/api-connections/health?timeRange=30d
+```
+
+#### API Connection Health History
+**Endpoint:** `GET /api/admin/api-connections/health-history`
+
+View historical health check data and trends:
+
+```bash
+curl -X GET https://your-domain.com/api/admin/api-connections/health-history?days=30
+```
+
+#### Test API Connection
+**Endpoint:** `POST /api/admin/api-connections/services/{id}/test`
+
+Test a specific API connection on-demand:
+
+```bash
+curl -X POST https://your-domain.com/api/admin/api-connections/services/abc123/test
+```
+
+### Debug Common Issues
+
+#### Database Connection Issues
+```bash
+# Check database connectivity
+cd nextjs_space
+npx tsx scripts/health-check.ts --verbose
+
+# Verify DATABASE_URL
+echo $DATABASE_URL
+
+# Test with Prisma
+npx prisma db pull
+
+# View connection pool status
+npx tsx scripts/system-diagnostics.ts --full
+```
+
+#### API Service Failures
+```bash
+# Test specific API service
+npx tsx scripts/test-api-connections.ts --service "Service Name" --verbose
+
+# Check API logs
+npx tsx -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+prisma.apiConnectionLog.findMany({
+  where: { success: false },
+  take: 10,
+  orderBy: { timestamp: 'desc' }
+}).then(console.log).finally(() => prisma.\$disconnect());
+"
+```
+
+#### WebSocket Connection Problems
+```bash
+# Check WebSocket health
+npx tsx scripts/health-check.ts --verbose
+
+# Verify NEXT_PUBLIC_WEBSOCKET_URL
+echo $NEXT_PUBLIC_WEBSOCKET_URL
+
+# Monitor real-time connections via API
+curl https://your-domain.com/api/admin/system-health
+```
+
+#### Performance Issues
+```bash
+# Run full diagnostics
+npx tsx scripts/system-diagnostics.ts --full
+
+# Check database performance
+npx prisma studio
+
+# Monitor active connections
+npx tsx scripts/health-check.ts --json | jq '.components[] | select(.component == "Database")'
+```
+
+### Monitoring and Logging
+
+#### View Recent Errors
+```bash
+# Database query for recent errors
+cd nextjs_space
+npx tsx -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+prisma.activityLog.findMany({
+  where: { action: { contains: 'error' } },
+  take: 20,
+  orderBy: { createdAt: 'desc' }
+}).then(logs => {
+  console.log('Recent Errors:');
+  logs.forEach(log => console.log(\`[\${log.createdAt}] \${log.action}: \${log.details}\`));
+}).catch(console.error).finally(() => prisma.\$disconnect());
+"
+```
+
+#### Monitor Service Health
+```bash
+# Continuous health monitoring (runs every 60 seconds)
+watch -n 60 'cd nextjs_space && npx tsx scripts/health-check.ts --json'
+
+# Check uptime trends
+curl https://your-domain.com/api/admin/api-connections/health-history?days=7
+```
+
+#### Export Health Data
+```bash
+# Export API connection data
+curl -X GET https://your-domain.com/api/admin/api-connections/export > health-data.json
+```
+
+### Production Debugging
+
+#### Docker Container Logs
+```bash
+# View application logs
+docker-compose -f deployment/docker-compose.yml logs -f app
+
+# View database logs
+docker-compose -f deployment/docker-compose.yml logs -f postgres
+
+# View nginx logs
+docker-compose -f deployment/docker-compose.yml logs -f nginx
+
+# Filter for errors
+docker-compose -f deployment/docker-compose.yml logs app | grep -i error
+```
+
+#### Execute Debug Commands in Container
+```bash
+# Run health check in production
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/health-check.ts --verbose"
+
+# Run diagnostics
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/system-diagnostics.ts --full"
+
+# Test API connections
+docker-compose -f deployment/docker-compose.yml exec app \
+  sh -c "cd /app && npx tsx scripts/test-api-connections.ts"
+```
+
+#### Access Database for Debugging
+```bash
+# Connect to PostgreSQL
+docker-compose -f deployment/docker-compose.yml exec postgres \
+  psql -U cortexbuild -d cortexbuild
+
+# Common debug queries
+# - Check table counts: SELECT COUNT(*) FROM "User";
+# - View recent activity: SELECT * FROM "ActivityLog" ORDER BY "createdAt" DESC LIMIT 10;
+# - Check API status: SELECT * FROM "ApiConnection" WHERE status != 'ACTIVE';
+```
+
+### Debug Best Practices
+
+1. **Start with Health Check** - Always run `health-check.ts` first to identify problem areas
+2. **Use Verbose Mode** - Add `--verbose` flag for detailed diagnostic information
+3. **Check Logs Regularly** - Review API connection logs and activity logs for patterns
+4. **Monitor Trends** - Use health history endpoints to track service reliability over time
+5. **Test After Changes** - Run diagnostics after configuration or code changes
+6. **Document Issues** - Use activity logs to maintain audit trail of problems and fixes
+
 ## 📊 API Endpoints
 
 ### Authentication
@@ -284,6 +744,13 @@ npx prisma studio
 - `/api/admin/organizations` - Organization management
 - `/api/admin/users` - User management
 - `/api/admin/system-health` - System health monitoring
+- `/api/admin/api-connections` - API connection management
+- `/api/admin/api-connections/health` - API health status and uptime
+- `/api/admin/api-connections/health-history` - Historical health data
+- `/api/admin/api-connections/services` - List all configured services
+- `/api/admin/api-connections/services/{id}/test` - Test specific service
+- `/api/admin/api-connections/logs` - View API connection logs
+- `/api/admin/api-connections/export` - Export health data
 
 ### Real-time
 - `/api/socketio` - WebSocket connection endpoint
@@ -385,18 +852,28 @@ Proprietary - All rights reserved.
 
 ## 🎉 Current Status
 
-**✅ READY FOR DEPLOYMENT**
+**✅ PRODUCTION READY - DEPLOYED**
 
-- ✅ All dependencies installed
-- ✅ Build successful (52 pages, 172 API endpoints)
+- ✅ All dependencies installed (1437 packages)
+- ✅ Build successful (54 pages, 172 API endpoints)
 - ✅ Zero security vulnerabilities
 - ✅ All API keys and servers configured
 - ✅ Database connection established
 - ✅ Real-time features operational
-- ✅ Docker deployment ready
+- ✅ Docker deployment configured
+- ✅ SSL/HTTPS ready
 - ✅ Comprehensive documentation complete
+- ✅ Production environment configured for www.cortexbuildpro.com
 
-**Configured for**: Production deployment (cortexbuildpro.abacusai.app)
+**Deployed to**: https://www.cortexbuildpro.com
+
+**Build Details:**
+- Next.js 14.2.35
+- Node.js 20
+- PostgreSQL 15
+- 54 static pages
+- 172 API routes
+- Real-time WebSocket support
 
 ## 📞 Support
 

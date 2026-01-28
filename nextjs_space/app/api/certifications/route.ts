@@ -17,7 +17,13 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const expiringSoon = searchParams.get('expiringSoon');
 
-    const where: any = {
+    const where: { 
+      organizationId: string | undefined; 
+      workerId?: string;
+      certificationType?: string;
+      expiryDate?: { lte: Date; gte: Date };
+      isLifetime?: boolean;
+    } = {
       organizationId: session.user.organizationId
     };
     

@@ -22,6 +22,17 @@ import * as path from 'path';
 
 const prisma = new PrismaClient();
 
+// Helper function to convert Prisma Decimal to number
+function toNumber(value: any): number {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+  if (typeof value === 'object' && value !== null && 'toNumber' in value) {
+    return value.toNumber();
+  }
+  return Number(value);
+}
+
 type ReportType = 'summary' | 'projects' | 'users' | 'api-usage' | 'compliance' | 'financial';
 type OutputFormat = 'json' | 'csv' | 'txt';
 
@@ -186,9 +197,7 @@ async function generateProjectsReport(orgId?: string) {
     reportType: 'Projects Report',
     totalProjects: projects.length,
     projects: projects.map(p => {
-      const budget = typeof p.budget === 'object' && p.budget !== null && 'toNumber' in p.budget
-        ? (p.budget as any).toNumber()
-        : Number(p.budget || 0);
+      const budget = toNumber(p.budget);
       return {
         id: p.id,
         name: p.name,
@@ -358,27 +367,15 @@ async function generateFinancialReport(orgId?: string) {
   let totalPendingChanges = 0;
 
   const projectFinancials = projects.map(p => {
-    const budget = typeof p.budget === 'object' && p.budget !== null && 'toNumber' in p.budget
-      ? (p.budget as any).toNumber()
-      : Number(p.budget || 0);
+    const budget = toNumber(p.budget);
     
     const approvedChanges = p.changeOrders
       .filter(co => co.status === 'APPROVED')
-      .reduce((sum, co) => {
-        const costChange = typeof co.costChange === 'object' && co.costChange !== null && 'toNumber' in co.costChange
-          ? (co.costChange as any).toNumber()
-          : Number(co.costChange || 0);
-        return sum + costChange;
-      }, 0);
+      .reduce((sum, co) => sum + toNumber(co.costChange), 0);
     
     const pendingChanges = p.changeOrders
       .filter(co => co.status === 'DRAFT' || co.status === 'PENDING_APPROVAL')
-      .reduce((sum, co) => {
-        const costChange = typeof co.costChange === 'object' && co.costChange !== null && 'toNumber' in co.costChange
-          ? (co.costChange as any).toNumber()
-          : Number(co.costChange || 0);
-        return sum + costChange;
-      }, 0);
+      .reduce((sum, co) => sum + toNumber(co.costChange), 0);
 
     totalBudget += budget;
     totalApprovedChanges += approvedChanges;

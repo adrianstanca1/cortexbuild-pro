@@ -13,14 +13,11 @@ import {
   RefreshCw,
   Save,
   ArrowLeft,
-  Check,
   AlertTriangle,
-  Info,
   Users,
   FolderKanban,
   HardDrive,
   Palette,
-  FileText,
   LayoutGrid,
   Server,
   Download,
@@ -28,11 +25,7 @@ import {
   RotateCcw,
   Activity,
   Clock,
-  Copy,
-  ExternalLink,
-  Wrench,
-  Eye,
-  EyeOff
+  Wrench
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,13 +35,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -189,16 +175,16 @@ export function PlatformSettingsClient() {
     }
   };
 
-  const updateConfig = (path: string, value: any) => {
+  const updateConfig = (path: string, value: string | number | boolean) => {
     if (!config) return;
     
     const newConfig = JSON.parse(JSON.stringify(config));
     const keys = path.split(".");
-    let current: any = newConfig;
+    let current: Record<string, unknown> = newConfig;
     
     for (let i = 0; i < keys.length - 1; i++) {
       if (!current[keys[i]]) current[keys[i]] = {};
-      current = current[keys[i]];
+      current = current[keys[i]] as Record<string, unknown>;
     }
     current[keys[keys.length - 1]] = value;
     

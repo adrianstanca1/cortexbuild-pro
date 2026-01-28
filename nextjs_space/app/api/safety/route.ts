@@ -16,6 +16,8 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     const status = searchParams.get('status');
     const severity = searchParams.get('severity');
+    const limit = parseInt(searchParams.get('limit') || '100');
+    const offset = parseInt(searchParams.get('offset') || '0');
 
     const organizationId = session.user.organizationId;
     if (!organizationId) {
@@ -39,7 +41,9 @@ export async function GET(request: NextRequest) {
         reportedBy: { select: { id: true, name: true } },
         assignedTo: { select: { id: true, name: true } }
       },
-      orderBy: { incidentDate: 'desc' }
+      orderBy: { incidentDate: 'desc' },
+      take: limit,
+      skip: offset
     });
 
     return NextResponse.json(incidents);

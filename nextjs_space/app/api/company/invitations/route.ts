@@ -14,10 +14,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
     // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can view invitations
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -28,7 +28,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where: any = {
+    const where: {
+      organizationId: string;
+      status?: string;
+    } = {
       organizationId: user.organizationId,
     };
 
@@ -54,11 +57,11 @@ export async function GET(req: NextRequest) {
     });
 
     const statusCounts = {
-      total: counts.reduce((sum: number, c: any) => sum + c._count.status, 0),
-      PENDING: counts.find((c: any) => c.status === "PENDING")?._count.status || 0,
-      ACCEPTED: counts.find((c: any) => c.status === "ACCEPTED")?._count.status || 0,
-      EXPIRED: counts.find((c: any) => c.status === "EXPIRED")?._count.status || 0,
-      REVOKED: counts.find((c: any) => c.status === "REVOKED")?._count.status || 0,
+      total: counts.reduce((sum: number, c: { _count: { status: number } }) => sum + c._count.status, 0),
+      PENDING: counts.find((c: { status: string; _count: { status: number } }) => c.status === "PENDING")?._count.status || 0,
+      ACCEPTED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "ACCEPTED")?._count.status || 0,
+      EXPIRED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "EXPIRED")?._count.status || 0,
+      REVOKED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "REVOKED")?._count.status || 0,
     };
 
     return NextResponse.json({ invitations, counts: statusCounts });
@@ -76,10 +79,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
     // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can create invitations
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

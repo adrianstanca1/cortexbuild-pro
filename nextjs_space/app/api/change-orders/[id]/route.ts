@@ -68,7 +68,17 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updateData: any = {};
+    const updateData: { 
+      [key: string]: unknown;
+      title?: string;
+      description?: string;
+      reason?: string;
+      scheduleChange?: string | null;
+      costChange?: number;
+      revisedBudget?: number;
+      approvedById?: string;
+      approvedAt?: Date;
+    } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (reason !== undefined) updateData.reason = reason;

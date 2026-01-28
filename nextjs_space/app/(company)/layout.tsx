@@ -16,7 +16,7 @@ export default async function CompanyLayout({
     redirect("/login");
   }
 
-  const user = session.user as any;
+  const user = session.user as { role: string; organizationId?: string };
   
   // Only COMPANY_OWNER and ADMIN can access company management
   if (user.role !== "COMPANY_OWNER" && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
