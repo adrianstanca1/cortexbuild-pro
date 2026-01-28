@@ -93,6 +93,19 @@ docker compose up -d
 - PostgreSQL 14+
 - Docker & Docker Compose (for production)
 
+### Environment Configuration
+
+**📖 Complete Setup Guides:**
+- **[Environment Setup Guide](ENVIRONMENT_SETUP_GUIDE.md)** - Complete guide for all environment variables
+- **[GitHub Secrets Guide](GITHUB_SECRETS_GUIDE.md)** - CI/CD secrets configuration
+- **[.env Template](.env.template)** - Complete template with all variables
+
+**Quick Environment Scan:**
+```bash
+# Scan codebase and check which environment variables you need
+./scan-env-vars.sh
+```
+
 ### Local Development
 
 ```bash
@@ -251,6 +264,12 @@ All API keys and server connections are **fully configured** and ready for use!
 ```
 
 ## 📚 Documentation
+
+### 🔧 Setup & Configuration (NEW!)
+- **[Environment Setup Guide](ENVIRONMENT_SETUP_GUIDE.md)** - **NEW!** Complete environment variables guide
+- **[GitHub Secrets Guide](GITHUB_SECRETS_GUIDE.md)** - **NEW!** CI/CD secrets configuration  
+- **[.env Template](.env.template)** - **NEW!** Complete template with all variables
+- **[Environment Scanner](scan-env-vars.sh)** - **NEW!** Scan and verify environment variables
 
 ### Deployment Guides
 - **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
