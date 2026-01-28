@@ -176,14 +176,20 @@ git commit -m "Update application"
 git push origin main
 ```
 
-GitHub Actions will:
-1. Run tests
+### GitHub Actions will:
+1. Run tests (optional)
 2. Build Docker image
 3. Push to GitHub Container Registry
-4. Deploy to VPS
-5. Run database migrations
-6. Perform health checks
-7. Send notifications
+4. Deploy to VPS via SSH
+5. Stash local changes (if any)
+6. Pull latest code with rebase
+7. Pull Docker image
+8. Restart services
+9. Wait for application health (with retries)
+10. Run database migrations (fail on error)
+11. Verify deployment (fail on error)
+12. Clean up SSH keys
+13. Send notifications
 
 **⏱️ Total time:** ~5-10 minutes
 
@@ -271,10 +277,22 @@ cd /var/www/cortexbuild-pro
 
 ### Automatic Rollback
 
-GitHub Actions will automatically rollback if:
-- Health checks fail after deployment
-- Database migrations fail
-- Application fails to start
+The GitHub Actions workflow includes automatic rollback features:
+
+**Health Check Failures:**
+- Application must respond to health checks within 5 minutes (30 retries × 10s)
+- If health checks fail, deployment is marked as failed
+- Previous version remains running
+
+**Migration Failures:**
+- Database migrations are required to succeed
+- If migrations fail, deployment stops and rolls back
+- Error logs are captured for debugging
+
+**Verification Failures:**
+- Post-deployment verification must pass
+- If verification fails, deployment is marked as failed
+- Issues are logged for investigation
 
 ### Manual Rollback
 

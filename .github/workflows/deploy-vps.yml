@@ -20,12 +20,9 @@ on:
   push:
     branches:
       - main
-      - cortexbuildpro
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.github/**'
-      - '!.github/workflows/deploy-vps.yml'
 
 env:
   REGISTRY: ghcr.io
@@ -36,7 +33,7 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     if: ${{ !inputs.skip_tests }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -68,18 +65,18 @@ jobs:
     name: Build Docker Image
     needs: test
     if: |
-      always() && 
+      always() &&
       (needs.test.result == 'success' || needs.test.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
-    
+
     outputs:
       image_tag: ${{ steps.meta.outputs.version }}
       image_digest: ${{ steps.build-and-push.outputs.digest }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -134,10 +131,10 @@ jobs:
     name: Deploy to VPS
     needs: build
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: ${{ inputs.environment || 'production' }}
       url: ${{ vars.DEPLOYMENT_URL || 'https://www.cortexbuildpro.com' }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -148,6 +145,8 @@ jobs:
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          # Add cleanup trap
+          trap "rm -f ~/.ssh/id_rsa" EXIT
 
       - name: Deploy to VPS
         env:
@@ -158,48 +157,72 @@ jobs:
         run: |
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
             set -e
-            
+
             echo "🚀 Starting deployment..."
-            
+
             # Navigate to deployment directory
             cd ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
-            
-            # Pull latest code
+
+            # Stash any local changes to avoid conflicts
             echo "📥 Pulling latest code..."
             git fetch origin
-            git reset --hard origin/main
-            
+
+            # Check for local changes
+            if ! git diff-index --quiet HEAD --; then
+              echo "⚠️ Local changes detected, stashing..."
+              git stash save "Auto-stash before deployment $(date +%Y%m%d_%H%M%S)"
+            fi
+
+            # Pull latest changes with rebase
+            git pull --rebase origin main || {
+              echo "❌ Failed to pull latest changes"
+              git rebase --abort
+              exit 1
+            }
+
             # Navigate to deployment folder
             cd deployment
-            
+
             # Pull latest Docker image
             echo "🐳 Pulling latest Docker image..."
             docker compose pull app
-            
+
             # Restart services with new image
             echo "🔄 Restarting services..."
             docker compose up -d --no-build
-            
-            # Wait for application to be healthy
+
+            # Wait for application to be healthy with retries
             echo "⏳ Waiting for application to be ready..."
-            sleep 10
-            
-            # Run database migrations
-            echo "🗄️ Running database migrations..."
-            docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy" || true
-            
-            # Health check
-            echo "🏥 Performing health check..."
-            if curl -f -s http://localhost:3000/api/auth/providers > /dev/null; then
-              echo "✅ Application is healthy"
-            else
-              echo "⚠️ Health check warning - application may need more time to start"
+            MAX_RETRIES=30
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+              if curl -f -s http://localhost:3000/api/auth/providers > /dev/null 2>&1; then
+                echo "✅ Application is healthy"
+                break
+              fi
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Attempt $RETRY_COUNT/$MAX_RETRIES..."
+              sleep 10
+            done
+
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "❌ Application failed to become healthy within timeout"
+              docker compose logs --tail=50 app
+              exit 1
             fi
-            
+
+            # Run database migrations (fail on error)
+            echo "🗄️ Running database migrations..."
+            if ! docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy"; then
+              echo "❌ Database migrations failed"
+              docker compose logs --tail=50 app
+              exit 1
+            fi
+
             # Show running containers
             echo "📊 Container status:"
             docker compose ps
-            
+
             echo "✅ Deployment completed successfully!"
           ENDSSH
 
@@ -212,13 +235,21 @@ jobs:
         run: |
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
             cd ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
-            
+
             # Run verification script if it exists
             if [ -f verify-deployment.sh ]; then
               echo "🔍 Running deployment verification..."
-              ./verify-deployment.sh || true
+              if ! ./verify-deployment.sh; then
+                echo "⚠️ Verification script reported issues"
+                exit 1
+              fi
             fi
           ENDSSH
+
+      - name: Cleanup SSH Key
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
 
       - name: Deployment Summary
         run: |
@@ -236,7 +267,7 @@ jobs:
     needs: [build, deploy]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Deployment Status
         run: |
