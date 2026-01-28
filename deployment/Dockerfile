@@ -5,7 +5,7 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl3 openssl-dev
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Copy package files
@@ -45,8 +45,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install openssl3 (Alpine 3.23+) and dependencies for Prisma migrations
-RUN apk add --no-cache openssl3 openssl-dev ca-certificates
+# Install openssl and prisma for migrations
+RUN apk add --no-cache openssl
 RUN npm install -g prisma@^6.0.0
 
 RUN addgroup --system --gid 1001 nodejs
