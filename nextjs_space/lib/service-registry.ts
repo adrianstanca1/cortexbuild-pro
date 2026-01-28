@@ -137,6 +137,32 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     testMethod: "GET"
   },
 
+  // GOOGLE GEMINI AI
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    description: "Google's advanced AI model for document analysis, intelligent suggestions, and natural language processing",
+    category: "AI_PROCESSING",
+    icon: "Brain",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    docsUrl: "https://ai.google.dev/docs",
+    credentialFields: [
+      { key: "apiKey", label: "API Key", type: "password", required: true, placeholder: "AIza...", helpText: "Get from https://makersuite.google.com/app/apikey" },
+      { key: "model", label: "Default Model", type: "text", required: false, placeholder: "gemini-1.5-flash", helpText: "Options: gemini-1.5-flash, gemini-1.5-pro" }
+    ],
+    isBuiltIn: true,
+    isPlatformCore: false,
+    defaultEnvironment: "PRODUCTION",
+    supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
+    dependencies: [
+      { moduleId: "ai-assistant", moduleName: "AI Assistant", usageDescription: "Intelligent project assistant and recommendations", isRequired: true },
+      { moduleId: "document-analysis", moduleName: "Document Analysis", usageDescription: "AI-powered document parsing and extraction", isRequired: false },
+      { moduleId: "project-intelligence", moduleName: "Project Intelligence", usageDescription: "Risk analysis and predictive insights", isRequired: false }
+    ],
+    testEndpoint: "/models",
+    testMethod: "GET"
+  },
+
   // PAYMENT SERVICES
   {
     id: "stripe",

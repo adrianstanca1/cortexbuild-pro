@@ -211,6 +211,56 @@ For production use, generate new credentials following the steps below.
    - Copy the notification IDs
    - Add to environment variables
 
+### 4b. Google Gemini API (Alternative AI Provider)
+
+**Purpose**:
+- Alternative AI provider for document analysis
+- Supports vision capabilities (images and PDFs)
+- Free tier with generous limits
+
+**Required Variables**:
+```env
+GEMINI_API_KEY=your_gemini_api_key
+AI_PROVIDER=gemini  # or 'abacus' to use Abacus AI
+```
+
+**Setup Google Gemini**:
+
+1. **Get API Key**:
+   - Go to https://makersuite.google.com/app/apikey
+   - Sign in with Google account
+   - Click "Create API Key"
+   - Select or create a Google Cloud project
+   - Copy the API key
+
+2. **Free Tier Limits**:
+   - 60 requests per minute
+   - 1,500 requests per day (gemini-1.5-flash)
+   - 50 requests per day (gemini-1.5-pro)
+
+3. **Configure Provider Selection**:
+   ```env
+   # Use Gemini as primary AI provider
+   GEMINI_API_KEY=your_api_key
+   AI_PROVIDER=gemini
+   
+   # Or use Abacus AI (default)
+   ABACUSAI_API_KEY=your_api_key
+   AI_PROVIDER=abacus
+   
+   # Or configure both for redundancy
+   GEMINI_API_KEY=your_gemini_key
+   ABACUSAI_API_KEY=your_abacus_key
+   AI_PROVIDER=gemini  # Primary provider
+   ```
+
+4. **Choosing Between Providers**:
+   - **Use Gemini if**: You want vision capabilities, free tier, or Google ecosystem
+   - **Use Abacus AI if**: You need more requests, email fallback, or existing integration
+   - **Use Both**: Configure both for automatic fallback if one fails
+
+**See also**: [API_KEYS_SETUP.md](API_KEYS_SETUP.md) for detailed setup instructions
+
 ## Optional Services
 
 ### 5. Google OAuth (Optional)
