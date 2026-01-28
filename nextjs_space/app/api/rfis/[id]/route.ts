@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { fetchResourceWithProjectAccess } from '@/lib/resource-middleware';
 
 export async function GET(
   request: NextRequest,
@@ -17,24 +18,22 @@ export async function GET(
 
     const { id } = await params;
 
-    const rfi = await prisma.rFI.findUnique({
-      where: { id },
-      include: {
+    // Use helper to fetch and validate access
+    const { resource: rfi, error } = await fetchResourceWithProjectAccess(
+      'RFI',
+      id,
+      session,
+      'rFI',
+      {
         project: { select: { id: true, name: true, organizationId: true } },
         createdBy: { select: { id: true, name: true, email: true } },
         assignedTo: { select: { id: true, name: true, email: true } },
         answeredBy: { select: { id: true, name: true, email: true } },
         attachments: true
       }
-    });
+    );
 
-    if (!rfi) {
-      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
-    }
-
-    if (rfi.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     return NextResponse.json(rfi);
   } catch (error) {
@@ -57,18 +56,16 @@ export async function PATCH(
     const body = await request.json();
     const { answer, status, assignedToId, dueDate, costImpact, scheduleImpact } = body;
 
-    const existingRFI = await prisma.rFI.findUnique({
-      where: { id },
-      include: { project: { select: { organizationId: true } } }
-    });
+    // Use helper to fetch and validate access
+    const { resource: existingRFI, error } = await fetchResourceWithProjectAccess(
+      'RFI',
+      id,
+      session,
+      'rFI',
+      { project: { select: { organizationId: true } } }
+    );
 
-    if (!existingRFI) {
-      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
-    }
-
-    if (existingRFI.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     const updateData: any = {};
     if (answer !== undefined) {
@@ -139,18 +136,16 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const rfi = await prisma.rFI.findUnique({
-      where: { id },
-      include: { project: { select: { organizationId: true } } }
-    });
+    // Use helper to fetch and validate access
+    const { resource: rfi, error } = await fetchResourceWithProjectAccess(
+      'RFI',
+      id,
+      session,
+      'rFI',
+      { project: { select: { organizationId: true } } }
+    );
 
-    if (!rfi) {
-      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
-    }
-
-    if (rfi.project.organizationId !== session.user.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    if (error) return error;
 
     await prisma.rFI.delete({ where: { id } });
 
