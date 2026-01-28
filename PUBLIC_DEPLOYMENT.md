@@ -12,7 +12,18 @@ CortexBuild Pro is available as a Docker image published to GitHub Container Reg
 
 **Registry:** `ghcr.io`  
 **Image:** `ghcr.io/adrianstanca1/cortexbuild-pro`  
-**Tags:** `latest`, `main`, version tags (e.g., `v1.0.0`)
+**Tags:** `latest` (default branch), `main`, `cortexbuildpro`, version tags (e.g., `v1.0.0`)
+
+### Image Publishing
+
+Docker images are automatically built and published when code is pushed to:
+- `cortexbuildpro` branch → tagged as `cortexbuildpro`
+- `main` branch (default) → tagged as `main` and `latest`
+- Version tags (e.g., `v1.0.0`) → published with the same tag
+
+**CI/CD Workflow:** See `.github/workflows/docker-publish.yml`
+
+**Publishing Guide:** Run `./deployment/publish-docker-image-guide.sh` for detailed publishing instructions and current status.
 
 ### Pull the Image
 
@@ -22,9 +33,35 @@ docker pull ghcr.io/adrianstanca1/cortexbuild-pro:latest
 
 # Pull a specific version
 docker pull ghcr.io/adrianstanca1/cortexbuild-pro:v1.0.0
+
+# Verify the image
+docker images | grep cortexbuild-pro
 ```
 
 > **Note:** If the repository is private, you'll need to authenticate with GitHub Container Registry using a Personal Access Token (PAT).
+
+---
+
+## ✅ Pre-Deployment Validation
+
+Before deploying, validate that your environment is ready:
+
+```bash
+# Clone repository (if not already done)
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# Run validation script
+./validate-public-deployment.sh
+```
+
+This will check:
+- ✓ Docker and Docker Compose installation
+- ✓ Docker image availability in GHCR
+- ✓ Deployment scripts presence
+- ✓ Configuration files integrity
+
+> **Note:** If the Docker image is not yet published, the script will indicate this. You can either wait for the image to be published (happens automatically on pushes to `cortexbuildpro` or `main` branches) or use Option 2 below to build locally.
 
 ---
 
@@ -427,6 +464,8 @@ Use this checklist for production deployment:
 ### Pre-Deployment
 - [ ] Server provisioned (2GB+ RAM, 2+ CPU cores, 20GB+ disk)
 - [ ] Docker and Docker Compose installed
+- [ ] Run validation script: `./deployment/validate-public-deployment.sh`
+- [ ] Docker image available in GHCR or ready to build locally
 - [ ] Domain registered and DNS configured
 - [ ] SSL email configured for Let's Encrypt
 - [ ] Firewall rules configured (ports 80, 443, 22)
