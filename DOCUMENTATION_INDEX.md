@@ -27,6 +27,11 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml)** - Docker image build and publish workflow
 
 ### Configuration
+- **[API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)** - ⭐ **NEW** - Complete reference for all API keys and passwords
+- **[CREDENTIALS_CHECKLIST.md](CREDENTIALS_CHECKLIST.md)** - ⭐ **NEW** - Quick checklist for all credentials
+- **[ENVIRONMENT_SETUP_GUIDE.md](ENVIRONMENT_SETUP_GUIDE.md)** - Complete environment variables setup guide
+- **[GITHUB_SECRETS_GUIDE.md](GITHUB_SECRETS_GUIDE.md)** - GitHub repository secrets configuration
+- **[REPOSITORY_SECRETS_SUMMARY.md](REPOSITORY_SECRETS_SUMMARY.md)** - Quick summary of repository secrets
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Detailed guide for configuring API keys and external services
 - **[VPS_CONNECTION_CONFIG.md](VPS_CONNECTION_CONFIG.md)** - VPS connection and WebSocket configuration
@@ -119,10 +124,11 @@ The `nextjs_space/` directory contains:
 
 1. **Start here**: [README.md](README.md)
 2. **Quick setup**: [QUICKSTART.md](QUICKSTART.md)
-3. **Deploy to production**: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
-4. **Configuration**: [CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)
-5. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
-6. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
+3. **API Keys & Passwords**: [API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md) or [CREDENTIALS_CHECKLIST.md](CREDENTIALS_CHECKLIST.md)
+4. **Deploy to production**: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
+5. **Configuration**: [CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)
+6. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
+7. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
 
 ## Contributing
 
@@ -135,5 +141,5 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** January 27, 2026  
-**Latest Cleanup:** Comprehensive cleanup - 27 files archived/removed, 43% reduction in root directory files
+**Last Updated:** January 28, 2026  
+**Latest Addition:** Added comprehensive API keys and passwords reference documentation
