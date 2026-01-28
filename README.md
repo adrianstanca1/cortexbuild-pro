@@ -6,6 +6,8 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 ![Deployment](https://img.shields.io/badge/deployment-ready-blue)
 ![Security](https://img.shields.io/badge/vulnerabilities-0-success)
 ![Docker](https://img.shields.io/badge/docker-published-blue)
+![VPS Deploy](https://img.shields.io/badge/VPS-auto--deploy-success)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)
 
 **🌐 Production URL:** https://www.cortexbuildpro.com  
 **🐳 Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
@@ -14,7 +16,39 @@ A comprehensive multi-tenant construction management platform with full-stack fe
 
 ## 🚀 Quick Deployment
 
-Deploy CortexBuild Pro in 5 minutes using our pre-built Docker image:
+### Option 1: Automated One-Command VPS Deployment (Fastest ⚡)
+
+Deploy to your VPS with a single command:
+
+```bash
+# Run this on your VPS server
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+```
+
+This automated script will:
+- ✅ Install Docker & Docker Compose
+- ✅ Configure firewall & security
+- ✅ Clone repository
+- ✅ Generate secure credentials
+- ✅ Deploy application
+- ✅ Run database migrations
+- ✅ Start all services
+
+**⏱️ Time:** ~10-15 minutes | **📖 Guide:** [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)
+
+### Option 2: Automated CI/CD Deployment with GitHub Actions
+
+Set up continuous deployment with GitHub Actions:
+
+1. Configure VPS and GitHub secrets
+2. Push to main branch
+3. Application automatically deploys to VPS
+
+**📖 Setup guide:** [VPS_DEPLOYMENT_AUTOMATION.md](VPS_DEPLOYMENT_AUTOMATION.md)
+
+### Option 3: Manual Docker Deployment
+
+Deploy using pre-built Docker image:
 
 ```bash
 # 1. Clone deployment scripts
@@ -89,14 +123,69 @@ npm run dev
 
 ## 🌐 Production Deployment Options
 
-### Option 1: Deploy from Published Image (Fastest ⚡)
+### Option 1: One-Command VPS Deployment (Fastest ⚡)
 
-Use our pre-built Docker image from GitHub Container Registry:
+**Use case:** Quick production deployment on any VPS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+```
+
+**What you get:**
+- Complete automated setup
+- Docker & Docker Compose installation
+- Security configuration (firewall, Fail2Ban)
+- SSL certificate setup (optional)
+- Database with migrations
+- All services running
+
+**Time:** ~10-15 minutes  
+**Guide:** [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)
+
+---
+
+### Option 2: Automated CI/CD with GitHub Actions (Recommended for Teams)
+
+**Use case:** Continuous deployment on every code push
+
+**Setup once:**
+1. Configure GitHub secrets (SSH keys, VPS credentials)
+2. Push to main branch → Automatic deployment
+
+**Benefits:**
+- Zero-downtime deployments
+- Automatic rollback on failure
+- Full deployment history
+- Health checks and monitoring
+
+**Guide:** [VPS_DEPLOYMENT_AUTOMATION.md](VPS_DEPLOYMENT_AUTOMATION.md) | [GitHub Actions Setup](.github/workflows/README.md)
+
+---
+
+### Option 3: Deploy from Published Image (Production Ready)
+
+**Use case:** Deploy on servers with Docker already installed
 
 ```bash
 cd deployment
 ./deploy-from-published-image.sh
 ```
+
+**Guide:** [PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)
+
+---
+
+### Option 4: Build and Deploy Locally (Development)
+
+**Use case:** Custom builds or development environments
+
+```bash
+cd deployment
+docker compose build
+docker compose up -d
+```
+
+**Guide:** [Development Setup](#-development-setup)
 
 **Time:** ~5 minutes | **Build:** Not required
 

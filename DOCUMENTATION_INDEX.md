@@ -10,12 +10,21 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ### Deployment & Operations
 - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
+- **[VPS_DEPLOYMENT_COMPLETE.md](VPS_DEPLOYMENT_COMPLETE.md)** - ⭐ **NEW** - VPS deployment implementation status
+- **[VPS_DEPLOYMENT_AUTOMATION.md](VPS_DEPLOYMENT_AUTOMATION.md)** - ⭐ **NEW** - Automated CI/CD deployment with GitHub Actions
+- **[VPS_QUICK_DEPLOY_REFERENCE.md](VPS_QUICK_DEPLOY_REFERENCE.md)** - ⭐ **NEW** - Quick reference card
+- **[DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)** - One-command VPS deployment guide
 - **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide with step-by-step instructions
 - **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Docker image deployment from GitHub Container Registry
 - **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick reference for common deployment commands
 - **[DEPLOYMENT_COMPLETE.md](DEPLOYMENT_COMPLETE.md)** - Current deployment status and verification
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
+
+### GitHub Actions (CI/CD)
+- **[.github/workflows/README.md](.github/workflows/README.md)** - ⭐ **NEW** - GitHub Actions setup guide
+- **[.github/workflows/deploy-vps.yml](.github/workflows/deploy-vps.yml)** - ⭐ **NEW** - Automated VPS deployment workflow
+- **[.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml)** - Docker image build and publish workflow
 
 ### Configuration
 - **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
