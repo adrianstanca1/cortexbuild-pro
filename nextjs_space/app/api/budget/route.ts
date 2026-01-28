@@ -17,12 +17,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const status = searchParams.get("status");
 
-    const where: { 
-      projectId?: string; 
-      project?: { organizationId: string | undefined }; 
-      category?: string; 
-      status?: string 
-    } = {};
+    const where: any = {};
 
     if (projectId) {
       where.projectId = projectId;
@@ -47,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate budget summary
-    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item: { estimatedAmount: number; committedAmount: number; actualAmount: number }) => {
+    const summary = costItems.reduce((acc: any, item: any) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;

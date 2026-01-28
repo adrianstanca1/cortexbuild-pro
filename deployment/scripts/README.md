@@ -1,17 +1,8 @@
 # Deployment Scripts
 
-This directory contains deployment-specific utility scripts for CortexBuild Pro.
+This directory contains utility scripts for database management, health checks, and diagnostics when deploying CortexBuild Pro on a VPS.
 
-## Scripts in This Directory
-
-- `verify-platform.ts` - Verify platform configuration and requirements
-- `verify-build.sh` - Verify build integrity and artifacts
-- `verify-deployment.sh` - Comprehensive deployment verification
-- `script-db-helper.ts` - Shared database client helper for deployment scripts
-
-## Main Application Scripts
-
-**Most utility scripts are located in `../nextjs_space/scripts/`** including:
+## Available Scripts
 
 ### Database Management
 - `seed.ts` - Seed database with initial data (organizations, users, projects)
@@ -31,10 +22,10 @@ This directory contains deployment-specific utility scripts for CortexBuild Pro.
 
 ## Usage
 
-### Running Main Scripts in Docker Environment
+### Running Scripts in Docker Environment
 
 ```bash
-# From deployment directory - scripts run from /app which is nextjs_space
+# From deployment directory
 docker-compose exec app sh -c "cd /app && npx tsx scripts/seed.ts"
 docker-compose exec app sh -c "cd /app && npx tsx scripts/health-check.ts --verbose"
 ```
@@ -43,7 +34,6 @@ docker-compose exec app sh -c "cd /app && npx tsx scripts/health-check.ts --verb
 
 ```bash
 # Make sure you have DATABASE_URL set in .env
-cd ../nextjs_space
 export DATABASE_URL="postgresql://user:password@localhost:5432/cortexbuild"
 npx tsx scripts/health-check.ts
 ```
@@ -56,12 +46,16 @@ All scripts require:
 
 For full list of environment variables, see `../.env.example`
 
-## Note on Script Location
+## Note on Code Duplication
 
-✅ **Consolidated**: Most utility scripts are now located in `../nextjs_space/scripts/` to eliminate duplication.
+⚠️ **Important**: These scripts are duplicated from `../nextjs_space/scripts/` with added JSDoc documentation.
 
-This directory contains only deployment-specific scripts that are unique to the deployment process.
-All database management, health checks, and reporting scripts are in the main application directory.
+**Why the duplication?**
+- Supports standalone VPS deployment scenarios
+- Maintains deployment independence
+- Provides comprehensive documentation for operations
+
+**Future**: Consider consolidating into shared module. See `/CODE_STRUCTURE.md` for details.
 
 ## Best Practices
 

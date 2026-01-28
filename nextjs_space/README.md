@@ -64,8 +64,9 @@ A comprehensive multi-tenant construction management platform built with Next.js
 
 ### Prerequisites
 
-- Node.js 18+ (or Docker)
+- Node.js 18+
 - PostgreSQL database
+- Yarn package manager
 
 ### Installation
 
@@ -79,7 +80,7 @@ cd cortex-abacus
 1. Install dependencies:
 
 ```bash
-npm install --legacy-peer-deps
+yarn install
 ```
 
 1. Set up environment variables:
@@ -92,20 +93,20 @@ cp .env.example .env
 1. Run database migrations:
 
 ```bash
-npx prisma generate
-npx prisma db push
+yarn prisma generate
+yarn prisma db push
 ```
 
 1. Seed the database (optional):
 
 ```bash
-npx prisma db seed
+yarn prisma db seed
 ```
 
 1. Start the development server:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -221,11 +222,11 @@ Key API routes include:
 
 ## Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npx prisma generate` - Generate Prisma client
-- `npx prisma db push` - Push schema to database
+- `yarn dev` - Start development server
+- `yarn build` - Build for production
+- `yarn start` - Start production server
+- `yarn prisma generate` - Generate Prisma client
+- `yarn prisma db push` - Push schema to database
 
 ## License
 

@@ -56,7 +56,7 @@ export default async function CompanyUsagePage() {
     redirect("/login");
   }
 
-  const user = session.user as { organizationId?: string };
+  const user = session.user as any;
 
   if (!user.organizationId) {
     redirect("/dashboard");

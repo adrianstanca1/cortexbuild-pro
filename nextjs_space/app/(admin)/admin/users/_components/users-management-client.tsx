@@ -6,17 +6,24 @@ import {
   Users,
   Plus,
   Search,
+  Filter,
   MoreVertical,
   Edit,
   Trash2,
   UserCog,
+  Shield,
+  Mail,
+  Phone,
   Building2,
+  Calendar,
   Clock,
   RefreshCw,
+  X,
   Check,
-  Eye
+  Eye,
+  Key
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -140,7 +147,6 @@ export function UsersManagementClient() {
       fetchUsers();
     }, 300);
     return () => clearTimeout(debounce);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, roleFilter, orgFilter]);
 
   const handleCreateUser = async () => {

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string };
+    const user = session.user as any;
     const orgId = user.organizationId;
 
     if (!orgId) {
@@ -25,11 +25,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
-    const where: { 
-      organizationId: string;
-      OR?: Array<{ user: { name: { contains: string; mode: string } } } | { user: { email: { contains: string; mode: string } } } | { jobTitle: { contains: string; mode: string } }>;
-      user?: { role?: string };
-    } = { organizationId: orgId };
+    const where: any = { organizationId: orgId };
 
     if (search) {
       where.OR = [
@@ -98,9 +94,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string; role?: string };
+    const user = session.user as any;
     
-    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role || "")) {
+    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

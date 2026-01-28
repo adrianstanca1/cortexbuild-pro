@@ -16,7 +16,7 @@ export default async function AdminLayout({
   }
   
   // Only SUPER_ADMIN can access admin pages
-  if ((session.user as { role?: string }).role !== "SUPER_ADMIN") {
+  if ((session.user as any).role !== "SUPER_ADMIN") {
     redirect("/dashboard");
   }
 

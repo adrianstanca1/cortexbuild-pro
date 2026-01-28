@@ -82,17 +82,16 @@ export async function PATCH(
     if (result !== undefined) updateData.result = result;
     if (deficiencies !== undefined) updateData.deficiencies = deficiencies;
 
-    // Update checklist items if provided - use parallel updates for better performance
+    // Update checklist items if provided
     if (checklistItems?.length) {
-      const updatePromises = checklistItems
-        .filter(item => item.id)
-        .map(item => 
-          prisma.inspectionChecklistItem.update({
+      for (const item of checklistItems) {
+        if (item.id) {
+          await prisma.inspectionChecklistItem.update({
             where: { id: item.id },
             data: { passed: item.passed, notes: item.notes }
-          })
-        );
-      await Promise.all(updatePromises);
+          });
+        }
+      }
     }
 
     const inspection = await prisma.inspection.update({

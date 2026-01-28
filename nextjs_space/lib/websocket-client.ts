@@ -18,7 +18,7 @@ class WebSocketClient {
       // Connect to the WebSocket server
       const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
       this.socket = io(socketUrl, {
-        path: '/api/socketio',
+        path: '/api/socket',
         transports: ['websocket', 'polling'],
         auth: {
           token: token,

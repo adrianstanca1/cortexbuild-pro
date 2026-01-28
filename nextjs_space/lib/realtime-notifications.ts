@@ -36,9 +36,8 @@ export class RealTimeNotifications {
 
     // Emit real-time notification via WebSocket
     // This would be handled by the WebSocket service
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Notification sent to user ${userId}`);
-    }
+    // For now, we'll simulate the emit
+    console.log(`Sending notification to user ${userId}:`, notification);
     
     // In a real implementation, you would emit to the specific user:
     // websocketService.broadcastToUser(userId, {
@@ -91,9 +90,7 @@ export class RealTimeNotifications {
     );
 
     // Emit real-time notification to project via WebSocket
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Notification sent to project ${projectId} for ${userIds.length} users`);
-    }
+    console.log(`Sending notification to project ${projectId} for ${userIds.length} users:`, { title, message });
     
     // In a real implementation, you would emit to the project room:
     // websocketService.broadcastToProject(projectId, {
@@ -138,9 +135,7 @@ export class RealTimeNotifications {
     );
 
     // Emit real-time notification to all users via WebSocket
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Notification sent to all ${userIds.length} active users`);
-    }
+    console.log(`Sending notification to all ${userIds.length} active users:`, { title, message });
     
     // In a real implementation, you would emit to all connected users:
     // websocketService.broadcastToAll({
