@@ -97,6 +97,8 @@ docker compose up -d
 
 **📖 Complete Setup Guides:**
 - **[Environment Setup Guide](ENVIRONMENT_SETUP_GUIDE.md)** - Complete guide for all environment variables
+- **[API Keys Setup Guide](API_KEYS_SETUP.md)** - 🆕 Step-by-step guide for SendGrid, Gemini, and Abacus AI
+- **[API Keys Quick Reference](API_KEYS_QUICK_REFERENCE.md)** - 🆕 Quick reference for API configuration
 - **[GitHub Secrets Guide](GITHUB_SECRETS_GUIDE.md)** - CI/CD secrets configuration
 - **[.env Template](.env.template)** - Complete template with all variables
 
