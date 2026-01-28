@@ -20,8 +20,8 @@ interface SafetyCheckData {
   projectName: string;
   date: Date;
   status?: string;
-  statusColor?: string;
-  statusBg?: string;
+  statusColor?: string;  // Required if status is provided
+  statusBg?: string;     // Required if status is provided
   fields: Array<{
     label: string;
     value: string | number;
@@ -37,8 +37,12 @@ interface SafetyCheckData {
 /**
  * Generic function to send safety check completion notifications
  * Consolidates previously duplicated notification functions
+ * @param config Configuration for the notification (colors, icons, etc.)
+ * @param data Dynamic data to include in the notification
+ * @param recipientEmail Email address of the recipient
+ * @returns Promise resolving to notification result
  */
-async function sendSafetyCheckNotification(
+export async function sendSafetyCheckNotification(
   config: SafetyCheckNotificationConfig,
   data: SafetyCheckData,
   recipientEmail: string

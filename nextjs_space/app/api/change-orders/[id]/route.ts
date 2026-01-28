@@ -20,7 +20,7 @@ export async function GET(
 
     // Use helper to fetch and validate access
     const { resource: changeOrder, error } = await fetchResourceWithProjectAccess(
-      'Change order',
+      'Change Order',
       id,
       session,
       'changeOrder',
@@ -56,7 +56,7 @@ export async function PATCH(
 
     // Use helper to fetch and validate access
     const { resource: existingCO, error } = await fetchResourceWithProjectAccess(
-      'Change order',
+      'Change Order',
       id,
       session,
       'changeOrder',
@@ -155,7 +155,7 @@ export async function DELETE(
 
     // Use helper to fetch and validate access
     const { resource: changeOrder, error } = await fetchResourceWithProjectAccess(
-      'Change order',
+      'Change Order',
       id,
       session,
       'changeOrder',

@@ -19,7 +19,7 @@ export function validateOrganizationAccess(
 ): NextResponse | null {
   if (resourceOrganizationId !== session.user.organizationId) {
     return NextResponse.json(
-      { error: 'Unauthorized', message: 'Access denied to this resource' },
+      { error: 'Unauthorized', message: 'You do not have permission to access resources from this organization' },
       { status: 403 }
     );
   }
