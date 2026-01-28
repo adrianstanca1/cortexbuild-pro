@@ -23,6 +23,8 @@ Docker images are automatically built and published when code is pushed to:
 
 **CI/CD Workflow:** See `.github/workflows/docker-publish.yml`
 
+**Publishing Guide:** Run `./deployment/publish-docker-image-guide.sh` for detailed publishing instructions and current status.
+
 ### Pull the Image
 
 ```bash

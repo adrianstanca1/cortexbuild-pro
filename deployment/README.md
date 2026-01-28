@@ -1,16 +1,37 @@
-# CortexBuild Pro - VPS Deployment Quick Reference
+# CortexBuild Pro - Deployment Directory
 
-> 📖 **For complete deployment instructions, see [DEPLOY_TO_VPS.md](../DEPLOY_TO_VPS.md)** - NEW Simplified Guide!
+> 📖 **For public deployment (GHCR), see [PUBLIC_DEPLOYMENT.md](../PUBLIC_DEPLOYMENT.md)** - Deploy from published Docker image
+> 📖 **For VPS deployment instructions, see [DEPLOY_TO_VPS.md](../DEPLOY_TO_VPS.md)** - Simplified VPS Guide
 > 🔧 **For VPS and connection configuration, see [VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md)**
-> 📋 **For command reference, see [VPS_QUICK_REFERENCE.md](../VPS_QUICK_REFERENCE.md)** - NEW One-Page Reference!
+> 📋 **For command reference, see [VPS_QUICK_REFERENCE.md](../VPS_QUICK_REFERENCE.md)** - One-Page Reference
 
-This directory contains Docker configuration and scripts for deploying CortexBuild Pro on a VPS.
+This directory contains Docker configuration and scripts for deploying CortexBuild Pro.
 
 ---
 
-## 🚀 Quick Deploy (Easiest Method)
+## 🚀 Deployment Options
 
-### Option 1: One-Command Deploy (Recommended) 🆕
+### Option 1: Deploy from Published Image (Fastest - Recommended)
+
+Use pre-built Docker images from GitHub Container Registry:
+
+```bash
+# 1. Validate readiness
+./validate-public-deployment.sh
+
+# 2. Check image publishing status
+./publish-docker-image-guide.sh
+
+# 3. Deploy from GHCR
+./deploy-from-published-image.sh
+```
+
+**Time:** ~5 minutes  
+**Requirements:** Docker 20.10+, Docker Compose 2.0+
+
+See [PUBLIC_DEPLOYMENT.md](../PUBLIC_DEPLOYMENT.md) for details.
+
+### Option 2: One-Command VPS Deploy
 
 Run this single command on your fresh VPS:
 
@@ -31,7 +52,7 @@ This automated script handles **everything**:
 ⏱️ **Time:** 10-15 minutes
 📋 **Requirements:** Ubuntu 20.04+ or Debian 10+, 2GB+ RAM, root/sudo access
 
-### Option 2: Manual Step-by-Step
+### Option 3: Manual Step-by-Step
 ```bash
 # 1. Clone and navigate
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
@@ -73,6 +94,40 @@ For detailed instructions, troubleshooting, and production best practices, see:
 | `backup.sh` | Database backup utility |
 | `restore.sh` | Database restore utility |
 | `seed-db.sh` | Initialize database with sample data |
+
+---
+
+## 📜 Available Scripts
+
+This directory contains the following deployment and management scripts:
+
+### Deployment Scripts
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `validate-public-deployment.sh` | 🆕 Validate deployment readiness | `./validate-public-deployment.sh` |
+| `publish-docker-image-guide.sh` | 🆕 Docker image publishing guide | `./publish-docker-image-guide.sh` |
+| `deploy-from-published-image.sh` | Deploy using pre-built GHCR image | `./deploy-from-published-image.sh` |
+| `deploy-from-github.sh` | Deploy by cloning from GitHub | `./deploy-from-github.sh` |
+| `deploy-production.sh` | Production deployment script | `./deploy-production.sh` |
+| `quick-start.sh` | Quick start deployment | `./quick-start.sh` |
+| `vps-setup.sh` | VPS initial setup | `./vps-setup.sh` |
+| `verify-deployment.sh` | Verify deployment health | `./verify-deployment.sh` |
+
+### Configuration Scripts
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `validate-config.sh` | Validate environment configuration | `./validate-config.sh` |
+| `setup-ssl.sh` | Setup SSL certificates | `./setup-ssl.sh domain.com email@domain.com` |
+
+### Maintenance Scripts
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `backup.sh` | Backup database | `./backup.sh` |
+| `restore.sh` | Restore from backup | `./restore.sh backups/file.sql` |
+| `seed-db.sh` | Seed database with sample data | `./seed-db.sh` |
 
 ---
 
