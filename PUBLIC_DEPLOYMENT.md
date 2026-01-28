@@ -12,13 +12,13 @@ CortexBuild Pro is available as a Docker image published to GitHub Container Reg
 
 **Registry:** `ghcr.io`  
 **Image:** `ghcr.io/adrianstanca1/cortexbuild-pro`  
-**Tags:** `latest`, `main`, version tags (e.g., `v1.0.0`)
+**Tags:** `latest` (default branch), `main`, `cortexbuildpro`, version tags (e.g., `v1.0.0`)
 
 ### Image Publishing
 
 Docker images are automatically built and published when code is pushed to:
-- `cortexbuildpro` branch → tagged as `cortexbuildpro` and `latest`
-- `main` branch → tagged as `main` and `latest`
+- `cortexbuildpro` branch → tagged as `cortexbuildpro`
+- `main` branch (default) → tagged as `main` and `latest`
 - Version tags (e.g., `v1.0.0`) → published with the same tag
 
 **CI/CD Workflow:** See `.github/workflows/docker-publish.yml`
