@@ -15,6 +15,7 @@ export function createMockSession(overrides?: Partial<Session>): Session {
       name: 'Test User',
       role: 'PROJECT_MANAGER',
       organizationId: 'test-org-id',
+      avatarUrl: null,
       ...overrides?.user,
     },
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -112,6 +113,7 @@ describe('Test Helpers', () => {
           name: 'Custom User',
           role: 'ADMIN',
           organizationId: 'custom-org',
+          avatarUrl: null,
         },
       });
       

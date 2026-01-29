@@ -127,13 +127,13 @@ export async function GET(request: NextRequest) {
           : 0
       },
       taskMetrics: (() => {
-        const metrics = tasks.reduce((acc: { total: number; completed: number; inProgress: number; criticalTasks: number }, t: { status: string; priority: string }) => {
+        const metrics: { total: number; completed: number; inProgress: number; criticalTasks: number; completionRate: number } = tasks.reduce((acc: { total: number; completed: number; inProgress: number; criticalTasks: number }, t: { status: string; priority: string }) => {
           acc.total++;
           if (t.status === 'COMPLETE') acc.completed++;
           if (t.status === 'IN_PROGRESS') acc.inProgress++;
           if (t.priority === 'CRITICAL' && t.status !== 'COMPLETE') acc.criticalTasks++;
           return acc;
-        }, { total: 0, completed: 0, inProgress: 0, criticalTasks: 0 });
+        }, { total: 0, completed: 0, inProgress: 0, criticalTasks: 0 }) as any;
         metrics.completionRate = metrics.total > 0
           ? Math.round((metrics.completed / metrics.total) * 100)
           : 0;
@@ -152,12 +152,12 @@ export async function GET(request: NextRequest) {
         ).map(([category, amount]) => ({ category, amount }))
       },
       safetyMetrics: (() => {
-        const metrics = safetyIncidents.reduce((acc: { totalIncidents: number; openIncidents: number; criticalIncidents: number }, i: { status: string; severity: string }) => {
+        const metrics: { totalIncidents: number; openIncidents: number; criticalIncidents: number; incidentRate: string | number } = safetyIncidents.reduce((acc: { totalIncidents: number; openIncidents: number; criticalIncidents: number }, i: { status: string; severity: string }) => {
           acc.totalIncidents++;
           if (i.status === 'OPEN' || i.status === 'INVESTIGATING') acc.openIncidents++;
           if (i.severity === 'CRITICAL' || i.severity === 'HIGH') acc.criticalIncidents++;
           return acc;
-        }, { totalIncidents: 0, openIncidents: 0, criticalIncidents: 0 });
+        }, { totalIncidents: 0, openIncidents: 0, criticalIncidents: 0 }) as any;
         metrics.incidentRate = projects.length > 0 ? (metrics.totalIncidents / projects.length).toFixed(2) : 0;
         return metrics;
       })(),

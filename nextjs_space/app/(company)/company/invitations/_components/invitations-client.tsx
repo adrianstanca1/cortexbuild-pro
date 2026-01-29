@@ -59,6 +59,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
     status: string;
     token: string;
     invitedAt: string;
+    createdAt?: string;
     acceptedAt?: string;
     expiresAt: string;
     invitedBy?: { name: string };
@@ -301,7 +302,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                         {invitation.status}
                       </Badge>
                       <span className="text-xs text-gray-400 hidden md:block">
-                        {formatDistanceToNow(new Date(invitation.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(invitation.createdAt || invitation.invitedAt), { addSuffix: true })}
                       </span>
 
                       <DropdownMenu>

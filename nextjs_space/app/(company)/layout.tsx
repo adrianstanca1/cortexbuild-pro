@@ -51,7 +51,7 @@ export default async function CompanyLayout({
       <div className="lg:pl-64">
         <CompanyHeader 
           user={session.user} 
-          organization={organization}
+          organization={{ name: organization?.name }}
         />
         <main className="p-6">{children}</main>
       </div>

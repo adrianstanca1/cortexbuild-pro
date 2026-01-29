@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    const where: { projectId?: string; project: { organizationId: string | undefined } } = projectId 
+    const where: { projectId?: string; project: { organizationId: string | null | undefined } } = projectId 
       ? { projectId, project: { organizationId: session.user.organizationId } }
       : { project: { organizationId: session.user.organizationId } };
 

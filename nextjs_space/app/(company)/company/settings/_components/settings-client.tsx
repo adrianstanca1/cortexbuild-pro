@@ -22,6 +22,7 @@ import { toast } from "sonner";
 interface CompanySettingsClientProps {
   organization: {
     name?: string;
+    slug?: string;
     description?: string;
     website?: string;
     email?: string;
