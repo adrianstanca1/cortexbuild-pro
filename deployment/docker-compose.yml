@@ -115,7 +115,8 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - nextjs_static:/var/www/_next/static
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     networks:
       - cortexbuild-network
 
