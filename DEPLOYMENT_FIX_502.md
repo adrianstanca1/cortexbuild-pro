@@ -144,11 +144,11 @@ Launching Integrated Production Server...
 
 3. **Verify Network Connectivity**
    ```bash
-   # Check if containers are on same network
-   docker network inspect cortexbuild_cortexbuild-network
+   # List networks and locate the cortexbuild network
+   docker network ls | grep cortexbuild-network
    
-   # Verify app container can be reached
-   docker exec cortexbuild-nginx ping -c 3 app
+   # Inspect the network (the prefix depends on the docker-compose project name, e.g. "deployment_cortexbuild-network")
+   docker network inspect deployment_cortexbuild-network
    ```
 
 4. **Check Container Health**
