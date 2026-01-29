@@ -10,9 +10,12 @@ const {
 } = require('socket.io');
 
 const port = process.env.PORT || 3000;
+const hostname = process.env.HOSTNAME || '0.0.0.0';
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({
-    dev
+    dev,
+    hostname,
+    port
 });
 const handle = app.getRequestHandler();
 
@@ -192,9 +195,10 @@ app.prepare().then(() => {
         console.error('[CRITICAL] Realtime init failed:', realtimeError);
     }
 
-    httpServer.listen(port, (err) => {
+    httpServer.listen(port, hostname, (err) => {
         if (err) throw err;
-        console.log(`> Production environment live on http://localhost:${port}`);
+        console.log(`> Production environment live on http://${hostname}:${port}`);
+        console.log(`> Server ready to accept connections from nginx reverse proxy`);
     });
 }).catch((err) => {
     console.error('[FATAL] Failed to prepare Next.js application:', err);

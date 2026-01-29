@@ -27,5 +27,7 @@ else
 fi
 
 echo "Launching Integrated Production Server..."
+echo "Server will listen on ${HOSTNAME:-0.0.0.0}:${PORT:-3000}"
+echo "Environment: NODE_ENV=${NODE_ENV}"
 # Start the custom production server
 exec node production-server.js
