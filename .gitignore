@@ -30,6 +30,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Local file uploads (use S3 in production)
+nextjs_space/uploads/
+uploads/
+
 # Test coverage
 coverage/
 *.lcov
