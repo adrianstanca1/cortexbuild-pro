@@ -118,6 +118,8 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
   };
 
   const handleSaveEdit = async () => {
+    if (!selectedMember) return;
+    
     try {
       const res = await fetch(`/api/team/${selectedMember.id}`, {
         method: "PATCH",

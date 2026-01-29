@@ -9,13 +9,12 @@ export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
   
-  let organization = null;
-  if (orgId) {
-    organization = await prisma.organization.findUnique({
-      where: { id: orgId },
-      select: { id: true, name: true, slug: true, createdAt: true }
-    });
-  }
+  const organization = orgId 
+    ? await prisma.organization.findUnique({
+        where: { id: orgId },
+        select: { id: true, name: true, slug: true, createdAt: true }
+      })
+    : null;
   
   return (
     <SettingsClient 

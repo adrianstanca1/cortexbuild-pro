@@ -114,6 +114,7 @@ interface CompanyDashboardClientProps {
     id: string;
     action: string;
     entityType?: string | null;
+    entityName?: string | null;
     createdAt: string;
     user?: { name: string } | null;
   }>;
@@ -129,6 +130,7 @@ export function CompanyDashboardClient({
 }: CompanyDashboardClientProps) {
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [loading, setLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -425,7 +427,7 @@ export function CompanyDashboardClient({
                   {(companyStats?.topProjects || projects).length === 0 ? (
                     <p className="text-gray-500 text-sm text-center py-4">No projects yet</p>
                   ) : (
-                    (companyStats?.topProjects || projects).slice(0, 5).map((project: { id: string; name: string; status: string; budget?: number | null; _count?: { tasks: number } }) => (
+                    (companyStats?.topProjects || projects).slice(0, 5).map((project: { id: string; name: string; status: string; budget?: number | null; _count?: { tasks: number }; taskCount?: number; teamSize?: number }) => (
                       <Link key={project.id} href={`/projects/${project.id}`} className="block">
                         <div className="flex items-center justify-between py-2 border-b last:border-0 hover:bg-gray-50 -mx-2 px-2 rounded">
                           <div>

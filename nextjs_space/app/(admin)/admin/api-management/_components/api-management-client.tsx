@@ -239,11 +239,22 @@ export function ApiManagementClient() {
   const [connections, setConnections] = useState<ApiConnection[]>([]);
   const [logs, setLogs] = useState<ApiConnectionLog[]>([]);
   const [dependencies, setDependencies] = useState<DependencyModule[]>([]);
-  const [stats, setStats] = useState<{ totalConnections?: number; activeConnections?: number }>({});
+  const [stats, setStats] = useState<{ 
+    totalConnections?: number; 
+    activeConnections?: number;
+    total?: number;
+    active?: number;
+    disconnected?: number;
+    notConfigured?: number;
+    coreServices?: number;
+    coreActive?: number;
+  }>({});
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
 
   // Modals
   const [showConfigureModal, setShowConfigureModal] = useState(false);

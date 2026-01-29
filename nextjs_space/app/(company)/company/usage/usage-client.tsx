@@ -60,6 +60,7 @@ interface CompanyUsageClientProps {
 export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsageClientProps) {
   const [currentUsageData, setCurrentUsageData] = useState<UsageData | undefined>(initialData);
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'billing'>('overview');
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
 
   // Synchronize local state with initialData if it changes
   useEffect(() => {
