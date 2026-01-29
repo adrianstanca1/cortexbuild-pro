@@ -13,9 +13,7 @@ const port = process.env.PORT || 3000;
 const hostname = process.env.HOSTNAME || '0.0.0.0';
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({
-    dev,
-    hostname,
-    port
+    dev
 });
 const handle = app.getRequestHandler();
 
