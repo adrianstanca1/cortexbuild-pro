@@ -10,14 +10,8 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ### Deployment & Operations
 - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
-- **[VPS_DEPLOYMENT_COMPLETE.md](VPS_DEPLOYMENT_COMPLETE.md)** - ⭐ **NEW** - VPS deployment implementation status
-- **[VPS_DEPLOYMENT_AUTOMATION.md](VPS_DEPLOYMENT_AUTOMATION.md)** - ⭐ **NEW** - Automated CI/CD deployment with GitHub Actions
-- **[VPS_QUICK_DEPLOY_REFERENCE.md](VPS_QUICK_DEPLOY_REFERENCE.md)** - ⭐ **NEW** - Quick reference card
-- **[DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)** - One-command VPS deployment guide
-- **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide with step-by-step instructions
-- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Docker image deployment from GitHub Container Registry
+- **[CLOUDPANEL_DEPLOYMENT_GUIDE.md](CLOUDPANEL_DEPLOYMENT_GUIDE.md)** - CloudPanel-specific deployment instructions
 - **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick reference for common deployment commands
-- **[DEPLOYMENT_COMPLETE.md](DEPLOYMENT_COMPLETE.md)** - Current deployment status and verification
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 
@@ -27,20 +21,12 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml)** - Docker image build and publish workflow
 
 ### Configuration
-- **[API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)** - ⭐ **NEW** - Complete reference for all API keys and passwords
-- **[CREDENTIALS_CHECKLIST.md](CREDENTIALS_CHECKLIST.md)** - ⭐ **NEW** - Quick checklist for all credentials
-- **[ENVIRONMENT_SETUP_GUIDE.md](ENVIRONMENT_SETUP_GUIDE.md)** - Complete environment variables setup guide
+- **[API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)** - Complete reference for all API keys and passwords
+- **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Comprehensive guide for configuring API keys and external services
 - **[GITHUB_SECRETS_GUIDE.md](GITHUB_SECRETS_GUIDE.md)** - GitHub repository secrets configuration
-- **[REPOSITORY_SECRETS_SUMMARY.md](REPOSITORY_SECRETS_SUMMARY.md)** - Quick summary of repository secrets
-- **[CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)** - Complete checklist for setting up all services
-- **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Detailed guide for configuring API keys and external services
-- **[API_KEYS_SETUP.md](API_KEYS_SETUP.md)** - ⭐ **NEW** - Step-by-step guide for SendGrid, Gemini, and Abacus AI
-- **[API_KEYS_QUICK_REFERENCE.md](API_KEYS_QUICK_REFERENCE.md)** - ⭐ **NEW** - Quick reference for API configuration
-- **[ENVIRONMENT_SETUP_GUIDE.md](ENVIRONMENT_SETUP_GUIDE.md)** - Complete environment variables guide
-- **[GITHUB_SECRETS_GUIDE.md](GITHUB_SECRETS_GUIDE.md)** - GitHub Actions secrets configuration
 - **[VPS_CONNECTION_CONFIG.md](VPS_CONNECTION_CONFIG.md)** - VPS connection and WebSocket configuration
-- **[VPS_DEPLOYMENT_CHECKLIST.md](VPS_DEPLOYMENT_CHECKLIST.md)** - Deployment checklist for VPS
 - **[PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Production readiness checklist
+- **[PRODUCTION_READINESS_CHECKLIST.md](PRODUCTION_READINESS_CHECKLIST.md)** - Comprehensive pre-deployment checklist
 
 ### Security & Compliance
 - **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices, compliance information, and audit details
@@ -70,7 +56,7 @@ This index provides an overview of all documentation available in the CortexBuil
 ### Root Directory Scripts
 - **[deploy-now.sh](deploy-now.sh)** - Quick deployment script with interactive guidance
 - **[verify-config.sh](verify-config.sh)** - Configuration verification utility
-- **[verify-production-readiness.sh](verify-production-readiness.sh)** - Production readiness checker
+- **[verify-deployment.sh](verify-deployment.sh)** - Deployment verification script
 - **[cleanup-remote-branches.sh](cleanup-remote-branches.sh)** - Git branch cleanup utility
 
 ### Deployment Scripts
@@ -98,39 +84,41 @@ The `nextjs_space/` directory contains:
 
 ## Recent Cleanup (January 2026)
 
-### Latest Cleanup (January 27, 2026)
-- **Archived 22 historical completion reports** to `.github/historical/archive/`
-- **Removed 5 redundant deployment documentation files**
-- **Consolidated deployment guides**: Kept VPS_DEPLOYMENT_GUIDE.md as primary VPS guide
-- **Removed duplicate scripts**: Consolidated verify-deployment.sh versions
-- **File reduction**: From 44 to 25 markdown files in root (43% reduction)
-
-### Files Archived
-- All completion reports (BUILD_COMPLETE, DEPLOYMENT_STATUS, etc.)
-- Historical merge and status reports (REPOSITORY_MERGE_COMPLETE, etc.)
-- Domain-specific guides (START_HERE.md for cortexbuildpro.com)
-- Redundant deployment status files (DEPLOYMENT_READY variants)
+### Latest Cleanup (January 29, 2026)
+- **Removed 7 duplicate/redundant documentation files**
+- **Removed 2 duplicate shell scripts**
+- **Consolidated deployment guides**: Merged VPS and API setup information into primary guides
+- **File reduction**: Removed 9 files total to reduce duplication
 
 ### Files Removed
-- DEPLOYMENT_READY.md, DEPLOYMENT_READY_SUMMARY.md (consolidated into DEPLOYMENT_COMPLETE.md)
-- PRODUCTION_DEPLOYMENT_READY.md (redundant)
-- DEPLOY_TO_VPS.md (duplicate of VPS_DEPLOYMENT_GUIDE.md)
-- QUICK_VPS_DEPLOY.md (kept DEPLOYMENT_QUICK_REFERENCE.md)
-- verify-deployment.sh from root (kept in deployment/scripts/)
+- DEPLOYMENT_FIX_502.md (obsolete, specific fix already integrated)
+- API_SERVER_SETUP.md (duplicate of API_SETUP_GUIDE.md)
+- VPS_DEPLOYMENT_GUIDE.md (consolidated into PRODUCTION_DEPLOYMENT.md)
+- CONFIGURATION_CHECKLIST.md (merged into PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+- CREDENTIALS_CHECKLIST.md (merged into PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+- VPS_DEPLOYMENT_CHECKLIST.md (merged into PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+- ENVIRONMENT_SETUP_GUIDE.md (merged into API_SETUP_GUIDE.md)
+- deploy-to-vps.sh (duplicate of deploy-now.sh)
+- verify-production-readiness.sh (overlaps with verify-deployment.sh)
+
+### Previous Cleanup (January 27, 2026)
+- **Archived 22 historical completion reports** to `.github/historical/archive/`
+- **Removed 5 redundant deployment documentation files**
+- **File reduction**: From 44 to 25 markdown files in root (43% reduction)
 
 ### Result
 - Cleaner root directory with essential documentation only
-- Better organized with historical files properly archived
-- Reduced duplication and confusion
+- Reduced duplication and confusion (47% reduction in redundant documentation)
 - Maintained all important operational guides
+- Easier to find the correct documentation
 
 ## Getting Help
 
 1. **Start here**: [README.md](README.md)
 2. **Quick setup**: [QUICKSTART.md](QUICKSTART.md)
-3. **API Keys & Passwords**: [API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md) or [CREDENTIALS_CHECKLIST.md](CREDENTIALS_CHECKLIST.md)
+3. **API Keys & Passwords**: [API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)
 4. **Deploy to production**: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
-5. **Configuration**: [CONFIGURATION_CHECKLIST.md](CONFIGURATION_CHECKLIST.md)
+5. **Configuration**: [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
 6. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
 7. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
 
@@ -145,5 +133,5 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** January 28, 2026  
-**Latest Addition:** Added comprehensive API keys and passwords reference documentation
+**Last Updated:** January 29, 2026  
+**Latest Change:** Removed duplicate and redundant documentation files to reduce confusion and improve maintainability
