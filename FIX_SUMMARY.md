@@ -22,7 +22,7 @@ After deploying with these changes:
 
 ```bash
 # Check if server is listening on correct interface
-docker exec cortexbuild-app sh -c "wget -qO- http://0.0.0.0:3000/api/auth/providers"
+docker exec cortexbuild-app sh -c "wget -qO- http://localhost:3000/api/auth/providers"
 
 # Verify nginx can reach the app
 docker exec cortexbuild-nginx sh -c "wget -qO- http://app:3000/api/auth/providers"
