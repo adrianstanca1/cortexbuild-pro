@@ -74,9 +74,11 @@ Open your browser and navigate to:
 
 ## Default Login (After Seeding)
 
-- **Email**: adrian.stanca1@gmail.com
+- **Email**: admin@cortexbuild.example (or as configured in seed script)
 - **Password**: ChangeMe123! (or check ADMIN_PASSWORD in .env)
 - **Role**: SUPER_ADMIN
+
+**Note**: The actual admin email is configured in the seed script. Check `scripts/seed.ts` for the current value.
 
 ## Testing the API
 

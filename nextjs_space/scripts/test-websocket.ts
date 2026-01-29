@@ -47,6 +47,11 @@ function runTest(): Promise<void> {
         reject(new Error('Authentication timeout - check authentication logic'));
       }
     }, config.timeout);
+    
+    // Ensure timeout is cleared on promise completion
+    const clearTimeoutSafely = () => {
+      clearTimeout(timeoutId);
+    };
 
     // Connection established
     socket.on('connect', () => {
@@ -67,7 +72,7 @@ function runTest(): Promise<void> {
     socket.on('authenticated', (data: any) => {
       authenticated = true;
       console.log('✅ Authenticated:', data);
-      clearTimeout(timeoutId);
+      clearTimeoutSafely();
       socket.disconnect();
       resolve();
     });
@@ -77,7 +82,7 @@ function runTest(): Promise<void> {
       console.log('⚠️  Authentication error (expected):', error.message);
       console.log('   This is normal - we used test credentials');
       console.log('\n✅ Authentication mechanism is working');
-      clearTimeout(timeoutId);
+      clearTimeoutSafely();
       socket.disconnect();
       resolve();
     });
@@ -85,7 +90,7 @@ function runTest(): Promise<void> {
     // Connection error
     socket.on('connect_error', (error: Error) => {
       console.error('❌ Connection error:', error.message);
-      clearTimeout(timeoutId);
+      clearTimeoutSafely();
       reject(error);
     });
 
@@ -97,7 +102,7 @@ function runTest(): Promise<void> {
     // Generic error
     socket.on('error', (error: any) => {
       console.error('❌ Socket error:', error);
-      clearTimeout(timeoutId);
+      clearTimeoutSafely();
       reject(error);
     });
   });

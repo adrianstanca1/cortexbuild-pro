@@ -27,7 +27,10 @@ fi
 
 # Load environment variables
 set -a
-source .env
+if ! source .env 2>/dev/null; then
+    error "Failed to load .env file - check for syntax errors"
+    exit 1
+fi
 set +a
 
 echo "📦 Checking dependencies..."

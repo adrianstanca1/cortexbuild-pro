@@ -40,7 +40,8 @@ export async function saveLocalFile(
   await ensureUploadDir();
   
   const timestamp = Date.now();
-  const safeName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+  // Remove only problematic characters: path separators, null bytes, and control characters
+  const safeName = fileName.replace(/[\/\\:*?"<>|\x00-\x1f\x7f]/g, "_");
   const relativePath = isPublic
     ? `public/${timestamp}-${safeName}`
     : `private/${timestamp}-${safeName}`;
@@ -77,9 +78,10 @@ export async function deleteLocalFile(filePath: string): Promise<void> {
   const fullPath = path.join(UPLOAD_DIR, filePath);
   try {
     await unlink(fullPath);
-  } catch (error) {
-    console.error('Error deleting local file:', error);
-    // Don't throw - file might already be deleted
+  } catch (error: any) {
+    // Log the error for debugging, but don't throw
+    // File might already be deleted (ENOENT) or have permission issues
+    console.warn(`Could not delete local file ${filePath}:`, error.code || error.message);
   }
 }
 
