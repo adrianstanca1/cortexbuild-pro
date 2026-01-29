@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function GET(
@@ -84,14 +85,14 @@ export async function PATCH(
       [key: string]: unknown;
       name?: string;
       email?: string;
-      role?: string;
+      role?: UserRole;
       organizationId?: string | null;
       phone?: string;
       password?: string;
     } = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
-    if (role !== undefined) updateData.role = role;
+    if (role !== undefined) updateData.role = role as UserRole;
     if (organizationId !== undefined) updateData.organizationId = organizationId || null;
     if (phone !== undefined) updateData.phone = phone;
     if (password) {

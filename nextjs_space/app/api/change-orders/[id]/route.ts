@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
 import { fetchResourceWithProjectAccess } from '@/lib/resource-middleware';
+import { Prisma } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -70,20 +71,22 @@ export async function PATCH(
       title?: string;
       description?: string;
       reason?: string;
-      scheduleChange?: string | null;
+      scheduleChange?: number | null;
       costChange?: number;
       revisedBudget?: number;
       approvedById?: string;
       approvedAt?: Date;
+      status?: string;
+      executedAt?: Date;
     } = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (reason !== undefined) updateData.reason = reason;
-    if (scheduleChange !== undefined) updateData.scheduleChange = scheduleChange;
+    if (scheduleChange !== undefined) updateData.scheduleChange = scheduleChange ? Number(scheduleChange) : null;
     
     if (costChange !== undefined) {
       updateData.costChange = costChange;
-      updateData.revisedBudget = (existingCO.originalBudget || 0) + costChange;
+      updateData.revisedBudget = ((existingCO as any).originalBudget || 0) + costChange;
     }
     
     if (status !== undefined) {
@@ -93,8 +96,8 @@ export async function PATCH(
         updateData.approvedById = session.user.id;
         // Update project budget
         await prisma.project.update({
-          where: { id: existingCO.projectId },
-          data: { budget: (existingCO.originalBudget || 0) + (existingCO.costChange || 0) }
+          where: { id: (existingCO as any).projectId },
+          data: { budget: ((existingCO as any).originalBudget || 0) + ((existingCO as any).costChange || 0) }
         });
       }
       if (status === 'EXECUTED') {
@@ -104,7 +107,7 @@ export async function PATCH(
 
     const changeOrder = await prisma.changeOrder.update({
       where: { id },
-      data: updateData,
+      data: updateData as any,
       include: {
         project: { select: { id: true, name: true } },
         requestedBy: { select: { id: true, name: true } },
@@ -165,16 +168,16 @@ export async function DELETE(
     if (error) return error;
 
     // Only allow deletion of draft/rejected COs
-    if (!['DRAFT', 'REJECTED'].includes(changeOrder.status)) {
+    if (!['DRAFT', 'REJECTED'].includes((changeOrder as any).status)) {
       return NextResponse.json({ error: 'Can only delete draft or rejected change orders' }, { status: 400 });
     }
 
     await prisma.changeOrder.delete({ where: { id } });
 
     // Broadcast deletion
-    broadcastToOrganization(changeOrder.project.organizationId, {
+    broadcastToOrganization((changeOrder as any).project.organizationId, {
       type: 'change_order_deleted',
-      payload: { id, number: changeOrder.number, title: changeOrder.title },
+      payload: { id, number: (changeOrder as any).number, title: (changeOrder as any).title },
       timestamp: new Date().toISOString()
     });
 

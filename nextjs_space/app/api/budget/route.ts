@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(request: NextRequest) {
@@ -17,24 +18,19 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const status = searchParams.get("status");
 
-    const where: { 
-      projectId?: string; 
-      project?: { organizationId: string | undefined }; 
-      category?: string; 
-      status?: string 
-    } = {};
+    const where: Prisma.CostItemWhereInput = {};
 
     if (projectId) {
       where.projectId = projectId;
     } else {
       // Filter by organization's projects
       where.project = {
-        organizationId: session.user.organizationId
+        organizationId: session.user.organizationId ?? undefined
       };
     }
 
-    if (category && category !== "all") where.category = category;
-    if (status && status !== "all") where.status = status;
+    if (category && category !== "all") where.category = category as any;
+    if (status && status !== "all") where.status = status as any;
 
     const costItems = await prisma.costItem.findMany({
       where,

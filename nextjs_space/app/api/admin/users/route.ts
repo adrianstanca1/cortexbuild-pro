@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
@@ -17,18 +18,14 @@ export async function GET(req: NextRequest) {
     const role = searchParams.get("role");
     const search = searchParams.get("search");
 
-    const where: { 
-      organizationId?: string; 
-      role?: string; 
-      OR?: Array<{ name: { contains: string; mode: string } } | { email: { contains: string; mode: string } }>
-    } = {};
+    const where: Prisma.UserWhereInput = {};
     
     if (organizationId) where.organizationId = organizationId;
-    if (role) where.role = role;
+    if (role) where.role = role as any;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } }
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { email: { contains: search, mode: Prisma.QueryMode.insensitive } }
       ];
     }
 

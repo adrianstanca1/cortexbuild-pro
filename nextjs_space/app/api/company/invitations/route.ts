@@ -28,19 +28,16 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where: {
-      organizationId: string;
-      status?: string;
-    } = {
+    const whereClause: any = {
       organizationId: user.organizationId,
     };
 
     if (status && status !== "all") {
-      where.status = status;
+      whereClause.status = status;
     }
 
     const invitations = await prisma.teamInvitation.findMany({
-      where,
+      where: whereClause,
       include: {
         invitedBy: {
           select: { name: true, email: true }
