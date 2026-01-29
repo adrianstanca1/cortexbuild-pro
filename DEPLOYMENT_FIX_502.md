@@ -78,7 +78,7 @@ At minimum, you need:
 4. **Check App Container Health**
    ```bash
    # Check if app is listening on correct interface
-   docker exec cortexbuild-app sh -c "wget -qO- http://0.0.0.0:3000/api/auth/providers"
+   docker exec cortexbuild-app sh -c "wget -qO- http://localhost:3000/api/auth/providers"
    ```
    
    Should return JSON with authentication providers.
