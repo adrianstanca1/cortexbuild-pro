@@ -149,6 +149,9 @@ Launching Integrated Production Server...
    
    # Inspect the network (the prefix depends on the docker-compose project name, e.g. "deployment_cortexbuild-network")
    docker network inspect deployment_cortexbuild-network
+   
+   # Verify app container can be reached
+   docker exec cortexbuild-nginx ping -c 3 app
    ```
 
 4. **Check Container Health**
