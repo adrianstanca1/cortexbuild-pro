@@ -26,18 +26,18 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
-    const whereClause: any = { organizationId: orgId };
+    const whereClause: Prisma.TeamMemberWhereInput = { organizationId: orgId };
 
     if (search) {
       whereClause.OR = [
         { user: { name: { contains: search, mode: Prisma.QueryMode.insensitive } } },
         { user: { email: { contains: search, mode: Prisma.QueryMode.insensitive } } },
         { jobTitle: { contains: search, mode: Prisma.QueryMode.insensitive } }
-      ];
+      ] as any;
     }
 
     if (role !== "all") {
-      whereClause.user = { role };
+      whereClause.user = { role } as any;
     }
 
     const [members, total] = await Promise.all([
@@ -104,6 +104,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, jobTitle, department } = body;
 
+    if (!user.organizationId) {
+      return NextResponse.json({ error: "No organization" }, { status: 400 });
+    }
+
     // Check if team member already exists
     const existing = await prisma.teamMember.findFirst({
       where: { userId, organizationId: user.organizationId }
@@ -116,7 +120,7 @@ export async function POST(request: NextRequest) {
     const member = await prisma.teamMember.create({
       data: {
         userId,
-        organizationId: user.organizationId!,
+        organizationId: user.organizationId,
         jobTitle,
         department
       },

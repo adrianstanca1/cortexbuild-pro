@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { parseEntitlements } from "@/lib/entitlements";
 import { sendEmail, generateTeamInvitationEmail } from "@/lib/email-service";
+import { Prisma } from "@prisma/client";
 
 // GET - List team invitations for the organization
 export async function GET(req: NextRequest) {
@@ -28,12 +29,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const whereClause: any = {
+    const whereClause: Prisma.TeamInvitationWhereInput = {
       organizationId: user.organizationId,
     };
 
     if (status && status !== "all") {
-      whereClause.status = status;
+      whereClause.status = status as any;
     }
 
     const invitations = await prisma.teamInvitation.findMany({
