@@ -18,7 +18,7 @@ export async function GET(
 
     const costItem = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -52,7 +52,7 @@ export async function PATCH(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -126,7 +126,7 @@ export async function DELETE(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }

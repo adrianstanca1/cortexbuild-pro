@@ -67,7 +67,7 @@ export async function PATCH(
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: id,
+        id,
         organizationId: user.organizationId,
       },
       include: {
@@ -194,7 +194,7 @@ export async function DELETE(
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: id,
+        id,
         organizationId: user.organizationId,
       }
     });
