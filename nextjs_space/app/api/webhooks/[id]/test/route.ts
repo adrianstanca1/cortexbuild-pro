@@ -7,9 +7,10 @@ import { testWebhook } from '@/lib/webhook-dispatcher';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,14 +27,14 @@ export async function POST(
 
     // Verify webhook belongs to organization
     const webhook = await prisma.webhook.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!webhook) {
       return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
     }
 
-    const result = await testWebhook(params.id);
+    const result = await testWebhook(id);
     
     return NextResponse.json(result);
   } catch (error) {

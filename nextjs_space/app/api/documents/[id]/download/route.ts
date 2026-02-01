@@ -8,16 +8,17 @@ import { getFileUrl } from "@/lib/s3";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const document = await prisma.document.findUnique({
-      where: { id: params?.id ?? "" },
+      where: { id },
       include: {
         project: { select: { organizationId: true } }
       }

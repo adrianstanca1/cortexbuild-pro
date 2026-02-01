@@ -7,9 +7,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(
 
     const subcontractor = await prisma.subcontractor.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: session.user.organizationId ?? ""
       },
       include: {
@@ -52,9 +53,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,7 +64,7 @@ export async function PATCH(
 
     const existing = await prisma.subcontractor.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: session.user.organizationId ?? ""
       }
     });
@@ -78,7 +80,7 @@ export async function PATCH(
     } = body;
 
     const subcontractor = await prisma.subcontractor.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(companyName && { companyName }),
         ...(contactName && { contactName }),
@@ -128,9 +130,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -138,7 +141,7 @@ export async function DELETE(
 
     const existing = await prisma.subcontractor.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: session.user.organizationId ?? ""
       }
     });
@@ -147,13 +150,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
     }
 
-    await prisma.subcontractor.delete({ where: { id: params.id } });
+    await prisma.subcontractor.delete({ where: { id } });
 
     await prisma.activityLog.create({
       data: {
         action: "subcontractor_deleted",
         entityType: "Subcontractor",
-        entityId: params.id,
+        entityId: id,
         entityName: existing.companyName,
         details: `Deleted subcontractor: ${existing.companyName}`,
         userId: session.user.id
@@ -162,7 +165,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "subcontractor_deleted",
-      data: { id: params.id }
+      data: { id }
     });
 
     return NextResponse.json({ success: true });

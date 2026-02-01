@@ -6,9 +6,10 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: projectId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,8 +19,6 @@ export async function GET(
     if (!user.organizationId) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
-
-    const projectId = params.id;
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({

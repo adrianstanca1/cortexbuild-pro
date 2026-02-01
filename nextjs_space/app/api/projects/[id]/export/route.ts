@@ -7,9 +7,10 @@ import { prisma } from '@/lib/db';
 // Export project data in various formats
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,7 +27,7 @@ export async function GET(
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -53,7 +54,7 @@ export async function GET(
     // Fetch requested sections
     if (includeAll || sections.includes('tasks')) {
       exportData.tasks = await prisma.task.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, title: true, description: true, status: true, priority: true,
           dueDate: true, createdAt: true, completedAt: true,
@@ -64,7 +65,7 @@ export async function GET(
 
     if (includeAll || sections.includes('rfis')) {
       exportData.rfis = await prisma.rFI.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, number: true, subject: true, question: true, answer: true,
           status: true, createdAt: true, answeredAt: true,
@@ -76,7 +77,7 @@ export async function GET(
 
     if (includeAll || sections.includes('submittals')) {
       exportData.submittals = await prisma.submittal.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, number: true, title: true, description: true, status: true,
           specSection: true, createdAt: true,
@@ -87,7 +88,7 @@ export async function GET(
 
     if (includeAll || sections.includes('changeOrders')) {
       exportData.changeOrders = await prisma.changeOrder.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, number: true, title: true, description: true, costChange: true,
           status: true, reason: true, createdAt: true,
@@ -98,7 +99,7 @@ export async function GET(
 
     if (includeAll || sections.includes('dailyReports')) {
       exportData.dailyReports = await prisma.dailyReport.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, reportDate: true, weather: true, temperature: true,
           manpowerCount: true, workPerformed: true, materialsUsed: true, delays: true,
@@ -109,7 +110,7 @@ export async function GET(
 
     if (includeAll || sections.includes('safety')) {
       exportData.safetyIncidents = await prisma.safetyIncident.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, description: true, severity: true,
           incidentDate: true, location: true, correctiveAction: true,
@@ -120,7 +121,7 @@ export async function GET(
 
     if (includeAll || sections.includes('punchLists')) {
       exportData.punchLists = await prisma.punchList.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, number: true, title: true, description: true, status: true,
           priority: true, category: true, location: true, createdAt: true,
@@ -131,7 +132,7 @@ export async function GET(
 
     if (includeAll || sections.includes('inspections')) {
       exportData.inspections = await prisma.inspection.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, number: true, title: true, inspectionType: true, status: true,
           scheduledDate: true, completedDate: true, inspectorName: true,
@@ -142,7 +143,7 @@ export async function GET(
 
     if (includeAll || sections.includes('meetings')) {
       exportData.meetings = await prisma.meetingMinutes.findMany({
-        where: { projectId: params.id },
+        where: { projectId: id },
         select: {
           id: true, title: true, meetingType: true, meetingDate: true,
           location: true, duration: true, summary: true,

@@ -6,9 +6,10 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +21,7 @@ export async function GET(
     }
 
     const webhook = await prisma.webhook.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
       include: {
         deliveries: {
           orderBy: { createdAt: 'desc' },
@@ -42,9 +43,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -60,7 +62,7 @@ export async function PATCH(
     }
 
     const existing = await prisma.webhook.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!existing) {
@@ -71,7 +73,7 @@ export async function PATCH(
     const { name, url, events, secret, headers, isActive } = body;
 
     const webhook = await prisma.webhook.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name !== undefined && { name }),
         ...(url !== undefined && { url }),
@@ -91,9 +93,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -109,14 +112,14 @@ export async function DELETE(
     }
 
     const existing = await prisma.webhook.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!existing) {
       return NextResponse.json({ error: 'Webhook not found' }, { status: 404 });
     }
 
-    await prisma.webhook.delete({ where: { id: params.id } });
+    await prisma.webhook.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
