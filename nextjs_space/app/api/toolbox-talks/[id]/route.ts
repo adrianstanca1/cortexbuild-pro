@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,7 +22,7 @@ export async function GET(
 
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: orgId }
       },
       include: {
@@ -49,9 +50,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -63,7 +65,7 @@ export async function PATCH(
 
     // Verify toolbox talk exists and belongs to org
     const existing = await prisma.toolboxTalk.findFirst({
-      where: { id: params.id, project: { organizationId: orgId } },
+      where: { id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -72,7 +74,7 @@ export async function PATCH(
     }
 
     const toolboxTalk = await prisma.toolboxTalk.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: body.title,
         topic: body.topic,
@@ -140,9 +142,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -152,7 +155,7 @@ export async function DELETE(
     const userId = (session.user as any).id;
 
     const existing = await prisma.toolboxTalk.findFirst({
-      where: { id: params.id, project: { organizationId: orgId } },
+      where: { id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -160,14 +163,14 @@ export async function DELETE(
       return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
     }
 
-    await prisma.toolboxTalk.delete({ where: { id: params.id } });
+    await prisma.toolboxTalk.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({
       data: {
         action: "TOOLBOX_TALK_DELETED",
         entityType: "TOOLBOX_TALK",
-        entityId: params.id,
+        entityId: id,
         userId,
         projectId: existing.projectId,
         details: JSON.stringify({ title: existing.title })
@@ -176,7 +179,7 @@ export async function DELETE(
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_deleted",
-      data: { id: params.id }
+      data: { id }
     });
 
     return NextResponse.json({ success: true });

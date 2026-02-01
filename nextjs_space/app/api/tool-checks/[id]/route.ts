@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,7 +21,7 @@ export async function GET(
 
     const check = await prisma.toolCheck.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: orgId }
       },
       include: {
@@ -42,9 +43,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -54,7 +56,7 @@ export async function PATCH(
     const body = await request.json();
 
     const existing = await prisma.toolCheck.findFirst({
-      where: { id: params.id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!existing) {
@@ -62,7 +64,7 @@ export async function PATCH(
     }
 
     const check = await prisma.toolCheck.update({
-      where: { id: params.id },
+      where: { id },
       data: body,
       include: {
         project: { select: { id: true, name: true } },

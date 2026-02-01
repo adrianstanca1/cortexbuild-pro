@@ -7,16 +7,17 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const defect = await prisma.defect.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         photos: true,
@@ -36,9 +37,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,7 +53,7 @@ export async function PATCH(
     } = body;
 
     const existingDefect = await prisma.defect.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -87,7 +89,7 @@ export async function PATCH(
     }
 
     const defect = await prisma.defect.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -111,16 +113,17 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const defect = await prisma.defect.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -128,7 +131,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Defect not found" }, { status: 404 });
     }
 
-    await prisma.defect.delete({ where: { id: params.id } });
+    await prisma.defect.delete({ where: { id } });
 
     if (defect.project.organizationId) {
       broadcastToOrganization(defect.project.organizationId, {

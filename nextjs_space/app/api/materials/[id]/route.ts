@@ -7,9 +7,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(
 
     const material = await prisma.material.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -45,9 +46,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -55,7 +57,7 @@ export async function PATCH(
 
     const existing = await prisma.material.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -77,7 +79,7 @@ export async function PATCH(
     const totalCost = newQuantityNeeded * newUnitCost;
 
     const material = await prisma.material.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
@@ -130,9 +132,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -140,7 +143,7 @@ export async function DELETE(
 
     const existing = await prisma.material.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -150,13 +153,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Material not found" }, { status: 404 });
     }
 
-    await prisma.material.delete({ where: { id: params.id } });
+    await prisma.material.delete({ where: { id } });
 
     await prisma.activityLog.create({
       data: {
         action: "material_deleted",
         entityType: "Material",
-        entityId: params.id,
+        entityId: id,
         entityName: existing.name,
         details: `Deleted material: ${existing.name}`,
         userId: session.user.id,
@@ -166,7 +169,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "material_deleted",
-      data: { id: params.id, projectId: existing.projectId }
+      data: { id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });
