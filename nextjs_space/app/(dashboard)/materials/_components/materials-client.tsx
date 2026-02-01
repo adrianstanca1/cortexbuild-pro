@@ -29,7 +29,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useRealtimeSubscription } from "@/components/realtime-provider";
+import { useEntitySubscription } from "@/hooks/use-entity-subscription";
+import { MATERIAL_STATUS_CONFIG } from "@/lib/constants/status-configs";
 
 interface Material {
   id: string;
@@ -110,8 +111,8 @@ export function MaterialsClient({
     notes: ""
   });
 
-  const handleMaterialEvent = useCallback(() => {
-    router.refresh();
+  // Use centralized realtime subscription hook
+  useEntitySubscription('material');
   }, [router]);
 
   useRealtimeSubscription(
