@@ -165,12 +165,12 @@ export async function GET(request: NextRequest) {
       },
       tasks: {
         total: tasks.reduce((acc: number, t: any) => acc + t._count, 0),
-        byStatus: tasks.filter((t: any) => t.status).reduce((acc: any, t: any) => {
-          acc[t.status] = (acc[t.status] || 0) + t._count;
+        byStatus: tasks.reduce((acc: any, t: any) => {
+          if (t.status) acc[t.status] = (acc[t.status] || 0) + t._count;
           return acc;
         }, {} as Record<string, number>),
-        byPriority: tasks.filter((t: any) => t.priority).reduce((acc: any, t: any) => {
-          acc[t.priority] = (acc[t.priority] || 0) + t._count;
+        byPriority: tasks.reduce((acc: any, t: any) => {
+          if (t.priority) acc[t.priority] = (acc[t.priority] || 0) + t._count;
           return acc;
         }, {} as Record<string, number>),
         overdue: overdueTasks,
@@ -207,17 +207,21 @@ export async function GET(request: NextRequest) {
       quality: {
         punchLists: {
           total: punchLists.reduce((acc: number, p: any) => acc + p._count, 0),
-          byStatus: punchLists.filter((p: any) => p.status).reduce((acc: any, p: any) => {
-            acc[p.status] = (acc[p.status] || 0) + p._count;
+          byStatus: punchLists.reduce((acc: any, p: any) => {
+            if (p.status) acc[p.status] = (acc[p.status] || 0) + p._count;
             return acc;
           }, {} as Record<string, number>),
-          critical: punchLists.filter((p: any) => p.priority === 'CRITICAL').reduce((acc: number, p: any) => acc + p._count, 0),
+          critical: punchLists.reduce((acc: number, p: any) => 
+            p.priority === 'CRITICAL' ? acc + p._count : acc, 0
+          ),
         },
         inspections: {
           total: inspections.reduce((acc, i) => acc + (typeof i._count === 'number' ? i._count : 0), 0),
-          byStatus: inspections.filter(i => i.status).reduce((acc, i) => {
-            const count = typeof i._count === 'number' ? i._count : 0;
-            acc[i.status] = (acc[i.status] || 0) + count;
+          byStatus: inspections.reduce((acc, i) => {
+            if (i.status) {
+              const count = typeof i._count === 'number' ? i._count : 0;
+              acc[i.status] = (acc[i.status] || 0) + count;
+            }
             return acc;
           }, {} as Record<string, number>),
           upcoming: upcomingInspections,

@@ -255,15 +255,18 @@ export async function GET(
     // Apply pagination
     const paginatedPhotos = photos.slice(offset, offset + limit);
 
-    // Get counts by source
-    const counts = {
+    // Get counts by source with single-pass reduce for better performance
+    const counts = photos.reduce((acc, p) => {
+      acc[p.source]++;
+      return acc;
+    }, {
       total: photos.length,
-      daily_report: photos.filter(p => p.source === 'daily_report').length,
-      safety_incident: photos.filter(p => p.source === 'safety_incident').length,
-      punch_list: photos.filter(p => p.source === 'punch_list').length,
-      inspection: photos.filter(p => p.source === 'inspection').length,
-      document: photos.filter(p => p.source === 'document').length
-    };
+      daily_report: 0,
+      safety_incident: 0,
+      punch_list: 0,
+      inspection: 0,
+      document: 0
+    });
 
     return NextResponse.json({
       photos: paginatedPhotos,

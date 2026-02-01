@@ -36,16 +36,30 @@ export async function GET(req: NextRequest) {
       filteredInstances = filteredInstances.filter(i => i.definition.isBuiltIn);
     }
 
-    // Get summary stats
-    const stats = {
+    // Get summary stats with single-pass reduce for better performance
+    const stats = filteredInstances.reduce((acc, i) => {
+      // Count by status
+      if (i.status === "ACTIVE") acc.active++;
+      else if (i.status === "INACTIVE") acc.inactive++;
+      else if (i.status === "DISCONNECTED") acc.disconnected++;
+      else if (i.status === "NOT_CONFIGURED") acc.notConfigured++;
+      
+      // Count core services
+      if (i.definition.isPlatformCore) {
+        acc.coreServices++;
+        if (i.status === "ACTIVE") acc.coreActive++;
+      }
+      
+      return acc;
+    }, {
       total: filteredInstances.length,
-      active: filteredInstances.filter(i => i.status === "ACTIVE").length,
-      inactive: filteredInstances.filter(i => i.status === "INACTIVE").length,
-      disconnected: filteredInstances.filter(i => i.status === "DISCONNECTED").length,
-      notConfigured: filteredInstances.filter(i => i.status === "NOT_CONFIGURED").length,
-      coreServices: filteredInstances.filter(i => i.definition.isPlatformCore).length,
-      coreActive: filteredInstances.filter(i => i.definition.isPlatformCore && i.status === "ACTIVE").length
-    };
+      active: 0,
+      inactive: 0,
+      disconnected: 0,
+      notConfigured: 0,
+      coreServices: 0,
+      coreActive: 0
+    });
 
     // Get categories for filtering
     const categories = [...new Set(PLATFORM_SERVICES.map(s => s.category))];
