@@ -71,7 +71,7 @@ Used in: deploy-vps.yml workflow
 - Check your VPS provider dashboard
 - Or run `curl ifconfig.me` on your VPS
 
-#### VPS_USERNAME
+#### VPS_USER
 
 ```
 Description: SSH username for VPS access
@@ -430,7 +430,7 @@ gh auth login
 
 # Add secrets from command line
 gh secret set VPS_HOST --body "192.168.1.100"
-gh secret set VPS_USERNAME --body "ubuntu"
+gh secret set VPS_USER --body "ubuntu"
 gh secret set POSTGRES_PASSWORD --body "$(openssl rand -base64 32)"
 
 # Add secret from file (useful for SSH keys)
@@ -452,7 +452,7 @@ Create a `secrets.txt` file (DO NOT commit this file):
 
 # Required Secrets
 gh secret set VPS_HOST --body "your-vps-ip"
-gh secret set VPS_USERNAME --body "ubuntu"
+gh secret set VPS_USER --body "ubuntu"
 gh secret set VPS_SSH_KEY < ~/.ssh/cortexbuild_deploy
 gh secret set DATABASE_URL --body "postgresql://user:pass@host:5432/db"
 gh secret set POSTGRES_PASSWORD --body "your-secure-password"
@@ -487,7 +487,7 @@ chmod +x secrets.txt
 
 **Required:**
 - `VPS_HOST`
-- `VPS_USERNAME`
+- `VPS_USER`
 - `VPS_SSH_KEY`
 - `POSTGRES_PASSWORD`
 - `NEXTAUTH_SECRET`
@@ -610,7 +610,7 @@ gh secret list
 
 # Expected output:
 VPS_HOST                 Updated 2026-01-28
-VPS_USERNAME             Updated 2026-01-28
+VPS_USER                 Updated 2026-01-28
 VPS_SSH_KEY              Updated 2026-01-28
 DATABASE_URL             Updated 2026-01-28
 POSTGRES_PASSWORD        Updated 2026-01-28
@@ -641,7 +641,7 @@ jobs:
           echo "Testing secrets (values hidden)..."
           
           [ -z "${{ secrets.VPS_HOST }}" ] && echo "❌ VPS_HOST missing" || echo "✅ VPS_HOST set"
-          [ -z "${{ secrets.VPS_USERNAME }}" ] && echo "❌ VPS_USERNAME missing" || echo "✅ VPS_USERNAME set"
+          [ -z "${{ secrets.VPS_USER }}" ] && echo "❌ VPS_USER missing" || echo "✅ VPS_USER set"
           [ -z "${{ secrets.VPS_SSH_KEY }}" ] && echo "❌ VPS_SSH_KEY missing" || echo "✅ VPS_SSH_KEY set"
           [ -z "${{ secrets.DATABASE_URL }}" ] && echo "❌ DATABASE_URL missing" || echo "✅ DATABASE_URL set"
           [ -z "${{ secrets.POSTGRES_PASSWORD }}" ] && echo "❌ POSTGRES_PASSWORD missing" || echo "✅ POSTGRES_PASSWORD set"
@@ -758,7 +758,7 @@ Use this checklist to ensure all secrets are configured:
 ### Required Secrets ✅
 
 - [ ] `VPS_HOST` - VPS IP address or hostname
-- [ ] `VPS_USERNAME` - SSH username for VPS
+- [ ] `VPS_USER` - SSH username for VPS
 - [ ] `VPS_SSH_KEY` - Private SSH key for VPS access
 - [ ] `DATABASE_URL` - PostgreSQL connection string
 - [ ] `POSTGRES_PASSWORD` - Database password
@@ -802,7 +802,7 @@ echo "Setting up GitHub secrets for CortexBuild Pro..."
 
 # VPS Configuration
 gh secret set VPS_HOST --body "YOUR_VPS_IP"
-gh secret set VPS_USERNAME --body "ubuntu"
+gh secret set VPS_USER --body "ubuntu"
 gh secret set VPS_SSH_KEY < ~/.ssh/cortexbuild_deploy
 
 # Database

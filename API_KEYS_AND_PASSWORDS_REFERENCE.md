@@ -480,7 +480,7 @@ Where to use:
   - GitHub Secret: VPS_HOST (for automated deployment)
 ```
 
-#### VPS_USER or VPS_USERNAME
+#### VPS_USER
 ```
 Description: SSH username for VPS access
 Example: root, ubuntu, or cortexbuild
@@ -491,7 +491,7 @@ Common values:
   - Custom user: Your created username
 
 Where to use:
-  - GitHub Secret: VPS_USER or VPS_USERNAME
+  - GitHub Secret: VPS_USER
 ```
 
 #### VPS_SSH_KEY
