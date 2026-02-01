@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { ComplianceClient } from "./_components/compliance-client";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Render the server-side Compliance page for the authenticated user's organization.
  *

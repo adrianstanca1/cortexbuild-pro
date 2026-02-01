@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { PermitsClient } from "./_components/permits-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function PermitsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { DefectsClient } from "./_components/defects-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function DefectsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

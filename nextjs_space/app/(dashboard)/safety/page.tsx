@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { SafetyClient } from './_components/safety-client';
 
+export const dynamic = "force-dynamic";
+
 export default async function SafetyPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/login');

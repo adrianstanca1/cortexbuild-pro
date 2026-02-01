@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db';
 import { ReportsClient } from './_components/reports-client';
 import { Project, Task, TeamMember, ActivityLog } from '@prisma/client';
 
+export const dynamic = "force-dynamic";
+
 type ProjectWithTasks = Project & {
   tasks: Task[];
   _count: { tasks: number; documents: number; teamMembers: number };
