@@ -136,13 +136,13 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Use helper to fetch and validate access
+    // Use helper to fetch and validate access - include number and subject
     const { resource: rfi, error } = await fetchResourceWithProjectAccess(
       'RFI',
       id,
       session,
       'rFI',
-      { project: { select: { organizationId: true } } }
+      { id: true, number: true, subject: true, project: { select: { organizationId: true } } }
     );
 
     if (error) return error;
@@ -150,9 +150,9 @@ export async function DELETE(
     await prisma.rFI.delete({ where: { id } });
 
     // Broadcast deletion
-    broadcastToOrganization(rfi.project.organizationId, {
+    broadcastToOrganization((rfi as any).project.organizationId, {
       type: 'rfi_deleted',
-      payload: { id, number: rfi.number, subject: rfi.subject },
+      payload: { id, number: (rfi as any).number, subject: (rfi as any).subject },
       timestamp: new Date().toISOString()
     });
 

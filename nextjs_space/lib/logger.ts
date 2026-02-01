@@ -309,9 +309,9 @@ export class PerformanceTimer {
   private label: string;
   private logger: Logger;
   
-  constructor(label: string, logger: Logger = logger) {
+  constructor(label: string, loggerInstance: Logger = logger) {
     this.label = label;
-    this.logger = logger;
+    this.logger = loggerInstance;
     this.startTime = performance.now();
     this.logger.debug(`${label} started`);
   }

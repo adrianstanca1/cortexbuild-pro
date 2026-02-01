@@ -167,13 +167,13 @@ export async function POST(request: NextRequest) {
     // Broadcast event
     broadcastToOrganization(user.organizationId, {
       type: 'project_created',
-      data: { project, template: template.name, tasksCreated: createdTasks.length }
+      data: { project, template: template.name, tasksCreated: tasksData.length }
     });
 
     return NextResponse.json({
       project,
-      tasksCreated: createdTasks.length,
-      message: `Project created successfully with ${createdTasks.length} tasks from ${template.name} template`
+      tasksCreated: tasksData.length,
+      message: `Project created successfully with ${tasksData.length} tasks from ${template.name} template`
     });
   } catch (error) {
     console.error('Error creating project from template:', error);

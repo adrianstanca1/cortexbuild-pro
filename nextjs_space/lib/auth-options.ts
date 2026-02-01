@@ -60,16 +60,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       GoogleProvider({
         clientId,
         clientSecret,
-        profile(profile) {
+        profile(profile: any) {
           return {
             id: profile.sub,
             name: profile.name,
             email: profile.email,
             image: profile.picture,
             role: "FIELD_WORKER", // Default role for Google-authenticated users
-          };
+          } as any;
         },
-      })
+      }) as any
     );
   } else {
     console.warn("Google OAuth credentials are set but empty. Google sign-in will not be available.");
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               email: profile.email as string,
               name: profile.name as string,
-              avatarUrl: profile.picture as string,
+              avatarUrl: (profile as any).picture as string,
               password: "", // No password for Google auth
               organizationId: null, // Will be set later when joining org
               role: "FIELD_WORKER", // Default role
@@ -111,7 +111,7 @@ export const authOptions: NextAuthOptions = {
           where: { id: existingUser.id },
           data: {
             name: profile.name as string,
-            avatarUrl: profile.picture as string,
+            avatarUrl: (profile as any).picture as string,
             lastLogin: new Date()
           }
         });

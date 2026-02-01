@@ -27,7 +27,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      const token = (session.user as any).accessToken || session.accessToken;
+      const token = (session as any).accessToken || (session.user as any).accessToken;
       const userId = (session.user as any).id || session.user?.id;
       
       // Only connect if we have a valid token
