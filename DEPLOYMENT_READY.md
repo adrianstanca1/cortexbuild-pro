@@ -3,7 +3,7 @@
 **Status:** ✅ **READY FOR VPS DEPLOYMENT**  
 **Last Updated:** February 1, 2026  
 **Branch:** `copilot/deploy-to-vps`  
-**Deployment Package:** `cortexbuild_vps_deploy.tar.gz` (926K, 777 files)
+**Deployment Package:** `cortexbuild_vps_deploy.tar.gz` (926KB, 777 files)
 
 ---
 
@@ -24,7 +24,7 @@
 
 ### Deployment Package
 - ✅ **Package Created:** `cortexbuild_vps_deploy.tar.gz`
-- ✅ **Package Size:** 926K (optimized)
+- ✅ **Package Size:** 926KB (optimized)
 - ✅ **Total Files:** 777 files
 - ✅ **Includes:**
   - Complete Next.js application
@@ -43,7 +43,14 @@ Deploy directly on your VPS with automatic setup:
 
 ```bash
 # Run this command on your VPS server
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/deploy-to-vps/deploy-to-vps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+```
+
+**Security Note:** For enhanced security, you can review the script before executing:
+```bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh > deploy.sh
+less deploy.sh  # Review the script
+bash deploy.sh  # Execute after review
 ```
 
 **What it does:**

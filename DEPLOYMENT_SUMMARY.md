@@ -61,7 +61,14 @@ You now have **three proven methods** to deploy CortexBuild Pro to your VPS:
 
 ```bash
 # Run on your VPS
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/deploy-to-vps/deploy-to-vps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+```
+
+**Security Note:** For enhanced security, you can review the script before executing:
+```bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh > deploy.sh
+less deploy.sh  # Review the script
+bash deploy.sh  # Execute after review
 ```
 
 **Time:** 10-15 minutes  

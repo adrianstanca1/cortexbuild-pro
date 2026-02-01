@@ -57,7 +57,14 @@ CortexBuild Pro is **fully prepared** for VPS deployment. All code is committed,
 
 **Command:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/deploy-to-vps/deploy-to-vps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+```
+
+**Security Note:** For enhanced security, you can review the script before executing:
+```bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh > deploy.sh
+less deploy.sh  # Review the script
+bash deploy.sh  # Execute after review
 ```
 
 **Time:** ~10-15 minutes  
@@ -191,15 +198,15 @@ cortexbuild_vps_deploy.tar.gz (926KB, 777 files)
 │   ├── entrypoint.sh
 │   ├── production-server.js
 │   └── package.json
-├── documentation/
-│   ├── DEPLOYMENT_READY.md
-│   ├── VPS_DEPLOYMENT_INSTRUCTIONS.md
-│   ├── TROUBLESHOOTING.md
-│   └── API_SETUP_GUIDE.md
-└── scripts/
-    ├── deploy-now.sh
-    ├── verify-deployment.sh
-    └── rollback-deployment.sh
+├── README.md
+├── VPS_DEPLOYMENT_INSTRUCTIONS.md
+├── DEPLOYMENT_QUICK_REFERENCE.md
+├── PRODUCTION_DEPLOYMENT.md
+├── TROUBLESHOOTING.md
+├── API_SETUP_GUIDE.md
+├── deploy-now.sh
+├── verify-deployment.sh
+└── rollback-deployment.sh
 ```
 
 ### Key Files Verified
