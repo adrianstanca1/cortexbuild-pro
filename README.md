@@ -36,7 +36,34 @@ This automated script will:
 
 **⏱️ Time:** ~10-15 minutes | **📖 Guide:** [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)
 
-### Option 2: Automated CI/CD Deployment with GitHub Actions
+### Option 2: VPS Deployment Package (Recommended for Production 📦)
+
+Deploy using a pre-packaged tarball - perfect for offline or restricted environments:
+
+```bash
+# On your local machine
+./one-command-deploy.sh 'YourVPSPassword'
+```
+
+Or manually:
+
+```bash
+# 1. Create deployment package
+./create-deployment-package.sh
+
+# 2. Upload and deploy to VPS
+sshpass -p 'YourPassword' scp cortexbuild_vps_deploy.tar.gz root@72.62.132.43:/root/cortexbuild/
+sshpass -p 'YourPassword' ssh root@72.62.132.43 '
+cd /root/cortexbuild
+tar -xzf cortexbuild_vps_deploy.tar.gz
+cd cortexbuild/deployment
+nohup docker compose build --no-cache app > /root/docker_build.log 2>&1 &
+'
+```
+
+**📖 Complete guide:** [VPS_DEPLOYMENT_PACKAGE_GUIDE.md](VPS_DEPLOYMENT_PACKAGE_GUIDE.md) | **⚡ Quick Ref:** [VPS_QUICK_DEPLOY.md](VPS_QUICK_DEPLOY.md)
+
+### Option 3: Automated CI/CD Deployment with GitHub Actions
 
 Set up continuous deployment with GitHub Actions:
 
@@ -46,7 +73,7 @@ Set up continuous deployment with GitHub Actions:
 
 **📖 Setup guide:** [VPS_DEPLOYMENT_AUTOMATION.md](VPS_DEPLOYMENT_AUTOMATION.md)
 
-### Option 3: Manual Docker Deployment
+### Option 4: Manual Docker Deployment
 
 Deploy using pre-built Docker image:
 
