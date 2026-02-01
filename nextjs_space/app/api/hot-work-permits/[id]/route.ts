@@ -7,16 +7,17 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const permit = await prisma.hotWorkPermit.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         requestedBy: { select: { id: true, name: true } },
@@ -38,9 +39,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,7 +51,7 @@ export async function PATCH(
     const data = await request.json();
 
     const existing = await prisma.hotWorkPermit.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -76,7 +78,7 @@ export async function PATCH(
     if (data.validTo) updateData.validTo = new Date(data.validTo);
 
     const permit = await prisma.hotWorkPermit.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true, organizationId: true } },

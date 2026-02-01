@@ -8,15 +8,15 @@ import { createServiceAdapter } from "@/lib/service-adapters";
 // POST - Test a specific service connection
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
     const body = await req.json().catch(() => ({}));
     const environment = body.environment || "PRODUCTION";
 

@@ -7,9 +7,10 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,7 +20,7 @@ export async function POST(
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -30,12 +31,12 @@ export async function POST(
     const acknowledgement = await prisma.rAMSAcknowledgement.upsert({
       where: {
         riskAssessmentId_workerId: {
-          riskAssessmentId: params.id,
+          riskAssessmentId: id,
           workerId: session.user.id
         }
       },
       create: {
-        riskAssessmentId: params.id,
+        riskAssessmentId: id,
         workerId: session.user.id,
         workerName: session.user.name || 'Unknown',
         signatureData,
@@ -51,7 +52,7 @@ export async function POST(
 
     broadcastToOrganization(riskAssessment.project.organizationId, {
       type: 'rams_acknowledged',
-      data: { riskAssessmentId: params.id, acknowledgement }
+      data: { riskAssessmentId: id, acknowledgement }
     });
 
     return NextResponse.json(acknowledgement);
@@ -64,9 +65,10 @@ export async function POST(
 // Guest acknowledgement
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { workerName, company, signatureData } = await request.json();
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
@@ -75,7 +77,7 @@ export async function PUT(
     }
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -85,7 +87,7 @@ export async function PUT(
 
     const acknowledgement = await prisma.rAMSAcknowledgement.create({
       data: {
-        riskAssessmentId: params.id,
+        riskAssessmentId: id,
         workerName,
         company,
         signatureData,
@@ -95,7 +97,7 @@ export async function PUT(
 
     broadcastToOrganization(riskAssessment.project.organizationId, {
       type: 'rams_acknowledged',
-      data: { riskAssessmentId: params.id, acknowledgement }
+      data: { riskAssessmentId: id, acknowledgement }
     });
 
     return NextResponse.json(acknowledgement);

@@ -8,16 +8,17 @@ import bcrypt from "bcryptjs";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         organization: true,
         teamMemberships: {
@@ -57,9 +58,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -68,7 +70,7 @@ export async function PATCH(
     const body = await req.json();
     const { name, email, role, organizationId, phone, password } = body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: params.id } });
+    const existingUser = await prisma.user.findUnique({ where: { id: id } });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -100,7 +102,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
       select: {
         id: true,
@@ -119,16 +121,16 @@ export async function PATCH(
       // Remove old team membership
       if (existingUser.organizationId) {
         await prisma.teamMember.deleteMany({
-          where: { userId: params.id, organizationId: existingUser.organizationId }
+          where: { userId: id, organizationId: existingUser.organizationId }
         });
       }
       // Create new team membership
       if (organizationId) {
         await prisma.teamMember.upsert({
-          where: { userId_organizationId: { userId: params.id, organizationId } },
+          where: { userId_organizationId: { userId: id, organizationId } },
           update: {},
           create: {
-            userId: params.id,
+            userId: id,
             organizationId,
             jobTitle: role === "ADMIN" ? "Administrator" : role === "PROJECT_MANAGER" ? "Project Manager" : "Team Member"
           }
@@ -157,29 +159,30 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as { id: string; role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Prevent self-deletion
-    if (params.id === (session.user as { id: string }).id) {
+    if (id === (session.user as { id: string }).id) {
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: params.id } });
+    const user = await prisma.user.findUnique({ where: { id: id } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Delete related team memberships first
-    await prisma.teamMember.deleteMany({ where: { userId: params.id } });
+    await prisma.teamMember.deleteMany({ where: { userId: id } });
 
     // Delete user
-    await prisma.user.delete({ where: { id: params.id } });
+    await prisma.user.delete({ where: { id: id } });
 
     // Log activity
     await prisma.activityLog.create({

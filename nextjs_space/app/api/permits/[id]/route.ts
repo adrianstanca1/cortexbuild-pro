@@ -7,16 +7,17 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
         documents: true,
@@ -36,9 +37,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,7 +54,7 @@ export async function PATCH(
     } = body;
 
     const existingPermit = await prisma.permit.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -61,7 +63,7 @@ export async function PATCH(
     }
 
     const permit = await prisma.permit.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(type && { type }),
         ...(title && { title }),
@@ -100,16 +102,17 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -117,7 +120,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Permit not found" }, { status: 404 });
     }
 
-    await prisma.permit.delete({ where: { id: params.id } });
+    await prisma.permit.delete({ where: { id } });
 
     if (permit.project.organizationId) {
       broadcastToOrganization(permit.project.organizationId, {
