@@ -58,7 +58,7 @@ fi
 # Install Docker Compose
 echo ""
 echo "Step 4: Installing Docker Compose..."
-if ! command -v docker-compose &> /dev/null; then
+if ! docker compose version &> /dev/null; then
     sudo apt-get install -y docker-compose-plugin
     echo "✓ Docker Compose installed successfully"
 else

@@ -154,13 +154,13 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
         run: |
-          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
             set -e
 
             echo "🚀 Starting deployment..."
 
             # Navigate to deployment directory
-            cd ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
+            cd $DEPLOYMENT_PATH
 
             # Stash any local changes to avoid conflicts
             echo "📥 Pulling latest code..."
@@ -232,8 +232,8 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
         run: |
-          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
-            cd ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
+            cd $DEPLOYMENT_PATH
 
             # Run verification script if it exists
             if [ -f verify-deployment.sh ]; then

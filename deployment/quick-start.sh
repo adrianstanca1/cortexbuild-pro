@@ -103,7 +103,7 @@ main() {
         
         # Install Docker Compose
         print_info "Installing Docker Compose..."
-        if ! command -v docker-compose &> /dev/null; then
+        if ! docker compose version &> /dev/null; then
             sudo apt-get install -y docker-compose-plugin
         fi
         

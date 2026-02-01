@@ -55,11 +55,11 @@ else
     echo -e "${GREEN}✓ docker is installed${NC}"
 fi
 
-if ! command -v docker-compose &> /dev/null && ! command -v docker compose &> /dev/null; then
-    echo -e "${RED}✗ docker-compose is not installed${NC}"
+if ! docker compose version &> /dev/null; then
+    echo -e "${RED}✗ docker compose is not installed${NC}"
     ALL_DEPS_OK=false
 else
-    echo -e "${GREEN}✓ docker-compose is installed${NC}"
+    echo -e "${GREEN}✓ docker compose is installed${NC}"
 fi
 
 echo ""
@@ -261,15 +261,15 @@ echo ""
 
 # Start database first
 echo "Starting database..."
-docker-compose -f docker-compose-published.yml up -d postgres
+docker compose -f docker-compose-published.yml up -d postgres
 
 echo "Waiting for database to be ready..."
 sleep 10
 
 # Check database health
-docker-compose -f docker-compose-published.yml exec postgres pg_isready -U cortexbuild || {
+docker compose -f docker-compose-published.yml exec postgres pg_isready -U cortexbuild || {
     echo -e "${RED}Error: Database failed to start${NC}"
-    docker-compose -f docker-compose-published.yml logs postgres
+    docker compose -f docker-compose-published.yml logs postgres
     exit 1
 }
 
@@ -278,7 +278,7 @@ echo ""
 
 # Start application
 echo "Starting application..."
-docker-compose -f docker-compose-published.yml up -d app
+docker compose -f docker-compose-published.yml up -d app
 
 echo "Waiting for application to start..."
 sleep 15
@@ -287,9 +287,9 @@ sleep 15
 echo -e "${CYAN}[7/7] Running Database Migrations...${NC}"
 echo ""
 
-docker-compose -f docker-compose-published.yml exec app sh -c "cd /app && npx prisma migrate deploy" || {
+docker compose -f docker-compose-published.yml exec app sh -c "cd /app && npx prisma migrate deploy" || {
     echo -e "${YELLOW}Warning: Migration may have issues. Check logs.${NC}"
-    docker-compose -f docker-compose-published.yml logs app
+    docker compose -f docker-compose-published.yml logs app
 }
 
 echo -e "${GREEN}✓ Migrations completed${NC}"
@@ -298,7 +298,7 @@ echo ""
 # Check services status
 echo -e "${CYAN}Service Status:${NC}"
 echo ""
-docker-compose -f docker-compose-published.yml ps
+docker compose -f docker-compose-published.yml ps
 
 echo ""
 echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -315,15 +315,15 @@ echo "   → http://localhost:3000"
 echo "   → https://www.cortexbuildpro.com (if DNS configured)"
 echo ""
 echo "2. View logs:"
-echo "   → docker-compose -f docker-compose-published.yml logs -f"
+echo "   → docker compose -f docker-compose-published.yml logs -f"
 echo ""
 echo "3. Setup SSL (if not done already):"
 echo "   → ./setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com"
 echo ""
 echo "4. Stop services:"
-echo "   → docker-compose -f docker-compose-published.yml down"
+echo "   → docker compose -f docker-compose-published.yml down"
 echo ""
 echo "5. Update to latest image:"
-echo "   → docker-compose -f docker-compose-published.yml pull app"
-echo "   → docker-compose -f docker-compose-published.yml up -d app"
+echo "   → docker compose -f docker-compose-published.yml pull app"
+echo "   → docker compose -f docker-compose-published.yml up -d app"
 echo ""

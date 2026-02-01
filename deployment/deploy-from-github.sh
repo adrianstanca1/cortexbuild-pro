@@ -28,7 +28,7 @@ echo ""
 # Step 1: Install dependencies
 echo "[1/6] Installing system dependencies..."
 apt-get update
-apt-get install -y docker.io docker-compose git ufw openssl curl wget
+apt-get install -y docker.io docker-compose-plugin git ufw openssl curl wget
 
 # Enable and start Docker
 systemctl enable docker
@@ -159,13 +159,13 @@ echo "[5/6] Building and starting services..."
 echo "This may take 5-10 minutes on first run..."
 
 # Pull base images
-docker-compose -f docker-compose.yml pull postgres nginx certbot 2>/dev/null || true
+docker compose pull postgres nginx certbot 2>/dev/null || true
 
 # Build application
-docker-compose -f docker-compose.yml build app
+docker compose build app
 
 # Start services
-docker-compose -f docker-compose.yml up -d
+docker compose up -d
 
 # Wait for services
 echo "Waiting for services to start..."
@@ -173,7 +173,7 @@ sleep 30
 
 # Run migrations
 echo "Running database migrations..."
-docker-compose -f docker-compose.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || {
+docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || {
     echo "Migrations will run automatically on first app start"
 }
 
@@ -189,7 +189,7 @@ SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null
 # Check containers
 echo ""
 echo "Container Status:"
-docker-compose -f docker-compose.yml ps
+docker compose ps
 echo ""
 
 # Test application
@@ -218,13 +218,13 @@ echo ""
 echo "📁 Important files:"
 echo "   Credentials: $DEPLOY_DIR/DEPLOYMENT_CREDENTIALS.txt"
 echo "   Environment: $DEPLOY_DIR/deployment/.env"
-echo "   Logs: docker-compose -f $DEPLOY_DIR/deployment/docker-compose.yml logs -f"
+echo "   Logs: docker compose -f $DEPLOY_DIR/deployment/docker-compose.yml logs -f"
 echo ""
 echo "🔧 Useful commands:"
-echo "   View logs:     cd $DEPLOY_DIR/deployment && docker-compose logs -f"
-echo "   Restart:       cd $DEPLOY_DIR/deployment && docker-compose restart"
-echo "   Stop:          cd $DEPLOY_DIR/deployment && docker-compose down"
-echo "   Update app:    cd $DEPLOY_DIR && git pull && cd deployment && docker-compose up -d --build"
+echo "   View logs:     cd $DEPLOY_DIR/deployment && docker compose logs -f"
+echo "   Restart:       cd $DEPLOY_DIR/deployment && docker compose restart"
+echo "   Stop:          cd $DEPLOY_DIR/deployment && docker compose down"
+echo "   Update app:    cd $DEPLOY_DIR && git pull && cd deployment && docker compose up -d --build"
 echo ""
 echo "📚 Documentation:"
 echo "   $DEPLOY_DIR/README.md"
