@@ -404,7 +404,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       liftingOperations: {
         select: {
           id: true,
-          operationDate: true,
+          liftDate: true,
           location: true,
           loadDescription: true,
           status: true,
@@ -413,9 +413,55 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           plannedBy: { select: { id: true, name: true } },
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
+          appointedPerson: { select: { id: true, name: true } }
         },
-        orderBy: { operationDate: "desc" },
+        orderBy: { liftDate: "desc" },
         take: 50
+      },
+      siteAccessLogs: {
+        select: {
+          id: true,
+          accessTime: true,
+          exitTime: true,
+          purpose: true,
+          location: true,
+          createdAt: true,
+          user: { select: { id: true, name: true } },
+          recordedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { accessTime: "desc" },
+        take: 200
+      },
+      _count: {
+        select: {
+          tasks: true,
+          documents: true,
+          teamMembers: true,
+          rfis: true,
+          submittals: true,
+          changeOrders: true,
+          safetyIncidents: true,
+          milestones: true,
+          timeEntries: true,
+          costItems: true,
+          materials: true,
+          subcontracts: true,
+          permits: true,
+          drawings: true,
+          siteDiaries: true,
+          defects: true,
+          punchLists: true,
+          inspections: true,
+          progressClaims: true,
+          toolboxTalks: true,
+          mewpChecks: true,
+          toolChecks: true,
+          riskAssessments: true,
+          hotWorkPermits: true,
+          confinedSpacePermits: true,
+          liftingOperations: true,
+          siteAccessLogs: true
+        }
       }
     }
   });
