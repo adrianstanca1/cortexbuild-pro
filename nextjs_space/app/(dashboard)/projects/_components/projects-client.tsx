@@ -12,35 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useRealtimeSubscription } from "@/components/realtime-provider";
+import { useEntitySubscription } from "@/hooks/use-entity-subscription";
 import { isBefore, format } from "date-fns";
+import { PROJECT_STATUS_CONFIG, PROJECT_HEALTH_CONFIG } from "@/lib/constants/status-configs";
 
 interface ProjectsClientProps {
   projects: any[];
 }
-
-const statusColors = {
-  PLANNING: "info",
-  IN_PROGRESS: "default",
-  ON_HOLD: "warning",
-  COMPLETED: "success",
-  ARCHIVED: "secondary"
-} as const;
-
-const statusLabels = {
-  PLANNING: "Planning",
-  IN_PROGRESS: "In Progress",
-  ON_HOLD: "On Hold",
-  COMPLETED: "Completed",
-  ARCHIVED: "Archived"
-};
-
-const healthColors = {
-  excellent: { bg: "bg-green-50 dark:bg-green-900/20", text: "text-green-600 dark:text-green-400", dot: "bg-green-500" },
-  "on-track": { bg: "bg-blue-50 dark:bg-blue-900/20", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
-  "at-risk": { bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
-  critical: { bg: "bg-red-50 dark:bg-red-900/20", text: "text-red-600 dark:text-red-400", dot: "bg-red-500" }
-};
 
 export function ProjectsClient({ projects }: ProjectsClientProps) {
   const router = useRouter();
@@ -49,15 +27,8 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
   const [healthFilter, setHealthFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const handleProjectEvent = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  useRealtimeSubscription(
-    ['project_created', 'project_updated'],
-    handleProjectEvent,
-    []
-  );
+  // Use centralized realtime subscription hook
+  useEntitySubscription('project');
 
   const portfolioKPIs = useMemo(() => {
     // Single-pass calculation for better performance - O(n) instead of O(n*m)
@@ -310,7 +281,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
             <Link key={project?.id ?? index} href={`/projects/${project?.id}`}>
               <div className="group relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/50">
                 {/* Health indicator bar */}
-                <div className={`h-1 ${healthColors[project?.healthLevel as keyof typeof healthColors]?.dot || 'bg-slate-300'}`} />
+                <div className={`h-1 ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.dot || 'bg-slate-300'}`} />
                 
                 <div className="p-6">
                   {/* Header */}
@@ -323,8 +294,8 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                         {project?.clientName || project?.location || 'No client specified'}
                       </p>
                     </div>
-                    <Badge variant={statusColors[project?.status as keyof typeof statusColors] ?? "secondary"} className="ml-2">
-                      {statusLabels[project?.status as keyof typeof statusLabels] ?? "Unknown"}
+                    <Badge variant={PROJECT_STATUS_CONFIG[project?.status as keyof typeof PROJECT_STATUS_CONFIG]?.badge ?? "secondary"} className="ml-2">
+                      {PROJECT_STATUS_CONFIG[project?.status as keyof typeof PROJECT_STATUS_CONFIG]?.label ?? "Unknown"}
                     </Badge>
                   </div>
                   
@@ -371,8 +342,8 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                   
                   {/* Footer */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${healthColors[project?.healthLevel as keyof typeof healthColors]?.bg} ${healthColors[project?.healthLevel as keyof typeof healthColors]?.text}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${healthColors[project?.healthLevel as keyof typeof healthColors]?.dot}`} />
+                    <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.bg} ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.text}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.dot}`} />
                       {project?.healthLevel === 'excellent' ? 'Excellent' : 
                        project?.healthLevel === 'on-track' ? 'On Track' :
                        project?.healthLevel === 'at-risk' ? 'At Risk' : 'Critical'}
@@ -392,8 +363,8 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
             {filteredProjects?.map((project: any, index: number) => (
               <Link key={project?.id ?? index} href={`/projects/${project?.id ?? ""}`}>
                 <div className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer flex items-center gap-4">
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${healthColors[project?.healthLevel as keyof typeof healthColors]?.bg}`}>
-                    <FolderKanban className={`h-5 w-5 ${healthColors[project?.healthLevel as keyof typeof healthColors]?.text}`} />
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.bg}`}>
+                    <FolderKanban className={`h-5 w-5 ${PROJECT_HEALTH_CONFIG[project?.healthLevel as keyof typeof PROJECT_HEALTH_CONFIG]?.text}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-slate-900 dark:text-white truncate">{project?.name}</p>
@@ -409,8 +380,8 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                       <p className="font-medium text-slate-900 dark:text-white">{project?.taskCompletion || 0}%</p>
                     </div>
                   </div>
-                  <Badge variant={statusColors[project?.status as keyof typeof statusColors] ?? "secondary"}>
-                    {statusLabels[project?.status as keyof typeof statusLabels] ?? "Unknown"}
+                  <Badge variant={PROJECT_STATUS_CONFIG[project?.status as keyof typeof PROJECT_STATUS_CONFIG]?.badge ?? "secondary"}>
+                    {PROJECT_STATUS_CONFIG[project?.status as keyof typeof PROJECT_STATUS_CONFIG]?.label ?? "Unknown"}
                   </Badge>
                   <ChevronRight className="h-5 w-5 text-slate-400" />
                 </div>

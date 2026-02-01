@@ -1,21 +1,23 @@
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+import { 
+  getApiContext, 
+  buildOrgFilter, 
+  handleApiError,
+  successResponse,
+  errorResponse
+} from "@/lib/api-utils";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { context, error } = await getApiContext();
+    if (error) return error;
 
-    const orgId = (session.user as { organizationId?: string })?.organizationId;
     const projects = await prisma.project.findMany({
-      where: orgId ? { organizationId: orgId } : {},
+      where: buildOrgFilter(context!.organizationId, true),
       include: {
         manager: { select: { id: true, name: true } },
         _count: { select: { tasks: true, documents: true } }
@@ -23,32 +25,22 @@ export async function GET() {
       orderBy: { createdAt: "desc" }
     });
 
-    return NextResponse.json({ projects });
+    return successResponse({ projects });
   } catch (error) {
-    console.error("Get projects error:", error);
-    return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });
+    return handleApiError(error, "fetch projects");
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const userId = (session.user as { id?: string })?.id || '';
-    const orgId = (session.user as { organizationId?: string })?.organizationId;
-
-    if (!orgId) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 400 });
-    }
+    const { context, error } = await getApiContext();
+    if (error) return error;
 
     const body = await request.json();
     const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
 
     if (!name?.trim()) {
-      return NextResponse.json({ error: "Project name is required" }, { status: 400 });
+      return errorResponse("BAD_REQUEST", "Project name is required");
     }
 
     const project = await prisma.project.create({
@@ -62,8 +54,8 @@ export async function POST(request: Request) {
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         status: status || "PLANNING",
-        organizationId: orgId,
-        managerId: userId || null
+        organizationId: context!.organizationId,
+        managerId: context!.userId || null
       },
       include: {
         manager: { select: { id: true, name: true } }
@@ -77,13 +69,13 @@ export async function POST(request: Request) {
         entityType: "Project",
         entityId: project.id,
         entityName: project.name,
-        userId,
+        userId: context!.userId,
         projectId: project.id
       }
     });
 
     // Broadcast real-time event to organization
-    broadcastToOrganization(orgId, {
+    broadcastToOrganization(context!.organizationId, {
       type: 'project_created',
       timestamp: new Date().toISOString(),
       payload: {
@@ -95,13 +87,12 @@ export async function POST(request: Request) {
           clientName: project.clientName,
           managerName: project.manager?.name
         },
-        userId
+        userId: context!.userId
       }
     });
 
-    return NextResponse.json({ project });
+    return successResponse({ project }, "Project created successfully");
   } catch (error) {
-    console.error("Create project error:", error);
-    return NextResponse.json({ error: "Failed to create project" }, { status: 500 });
+    return handleApiError(error, "create project");
   }
 }
