@@ -140,6 +140,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate required secrets
+        run: |
+          MISSING_SECRETS=()
+          
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            MISSING_SECRETS+=("VPS_HOST")
+          fi
+          
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            MISSING_SECRETS+=("VPS_USER")
+          fi
+          
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            MISSING_SECRETS+=("VPS_SSH_KEY")
+          fi
+          
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "❌ ERROR: The following required secrets are not set:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "  - $secret"
+            done
+            echo ""
+            echo "Please configure these secrets in your repository settings:"
+            echo "Settings > Secrets and variables > Actions > New repository secret"
+            echo ""
+            echo "For detailed instructions, see: GITHUB_SECRETS_GUIDE.md"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are configured"
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
