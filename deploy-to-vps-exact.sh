@@ -26,11 +26,22 @@ EOF
 echo -e "${NC}"
 
 # Configuration from problem statement
-VPS_HOST="72.62.132.43"
-VPS_USER="root"
-VPS_PASSWORD="Cumparavinde1@"
+VPS_HOST="${VPS_HOST:-72.62.132.43}"
+VPS_USER="${VPS_USER:-root}"
+VPS_PASSWORD="${VPS_PASSWORD:-}"
 DEPLOYMENT_DIR="/root/cortexbuild"
 TARBALL="cortexbuild_vps_deploy.tar.gz"
+
+# Prompt for password if not set
+if [ -z "$VPS_PASSWORD" ]; then
+    echo -e "${YELLOW}VPS password not set in environment.${NC}"
+    read -rsp "Enter VPS password for ${VPS_USER}@${VPS_HOST}: " VPS_PASSWORD
+    echo
+    if [ -z "$VPS_PASSWORD" ]; then
+        echo -e "${RED}Error: Password is required${NC}"
+        exit 1
+    fi
+fi
 
 echo -e "${CYAN}Step 1: Creating deployment package...${NC}"
 echo ""
@@ -65,14 +76,14 @@ fi
 
 # Create directory structure on VPS
 echo "Creating deployment directory structure..."
-sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" "
+sshpass -p "$VPS_PASSWORD" ssh "$VPS_USER@$VPS_HOST" "
     mkdir -p $DEPLOYMENT_DIR
     echo 'Directory created: $DEPLOYMENT_DIR'
 "
 
 # Upload the tarball
 echo "Uploading deployment package..."
-sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no "$TARBALL" "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/"
+sshpass -p "$VPS_PASSWORD" scp "$TARBALL" "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Package uploaded successfully${NC}"
@@ -87,7 +98,7 @@ echo ""
 
 # Execute the exact commands from the problem statement
 echo "Running deployment commands on VPS..."
-sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" "
+sshpass -p "$VPS_PASSWORD" ssh "$VPS_USER@$VPS_HOST" "
 cd $DEPLOYMENT_DIR
 tar -xzf $TARBALL
 nohup docker compose -f cortexbuild/deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &

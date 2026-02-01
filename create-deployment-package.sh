@@ -75,12 +75,12 @@ echo -e "${CYAN}[2/4] Cleaning up unnecessary files...${NC}"
 echo ""
 
 # Remove node_modules, build artifacts, and other unnecessary files
-find "$PACKAGE_DIR" -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
-find "$PACKAGE_DIR" -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
-find "$PACKAGE_DIR" -type d -name ".git" -exec rm -rf {} + 2>/dev/null || true
-find "$PACKAGE_DIR" -type d -name ".github" -exec rm -rf {} + 2>/dev/null || true
-find "$PACKAGE_DIR" -type d -name "dist" -exec rm -rf {} + 2>/dev/null || true
-find "$PACKAGE_DIR" -type d -name "coverage" -exec rm -rf {} + 2>/dev/null || true
+find "$PACKAGE_DIR" -type d -name "node_modules" -prune -exec rm -rf {} \; || true
+find "$PACKAGE_DIR" -type d -name ".next" -prune -exec rm -rf {} \; || true
+find "$PACKAGE_DIR" -type d -name ".git" -prune -exec rm -rf {} \; || true
+find "$PACKAGE_DIR" -type d -name ".github" -prune -exec rm -rf {} \; || true
+find "$PACKAGE_DIR" -type d -name "dist" -prune -exec rm -rf {} \; || true
+find "$PACKAGE_DIR" -type d -name "coverage" -prune -exec rm -rf {} \; || true
 find "$PACKAGE_DIR" -type f -name "*.log" -delete 2>/dev/null || true
 find "$PACKAGE_DIR" -type f -name ".DS_Store" -delete 2>/dev/null || true
 find "$PACKAGE_DIR" -type f -name ".env" -delete 2>/dev/null || true

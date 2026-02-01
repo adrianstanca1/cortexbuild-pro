@@ -86,7 +86,7 @@ This document provides a visual overview of the VPS deployment workflow.
 ### Method 2: Alternative One-Command
 
 ```bash
-./one-command-deploy.sh 'Cumparavinde1@'
+./one-command-deploy.sh 'YourVPSPassword'
 ```
 
 **Similar to Method 1 but requires password as parameter**

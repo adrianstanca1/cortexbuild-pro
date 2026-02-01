@@ -51,17 +51,17 @@ Excludes:
 # 1. Creates cortexbuild_vps_deploy.tar.gz
 # 2. Uploads to VPS
 # 3. Runs on VPS:
-#    sshpass -p 'Cumparavinde1@' ssh -o StrictHostKeyChecking=no root@72.62.132.43 '
+#    ssh root@72.62.132.43 '
 #    cd /root/cortexbuild
 #    tar -xzf cortexbuild_vps_deploy.tar.gz
-#    nohup docker compose -f deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &
+#    nohup docker compose -f cortexbuild/deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &
 #    '
 ```
 
 ### One-Command Full Deployment
 
 ```bash
-./one-command-deploy.sh 'Cumparavinde1@'
+./one-command-deploy.sh 'YourVPSPassword'
 ```
 
 ### Manual Step-by-Step

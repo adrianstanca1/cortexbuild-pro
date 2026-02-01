@@ -125,7 +125,11 @@ if [ ! -f "deployment/.env" ]; then
         echo "  - NEXTAUTH_URL"
         echo "  - Other required variables"
         echo ""
-        read -p "Press Enter after configuring .env file..." 
+        if [ -t 0 ]; then
+            read -p "Press Enter after configuring .env file..." 
+        else
+            echo -e "${YELLOW}Non-interactive environment detected; skipping .env confirmation prompt.${NC}"
+        fi 
     else
         echo -e "${RED}✗ No .env.example found${NC}"
         exit 1
@@ -141,13 +145,19 @@ echo ""
 
 cd deployment
 
-# Stop existing containers
-if docker compose ps | grep -q "Up"; then
-    echo "Stopping existing containers..."
-    docker compose down || true
-    echo -e "${GREEN}✓ Existing services stopped${NC}"
+# Check if docker is running before attempting to check containers
+if ! docker info >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠ Docker daemon is not running or not accessible${NC}"
+    echo "Please ensure Docker is running before continuing"
 else
-    echo "No running services found"
+    # Stop existing containers
+    if docker compose ps 2>/dev/null | grep -q "Up"; then
+        echo "Stopping existing containers..."
+        docker compose down || true
+        echo -e "${GREEN}✓ Existing services stopped${NC}"
+    else
+        echo "No running services found"
+    fi
 fi
 
 echo ""
@@ -176,6 +186,18 @@ echo ""
 # Wait a moment to check if build started successfully
 sleep 5
 
+# Initial check: did the process actually start?
+if ! ps -p $BUILD_PID > /dev/null 2>&1; then
+    echo -e "${RED}✗ Build process failed to start or exited immediately${NC}"
+    echo ""
+    echo "Check the build log:"
+    echo "  cat $BUILD_LOG"
+    exit 1
+fi
+
+# Give it a bit more time to stabilize
+sleep 5
+
 if ps -p $BUILD_PID > /dev/null 2>&1; then
     echo -e "${GREEN}✓ Build process is running${NC}"
     echo ""
@@ -185,9 +207,9 @@ if ps -p $BUILD_PID > /dev/null 2>&1; then
     echo "----------------------------------------"
     echo ""
 else
-    echo -e "${RED}✗ Build process may have failed${NC}"
+    echo -e "${RED}✗ Build process exited shortly after starting${NC}"
     echo ""
-    echo "Check the build log:"
+    echo "Check the build log for details:"
     echo "  cat $BUILD_LOG"
     exit 1
 fi

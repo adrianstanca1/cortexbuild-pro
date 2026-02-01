@@ -3,7 +3,7 @@
 ## 🚀 One-Command Deployment
 
 ```bash
-./one-command-deploy.sh 'Cumparavinde1@'
+./one-command-deploy.sh 'YourVPSPassword'
 ```
 
 This will automatically:
@@ -23,13 +23,13 @@ This will automatically:
 ### 2. Deploy to VPS
 
 ```bash
-sshpass -p 'Cumparavinde1@' scp cortexbuild_vps_deploy.tar.gz root@72.62.132.43:/root/cortexbuild/
+sshpass -p 'YourVPSPassword' scp cortexbuild_vps_deploy.tar.gz root@72.62.132.43:/root/cortexbuild/
 ```
 
 ### 3. Execute on VPS
 
 ```bash
-sshpass -p 'Cumparavinde1@' ssh -o StrictHostKeyChecking=no root@72.62.132.43 '
+sshpass -p 'YourVPSPassword' ssh root@72.62.132.43 '
 cd /root/cortexbuild
 tar -xzf cortexbuild_vps_deploy.tar.gz
 cd cortexbuild/deployment

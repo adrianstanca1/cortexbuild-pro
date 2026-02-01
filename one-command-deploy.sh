@@ -91,14 +91,14 @@ echo ""
 
 # Create directory on VPS
 echo "Creating deployment directory on VPS..."
-sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" "mkdir -p $DEPLOYMENT_DIR" || {
+sshpass -p "$VPS_PASSWORD" ssh "$VPS_USER@$VPS_HOST" "mkdir -p $DEPLOYMENT_DIR" || {
     echo -e "${RED}Error: Failed to create directory on VPS${NC}"
     exit 1
 }
 
 # Upload tarball
 echo "Uploading $TARBALL to VPS..."
-sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no "$TARBALL" "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/" || {
+sshpass -p "$VPS_PASSWORD" scp "$TARBALL" "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/" || {
     echo -e "${RED}Error: Failed to upload package${NC}"
     exit 1
 }
@@ -111,7 +111,7 @@ echo ""
 
 # Upload vps-deploy.sh
 if [ -f ./vps-deploy.sh ]; then
-    sshpass -p "$VPS_PASSWORD" scp -o StrictHostKeyChecking=no ./vps-deploy.sh "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/" || {
+    sshpass -p "$VPS_PASSWORD" scp ./vps-deploy.sh "$VPS_USER@$VPS_HOST:$DEPLOYMENT_DIR/" || {
         echo -e "${YELLOW}Warning: Could not upload vps-deploy.sh${NC}"
     }
 else
@@ -124,7 +124,7 @@ echo ""
 
 # Execute deployment on VPS
 echo "Running deployment on VPS..."
-sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" "
+sshpass -p "$VPS_PASSWORD" ssh "$VPS_USER@$VPS_HOST" "
 cd $DEPLOYMENT_DIR
 tar -xzf $TARBALL
 cd cortexbuild/deployment
@@ -148,7 +148,7 @@ echo ""
 echo "The Docker build is running in the background on the VPS."
 echo ""
 echo "To monitor progress, SSH into the VPS:"
-echo "  → sshpass -p '$VPS_PASSWORD' ssh $VPS_USER@$VPS_HOST"
+echo "  → ssh $VPS_USER@$VPS_HOST"
 echo ""
 echo "Then run:"
 echo "  → tail -f /root/docker_build.log"

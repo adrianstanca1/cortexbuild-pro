@@ -10,6 +10,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 echo -e "${BLUE}"
@@ -27,15 +28,17 @@ TEST_COUNT=0
 PASS_COUNT=0
 FAIL_COUNT=0
 
-# Test function
+# Test function - pass result as parameter
 test_check() {
+    local result=$1
+    local message=$2
     TEST_COUNT=$((TEST_COUNT + 1))
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✓ PASS${NC} - $1"
+    if [ "$result" -eq 0 ]; then
+        echo -e "${GREEN}✓ PASS${NC} - $message"
         PASS_COUNT=$((PASS_COUNT + 1))
         return 0
     else
-        echo -e "${RED}✗ FAIL${NC} - $1"
+        echo -e "${RED}✗ FAIL${NC} - $message"
         FAIL_COUNT=$((FAIL_COUNT + 1))
         return 1
     fi
@@ -46,23 +49,23 @@ echo ""
 
 # Test 1: Check if all deployment scripts exist
 echo "Testing deployment scripts existence..."
-[ -f "create-deployment-package.sh" ]; test_check "create-deployment-package.sh exists"
-[ -x "create-deployment-package.sh" ]; test_check "create-deployment-package.sh is executable"
-[ -f "deploy-to-vps-exact.sh" ]; test_check "deploy-to-vps-exact.sh exists"
-[ -x "deploy-to-vps-exact.sh" ]; test_check "deploy-to-vps-exact.sh is executable"
-[ -f "one-command-deploy.sh" ]; test_check "one-command-deploy.sh exists"
-[ -x "one-command-deploy.sh" ]; test_check "one-command-deploy.sh is executable"
-[ -f "vps-deploy.sh" ]; test_check "vps-deploy.sh exists"
-[ -x "vps-deploy.sh" ]; test_check "vps-deploy.sh is executable"
+[ -f "create-deployment-package.sh" ]; test_check $? "create-deployment-package.sh exists"
+[ -x "create-deployment-package.sh" ]; test_check $? "create-deployment-package.sh is executable"
+[ -f "deploy-to-vps-exact.sh" ]; test_check $? "deploy-to-vps-exact.sh exists"
+[ -x "deploy-to-vps-exact.sh" ]; test_check $? "deploy-to-vps-exact.sh is executable"
+[ -f "one-command-deploy.sh" ]; test_check $? "one-command-deploy.sh exists"
+[ -x "one-command-deploy.sh" ]; test_check $? "one-command-deploy.sh is executable"
+[ -f "vps-deploy.sh" ]; test_check $? "vps-deploy.sh exists"
+[ -x "vps-deploy.sh" ]; test_check $? "vps-deploy.sh is executable"
 
 echo ""
 echo -e "${CYAN}[2/5] Testing Documentation...${NC}"
 echo ""
 
 # Test 2: Check if documentation exists
-[ -f "VPS_DEPLOYMENT_PACKAGE_GUIDE.md" ]; test_check "VPS_DEPLOYMENT_PACKAGE_GUIDE.md exists"
-[ -f "VPS_QUICK_DEPLOY.md" ]; test_check "VPS_QUICK_DEPLOY.md exists"
-[ -f "VPS_DEPLOYMENT_IMPLEMENTATION_SUMMARY.md" ]; test_check "VPS_DEPLOYMENT_IMPLEMENTATION_SUMMARY.md exists"
+[ -f "VPS_DEPLOYMENT_PACKAGE_GUIDE.md" ]; test_check $? "VPS_DEPLOYMENT_PACKAGE_GUIDE.md exists"
+[ -f "VPS_QUICK_DEPLOY.md" ]; test_check $? "VPS_QUICK_DEPLOY.md exists"
+[ -f "VPS_DEPLOYMENT_IMPLEMENTATION_SUMMARY.md" ]; test_check $? "VPS_DEPLOYMENT_IMPLEMENTATION_SUMMARY.md exists"
 
 echo ""
 echo -e "${CYAN}[3/5] Testing Package Creation...${NC}"
@@ -71,19 +74,24 @@ echo ""
 # Test 3: Create deployment package
 echo "Creating deployment package..."
 if ./create-deployment-package.sh > /dev/null 2>&1; then
-    test_check "Package creation successful"
+    test_check 0 "Package creation successful"
 else
-    test_check "Package creation successful"
+    test_check 1 "Package creation successful"
 fi
 
-[ -f "cortexbuild_vps_deploy.tar.gz" ]; test_check "Tarball was created"
+[ -f "cortexbuild_vps_deploy.tar.gz" ]; test_check $? "Tarball was created"
 
 # Check tarball size (should be around 900KB)
-TARBALL_SIZE=$(stat -f%z "cortexbuild_vps_deploy.tar.gz" 2>/dev/null || stat -c%s "cortexbuild_vps_deploy.tar.gz" 2>/dev/null)
-if [ $TARBALL_SIZE -gt 500000 ] && [ $TARBALL_SIZE -lt 5000000 ]; then
-    test_check "Tarball size is reasonable ($(numfmt --to=iec-i --suffix=B $TARBALL_SIZE 2>/dev/null || echo "$TARBALL_SIZE bytes"))"
+TARBALL_SIZE=$(stat -c%s "cortexbuild_vps_deploy.tar.gz" 2>/dev/null || stat -f%z "cortexbuild_vps_deploy.tar.gz" 2>/dev/null)
+if [ "$TARBALL_SIZE" -gt 500000 ] && [ "$TARBALL_SIZE" -lt 5000000 ]; then
+    if command -v numfmt >/dev/null 2>&1; then
+        HUMAN_SIZE=$(numfmt --to=iec-i --suffix=B "$TARBALL_SIZE" 2>/dev/null || echo "${TARBALL_SIZE} bytes")
+    else
+        HUMAN_SIZE="${TARBALL_SIZE} bytes"
+    fi
+    test_check 0 "Tarball size is reasonable (${HUMAN_SIZE})"
 else
-    test_check "Tarball size is reasonable"
+    test_check 1 "Tarball size is reasonable"
 fi
 
 echo ""
@@ -95,33 +103,29 @@ TEST_DIR=$(mktemp -d)
 cd "$TEST_DIR"
 tar -xzf "$SCRIPT_DIR/cortexbuild_vps_deploy.tar.gz" 2>/dev/null
 if [ $? -eq 0 ]; then
-    test_check "Tarball extracts successfully"
+    test_check 0 "Tarball extracts successfully"
 else
-    test_check "Tarball extracts successfully"
+    test_check 1 "Tarball extracts successfully"
 fi
 
 # Check for critical files
-[ -d "cortexbuild/deployment" ]; test_check "deployment/ directory exists in tarball"
-[ -f "cortexbuild/deployment/docker-compose.yml" ]; test_check "docker-compose.yml exists in tarball"
-[ -f "cortexbuild/deployment/Dockerfile" ]; test_check "Dockerfile exists in tarball"
-[ -f "cortexbuild/deployment/.env.example" ]; test_check ".env.example exists in tarball"
-[ -d "cortexbuild/nextjs_space" ]; test_check "nextjs_space/ directory exists in tarball"
+[ -d "cortexbuild/deployment" ]; test_check $? "deployment/ directory exists in tarball"
+[ -f "cortexbuild/deployment/docker-compose.yml" ]; test_check $? "docker-compose.yml exists in tarball"
+[ -f "cortexbuild/deployment/Dockerfile" ]; test_check $? "Dockerfile exists in tarball"
+[ -f "cortexbuild/deployment/.env.example" ]; test_check $? ".env.example exists in tarball"
+[ -d "cortexbuild/nextjs_space" ]; test_check $? "nextjs_space/ directory exists in tarball"
 
 # Check that excluded files are not present
 if [ -d "cortexbuild/node_modules" ]; then
-    echo -e "${RED}✗ FAIL${NC} - node_modules should be excluded"
-    FAIL_COUNT=$((FAIL_COUNT + 1))
-    TEST_COUNT=$((TEST_COUNT + 1))
+    test_check 1 "node_modules is excluded from tarball"
 else
-    test_check "node_modules is excluded from tarball"
+    test_check 0 "node_modules is excluded from tarball"
 fi
 
 if [ -d "cortexbuild/.git" ]; then
-    echo -e "${RED}✗ FAIL${NC} - .git should be excluded"
-    FAIL_COUNT=$((FAIL_COUNT + 1))
-    TEST_COUNT=$((TEST_COUNT + 1))
+    test_check 1 ".git is excluded from tarball"
 else
-    test_check ".git is excluded from tarball"
+    test_check 0 ".git is excluded from tarball"
 fi
 
 cd "$SCRIPT_DIR"
@@ -132,16 +136,16 @@ echo -e "${CYAN}[5/5] Testing Script Syntax...${NC}"
 echo ""
 
 # Test 5: Check script syntax
-bash -n create-deployment-package.sh 2>/dev/null; test_check "create-deployment-package.sh syntax valid"
-bash -n deploy-to-vps-exact.sh 2>/dev/null; test_check "deploy-to-vps-exact.sh syntax valid"
-bash -n one-command-deploy.sh 2>/dev/null; test_check "one-command-deploy.sh syntax valid"
-bash -n vps-deploy.sh 2>/dev/null; test_check "vps-deploy.sh syntax valid"
+bash -n create-deployment-package.sh 2>/dev/null; test_check $? "create-deployment-package.sh syntax valid"
+bash -n deploy-to-vps-exact.sh 2>/dev/null; test_check $? "deploy-to-vps-exact.sh syntax valid"
+bash -n one-command-deploy.sh 2>/dev/null; test_check $? "one-command-deploy.sh syntax valid"
+bash -n vps-deploy.sh 2>/dev/null; test_check $? "vps-deploy.sh syntax valid"
 
 # Test exact command implementation
 if grep -q "nohup docker compose -f cortexbuild/deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &" deploy-to-vps-exact.sh; then
-    test_check "Exact deployment command is implemented correctly"
+    test_check 0 "Exact deployment command is implemented correctly"
 else
-    test_check "Exact deployment command is implemented correctly"
+    test_check 1 "Exact deployment command is implemented correctly"
 fi
 
 echo ""
