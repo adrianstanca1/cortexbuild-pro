@@ -18,7 +18,7 @@ export async function GET(
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         organization: true,
         teamMemberships: {
@@ -70,7 +70,7 @@ export async function PATCH(
     const body = await req.json();
     const { name, email, role, organizationId, phone, password } = body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: id } });
+    const existingUser = await prisma.user.findUnique({ where: { id } });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -102,7 +102,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -173,7 +173,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: id } });
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -182,7 +182,7 @@ export async function DELETE(
     await prisma.teamMember.deleteMany({ where: { userId: id } });
 
     // Delete user
-    await prisma.user.delete({ where: { id: id } });
+    await prisma.user.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({

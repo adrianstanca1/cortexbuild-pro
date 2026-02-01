@@ -66,7 +66,7 @@ export async function PATCH(
     const { description, category, status, estimatedAmount, actualAmount, committedAmount, vendor, notes, subcontractorId, invoiceNumber, invoiceDate, paidDate } = body;
 
     const costItem = await prisma.costItem.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...(description && { description }),
         ...(category && { category }),
@@ -136,7 +136,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
     }
 
-    await prisma.costItem.delete({ where: { id: id } });
+    await prisma.costItem.delete({ where: { id } });
 
     await prisma.activityLog.create({
       data: {

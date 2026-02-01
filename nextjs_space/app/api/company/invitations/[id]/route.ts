@@ -90,7 +90,7 @@ export async function PATCH(
       newExpiresAt.setDate(newExpiresAt.getDate() + 7);
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: id },
+        where: { id },
         data: {
           status: "PENDING",
           expiresAt: newExpiresAt,
@@ -149,7 +149,7 @@ export async function PATCH(
       }
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: id },
+        where: { id },
         data: { status: "REVOKED" }
       });
 
@@ -204,7 +204,7 @@ export async function DELETE(
     }
 
     await prisma.teamInvitation.delete({
-      where: { id: id }
+      where: { id }
     });
 
     return NextResponse.json({ message: "Invitation deleted" });
