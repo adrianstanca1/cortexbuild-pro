@@ -22,7 +22,7 @@ Deploy to your VPS with a single command:
 
 ```bash
 # Run this on your VPS server
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/build-and-deploy-platform-vps/deploy-to-vps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
 ```
 
 This automated script will:

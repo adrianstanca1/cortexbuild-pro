@@ -82,12 +82,14 @@ if ! command -v ufw &> /dev/null; then
     apt-get install -y ufw
 fi
 
-# Allow SSH, HTTP, and HTTPS
+# Set defaults and allow required ports before enabling firewall
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 22/tcp   # SSH
+ufw allow 80/tcp   # HTTP
+ufw allow 443/tcp  # HTTPS
+ufw allow 3000/tcp # Application port
 ufw --force enable
-ufw allow 22/tcp
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw allow 3000/tcp  # Application port
 echo -e "${GREEN}✓ Firewall configured${NC}"
 
 echo ""
@@ -124,16 +126,28 @@ cd "$DEPLOY_DIR/deployment"
 if [ ! -f .env ]; then
     cp .env.example .env
     
-    # Generate secure passwords
-    POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-    NEXTAUTH_SECRET=$(openssl rand -base64 32)
+    # Generate secure passwords with fallback
+    if command -v openssl >/dev/null 2>&1; then
+        POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
+        NEXTAUTH_SECRET=$(openssl rand -base64 32)
+    else
+        echo -e "${YELLOW}Warning: openssl not found, generating credentials from /dev/urandom${NC}"
+        POSTGRES_PASSWORD=$(head -c 48 /dev/urandom | base64 | tr -d "=+/" | cut -c1-32)
+        NEXTAUTH_SECRET=$(head -c 48 /dev/urandom | base64)
+    fi
+    
+    # Escape special characters for sed
+    NEXTAUTH_SECRET_ESCAPED=$(printf '%s\n' "$NEXTAUTH_SECRET" | sed -e 's/[\/&]/\\&/g')
     
     # Update .env with generated values
     sed -i "s/your_secure_password_here/${POSTGRES_PASSWORD}/g" .env
-    sed -i "s/your_secure_secret_here/${NEXTAUTH_SECRET}/g" .env
+    sed -i "s/your_secure_secret_here/${NEXTAUTH_SECRET_ESCAPED}/g" .env
     
-    # Get server IP
-    SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+    # Get server IP from local configuration (avoid external services)
+    SERVER_IP=$(hostname -I | awk '{print $1}')
+    if [ -z "$SERVER_IP" ]; then
+        SERVER_IP="127.0.0.1"
+    fi
     
     # Update NEXTAUTH_URL
     sed -i "s|https://your-domain.com|http://${SERVER_IP}:3000|g" .env
@@ -146,7 +160,10 @@ if [ ! -f .env ]; then
     echo ""
     echo "Configuration saved to: $DEPLOY_DIR/deployment/.env"
     echo ""
-    read -p "Press Enter to continue..."
+    # Only prompt if running in an interactive terminal
+    if [ -t 0 ]; then
+        read -p "Press Enter to continue..." </dev/tty
+    fi
 else
     echo -e "${GREEN}✓ Using existing environment configuration${NC}"
 fi

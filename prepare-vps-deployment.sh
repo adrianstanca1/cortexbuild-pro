@@ -61,18 +61,21 @@ check_command() {
 echo -e "${CYAN}[1/7] Checking System Prerequisites...${NC}"
 echo ""
 
-check_command "docker"
-check_command "git"
-check_command "node"
-check_command "npm"
+check_command "docker" || true
+check_command "git" || true
+check_command "node" || true
+check_command "npm" || true
 
 # Check for docker compose
 if docker compose version &> /dev/null; then
     print_status 0 "docker compose is available"
+    DOCKER_COMPOSE_CMD="docker compose"
 elif command -v docker-compose &> /dev/null; then
     print_status 0 "docker-compose is available"
+    DOCKER_COMPOSE_CMD="docker-compose"
 else
     print_status 1 "docker compose is not available"
+    DOCKER_COMPOSE_CMD=""
 fi
 
 echo ""
@@ -146,11 +149,15 @@ echo ""
 cd "$DEPLOYMENT_DIR"
 
 # Validate docker-compose.yml syntax
-if docker compose config > /dev/null 2>&1; then
-    print_status 0 "docker-compose.yml syntax is valid"
+if [ -n "$DOCKER_COMPOSE_CMD" ]; then
+    if $DOCKER_COMPOSE_CMD config > /dev/null 2>&1; then
+        print_status 0 "docker-compose.yml syntax is valid"
+    else
+        print_status 1 "docker-compose.yml syntax is invalid"
+        $DOCKER_COMPOSE_CMD config 2>&1 | head -10
+    fi
 else
-    print_status 1 "docker-compose.yml syntax is invalid"
-    docker compose config 2>&1 | head -10
+    print_status 1 "Cannot validate docker-compose.yml - Docker Compose not available"
 fi
 
 # Check for required services
@@ -196,7 +203,21 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     fi
     
     cd "$DEPLOYMENT_DIR"
+    
+    # Enable pipefail to capture build failures correctly
+    set +e  # Temporarily disable exit on error
+    set -o pipefail
+    
     if docker compose build app 2>&1 | tee /tmp/docker-build.log; then
+        BUILD_EXIT=$?
+    else
+        BUILD_EXIT=$?
+    fi
+    
+    set +o pipefail
+    set -e  # Re-enable exit on error
+    
+    if [ $BUILD_EXIT -eq 0 ]; then
         print_status 0 "Docker build successful"
     else
         print_status 1 "Docker build failed"

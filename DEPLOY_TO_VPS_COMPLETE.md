@@ -23,7 +23,9 @@
 
 ### VPS Server Requirements
 
-- **Operating System:** Ubuntu 20.04+ / Debian 11+ / CentOS 8+
+- **Operating System:** 
+  - **Automated deployment:** Ubuntu 20.04+ / Debian 11+ (apt-based systems)
+  - **Manual deployment:** Also supports CentOS 8+ / RHEL 8+ (with manual package installation)
 - **RAM:** Minimum 2GB, Recommended 4GB+
 - **CPU:** Minimum 2 cores, Recommended 4 cores+
 - **Disk Space:** Minimum 20GB available
@@ -31,10 +33,12 @@
 
 ### Software Requirements
 
-The automated deployment will install these if not present:
+The automated deployment script (`deploy-to-vps.sh`) will install these if not present on **Debian/Ubuntu systems**:
 - Docker 20.10+
 - Docker Compose 2.0+
 - Git 2.x+
+
+**Note:** For CentOS/RHEL systems, install these prerequisites manually before using the deployment scripts.
 
 ### Domain Requirements (Optional but Recommended)
 
@@ -49,6 +53,8 @@ The automated deployment will install these if not present:
 ### Option 1: One-Command Deployment
 
 The fastest way to deploy CortexBuild Pro to your VPS:
+
+**⚠️ Note:** This automated script is designed for Ubuntu 20.04+/Debian 11+ systems. For CentOS/RHEL, use the manual deployment method below.
 
 ```bash
 # SSH into your VPS
