@@ -112,7 +112,7 @@ export function MaterialsClient({
   });
 
   // Use centralized realtime subscription hook
-  useEntitySubscription('material');
+  useEntitySubscription('material', { includeDeleted: true });
 
   const filteredMaterials = materials.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
