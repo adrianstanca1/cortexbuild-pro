@@ -46,4 +46,7 @@ clover.xml
 npm-debug.log*
 .pnpm-debug.log*
 
+# Deployment packages (regenerate with create-deployment-package.sh)
+cortexbuild_vps_deploy.tar.gz
+
 .env.prod
