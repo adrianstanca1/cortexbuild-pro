@@ -44,12 +44,12 @@ else
 fi
 
 # Check Docker Compose
-if ! command -v docker-compose &> /dev/null && ! command -v docker compose &> /dev/null; then
-    echo -e "${RED}✗ docker-compose is not installed${NC}"
+if ! docker compose version &> /dev/null; then
+    echo -e "${RED}✗ docker compose is not installed${NC}"
     ERRORS=$((ERRORS + 1))
 else
-    COMPOSE_VERSION=$(docker-compose --version 2>/dev/null || docker compose version 2>/dev/null | head -1)
-    echo -e "${GREEN}✓ docker-compose is installed (${COMPOSE_VERSION})${NC}"
+    COMPOSE_VERSION=$(docker compose version 2>/dev/null | head -1)
+    echo -e "${GREEN}✓ docker compose is installed (${COMPOSE_VERSION})${NC}"
 fi
 
 echo ""
@@ -75,8 +75,8 @@ else
     echo ""
     echo "  Alternative: Build the image locally instead"
     echo "  → cd deployment"
-    echo "  → docker-compose build"
-    echo "  → docker-compose up -d"
+    echo "  → docker compose build"
+    echo "  → docker compose up -d"
     echo ""
     ERRORS=$((ERRORS + 1))
 fi
