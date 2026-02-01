@@ -257,7 +257,10 @@ export async function GET(
 
     // Get counts by source with single-pass reduce for better performance
     const counts = photos.reduce((acc, p) => {
-      acc[p.source]++;
+      // Only count known sources to avoid undefined keys
+      if (p.source in acc && p.source !== 'total') {
+        acc[p.source]++;
+      }
       return acc;
     }, {
       total: photos.length,
@@ -266,7 +269,7 @@ export async function GET(
       punch_list: 0,
       inspection: 0,
       document: 0
-    });
+    } as Record<string, number>);
 
     return NextResponse.json({
       photos: paginatedPhotos,

@@ -106,10 +106,14 @@ export async function GET(req: NextRequest) {
     const orgsWithStats = organizations.map(org => {
       const projectIds = org.projects.map(p => p.id);
       
-      // Sum counts from lookup maps
-      const taskCount = projectIds.reduce((sum, pid) => sum + (tasksMap.get(pid) || 0), 0);
-      const documentCount = projectIds.reduce((sum, pid) => sum + (documentsMap.get(pid) || 0), 0);
-      const rfiCount = projectIds.reduce((sum, pid) => sum + (rfisMap.get(pid) || 0), 0);
+      // Sum all counts in a single pass for better performance
+      const counts = projectIds.reduce((acc, pid) => {
+        acc.taskCount += tasksMap.get(pid) || 0;
+        acc.documentCount += documentsMap.get(pid) || 0;
+        acc.rfiCount += rfisMap.get(pid) || 0;
+        return acc;
+      }, { taskCount: 0, documentCount: 0, rfiCount: 0 });
+      
       const totalBudget = budgetsMap.get(org.id) || 0;
 
       return {
@@ -121,9 +125,9 @@ export async function GET(req: NextRequest) {
           teamMembers: Number(org._count.teamMembers)
         },
         stats: {
-          taskCount: Number(taskCount),
-          documentCount: Number(documentCount),
-          rfiCount: Number(rfiCount),
+          taskCount: Number(counts.taskCount),
+          documentCount: Number(counts.documentCount),
+          rfiCount: Number(counts.rfiCount),
           totalBudget: Number(totalBudget)
         }
       };

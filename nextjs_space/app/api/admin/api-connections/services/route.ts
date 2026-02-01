@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
       else if (i.status === "INACTIVE") acc.inactive++;
       else if (i.status === "DISCONNECTED") acc.disconnected++;
       else if (i.status === "NOT_CONFIGURED") acc.notConfigured++;
+      // Note: Unknown statuses are not counted but included in total
       
       // Count core services
       if (i.definition.isPlatformCore) {
