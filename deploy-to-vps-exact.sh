@@ -90,7 +90,7 @@ echo "Running deployment commands on VPS..."
 sshpass -p "$VPS_PASSWORD" ssh -o StrictHostKeyChecking=no "$VPS_USER@$VPS_HOST" "
 cd $DEPLOYMENT_DIR
 tar -xzf $TARBALL
-nohup docker compose -f deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &
+nohup docker compose -f cortexbuild/deployment/docker-compose.yml build --no-cache app > /root/docker_build.log 2>&1 &
 BUILD_PID=\$!
 echo \"Docker build started with PID: \$BUILD_PID\"
 echo \"Build log location: /root/docker_build.log\"
