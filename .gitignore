@@ -4,6 +4,9 @@
 .env.*.local
 deployment/.env
 
+# Auto-generated deployment files
+DEPLOYMENT_SUMMARY.md
+
 # IDE
 .vscode/
 .idea/

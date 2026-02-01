@@ -34,7 +34,21 @@ This automated script will:
 - ✅ Run database migrations
 - ✅ Start all services
 
-**⏱️ Time:** ~10-15 minutes | **📖 Guide:** [DEPLOY_TO_VPS.md](DEPLOY_TO_VPS.md)
+**⏱️ Time:** ~10-15 minutes | **📖 Guide:** [DEPLOY_TO_VPS_COMPLETE.md](DEPLOY_TO_VPS_COMPLETE.md)
+
+### Deployment Resources
+
+**Quick Links:**
+- 📋 [VPS Deployment Checklist](VPS_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
+- 📖 [Complete Deployment Guide](DEPLOY_TO_VPS_COMPLETE.md) - Step-by-step instructions
+- 🔍 [Deployment Summary](DEPLOYMENT_SUMMARY.md) - Quick reference guide
+- ⚙️ [Deployment Instructions](VPS_DEPLOYMENT_INSTRUCTIONS.md) - Detailed technical guide
+- 🛠️ [Production Deployment](PRODUCTION_DEPLOYMENT.md) - Production checklist
+
+**Scripts:**
+- `./prepare-vps-deployment.sh` - Validate deployment readiness
+- `./deploy-to-vps.sh` - Automated one-command deployment
+- `./deployment/deploy-production.sh` - Production deployment script
 
 ### Option 2: VPS Deployment Package (Recommended for Production 📦)
 
