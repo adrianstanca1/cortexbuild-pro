@@ -92,5 +92,3 @@ export async function POST(request: Request) {
     return handleApiError(error, "save document");
   }
 }
-  }
-}

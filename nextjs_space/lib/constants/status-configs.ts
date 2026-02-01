@@ -6,7 +6,7 @@
 import {
   FileText, Image, File, FileSpreadsheet, Ruler, ScrollText,
   FileSignature, CheckCircle2, Clock, AlertTriangle, XCircle,
-  Package, Wrench, Truck, HardHat, LucideIcon
+  Package, Wrench, Truck
 } from 'lucide-react';
 
 // Document type configuration

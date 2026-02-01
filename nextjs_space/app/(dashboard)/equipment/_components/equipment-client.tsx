@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { format, isPast, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEntitySubscription } from '@/hooks/use-entity-subscription';
@@ -51,19 +51,11 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
 
   // Use centralized realtime subscription hook
   useEntitySubscription('equipment');
+  
   const [newEquipment, setNewEquipment] = useState({
     name: '', equipmentNumber: '', category: '', manufacturer: '', model: '',
     serialNumber: '', purchaseCost: '', notes: '', nextServiceDate: ''
   });
-
-  const handleEquipmentEvent = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  useRealtimeSubscription(
-    ['equipment_added', 'equipment_updated', 'equipment_deleted'],
-    handleEquipmentEvent
-  );
 
   const filteredEquipment = equipment.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) ||

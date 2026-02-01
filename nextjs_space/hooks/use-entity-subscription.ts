@@ -6,6 +6,7 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { RealtimeEvent } from '@/lib/realtime';
 
 /**
  * Hook to subscribe to entity creation/update events and refresh the router
@@ -21,24 +22,24 @@ import { useRealtimeSubscription } from '@/components/realtime-provider';
  * @example
  * // With custom callback
  * useEntitySubscription('task', {
- *   onEvent: (eventType) => {
- *     console.log('Event received:', eventType);
+ *   onEvent: (event) => {
+ *     console.log('Event received:', event.type);
  *   }
  * });
  */
 export function useEntitySubscription(
   entityType: string,
   options?: {
-    onEvent?: (eventType: string) => void;
+    onEvent?: (event: RealtimeEvent) => void;
     includeDeleted?: boolean;
   }
 ) {
   const router = useRouter();
   const { onEvent, includeDeleted = false } = options || {};
 
-  const handleEvent = useCallback((eventType: string) => {
+  const handleEvent = useCallback((event: RealtimeEvent) => {
     router.refresh();
-    onEvent?.(eventType);
+    onEvent?.(event);
   }, [router, onEvent]);
 
   // Build event list based on entity type
@@ -64,16 +65,16 @@ export function useEntitySubscription(
 export function useMultiEntitySubscription(
   entityTypes: string[],
   options?: {
-    onEvent?: (eventType: string) => void;
+    onEvent?: (event: RealtimeEvent) => void;
     includeDeleted?: boolean;
   }
 ) {
   const router = useRouter();
   const { onEvent, includeDeleted = false } = options || {};
 
-  const handleEvent = useCallback((eventType: string) => {
+  const handleEvent = useCallback((event: RealtimeEvent) => {
     router.refresh();
-    onEvent?.(eventType);
+    onEvent?.(event);
   }, [router, onEvent]);
 
   // Build event list from all entity types
