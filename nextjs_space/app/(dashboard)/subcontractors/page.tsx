@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { SubcontractorsClient } from "./_components/subcontractors-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function SubcontractorsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {

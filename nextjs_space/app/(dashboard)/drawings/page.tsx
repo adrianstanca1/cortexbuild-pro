@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { DrawingsClient } from "./_components/drawings-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function DrawingsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

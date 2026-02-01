@@ -8,9 +8,10 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 // Get project team members
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(
 
     // Verify project
     const project = await prisma.project.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -31,7 +32,7 @@ export async function GET(
     }
 
     const teamMembers = await prisma.projectTeamMember.findMany({
-      where: { projectId: params.id },
+      where: { projectId: id },
       include: {
         teamMember: {
           include: {
@@ -62,9 +63,10 @@ export async function GET(
 // Add team member to project
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -81,7 +83,7 @@ export async function POST(
     }
 
     const project = await prisma.project.findFirst({
-      where: { id: params.id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -97,7 +99,7 @@ export async function POST(
 
     // Check if already on project
     const existing = await prisma.projectTeamMember.findFirst({
-      where: { projectId: params.id, teamMemberId },
+      where: { projectId: id, teamMemberId },
     });
 
     if (existing) {
@@ -106,7 +108,7 @@ export async function POST(
 
     const projectTeamMember = await prisma.projectTeamMember.create({
       data: {
-        projectId: params.id,
+        projectId: id,
         teamMemberId,
       },
       include: {
@@ -125,14 +127,14 @@ export async function POST(
         entityName: projectTeamMember.teamMember.user.name,
         details: `${projectTeamMember.teamMember.user.name} added to project`,
         userId: user.id,
-        projectId: params.id,
+        projectId: id,
       },
     });
 
     broadcastToOrganization(user.organizationId, {
       type: 'team_member_added',
       payload: {
-        projectId: params.id,
+        projectId: id,
         projectName: project.name,
         memberName: projectTeamMember.teamMember.user.name,
         addedBy: user.name,
@@ -147,8 +149,9 @@ export async function POST(
 }
 
 // Remove team member from project
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -171,7 +174,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const projectTeamMember = await prisma.projectTeamMember.findFirst({
-      where: { projectId: params.id, id: memberId },
+      where: { projectId: id, id: memberId },
       include: { project: true, teamMember: { include: { user: { select: { name: true } } } } },
     });
 
@@ -184,7 +187,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     broadcastToOrganization(user.organizationId, {
       type: 'team_member_removed',
       payload: {
-        projectId: params.id,
+        projectId: id,
         projectName: projectTeamMember.project.name,
         memberName: projectTeamMember.teamMember.user.name,
       },

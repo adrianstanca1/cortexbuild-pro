@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { PunchListsClient } from './_components/punch-lists-client';
 
+export const dynamic = "force-dynamic";
+
 export default async function PunchListsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { BudgetClient } from "./_components/budget-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function BudgetPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {

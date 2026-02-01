@@ -6,16 +6,17 @@ import { prisma } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         users: {
           select: {
@@ -54,9 +55,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,7 +67,7 @@ export async function PATCH(
     const body = await req.json();
     const { name, slug, logoUrl } = body;
 
-    const existingOrg = await prisma.organization.findUnique({ where: { id: params.id } });
+    const existingOrg = await prisma.organization.findUnique({ where: { id } });
     if (!existingOrg) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
@@ -84,7 +86,7 @@ export async function PATCH(
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
 
     const organization = await prisma.organization.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData
     });
 
@@ -109,16 +111,17 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { _count: { select: { users: true, projects: true } } }
     });
 
@@ -134,7 +137,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.organization.delete({ where: { id: params.id } });
+    await prisma.organization.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({

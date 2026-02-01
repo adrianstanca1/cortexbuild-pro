@@ -7,16 +7,17 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
         createdBy: { select: { id: true, name: true } },
@@ -43,9 +44,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,7 +58,7 @@ export async function PATCH(
 
     // Get existing assessment
     const existing = await prisma.riskAssessment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -66,10 +68,10 @@ export async function PATCH(
 
     // Update hazards if provided
     if (hazards) {
-      await prisma.riskHazard.deleteMany({ where: { riskAssessmentId: params.id } });
+      await prisma.riskHazard.deleteMany({ where: { riskAssessmentId: id } });
       await prisma.riskHazard.createMany({
         data: hazards.map((h: any, index: number) => ({
-          riskAssessmentId: params.id,
+          riskAssessmentId: id,
           hazardDescription: h.hazardDescription,
           personsAtRisk: h.personsAtRisk || [],
           initialSeverity: h.initialSeverity || 3,
@@ -85,7 +87,7 @@ export async function PATCH(
     }
 
     const riskAssessment = await prisma.riskAssessment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...updateData,
         status: status || undefined,
@@ -127,16 +129,17 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const existing = await prisma.riskAssessment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -144,11 +147,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    await prisma.riskAssessment.delete({ where: { id: params.id } });
+    await prisma.riskAssessment.delete({ where: { id } });
 
     broadcastToOrganization(existing.project.organizationId, {
       type: 'risk_assessment_deleted',
-      data: { id: params.id }
+      data: { id }
     });
 
     return NextResponse.json({ success: true });

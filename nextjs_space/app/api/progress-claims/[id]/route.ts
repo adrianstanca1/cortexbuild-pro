@@ -7,16 +7,17 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         lineItems: { orderBy: { sortOrder: "asc" } },
@@ -37,9 +38,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,7 +54,7 @@ export async function PATCH(
     } = body;
 
     const existingClaim = await prisma.progressClaim.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -93,7 +95,7 @@ export async function PATCH(
     if (paidDate) updateData.paidDate = new Date(paidDate);
 
     const claim = await prisma.progressClaim.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -118,16 +120,17 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -140,7 +143,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Can only delete draft claims" }, { status: 400 });
     }
 
-    await prisma.progressClaim.delete({ where: { id: params.id } });
+    await prisma.progressClaim.delete({ where: { id } });
 
     if (claim.project.organizationId) {
       broadcastToOrganization(claim.project.organizationId, {

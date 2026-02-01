@@ -19,15 +19,14 @@ export interface GalleryPhoto {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: projectId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const projectId = params.id;
     const { searchParams } = new URL(request.url);
     const source = searchParams.get('source'); // Filter by source type
     const limit = parseInt(searchParams.get('limit') || '100');

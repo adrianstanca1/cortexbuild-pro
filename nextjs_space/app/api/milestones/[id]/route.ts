@@ -7,9 +7,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(
 
     const milestone = await prisma.milestone.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -39,9 +40,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -49,7 +51,7 @@ export async function PATCH(
 
     const existing = await prisma.milestone.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -66,7 +68,7 @@ export async function PATCH(
     } = body;
 
     const milestone = await prisma.milestone.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
@@ -111,9 +113,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -121,7 +124,7 @@ export async function DELETE(
 
     const existing = await prisma.milestone.findFirst({
       where: {
-        id: params.id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -131,13 +134,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
     }
 
-    await prisma.milestone.delete({ where: { id: params.id } });
+    await prisma.milestone.delete({ where: { id } });
 
     await prisma.activityLog.create({
       data: {
         action: "milestone_deleted",
         entityType: "Milestone",
-        entityId: params.id,
+        entityId: id,
         entityName: existing.name,
         details: `Deleted milestone: ${existing.name}`,
         userId: session.user.id,
@@ -147,7 +150,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "milestone_deleted",
-      data: { id: params.id, projectId: existing.projectId }
+      data: { id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });

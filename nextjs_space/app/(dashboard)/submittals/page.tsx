@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { SubmittalsClient } from './_components/submittals-client';
 
+export const dynamic = "force-dynamic";
+
 export default async function SubmittalsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/login');

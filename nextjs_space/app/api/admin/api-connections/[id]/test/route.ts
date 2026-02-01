@@ -49,16 +49,17 @@ const SERVICE_TEST_CONFIGS: Record<string, {
 // POST - Test API connection
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!connection) {
@@ -131,7 +132,7 @@ export async function POST(
     const consecutiveErrors = success ? 0 : connection.consecutiveErrors + 1;
 
     await prisma.apiConnection.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: newStatus,
         lastValidatedAt: new Date(),

@@ -7,16 +7,17 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const log = await prisma.siteAccessLog.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         user: { select: { id: true, name: true, email: true } },
@@ -40,9 +41,10 @@ export async function GET(
 // Sign out endpoint - creates an EXIT record linked to the entry
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -53,7 +55,7 @@ export async function POST(
 
     // Get the entry log
     const entryLog = await prisma.siteAccessLog.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { id: true, organizationId: true } } }
     });
 
@@ -63,7 +65,7 @@ export async function POST(
 
     // Check if already signed out
     const existingExit = await prisma.siteAccessLog.findFirst({
-      where: { entryLogId: params.id, accessType: 'EXIT' }
+      where: { entryLogId: id, accessType: 'EXIT' }
     });
 
     if (existingExit) {
@@ -82,7 +84,7 @@ export async function POST(
         badgeNumber: entryLog.badgeNumber,
         signatureData: data.signatureData,
         signatureIp: data.signatureData ? ip : null,
-        entryLogId: params.id,
+        entryLogId: id,
         projectId: entryLog.projectId,
         recordedById: session.user.id,
         notes: data.notes

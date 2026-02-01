@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
 // Add attendee signature to toolbox talk
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,7 +33,7 @@ export async function POST(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: params.id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {
@@ -47,12 +48,12 @@ export async function POST(
     const attendee = await prisma.toolboxTalkAttendee.upsert({
       where: {
         toolboxTalkId_userId: {
-          toolboxTalkId: params.id,
+          toolboxTalkId: id,
           userId: userId
         }
       },
       create: {
-        toolboxTalkId: params.id,
+        toolboxTalkId: id,
         userId: userId,
         name,
         company: company || null,
@@ -75,7 +76,7 @@ export async function POST(
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_signed",
-      data: { toolboxTalkId: params.id, attendee }
+      data: { toolboxTalkId: id, attendee }
     });
 
     return NextResponse.json({ attendee });
@@ -88,9 +89,10 @@ export async function POST(
 // Add guest attendee (non-registered user)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -110,7 +112,7 @@ export async function PUT(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: params.id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {
@@ -124,7 +126,7 @@ export async function PUT(
     // Create guest attendee record (no userId)
     const attendee = await prisma.toolboxTalkAttendee.create({
       data: {
-        toolboxTalkId: params.id,
+        toolboxTalkId: id,
         userId: null,
         name,
         company: company || null,
@@ -138,7 +140,7 @@ export async function PUT(
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_guest_signed",
-      data: { toolboxTalkId: params.id, attendee }
+      data: { toolboxTalkId: id, attendee }
     });
 
     return NextResponse.json({ attendee });

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import MilestonesClient from "./_components/milestones-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function MilestonesPage() {
   const session = await getServerSession(authOptions);
 

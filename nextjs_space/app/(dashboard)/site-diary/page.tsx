@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { SiteDiaryClient } from "./_components/site-diary-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function SiteDiaryPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

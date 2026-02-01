@@ -6,9 +6,10 @@ import prisma from '@/lib/db';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -31,7 +32,7 @@ export async function POST(
       where: {
         projectId_teamMemberId: {
           projectId,
-          teamMemberId: params.id
+          teamMemberId: id
         }
       }
     });
@@ -43,7 +44,7 @@ export async function POST(
     const assignment = await prisma.projectTeamMember.create({
       data: {
         projectId,
-        teamMemberId: params.id
+        teamMemberId: id
       },
       include: {
         project: {
@@ -54,7 +55,7 @@ export async function POST(
 
     // Log activity
     const teamMember = await prisma.teamMember.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { user: { select: { name: true } } }
     });
 
@@ -62,7 +63,7 @@ export async function POST(
       data: {
         action: 'assigned to project',
         entityType: 'team_member',
-        entityId: params.id,
+        entityId: id,
         entityName: teamMember?.user.name,
         userId: session.user.id,
         projectId
@@ -78,9 +79,10 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -97,7 +99,7 @@ export async function DELETE(
       where: {
         projectId_teamMemberId: {
           projectId,
-          teamMemberId: params.id
+          teamMemberId: id
         }
       }
     });

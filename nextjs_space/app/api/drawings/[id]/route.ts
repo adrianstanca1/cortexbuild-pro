@@ -7,16 +7,17 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const drawing = await prisma.drawing.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         revisions: { orderBy: { createdAt: "desc" } },
@@ -36,9 +37,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -48,7 +50,7 @@ export async function PATCH(
     const { number, title, description, discipline, status, currentRevision, scale, sheetSize, newRevision } = body;
 
     const existingDrawing = await prisma.drawing.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -60,7 +62,7 @@ export async function PATCH(
     if (newRevision) {
       await prisma.drawingRevision.create({
         data: {
-          drawingId: params.id,
+          drawingId: id,
           revision: newRevision.revision,
           description: newRevision.description,
           cloudStoragePath: newRevision.cloudStoragePath,
@@ -72,7 +74,7 @@ export async function PATCH(
     }
 
     const drawing = await prisma.drawing.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(number && { number }),
         ...(title && { title }),
@@ -105,16 +107,17 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const drawing = await prisma.drawing.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -122,7 +125,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Drawing not found" }, { status: 404 });
     }
 
-    await prisma.drawing.delete({ where: { id: params.id } });
+    await prisma.drawing.delete({ where: { id } });
 
     if (drawing.project.organizationId) {
       broadcastToOrganization(drawing.project.organizationId, {

@@ -8,16 +8,17 @@ import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/e
 // GET - Get single API connection details
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         createdBy: {
           select: { id: true, name: true, email: true }
@@ -56,16 +57,17 @@ export async function GET(
 // PATCH - Update API connection
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!existing) {
@@ -131,7 +133,7 @@ export async function PATCH(
     }
 
     const connection = await prisma.apiConnection.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         createdBy: {
@@ -172,16 +174,17 @@ export async function PATCH(
 // DELETE - Delete API connection
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!existing) {
@@ -206,7 +209,7 @@ export async function DELETE(
     });
 
     await prisma.apiConnection.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ success: true });

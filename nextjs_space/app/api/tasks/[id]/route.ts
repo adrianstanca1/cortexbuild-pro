@@ -6,8 +6,9 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,7 +35,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
 
     const task = await prisma.task.update({
-      where: { id: params?.id ?? "" },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
@@ -84,8 +85,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -96,11 +98,11 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     // Fetch task before deletion for broadcast
     const task = await prisma.task.findUnique({
-      where: { id: params?.id ?? "" },
+      where: { id },
       include: { project: { select: { id: true, name: true } } }
     });
 
-    await prisma.task.delete({ where: { id: params?.id ?? "" } });
+    await prisma.task.delete({ where: { id } });
 
     // Broadcast real-time event to organization
     if (organizationId && task) {

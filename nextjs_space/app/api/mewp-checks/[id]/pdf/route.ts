@@ -7,16 +7,17 @@ import { format } from "date-fns";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const mewpCheck = await prisma.mEWPCheck.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         project: { select: { name: true, organizationId: true } },
         operator: { select: { name: true, email: true } },

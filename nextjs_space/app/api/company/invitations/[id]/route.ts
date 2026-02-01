@@ -7,9 +7,10 @@ import { prisma } from "@/lib/db";
 // GET - Get invitation details
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,9 +47,10 @@ export async function GET(
 // PATCH - Resend or revoke invitation
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -65,7 +67,7 @@ export async function PATCH(
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: user.organizationId,
       },
       include: {
@@ -88,7 +90,7 @@ export async function PATCH(
       newExpiresAt.setDate(newExpiresAt.getDate() + 7);
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           status: "PENDING",
           expiresAt: newExpiresAt,
@@ -147,7 +149,7 @@ export async function PATCH(
       }
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: params.id },
+        where: { id },
         data: { status: "REVOKED" }
       });
 
@@ -175,9 +177,10 @@ export async function PATCH(
 // DELETE - Delete invitation
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -191,7 +194,7 @@ export async function DELETE(
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: user.organizationId,
       }
     });
@@ -201,7 +204,7 @@ export async function DELETE(
     }
 
     await prisma.teamInvitation.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: "Invitation deleted" });

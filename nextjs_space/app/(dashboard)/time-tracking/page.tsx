@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import TimeTrackingClient from "./_components/time-tracking-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function TimeTrackingPage() {
   const session = await getServerSession(authOptions);
 

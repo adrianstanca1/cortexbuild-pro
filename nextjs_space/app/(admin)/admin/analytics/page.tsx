@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation';
 import { AnalyticsClient } from './_components/analytics-client';
 import { Metadata } from 'next';
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
     title: 'Advanced Analytics | CortexBuild Pro',
     description: 'Deep insights into project performance and resource allocation.',
