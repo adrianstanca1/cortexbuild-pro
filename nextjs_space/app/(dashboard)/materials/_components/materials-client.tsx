@@ -113,12 +113,6 @@ export function MaterialsClient({
 
   // Use centralized realtime subscription hook
   useEntitySubscription('material');
-  }, [router]);
-
-  useRealtimeSubscription(
-    ["material_created", "material_updated", "material_deleted"],
-    handleMaterialEvent
-  );
 
   const filteredMaterials = materials.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
