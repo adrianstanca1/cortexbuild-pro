@@ -185,7 +185,12 @@ export function withApiMiddleware(
           const validation = await validateRequest(bodySchema, rawBody);
           
           if (!validation.success) {
-            const errors = formatValidationErrors(validation.errors);
+            // Type narrowing: if success is false, errors exists
+            const validationErrors = 'errors' in validation ? validation.errors : null;
+            if (!validationErrors) {
+              return NextResponse.json({ error: 'Validation failed' }, { status: 400 });
+            }
+            const errors = formatValidationErrors(validationErrors);
             const response = NextResponse.json(
               {
                 error: 'Validation failed',
@@ -226,7 +231,12 @@ export function withApiMiddleware(
         const validation = await validateRequest(querySchema, searchParams);
         
         if (!validation.success) {
-          const errors = formatValidationErrors(validation.errors);
+          // Type narrowing: if success is false, errors exists
+          const validationErrors = 'errors' in validation ? validation.errors : null;
+          if (!validationErrors) {
+            return NextResponse.json({ error: 'Validation failed' }, { status: 400 });
+          }
+          const errors = formatValidationErrors(validationErrors);
           const response = NextResponse.json(
             {
               error: 'Validation failed',

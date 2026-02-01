@@ -96,10 +96,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
         entityId: id,
         projectId: id,
         userId,
-        metadata: {
+        details: JSON.stringify({
           oldPhase: project.phase,
           newPhase: phase
-        } as any
+        })
       }
     });
 
