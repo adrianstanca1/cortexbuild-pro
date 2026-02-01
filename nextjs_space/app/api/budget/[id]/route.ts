@@ -152,7 +152,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_deleted",
-      data: { id: id, projectId: existing.projectId }
+      data: { id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });
