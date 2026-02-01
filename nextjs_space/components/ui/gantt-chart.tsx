@@ -49,10 +49,12 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
   // Memoize initial view start calculation for better performance
   const initialViewStart = useMemo(() => {
     if (items.length === 0) return startOfMonth(new Date());
-    const minDate = items.reduce((min, item) => {
+    // Use the first item's date as initial value to ensure correct minimum
+    const firstDate = parseISO(items[0].startDate);
+    const minDate = items.slice(1).reduce((min, item) => {
       const d = parseISO(item.startDate);
       return d < min ? d : min;
-    }, new Date());
+    }, firstDate);
     return startOfMonth(minDate);
   }, [items]);
 

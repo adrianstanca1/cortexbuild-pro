@@ -50,7 +50,25 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       teamMembers: {
-        include: { teamMember: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } } } },
+        select: {
+          id: true,
+          role: true,
+          createdAt: true,
+          teamMember: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatarUrl: true,
+                  role: true
+                }
+              }
+            }
+          }
+        },
         take: 50
       },
       rfis: {

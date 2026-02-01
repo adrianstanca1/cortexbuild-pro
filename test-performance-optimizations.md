@@ -110,9 +110,9 @@ tasks: {
 
 **Test Cases:**
 1. Project with 50 tasks - verify all data displayed correctly
-2. Project with 500+ tasks - verify only 100 shown, performance improved
+2. Project with 500+ tasks - verify only 100 shown, _count shows accurate total
 3. Project with many relations - verify memory usage reduced
-4. Verify pagination/load more functionality still works
+4. Verify UI displays use _count for accurate totals, limited arrays for display data
 
 ### 4. GanttChart Component Memoization
 **File:** `components/ui/gantt-chart.tsx`

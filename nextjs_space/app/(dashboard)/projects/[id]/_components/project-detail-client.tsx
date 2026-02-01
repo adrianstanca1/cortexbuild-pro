@@ -150,36 +150,36 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
   const [newMilestone, setNewMilestone] = useState({ name: "", description: "", dueDate: "" });
   const [newTimeEntry, setNewTimeEntry] = useState({ description: "", hours: "", date: new Date().toISOString().split('T')[0], taskId: "" });
 
-  // Get counts for badges
+  // Get counts for badges - use _count for accurate totals
   const getCounts = () => ({
-    tasks: project?.tasks?.length || 0,
-    milestones: project?.milestones?.length || 0,
-    rfis: project?.rfis?.length || 0,
-    submittals: project?.submittals?.length || 0,
-    documents: project?.documents?.length || 0,
-    team: project?.teamMembers?.length || 0,
-    changeOrders: project?.changeOrders?.length || 0,
-    safety: project?.safetyIncidents?.length || 0,
+    tasks: project?._count?.tasks || 0,
+    milestones: project?._count?.milestones || 0,
+    rfis: project?._count?.rfis || 0,
+    submittals: project?._count?.submittals || 0,
+    documents: project?._count?.documents || 0,
+    team: project?._count?.teamMembers || 0,
+    changeOrders: project?._count?.changeOrders || 0,
+    safety: project?._count?.safetyIncidents || 0,
     dailyReports: project?.dailyReports?.length || 0,
-    timeEntries: project?.timeEntries?.length || 0,
-    materials: project?.materials?.length || 0,
-    permits: project?.permits?.length || 0,
-    drawings: project?.drawings?.length || 0,
-    defects: project?.defects?.length || 0,
-    punchLists: project?.punchLists?.length || 0,
-    inspections: project?.inspections?.length || 0,
-    progressClaims: project?.progressClaims?.length || 0,
-    siteDiaries: project?.siteDiaries?.length || 0,
-    subcontractors: project?.subcontracts?.length || 0,
-    costItems: project?.costItems?.length || 0,
-    toolboxTalks: project?.toolboxTalks?.length || 0,
-    mewpChecks: project?.mewpChecks?.length || 0,
-    toolChecks: project?.toolChecks?.length || 0,
-    riskAssessments: project?.riskAssessments?.length || 0,
-    hotWorkPermits: project?.hotWorkPermits?.length || 0,
-    confinedSpacePermits: project?.confinedSpacePermits?.length || 0,
-    liftingOperations: project?.liftingOperations?.length || 0,
-    siteAccessLogs: project?.siteAccessLogs?.length || 0,
+    timeEntries: project?._count?.timeEntries || 0,
+    materials: project?._count?.materials || 0,
+    permits: project?._count?.permits || 0,
+    drawings: project?._count?.drawings || 0,
+    defects: project?._count?.defects || 0,
+    punchLists: project?._count?.punchLists || 0,
+    inspections: project?._count?.inspections || 0,
+    progressClaims: project?._count?.progressClaims || 0,
+    siteDiaries: project?._count?.siteDiaries || 0,
+    subcontractors: project?._count?.subcontracts || 0,
+    costItems: project?._count?.costItems || 0,
+    toolboxTalks: project?._count?.toolboxTalks || 0,
+    mewpChecks: project?._count?.mewpChecks || 0,
+    toolChecks: project?._count?.toolChecks || 0,
+    riskAssessments: project?._count?.riskAssessments || 0,
+    hotWorkPermits: project?._count?.hotWorkPermits || 0,
+    confinedSpacePermits: project?._count?.confinedSpacePermits || 0,
+    liftingOperations: project?._count?.liftingOperations || 0,
+    siteAccessLogs: project?._count?.siteAccessLogs || 0,
     certifications: certifications?.length || 0,
   });
   const counts = getCounts();
@@ -562,8 +562,11 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
 // ==================== Tab Components ====================
 
 function OverviewTab({ project, counts, setActiveTab }: { project: any; counts: any; setActiveTab: (tab: string) => void }) {
+  // Use the fetched tasks for display, but note this is limited data
   const completedTasks = project?.tasks?.filter((t: any) => t?.status === "COMPLETE")?.length || 0;
   const totalTasks = project?.tasks?.length || 0;
+  // Note: This progress is based on limited data (first 100 tasks)
+  // For accurate progress, consider adding a server-side calculation
   const taskProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const totalBudget = project?.budget || 0;
   const spentBudget = project?.costItems?.reduce((sum: number, item: any) => sum + (item?.actualCost || 0), 0) || 0;
@@ -625,6 +628,7 @@ function OverviewTab({ project, counts, setActiveTab }: { project: any; counts: 
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-600">Open Items</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-2 text-sm">
+              {/* Note: Counts based on limited data (first 50 items) */}
               <div className="flex justify-between"><span className="text-gray-500">RFIs:</span><span className="font-medium">{project?.rfis?.filter((r: any) => r?.status !== 'CLOSED')?.length || 0}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Submittals:</span><span className="font-medium">{project?.submittals?.filter((s: any) => s?.status !== 'APPROVED')?.length || 0}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Defects:</span><span className="font-medium">{project?.defects?.filter((d: any) => d?.status !== 'CLOSED')?.length || 0}</span></div>

@@ -354,12 +354,28 @@ useEffect(() => {
 
 ## Backward Compatibility
 
-All optimizations maintain full backward compatibility:
-- ✅ API response structures unchanged
-- ✅ Same data returned (up to pagination limits)
-- ✅ No breaking changes to client code
-- ✅ Existing functionality preserved
-- ✅ All originally present fields restored
+The optimizations maintain API structure compatibility but **introduce behavioral changes** due to pagination:
+
+- ✅ **API response structures unchanged** - Field names and nesting preserved
+- ⚠️ **Breaking change: Collection fields are paginated** - Arrays now contain only a subset of items (limited by `take`)
+- ⚠️ **Client code must use `_count` fields** - Code that relied on `array.length` for total counts must switch to `_count.*` fields
+- ✅ **Migration path provided** - `_count` fields are included for all relations to support smooth migration
+- ✅ **Displayed data remains functional** - The limited arrays still provide useful data for UI display
+
+### Migration Guide for Clients
+
+**Before:**
+```typescript
+const taskCount = project.tasks.length; // May be capped at limit
+const completedCount = project.tasks.filter(t => t.status === 'COMPLETE').length;
+```
+
+**After:**
+```typescript
+const taskCount = project._count.tasks; // Accurate total count
+// For status-specific counts, consider server-side aggregation
+const completedTasks = project.tasks.filter(t => t.status === 'COMPLETE').length; // Based on limited data
+```
 
 ---
 
