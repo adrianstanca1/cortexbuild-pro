@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { format, isPast, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useEntitySubscription } from '@/hooks/use-entity-subscription';
+import { EQUIPMENT_STATUS_CONFIG } from '@/lib/constants/status-configs';
 import {
   Truck, Plus, Search, Wrench, MapPin, Calendar, PoundSterling,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
@@ -40,37 +41,6 @@ interface EquipmentClientProps {
   projects: { id: string; name: string }[];
 }
 
-const statusConfig = {
-  AVAILABLE: { 
-    label: 'Available', 
-    bg: 'bg-green-100 dark:bg-green-900/30', 
-    text: 'text-green-700 dark:text-green-400', 
-    icon: CheckCircle2,
-    dot: 'bg-green-500'
-  },
-  IN_USE: { 
-    label: 'In Use', 
-    bg: 'bg-blue-100 dark:bg-blue-900/30', 
-    text: 'text-blue-700 dark:text-blue-400', 
-    icon: Truck,
-    dot: 'bg-blue-500'
-  },
-  MAINTENANCE: { 
-    label: 'Maintenance', 
-    bg: 'bg-amber-100 dark:bg-amber-900/30', 
-    text: 'text-amber-700 dark:text-amber-400', 
-    icon: Wrench,
-    dot: 'bg-amber-500'
-  },
-  OUT_OF_SERVICE: { 
-    label: 'Out of Service', 
-    bg: 'bg-red-100 dark:bg-red-900/30', 
-    text: 'text-red-700 dark:text-red-400', 
-    icon: XCircle,
-    dot: 'bg-red-500'
-  }
-};
-
 export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -78,19 +48,14 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showNewModal, setShowNewModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Use centralized realtime subscription hook
+  useEntitySubscription('equipment');
+  
   const [newEquipment, setNewEquipment] = useState({
     name: '', equipmentNumber: '', category: '', manufacturer: '', model: '',
     serialNumber: '', purchaseCost: '', notes: '', nextServiceDate: ''
   });
-
-  const handleEquipmentEvent = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  useRealtimeSubscription(
-    ['equipment_added', 'equipment_updated', 'equipment_deleted'],
-    handleEquipmentEvent
-  );
 
   const filteredEquipment = equipment.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -311,7 +276,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       ) : viewMode === 'grid' ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEquipment.map((item) => {
-            const status = statusConfig[item.status];
+            const status = EQUIPMENT_STATUS_CONFIG[item.status];
             const StatusIcon = status.icon;
             const serviceDueSoon = item.nextServiceDate && differenceInDays(new Date(item.nextServiceDate), new Date()) <= 7;
 
@@ -401,7 +366,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       ) : (
         <div className="space-y-3">
           {filteredEquipment.map((item) => {
-            const status = statusConfig[item.status];
+            const status = EQUIPMENT_STATUS_CONFIG[item.status];
             const StatusIcon = status.icon;
 
             return (
