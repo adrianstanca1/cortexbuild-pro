@@ -19,49 +19,152 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     include: {
       manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
       tasks: {
-        include: { 
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          dueDate: true,
+          createdAt: true,
+          updatedAt: true,
           assignee: { select: { id: true, name: true, avatarUrl: true } },
           creator: { select: { id: true, name: true } }
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
+        take: 100
       },
       documents: {
-        include: { uploadedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          name: true,
+          documentType: true,
+          fileSize: true,
+          mimeType: true,
+          cloudStoragePath: true,
+          isPublic: true,
+          createdAt: true,
+          uploadedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       teamMembers: {
-        include: { teamMember: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } } } }
+        select: {
+          id: true,
+          role: true,
+          createdAt: true,
+          teamMember: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatarUrl: true,
+                  role: true
+                }
+              }
+            }
+          }
+        },
+        take: 50
       },
       rfis: {
-        include: { 
+        select: {
+          id: true,
+          number: true,
+          subject: true,
+          description: true,
+          status: true,
+          priority: true,
+          dateRaised: true,
+          createdAt: true,
           createdBy: { select: { id: true, name: true } },
           assignedTo: { select: { id: true, name: true } }
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       submittals: {
-        include: { submittedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          specification: true,
+          status: true,
+          dateSubmitted: true,
+          createdAt: true,
+          submittedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       changeOrders: {
-        include: { requestedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          description: true,
+          status: true,
+          costChange: true,
+          timeChange: true,
+          dateRequested: true,
+          createdAt: true,
+          requestedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       safetyIncidents: {
-        include: { reportedBy: { select: { id: true, name: true } } },
-        orderBy: { incidentDate: "desc" }
+        select: {
+          id: true,
+          incidentDate: true,
+          description: true,
+          severity: true,
+          status: true,
+          location: true,
+          createdAt: true,
+          reportedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { incidentDate: "desc" },
+        take: 50
       },
       dailyReports: {
-        include: { createdBy: { select: { id: true, name: true } } },
+        select: {
+          id: true,
+          reportDate: true,
+          weatherConditions: true,
+          manpowerCount: true,
+          workAccomplished: true,
+          createdAt: true,
+          createdBy: { select: { id: true, name: true } }
+        },
         orderBy: { reportDate: "desc" },
         take: 30
       },
       // Additional construction modules
       milestones: {
-        orderBy: { targetDate: "asc" }
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          targetDate: true,
+          completedDate: true,
+          status: true,
+          createdAt: true
+        },
+        orderBy: { targetDate: "asc" },
+        take: 50
       },
       timeEntries: {
-        include: { 
+        select: {
+          id: true,
+          date: true,
+          hours: true,
+          description: true,
+          createdAt: true,
           user: { select: { id: true, name: true } },
           task: { select: { id: true, title: true } }
         },
@@ -69,44 +172,156 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       costItems: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          description: true,
+          category: true,
+          amount: true,
+          date: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       materials: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          name: true,
+          quantity: true,
+          unit: true,
+          costPerUnit: true,
+          status: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       subcontracts: {
-        include: { subcontractor: { select: { id: true, companyName: true, trade: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          contractNumber: true,
+          description: true,
+          amount: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
+          subcontractor: { select: { id: true, companyName: true, trade: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       permits: {
-        orderBy: { expirationDate: "asc" }
+        select: {
+          id: true,
+          permitNumber: true,
+          permitType: true,
+          description: true,
+          issueDate: true,
+          expirationDate: true,
+          status: true,
+          createdAt: true
+        },
+        orderBy: { expirationDate: "asc" },
+        take: 50
       },
       drawings: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          drawingNumber: true,
+          title: true,
+          revision: true,
+          discipline: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       siteDiaries: {
+        select: {
+          id: true,
+          date: true,
+          entry: true,
+          weather: true,
+          createdAt: true
+        },
         orderBy: { date: "desc" },
         take: 30
       },
       defects: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          severity: true,
+          status: true,
+          location: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       punchLists: {
-        include: { assignedTo: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          description: true,
+          status: true,
+          priority: true,
+          location: true,
+          dueDate: true,
+          createdAt: true,
+          assignedTo: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       inspections: {
-        orderBy: { scheduledDate: "desc" }
+        select: {
+          id: true,
+          number: true,
+          title: true,
+          inspectionType: true,
+          status: true,
+          scheduledDate: true,
+          completedDate: true,
+          result: true,
+          createdAt: true
+        },
+        orderBy: { scheduledDate: "desc" },
+        take: 50
       },
       progressClaims: {
-        orderBy: { createdAt: "desc" }
+        select: {
+          id: true,
+          claimNumber: true,
+          period: true,
+          amount: true,
+          status: true,
+          submittedDate: true,
+          createdAt: true
+        },
+        orderBy: { createdAt: "desc" },
+        take: 50
       },
       // Toolbox talks and daily checks
       toolboxTalks: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          date: true,
+          status: true,
+          duration: true,
+          topics: true,
+          createdAt: true,
           presenter: { select: { id: true, name: true } },
           attendees: {
-            include: { user: { select: { id: true, name: true } } }
+            select: {
+              id: true,
+              user: { select: { id: true, name: true } }
+            },
+            take: 50
           },
           _count: { select: { attendees: true } }
         },
@@ -114,7 +329,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       mewpChecks: {
-        include: {
+        select: {
+          id: true,
+          checkDate: true,
+          equipmentName: true,
+          equipmentSerial: true,
+          overallStatus: true,
+          isSafeToUse: true,
+          defectsFound: true,
+          createdAt: true,
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
           equipment: { select: { id: true, name: true, equipmentNumber: true } }
@@ -123,7 +346,16 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       toolChecks: {
-        include: {
+        select: {
+          id: true,
+          checkDate: true,
+          toolName: true,
+          toolSerial: true,
+          toolType: true,
+          overallStatus: true,
+          isSafeToUse: true,
+          defectsFound: true,
+          createdAt: true,
           inspector: { select: { id: true, name: true } }
         },
         orderBy: { checkDate: "desc" },
@@ -131,17 +363,39 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       },
       // Enhanced construction features
       riskAssessments: {
-        include: {
+        select: {
+          id: true,
+          title: true,
+          assessmentDate: true,
+          status: true,
+          overallRisk: true,
+          createdAt: true,
           createdBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
-          hazards: true,
+          hazards: {
+            select: {
+              id: true,
+              hazard: true,
+              riskLevel: true,
+              controlMeasures: true
+            },
+            take: 20
+          },
           _count: { select: { acknowledgements: true, hazards: true } }
         },
         orderBy: { createdAt: "desc" },
         take: 50
       },
       hotWorkPermits: {
-        include: {
+        select: {
+          id: true,
+          permitNumber: true,
+          location: true,
+          workDescription: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
           requestedBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
           completedBy: { select: { id: true, name: true } }
@@ -150,7 +404,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       confinedSpacePermits: {
-        include: {
+        select: {
+          id: true,
+          permitNumber: true,
+          location: true,
+          workDescription: true,
+          status: true,
+          entryDate: true,
+          exitDate: true,
+          createdAt: true,
           requestedBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } }
         },
@@ -158,7 +420,14 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       liftingOperations: {
-        include: {
+        select: {
+          id: true,
+          liftDate: true,
+          location: true,
+          loadDescription: true,
+          status: true,
+          maxLoad: true,
+          createdAt: true,
           plannedBy: { select: { id: true, name: true } },
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
@@ -168,22 +437,29 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         take: 50
       },
       siteAccessLogs: {
-        include: {
+        select: {
+          id: true,
+          accessTime: true,
+          exitTime: true,
+          purpose: true,
+          location: true,
+          createdAt: true,
           user: { select: { id: true, name: true } },
           recordedBy: { select: { id: true, name: true } }
         },
         orderBy: { accessTime: "desc" },
         take: 200
       },
-      _count: { 
-        select: { 
-          tasks: true, 
-          documents: true, 
+      _count: {
+        select: {
+          tasks: true,
+          documents: true,
           teamMembers: true,
           rfis: true,
           submittals: true,
           changeOrders: true,
           safetyIncidents: true,
+          dailyReports: true,
           milestones: true,
           timeEntries: true,
           costItems: true,
@@ -204,7 +480,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           confinedSpacePermits: true,
           liftingOperations: true,
           siteAccessLogs: true
-        } 
+        }
       }
     }
   });
