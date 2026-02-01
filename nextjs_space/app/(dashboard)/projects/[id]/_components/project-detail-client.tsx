@@ -160,7 +160,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
     team: project?._count?.teamMembers || 0,
     changeOrders: project?._count?.changeOrders || 0,
     safety: project?._count?.safetyIncidents || 0,
-    dailyReports: project?.dailyReports?.length || 0,
+    dailyReports: project?._count?.dailyReports || 0,
     timeEntries: project?._count?.timeEntries || 0,
     materials: project?._count?.materials || 0,
     permits: project?._count?.permits || 0,

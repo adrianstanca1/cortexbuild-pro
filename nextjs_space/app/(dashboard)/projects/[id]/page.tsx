@@ -459,6 +459,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           submittals: true,
           changeOrders: true,
           safetyIncidents: true,
+          dailyReports: true,
           milestones: true,
           timeEntries: true,
           costItems: true,
