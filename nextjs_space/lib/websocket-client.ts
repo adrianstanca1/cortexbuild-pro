@@ -7,6 +7,7 @@ class WebSocketClient {
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
   private reconnectInterval: number = 5000; // 5 seconds
+  private joinedRooms: Set<string> = new Set(); // Track joined rooms client-side
 
   connect(token: string, userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -87,15 +88,17 @@ class WebSocketClient {
     }
   }
 
-  joinProject(projectId: string, userId: string): void {
+  joinProject(projectId: string, userId?: string): void {
     if (this.socket && this.isConnected) {
       this.socket.emit('join-project', { projectId, userId });
+      this.joinedRooms.add(`project-${projectId}`);
     }
   }
 
   leaveProject(projectId: string): void {
     if (this.socket && this.isConnected) {
       this.socket.emit('leave-project', { projectId });
+      this.joinedRooms.delete(`project-${projectId}`);
     }
   }
 
@@ -136,8 +139,7 @@ class WebSocketClient {
   }
 
   isConnectedToProject(projectId: string): boolean {
-    if (!this.socket) return false;
-    return this.socket.rooms.has(`project-${projectId}`);
+    return this.joinedRooms.has(`project-${projectId}`);
   }
 }
 

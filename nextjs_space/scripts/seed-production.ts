@@ -5,9 +5,9 @@ import { getScriptPrismaClient, disconnectScriptPrisma } from "../lib/script-db"
 const prisma = getScriptPrismaClient();
 
 // Environment detection
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test';
 const IS_PRODUCTION = NODE_ENV === 'production';
-const IS_STAGING = NODE_ENV === 'staging' || process.env.ENVIRONMENT === 'staging';
+const IS_STAGING = process.env.ENVIRONMENT === 'staging';
 
 // Configuration
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "adrian.stanca1@gmail.com";
@@ -199,10 +199,9 @@ async function seedStaging() {
  */
 async function seedDevelopment() {
   console.log("🔧 Development seed: Creating full demo dataset...\n");
-
-  // Import and run the existing comprehensive seed
-  const { main: runFullSeed } = await import('./seed');
-  await runFullSeed();
+  console.log("⚠️  For development, use the full seed script instead:");
+  console.log("   npm run prisma db seed");
+  console.log("   or: npx tsx scripts/seed.ts\n");
 }
 
 /**

@@ -144,12 +144,17 @@ export function withApiMiddleware(
       
       // Rate limiting
       const identifier = getRateLimitIdentifier(request, userId);
-      const rateLimitResult = await checkRateLimit(rateLimiter, identifier);
+      const rateLimitConfig = {
+        windowMs: 60 * 1000,
+        maxRequests: 100,
+        message: 'Too many requests, please slow down.',
+      };
+      const rateLimitResult = await checkRateLimit(rateLimiter, identifier, rateLimitConfig);
       if (!rateLimitResult.ok) {
         if (enableLogging) {
           requestLogger.warn('Rate limit exceeded', { identifier });
         }
-        return applySecurityHeaders(rateLimitResult.response);
+        return applySecurityHeaders('response' in rateLimitResult ? rateLimitResult.response : NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 }));
       }
       
       // CSRF protection
@@ -159,7 +164,7 @@ export function withApiMiddleware(
           if (enableLogging) {
             requestLogger.warn('CSRF validation failed');
           }
-          return applySecurityHeaders(csrfResult.response);
+          return applySecurityHeaders('response' in csrfResult ? csrfResult.response : NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 }));
         }
       }
       
@@ -169,7 +174,7 @@ export function withApiMiddleware(
         if (enableLogging) {
           requestLogger.warn('Request size limit exceeded');
         }
-        return applySecurityHeaders(sizeResult.response);
+        return applySecurityHeaders('response' in sizeResult ? sizeResult.response : NextResponse.json({ error: 'Request too large' }, { status: 413 }));
       }
       
       // Parse and validate request body

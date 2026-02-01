@@ -99,7 +99,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         metadata: {
           oldPhase: project.phase,
           newPhase: phase
-        }
+        } as any
       }
     });
 
