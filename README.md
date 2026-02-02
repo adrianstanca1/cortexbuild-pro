@@ -39,6 +39,8 @@ This automated script will:
 ### Deployment Resources
 
 **Quick Links:**
+- 🚀 **[Deploy to Production for Testing](DEPLOY_PRODUCTION_TESTING.md)** - **NEW!** Complete automated deployment guide
+- ✅ [Deployment Ready Guide](DEPLOYMENT_READY.md) - Quick start for production deployment
 - 📋 [VPS Deployment Checklist](VPS_DEPLOYMENT_CHECKLIST.md) - Pre-flight checklist
 - 📖 [Complete Deployment Guide](DEPLOY_TO_VPS_COMPLETE.md) - Step-by-step instructions
 - 🔍 [Deployment Summary](DEPLOYMENT_SUMMARY.md) - Quick reference guide
@@ -46,6 +48,8 @@ This automated script will:
 - 🛠️ [Production Deployment](PRODUCTION_DEPLOYMENT.md) - Production checklist
 
 **Scripts:**
+- `./validate-pre-deployment.sh` - **NEW!** Validate deployment prerequisites
+- `./trigger-production-deploy.sh` - **NEW!** Trigger GitHub Actions deployment
 - `./prepare-vps-deployment.sh` - Validate deployment readiness
 - `./deploy-to-vps.sh` - Automated one-command deployment
 - `./deployment/deploy-production.sh` - Production deployment script

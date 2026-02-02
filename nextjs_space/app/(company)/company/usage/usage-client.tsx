@@ -60,7 +60,7 @@ interface CompanyUsageClientProps {
 export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsageClientProps) {
   const [currentUsageData, setCurrentUsageData] = useState<UsageData | undefined>(initialData);
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'billing'>('overview');
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [dateRange, _setDateRange] = useState<{ from?: Date; to?: Date }>({});
 
   // Synchronize local state with initialData if it changes
   useEffect(() => {
@@ -176,7 +176,7 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
           <p className="text-gray-600">Monitor your usage, track limits, and manage your subscription</p>
         </div>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <Select value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+          <Select value={activeTab} onValueChange={(value: string) => setActiveTab(value as 'overview' | 'history' | 'billing')}>
             <SelectTrigger className="w-[180px]" aria-label="Select view mode">
               <SelectValue placeholder="View Mode" />
             </SelectTrigger>

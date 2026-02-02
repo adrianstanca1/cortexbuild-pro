@@ -71,7 +71,7 @@ export const factories = {
     id: 'proj-' + Math.random().toString(36).substr(2, 9),
     name: 'Test Project',
     description: 'A test project',
-    status: 'ACTIVE',
+    status: 'IN_PROGRESS',
     organizationId: 'org-123',
     startDate: new Date(),
     createdAt: new Date(),
@@ -153,7 +153,7 @@ describe('Test Helpers', () => {
       
       expect(project).toHaveProperty('id');
       expect(project).toHaveProperty('name');
-      expect(project.status).toBe('ACTIVE');
+      expect(project.status).toBe('IN_PROGRESS');
     });
     
     it('should create task factory data', () => {
@@ -166,4 +166,3 @@ describe('Test Helpers', () => {
     });
   });
 });
-

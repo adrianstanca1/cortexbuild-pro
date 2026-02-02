@@ -59,6 +59,8 @@ You now have **three proven methods** to deploy CortexBuild Pro to your VPS:
 ### Option 1: Automated One-Command Deployment ⚡
 **Fastest method - Fully automated**
 
+> **Note:** Ensure these deployment scripts are merged to the main branch before using this method. If deploying from a feature branch, update the branch name in the URLs below.
+
 ```bash
 # Run on your VPS
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/deploy-to-vps/deploy-to-vps.sh | bash
