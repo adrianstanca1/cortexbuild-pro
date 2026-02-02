@@ -1533,12 +1533,20 @@ model DrawingAnnotation {
   id           String   @id @default(cuid())
   drawingId    String
   drawing      Drawing  @relation(fields: [drawingId], references: [id], onDelete: Cascade)
-  type         String   // pen, highlighter, text, rectangle, circle, arrow, line, cloud, measurement, etc.
+  type         String   // pen, brush, highlighter, marker, spray, text, rectangle, filledRectangle, roundedRectangle, circle, filledCircle, ellipse, triangle, polygon, star, arrow, doubleArrow, line, cloud, cloudRevision, callout, speechBubble, measurement, areaMeasurement, angleMeasurement, dimension, leader, bezier, spline, crosshatch, stamp, etc.
   data         Json     // Stores the annotation data (points, coordinates, etc.)
   color        String   @default("#FF0000")
+  fillColor    String?  @default("#FF0000")
   strokeWidth  Int      @default(3)
+  opacity      Float    @default(1)
   text         String?  @db.Text  // For text annotations
+  fontFamily   String?  @default("Arial")
+  fontSize     Int?     @default(16)
+  fontStyle    String?  @default("normal")
   visible      Boolean  @default(true)
+  locked       Boolean  @default(false)
+  layer        Int      @default(0)
+  transform    Json?    // For rotation, scale, translation
   createdById  String
   createdBy    User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())

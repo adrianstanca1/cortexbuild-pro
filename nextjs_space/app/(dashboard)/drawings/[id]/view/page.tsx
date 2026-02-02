@@ -1,15 +1,11 @@
 import { getServerSession } from "next-auth";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect, notFound } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { DrawingViewerClient } from "./_components/drawing-viewer-client";
 
-export default async function DrawingViewerPage({ params }: { params: { id: string } }) {
+export default async function DrawingViewerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/login");
@@ -22,7 +18,7 @@ export default async function DrawingViewerPage({ params }: { params: { id: stri
 
   const drawing = await prisma.drawing.findFirst({
     where: {
-      id: params.id,
+      id: id,
       project: { organizationId },
     },
     include: {
@@ -50,7 +46,7 @@ export default async function DrawingViewerPage({ params }: { params: { id: stri
 
   // Fetch annotations for this drawing
   const annotations = await prisma.drawingAnnotation.findMany({
-    where: { drawingId: params.id },
+    where: { drawingId: id },
     include: {
       createdBy: {
         select: { id: true, name: true, email: true },

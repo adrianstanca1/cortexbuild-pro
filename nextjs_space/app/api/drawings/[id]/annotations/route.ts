@@ -51,7 +51,18 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { type, data, color, strokeWidth, text } = body;
+    const { 
+      type, 
+      data, 
+      color, 
+      fillColor,
+      strokeWidth, 
+      opacity,
+      text,
+      fontFamily,
+      fontSize,
+      fontStyle,
+    } = body;
 
     if (!type || !data) {
       return NextResponse.json(
@@ -75,9 +86,16 @@ export async function POST(
         drawingId: id,
         type,
         data,
-        color,
-        strokeWidth,
-        text,
+        color: color || "#FF0000",
+        fillColor: fillColor || color || "#FF0000",
+        strokeWidth: strokeWidth || 3,
+        opacity: opacity || 1,
+        text: text || null,
+        fontFamily: fontFamily || "Arial",
+        fontSize: fontSize || 16,
+        fontStyle: fontStyle || "normal",
+        visible: true,
+        locked: false,
         createdById: session.user.id,
       },
       include: {
