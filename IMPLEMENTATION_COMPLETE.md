@@ -171,7 +171,7 @@ cd /var/www/cortexbuild-pro/deployment
 
 **Containerized Services:**
 - PostgreSQL 15 database
-- Next.js 14 application (Node.js 20)
+- Next.js 16 application (Node.js 20)
 - Nginx reverse proxy
 - Certbot for SSL certificates
 

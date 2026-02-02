@@ -85,7 +85,7 @@ scp cortexbuild_vps_deploy.tar.gz root@YOUR_VPS_IP:/root/
 
 # 2. Extract and deploy
 ssh root@YOUR_VPS_IP
-cd /root/cortexbuild
+cd /root
 tar -xzf cortexbuild_vps_deploy.tar.gz
 cd cortexbuild/deployment
 cp .env.example .env

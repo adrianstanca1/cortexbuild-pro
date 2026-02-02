@@ -25,7 +25,7 @@
 
 ### Application Stack
 
-- **Frontend:** Next.js 14 (React 18.2)
+- **Frontend:** Next.js 16 (React 18.2)
 - **Backend:** Node.js 20 with Next.js API routes
 - **Database:** PostgreSQL 15
 - **Storage:** AWS S3
