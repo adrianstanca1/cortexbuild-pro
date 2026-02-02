@@ -55,6 +55,8 @@ CortexBuild Pro is **fully prepared** for VPS deployment. All code is committed,
 
 ### 1. Automated One-Command Deployment ⚡ (RECOMMENDED)
 
+> **Note:** Ensure these deployment scripts are merged to the main branch before using this method. If deploying from a feature branch, update the branch name in the URLs below.
+
 **Command:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash

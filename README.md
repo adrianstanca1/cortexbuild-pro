@@ -377,7 +377,7 @@ docker compose logs -f
 --- 🏗️ Architecture
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI**: React 18.2, Tailwind CSS, Radix UI, shadcn/ui
 - **State**: React Query, Zustand
 - **Real-time**: Socket.IO client
@@ -971,7 +971,7 @@ Proprietary - All rights reserved.
 **Deployed to**: https://www.cortexbuildpro.com
 
 **Build Details:**
-- Next.js 14.2.35
+- Next.js 16.1.6
 - Node.js 20
 - PostgreSQL 15
 - 54 static pages
