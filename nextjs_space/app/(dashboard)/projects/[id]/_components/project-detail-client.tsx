@@ -1079,11 +1079,12 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
         <motion.div 
           layout
           className={`
-            relative bg-gradient-to-r from-slate-50 via-white to-slate-50 
+            relative z-40 bg-gradient-to-r from-slate-50 via-white to-slate-50 
             dark:from-slate-800/80 dark:via-slate-800 dark:to-slate-800/80
             border-t-2 border-b border-slate-200/80 dark:border-slate-700
             shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)]
             transition-all duration-300 ${sidebarCollapsed ? 'px-8 py-4' : 'px-6 py-3'}
+            overflow-visible
           `}
         >
           {/* Decorative top accent line */}
@@ -1152,7 +1153,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -10, scale: 0.95 }}
                           transition={{ duration: 0.15 }}
-                          className={`absolute top-full left-0 z-50 mt-3 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden ${sidebarCollapsed ? 'min-w-[300px]' : 'min-w-[240px]'}`}
+                          className={`absolute top-full left-0 z-[100] mt-3 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden ${sidebarCollapsed ? 'min-w-[300px]' : 'min-w-[240px]'}`}
                         >
                           <div className={`bg-gradient-to-r ${category.gradient} text-white ${sidebarCollapsed ? 'px-5 py-4' : 'px-4 py-3'}`}>
                             <div className="flex items-center gap-3">
@@ -1250,7 +1251,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
         {/* Click outside to close dropdown */}
         {expandedTopMenu && (
           <div 
-            className="fixed inset-0 z-40" 
+            className="fixed inset-0 z-[90]" 
             onClick={() => setExpandedTopMenu(null)}
           />
         )}

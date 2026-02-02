@@ -77,7 +77,7 @@ const healthConfig = {
     label: "Excellent",
     color: "bg-emerald-500", 
     bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
-    textColor: "text-emerald-700 dark:text-emerald-400",
+    textColor: "text-emerald-600 dark:text-emerald-400",
     dotColor: "bg-emerald-500",
     gradient: "from-emerald-500 to-teal-500"
   },
@@ -85,7 +85,7 @@ const healthConfig = {
     label: "On Track",
     color: "bg-blue-500", 
     bgColor: "bg-blue-50 dark:bg-blue-900/20",
-    textColor: "text-blue-700 dark:text-blue-400",
+    textColor: "text-blue-600 dark:text-blue-400",
     dotColor: "bg-blue-500",
     gradient: "from-blue-500 to-cyan-500"
   },
@@ -93,7 +93,7 @@ const healthConfig = {
     label: "At Risk",
     color: "bg-amber-500", 
     bgColor: "bg-amber-50 dark:bg-amber-900/20",
-    textColor: "text-amber-700 dark:text-amber-400",
+    textColor: "text-amber-600 dark:text-amber-400",
     dotColor: "bg-amber-500",
     gradient: "from-amber-500 to-orange-500"
   },
@@ -101,7 +101,7 @@ const healthConfig = {
     label: "Critical",
     color: "bg-red-500", 
     bgColor: "bg-red-50 dark:bg-red-900/20",
-    textColor: "text-red-700 dark:text-red-400",
+    textColor: "text-red-600 dark:text-red-400",
     dotColor: "bg-red-500",
     gradient: "from-red-500 to-rose-500"
   }
@@ -383,7 +383,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-primary transition-colors line-clamp-1">
                   {project?.name}
                 </h3>
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                   {project?.clientName && (
                     <>
                       <Building2 className="h-3.5 w-3.5" />
@@ -392,7 +392,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                   )}
                   {project?.location && (
                     <>
-                      <span className="text-slate-300 dark:text-slate-600">•</span>
+                      <span className="text-slate-400 dark:text-slate-600">•</span>
                       <MapPin className="h-3.5 w-3.5" />
                       <span className="truncate">{project?.location}</span>
                     </>
@@ -482,7 +482,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                     <PoundSterling className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">Budget</p>
+                    <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-wide">Budget</p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white">
                       {formatBudget(project?.budget || 0)}
                     </p>
@@ -490,7 +490,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Updated</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Updated</p>
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       {project?.updatedAt 
                         ? formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })
@@ -641,10 +641,10 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
               <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
                 <Boxes className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Active Projects</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Active Projects</span>
             </div>
             <p className="text-3xl font-bold text-slate-900 dark:text-white">{portfolioKPIs.active}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {portfolioKPIs.completed} completed • {portfolioKPIs.total} total
             </p>
           </div>
@@ -665,10 +665,10 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
               <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                 <BarChart3 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Avg Progress</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Avg Progress</span>
             </div>
             <p className="text-3xl font-bold text-slate-900 dark:text-white">{portfolioKPIs.avgCompletion}%</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Across all active projects</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Across all active projects</p>
           </div>
         </motion.div>
         
@@ -687,12 +687,12 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
               <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20">
                 <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">At Risk</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">At Risk</span>
             </div>
             <p className={`text-3xl font-bold ${portfolioKPIs.atRiskProjects > 0 ? 'text-red-600' : 'text-slate-900 dark:text-white'}`}>
               {portfolioKPIs.atRiskProjects}
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {portfolioKPIs.overdueTasks} overdue • {portfolioKPIs.criticalTasks} critical
             </p>
           </div>

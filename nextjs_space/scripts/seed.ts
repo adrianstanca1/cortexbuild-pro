@@ -782,6 +782,70 @@ async function main() {
       dependentModules: ["drawings", "annotations"],
       credentials: JSON.stringify({ type: "session-auth" }),
       configSchema: JSON.stringify({})
+    },
+    {
+      name: "SendGrid Email Service",
+      serviceName: "sendgrid",
+      description: "Transactional email delivery for notifications, invitations, and alerts",
+      type: "EXTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "EMAIL_DELIVERY" as const,
+      purpose: "Email notifications, team invitations, password resets, and system alerts",
+      baseUrl: "https://api.sendgrid.com/v3",
+      version: "v3",
+      status: process.env.SENDGRID_API_KEY ? "ACTIVE" as const : "INACTIVE" as const,
+      dependentModules: ["notifications", "invitations", "password-reset", "alerts"],
+      credentials: JSON.stringify({ apiKey: process.env.SENDGRID_API_KEY || "CONFIGURE_IN_ADMIN_PANEL" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          apiKey: { type: "string", description: "SendGrid API Key (starts with SG.)" }
+        },
+        required: ["apiKey"]
+      })
+    },
+    {
+      name: "UK Companies House API",
+      serviceName: "companies-house",
+      description: "Company verification and registration data for UK businesses",
+      type: "EXTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "OTHER" as const,
+      purpose: "Verify subcontractor company details, check registration status",
+      baseUrl: "https://api.company-information.service.gov.uk",
+      version: "v1",
+      status: "INACTIVE" as const,
+      dependentModules: ["subcontractors", "compliance"],
+      credentials: JSON.stringify({ apiKey: "CONFIGURE_IN_ADMIN_PANEL" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          apiKey: { type: "string", description: "Companies House API Key" }
+        },
+        required: ["apiKey"]
+      })
+    },
+    {
+      name: "HSE Notifications API",
+      serviceName: "hse-notifications",
+      description: "Health & Safety Executive reporting for CDM 2015 compliance",
+      type: "EXTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "OTHER" as const,
+      purpose: "Submit F10 notifications, RIDDOR reports, and safety documentation",
+      baseUrl: "https://notifications.hse.gov.uk/api",
+      version: "v1",
+      status: "INACTIVE" as const,
+      dependentModules: ["safety", "permits", "compliance"],
+      credentials: JSON.stringify({ apiKey: "CONFIGURE_IN_ADMIN_PANEL" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          apiKey: { type: "string", description: "HSE API Key" },
+          organizationId: { type: "string", description: "HSE Organization ID" }
+        },
+        required: ["apiKey"]
+      })
     }
   ];
 

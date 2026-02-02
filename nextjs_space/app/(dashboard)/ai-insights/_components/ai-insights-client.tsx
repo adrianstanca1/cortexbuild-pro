@@ -209,10 +209,11 @@ export function AIInsightsClient({ projects, signals }: AIInsightsClientProps) {
                     </div>
                   </div>
                   <Button
-                    onClick={() => runRiskAnalysis(project.id)}
-                    disabled={analyzing && selectedProject === project.id}
+                    type="button"
+                    onClick={() => { runRiskAnalysis(project.id); }}
+                    disabled={analyzing}
                     size="sm"
-                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white"
+                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white cursor-pointer"
                   >
                     {analyzing && selectedProject === project.id ? (
                       <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing...</>
