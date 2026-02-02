@@ -1,11 +1,11 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   db:
     image: postgres:15-alpine
     container_name: cortexbuild-db
     restart: unless-stopped
+    env_file:
+      - ../.env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-cortexbuild}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CortexSecure2026}
@@ -32,13 +32,15 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - ../.env
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
-      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-aab7e27d61c14a81a2bcf4d395478e4c}
     depends_on:
       db:
         condition: service_healthy

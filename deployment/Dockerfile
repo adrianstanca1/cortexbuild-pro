@@ -12,19 +12,20 @@ COPY nextjs_space/prisma ./prisma
 # Create yarn.lock if it doesn't exist and install dependencies with exact versions
 RUN touch yarn.lock && yarn install --frozen-lockfile || yarn install
 
-# Generate Prisma Client (use the version from node_modules)
+# Generate Prisma Client with correct output path for node_modules
 RUN ./node_modules/.bin/prisma generate
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 
-# Copy node_modules from deps (including generated Prisma client)
+# Copy node_modules from deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ ./
 
-# Remove any local symlinks
+# Remove any local symlinks and regenerate Prisma Client with the full source
 RUN rm -f yarn.lock && touch yarn.lock
+RUN ./node_modules/.bin/prisma generate
 
 # Set build-time environment variables
 ARG DATABASE_URL="postgresql://user:pass@localhost:5432/db"
