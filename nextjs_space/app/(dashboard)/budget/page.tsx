@@ -37,7 +37,7 @@ export default async function BudgetPage() {
   ]);
 
   const summary = costItems.reduce(
-    (acc: any, item: any) => {
+    (acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item: { estimatedAmount: number; committedAmount: number; actualAmount: number }) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;
