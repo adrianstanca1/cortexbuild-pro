@@ -86,7 +86,7 @@ describe('Validation Schemas', () => {
       const data = {
         name: 'New Project',
         description: 'A test project',
-        status: 'ACTIVE',
+        status: 'IN_PROGRESS',
         budget: 100000,
       };
       

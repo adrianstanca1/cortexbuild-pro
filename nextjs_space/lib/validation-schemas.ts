@@ -55,7 +55,7 @@ export const passwordUpdateSchema = z.object({
 export const createProjectSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
-  status: z.enum(['PLANNING', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).default('PLANNING'),
+  status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'ARCHIVED']).default('PLANNING'),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   budget: z.number().nonnegative().optional(),
@@ -74,8 +74,8 @@ export const createTaskSchema = z.object({
   description: z.string().max(5000).optional(),
   projectId: z.string().uuid(),
   assigneeId: z.string().uuid().optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED']).default('TODO'),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'COMPLETE']).default('TODO'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   dueDate: z.string().datetime().optional(),
   estimatedHours: z.number().nonnegative().optional(),
   tags: z.array(z.string()).optional(),
@@ -88,8 +88,8 @@ export const updateTaskSchema = createTaskSchema.partial().extend({
 export const bulkTaskUpdateSchema = z.object({
   taskIds: z.array(z.string().uuid()).min(1).max(100),
   updates: z.object({
-    status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED']).optional(),
-    priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+    status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'COMPLETE']).optional(),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
     assigneeId: z.string().uuid().optional(),
   }),
 });
