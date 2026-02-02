@@ -114,23 +114,25 @@ export async function deleteFile(cloud_storage_path: string): Promise<void> {
   await s3Client.send(command);
 }
 
-export async function fileExists(storagePath: string): Promise<boolean> {
-  if (!storagePath) {
+export async function fileExists(cloud_storage_path: string): Promise<boolean> {
+  if (!cloud_storage_path) {
     return false;
   }
 
   const { bucketName } = getBucketConfig();
   const command = new HeadObjectCommand({
     Bucket: bucketName,
-    Key: storagePath
+    Key: cloud_storage_path
   });
 
   try {
     await s3Client.send(command);
     return true;
-  } catch (error: any) {
-    const statusCode = error?.$metadata?.httpStatusCode;
-    const errorName = error?.name ?? error?.Code;
+  } catch (error: unknown) {
+    const errorWithMetadata = error as { $metadata?: { httpStatusCode?: number } };
+    const errorWithName = error as { name?: string; Code?: string };
+    const statusCode = errorWithMetadata.$metadata?.httpStatusCode;
+    const errorName = errorWithName.name ?? errorWithName.Code;
     if (statusCode === 404 || errorName === "NotFound" || errorName === "NoSuchKey") {
       return false;
     }
