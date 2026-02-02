@@ -662,6 +662,150 @@ async function main() {
   });
   console.log("Activity logs created");
 
+  // =====================
+  // API CONNECTIONS - Enterprise Integrations
+  // =====================
+  console.log("\nSeeding API Connections...");
+
+  const apiConnections = [
+    {
+      name: "Abacus AI LLM API",
+      serviceName: "abacusai",
+      description: "AI-powered features including document analysis, risk prediction, and intelligent insights",
+      type: "EXTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "AI_PROCESSING" as const,
+      purpose: "Powers AI Assistant, Document Generator, Photo Analysis, and Predictive Analytics",
+      baseUrl: "https://apps.abacus.ai/v1",
+      version: "v1",
+      status: "ACTIVE" as const,
+      dependentModules: ["ai-insights", "document-generator", "photo-analysis", "predictive-signals", "risk-assessment"],
+      credentials: JSON.stringify({ apiKey: "aab7e27d61c14a81a2bcf4d395478e4c" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          apiKey: { type: "string", description: "Abacus AI API Key" }
+        },
+        required: ["apiKey"]
+      })
+    },
+    {
+      name: "Open-Meteo Weather API",
+      serviceName: "open-meteo",
+      description: "Real-time weather data for construction site planning and safety alerts",
+      type: "EXTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "OTHER" as const,
+      purpose: "Weather forecasting for project scheduling and safety planning",
+      baseUrl: "https://api.open-meteo.com/v1",
+      version: "v1",
+      status: "ACTIVE" as const,
+      dependentModules: ["weather-widget", "forecasting", "daily-reports"],
+      credentials: JSON.stringify({ apiKey: "free-tier" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          latitude: { type: "number" },
+          longitude: { type: "number" }
+        }
+      })
+    },
+    {
+      name: "Internal Real-time SSE",
+      serviceName: "realtime-sse",
+      description: "Server-Sent Events for real-time collaboration and live updates",
+      type: "INTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "COMMUNICATION" as const,
+      purpose: "Real-time notifications, task updates, and collaborative editing",
+      baseUrl: "/api/realtime",
+      version: "v1",
+      status: "ACTIVE" as const,
+      dependentModules: ["notifications", "tasks", "drawings", "team"],
+      credentials: JSON.stringify({ type: "session-auth" }),
+      configSchema: JSON.stringify({})
+    },
+    {
+      name: "NextAuth Authentication",
+      serviceName: "nextauth",
+      description: "Secure authentication and session management",
+      type: "INTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "AUTHENTICATION" as const,
+      purpose: "User authentication, session management, and access control",
+      baseUrl: "/api/auth",
+      version: "v4",
+      status: "ACTIVE" as const,
+      dependentModules: ["login", "signup", "session", "middleware"],
+      credentials: JSON.stringify({ secret: "configured-via-env" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          NEXTAUTH_SECRET: { type: "string" },
+          NEXTAUTH_URL: { type: "string" }
+        },
+        required: ["NEXTAUTH_SECRET", "NEXTAUTH_URL"]
+      })
+    },
+    {
+      name: "PostgreSQL Database",
+      serviceName: "postgresql",
+      description: "Primary data store with Prisma ORM",
+      type: "INTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "OTHER" as const,
+      purpose: "Persistent storage for all application data",
+      baseUrl: "postgresql://db:5432/cortexbuild",
+      version: "15",
+      status: "ACTIVE" as const,
+      dependentModules: ["all"],
+      credentials: JSON.stringify({ connectionString: "configured-via-env" }),
+      configSchema: JSON.stringify({
+        type: "object",
+        properties: {
+          DATABASE_URL: { type: "string" }
+        },
+        required: ["DATABASE_URL"]
+      })
+    },
+    {
+      name: "Drawing Annotation WebSocket",
+      serviceName: "drawing-websocket",
+      description: "Real-time collaborative drawing annotations",
+      type: "INTERNAL" as const,
+      environment: "PRODUCTION" as const,
+      category: "COMMUNICATION" as const,
+      purpose: "Live cursor tracking and annotation sync for drawings",
+      baseUrl: "/api/drawings/[id]/presence",
+      version: "v1",
+      status: "ACTIVE" as const,
+      dependentModules: ["drawings", "annotations"],
+      credentials: JSON.stringify({ type: "session-auth" }),
+      configSchema: JSON.stringify({})
+    }
+  ];
+
+  for (const connection of apiConnections) {
+    const existing = await prisma.apiConnection.findFirst({
+      where: { serviceName: connection.serviceName }
+    });
+    if (!existing) {
+      await prisma.apiConnection.create({
+        data: {
+          ...connection,
+          createdById: superadminUser.id,
+          lastValidatedAt: new Date(),
+          isBuiltIn: true,
+          isEnabled: true
+        }
+      });
+      console.log(`  Created API connection: ${connection.name}`);
+    } else {
+      console.log(`  API connection exists: ${connection.name}`);
+    }
+  }
+  console.log("API connections seeded");
+
   console.log("\nDatabase seeding completed!");
   console.log("\n=== USER ACCOUNTS ===");
   console.log("\n** SUPERADMIN (Full Platform Access) **");
