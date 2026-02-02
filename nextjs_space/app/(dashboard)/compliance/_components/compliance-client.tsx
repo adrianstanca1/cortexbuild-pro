@@ -44,7 +44,10 @@ export function ComplianceClient({
                         <div>
                             <p className="text-sm font-medium text-blue-600">Active Site Personnel</p>
                             <h3 className="text-2xl font-bold text-blue-900">
-                                {initialAccessLogs.filter((l) => (l as { accessType?: string; entryLogId?: unknown }).accessType === 'ENTRY' && !(l as { entryLogId?: unknown }).entryLogId).length}
+                                {initialAccessLogs.filter((l) => {
+                                    const log = l as { accessType?: string; entryLogId?: unknown };
+                                    return log.accessType === 'ENTRY' && !log.entryLogId;
+                                }).length}
                             </h3>
                         </div>
                         <Clock className="h-8 w-8 text-blue-500 opacity-50" />
@@ -75,7 +78,10 @@ export function ComplianceClient({
                         <div>
                             <p className="text-sm font-medium text-red-600">Active Lift Permits</p>
                             <h3 className="text-2xl font-bold text-red-900">
-                                {initialLifts.filter((l) => (l as { status?: string }).status === 'IN_PROGRESS').length}
+                                {initialLifts.filter((l) => {
+                                    const lift = l as { status?: string };
+                                    return lift.status === 'IN_PROGRESS';
+                                }).length}
                             </h3>
                         </div>
                         <Construction className="h-8 w-8 text-red-500 opacity-50" />
