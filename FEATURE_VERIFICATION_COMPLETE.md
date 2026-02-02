@@ -35,7 +35,7 @@ All features, pages, and API endpoints have been verified as complete and functi
   - Project analytics and reporting
 - ✅ **Tasks** (`/tasks`) - Kanban board, list view, Gantt chart
   - Task creation and assignment
-  - Status tracking (TODO, IN_PROGRESS, IN_REVIEW, DONE, BLOCKED)
+  - Status tracking (TODO, IN_PROGRESS, REVIEW, COMPLETE)
   - Priority management
   - Task comments and attachments
 - ✅ **Team** (`/team`) - User management and role assignment

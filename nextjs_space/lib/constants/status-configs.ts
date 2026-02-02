@@ -197,8 +197,8 @@ export const TASK_PRIORITY_CONFIG = {
     bg: 'bg-amber-100 dark:bg-amber-900/30',
     text: 'text-amber-700 dark:text-amber-400'
   },
-  URGENT: {
-    label: 'Urgent',
+  CRITICAL: {
+    label: 'Critical',
     bg: 'bg-red-100 dark:bg-red-900/30',
     text: 'text-red-700 dark:text-red-400'
   }
@@ -216,20 +216,15 @@ export const TASK_STATUS_CONFIG = {
     bg: 'bg-blue-100 dark:bg-blue-900/30',
     text: 'text-blue-700 dark:text-blue-400'
   },
-  IN_REVIEW: {
-    label: 'In Review',
+  REVIEW: {
+    label: 'Review',
     bg: 'bg-purple-100 dark:bg-purple-900/30',
     text: 'text-purple-700 dark:text-purple-400'
   },
-  COMPLETED: {
-    label: 'Completed',
+  COMPLETE: {
+    label: 'Complete',
     bg: 'bg-green-100 dark:bg-green-900/30',
     text: 'text-green-700 dark:text-green-400'
-  },
-  BLOCKED: {
-    label: 'Blocked',
-    bg: 'bg-red-100 dark:bg-red-900/30',
-    text: 'text-red-700 dark:text-red-400'
   }
 } as const;
 

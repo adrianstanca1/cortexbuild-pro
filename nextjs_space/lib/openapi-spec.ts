@@ -105,7 +105,7 @@ export const openApiSpec = {
           description: { type: 'string', nullable: true },
           status: {
             type: 'string',
-            enum: ['PLANNING', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'],
+            enum: ['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'],
           },
           startDate: { type: 'string', format: 'date-time', nullable: true },
           endDate: { type: 'string', format: 'date-time', nullable: true },
@@ -126,11 +126,11 @@ export const openApiSpec = {
           description: { type: 'string', nullable: true },
           status: {
             type: 'string',
-            enum: ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'BLOCKED'],
+            enum: ['TODO', 'IN_PROGRESS', 'REVIEW', 'COMPLETE'],
           },
           priority: {
             type: 'string',
-            enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
+            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
           },
           projectId: { type: 'string', format: 'uuid' },
           assigneeId: { type: 'string', format: 'uuid', nullable: true },
@@ -242,7 +242,7 @@ export const openApiSpec = {
             in: 'query',
             schema: {
               type: 'string',
-              enum: ['PLANNING', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'],
+              enum: ['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'],
             },
           },
         ],
@@ -291,7 +291,7 @@ export const openApiSpec = {
                   description: { type: 'string', maxLength: 2000 },
                   status: {
                     type: 'string',
-                    enum: ['PLANNING', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'],
+                    enum: ['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'],
                     default: 'PLANNING',
                   },
                   startDate: { type: 'string', format: 'date-time' },
