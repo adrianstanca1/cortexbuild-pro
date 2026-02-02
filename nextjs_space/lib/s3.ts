@@ -114,15 +114,15 @@ export async function deleteFile(cloud_storage_path: string): Promise<void> {
   await s3Client.send(command);
 }
 
-export async function fileExists(cloud_storage_path: string): Promise<boolean> {
-  if (!cloud_storage_path) {
+export async function fileExists(storagePath: string): Promise<boolean> {
+  if (!storagePath) {
     return false;
   }
 
   const { bucketName } = getBucketConfig();
   const command = new HeadObjectCommand({
     Bucket: bucketName,
-    Key: cloud_storage_path
+    Key: storagePath
   });
 
   try {
