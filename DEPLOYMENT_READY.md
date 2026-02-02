@@ -159,7 +159,11 @@ ssh root@YOUR_VPS_IP
 
 # Install prerequisites
 apt-get update && apt-get upgrade -y
-apt-get install -y docker.io docker-compose git
+apt-get install -y docker.io git
+# Install Docker Compose v2 plugin
+mkdir -p ~/.docker/cli-plugins/
+curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
 
 # Clone repository
 mkdir -p /var/www
