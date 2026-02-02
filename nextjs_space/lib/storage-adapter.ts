@@ -104,15 +104,13 @@ export async function deleteFile(storagePath: string): Promise<void> {
 
 /**
  * Check if a file exists
- * 
- * Note: For S3, this currently only validates the path exists (not a real S3 check).
- * Consider implementing a proper HEAD request for production use.
+ *
+ * For S3: Uses a HEAD request and returns false on not found (rethrows other errors).
+ * For local storage: Checks the filesystem.
  */
 export async function fileExists(storagePath: string): Promise<boolean> {
   if (isS3Configured()) {
-    // TODO: Implement proper S3 HEAD request to check file existence
-    // For now, assume file exists if we have a valid path
-    return !!storagePath && storagePath.length > 0;
+    return await s3.fileExists(storagePath);
   } else {
     return await localStorage.localFileExists(storagePath);
   }

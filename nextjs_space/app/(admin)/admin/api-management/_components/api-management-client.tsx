@@ -249,12 +249,12 @@ export function ApiManagementClient() {
     coreServices?: number;
     coreActive?: number;
   }>({});
-  const [categories, setCategories] = useState<string[]>([]);
+  const [_categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCategory, _setFilterCategory] = useState<string>("all");
 
   // Modals
   const [showConfigureModal, setShowConfigureModal] = useState(false);
