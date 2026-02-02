@@ -69,6 +69,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./app/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./app/public
 
+# Copy Prisma client to standalone app node_modules (critical for production)
+COPY --from=builder /app/node_modules/.prisma ./app/node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./app/node_modules/@prisma
+
 # Create uploads directory
 RUN mkdir -p uploads && chown nextjs:nodejs uploads
 
