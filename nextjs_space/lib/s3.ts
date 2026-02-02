@@ -1,6 +1,7 @@
 import {
   PutObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   DeleteObjectCommand,
   CreateMultipartUploadCommand,
   UploadPartCommand,
@@ -111,4 +112,28 @@ export async function deleteFile(cloud_storage_path: string): Promise<void> {
     Key: cloud_storage_path
   });
   await s3Client.send(command);
+}
+
+export async function fileExists(cloud_storage_path: string): Promise<boolean> {
+  if (!cloud_storage_path) {
+    return false;
+  }
+
+  const { bucketName } = getBucketConfig();
+  const command = new HeadObjectCommand({
+    Bucket: bucketName,
+    Key: cloud_storage_path
+  });
+
+  try {
+    await s3Client.send(command);
+    return true;
+  } catch (error: any) {
+    const statusCode = error?.$metadata?.httpStatusCode;
+    const errorName = error?.name ?? error?.Code;
+    if (statusCode === 404 || errorName === "NotFound" || errorName === "NoSuchKey") {
+      return false;
+    }
+    throw error;
+  }
 }
