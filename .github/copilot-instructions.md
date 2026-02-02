@@ -1,12 +1,12 @@
 # GitHub Copilot Instructions for CortexBuild Pro
 
 ## Project Overview
-CortexBuild Pro is a comprehensive multi-tenant construction management platform built with Next.js 14, React 18, PostgreSQL, and Socket.IO for real-time collaboration.
+CortexBuild Pro is a comprehensive multi-tenant construction management platform built with Next.js 16, React 18, PostgreSQL, and Socket.IO for real-time collaboration.
 
 ## Technology Stack
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI**: React 18.2, Tailwind CSS, Radix UI, shadcn/ui
 - **State**: React Query, Zustand
 - **Real-time**: Socket.IO client
@@ -28,7 +28,7 @@ CortexBuild Pro is a comprehensive multi-tenant construction management platform
 
 ### React Components
 - Use functional components with hooks
-- Follow React Server Components pattern for Next.js 14
+- Follow React Server Components pattern for Next.js 16
 - Keep components small and focused
 - Use proper prop typing with TypeScript
 
@@ -54,7 +54,7 @@ nextjs_space/
 - Database models: PascalCase in Prisma schema
 
 ### API Routes
-- Use Next.js 14 App Router API route handlers
+- Use Next.js 16 App Router API route handlers
 - Implement proper error handling with try-catch
 - Return consistent response formats
 - Validate input data before processing

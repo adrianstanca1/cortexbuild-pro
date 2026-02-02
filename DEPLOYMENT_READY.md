@@ -43,7 +43,7 @@ Deploy directly on your VPS with automatic setup:
 
 ```bash
 # Run this command on your VPS server
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deploy-to-vps.sh | bash
+curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/copilot/deploy-to-vps/deploy-to-vps.sh | bash
 ```
 
 **Security Note:** For enhanced security, you can review the script before executing:
@@ -159,7 +159,7 @@ ssh root@YOUR_VPS_IP
 
 # Install prerequisites
 apt-get update && apt-get upgrade -y
-apt-get install -y docker.io git
+apt-get install -y docker.io docker-compose-plugin git
 # Install Docker Compose v2 plugin
 mkdir -p ~/.docker/cli-plugins/
 curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
