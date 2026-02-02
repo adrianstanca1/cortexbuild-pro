@@ -1,0 +1,390 @@
+"use client";
+
+import { useState } from "react";
+import {
+  FileText,
+  Sparkles,
+  Download,
+  Copy,
+  Loader2,
+  BarChart3,
+  Shield,
+  PoundSterling,
+  TrendingUp,
+  Calendar,
+  Users,
+  ClipboardCheck,
+  Printer,
+  CheckCircle2
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface Project {
+  id: string;
+  name: string;
+  status: string;
+  progress: number | null;
+  _count: {
+    tasks: number;
+    teamMembers: number;
+    dailyReports: number;
+  };
+}
+
+interface ReportData {
+  title: string;
+  projectName: string;
+  reportType: string;
+  period: { start: string; end: string };
+  content: string;
+  metrics: {
+    tasks: { completed: number; inProgress: number; todo: number };
+    safety: { incidents: number; inspections: number; toolboxTalks: number };
+    commercial: { changeOrders: number; changeOrderValue: number };
+    progress: number;
+  };
+  generatedAt: string;
+  generatedBy: string;
+}
+
+const REPORT_TYPES = [
+  {
+    id: "executive",
+    title: "Executive Summary",
+    description: "High-level overview for leadership and stakeholders",
+    icon: TrendingUp,
+    color: "violet"
+  },
+  {
+    id: "progress",
+    title: "Progress Report",
+    description: "Detailed work progress and schedule analysis",
+    icon: BarChart3,
+    color: "blue"
+  },
+  {
+    id: "safety",
+    title: "Safety Report",
+    description: "CDM 2015 compliance and safety performance",
+    icon: Shield,
+    color: "emerald"
+  },
+  {
+    id: "commercial",
+    title: "Commercial Report",
+    description: "Budget status, costs, and financial analysis",
+    icon: PoundSterling,
+    color: "amber"
+  }
+];
+
+const DATE_RANGES = [
+  { id: "week", label: "Last 7 Days" },
+  { id: "month", label: "Last 30 Days" },
+  { id: "quarter", label: "Last 90 Days" }
+];
+
+export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
+  const [selectedProject, setSelectedProject] = useState<string>("");
+  const [selectedReportType, setSelectedReportType] = useState<string>("executive");
+  const [selectedDateRange, setSelectedDateRange] = useState<string>("week");
+  const [generating, setGenerating] = useState(false);
+  const [reportData, setReportData] = useState<ReportData | null>(null);
+
+  const generateReport = async () => {
+    if (!selectedProject) {
+      toast.error("Please select a project");
+      return;
+    }
+
+    setGenerating(true);
+    setReportData(null);
+
+    try {
+      const response = await fetch("/api/ai/generate-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: selectedProject,
+          reportType: selectedReportType,
+          dateRange: selectedDateRange
+        })
+      });
+
+      if (!response.ok) throw new Error("Report generation failed");
+
+      const data = await response.json();
+      setReportData(data.report);
+      toast.success("Report generated successfully!");
+    } catch (error) {
+      toast.error("Failed to generate report");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (reportData?.content) {
+      navigator.clipboard.writeText(reportData.content);
+      toast.success("Report copied to clipboard");
+    }
+  };
+
+  const printReport = () => {
+    const printWindow = window.open("", "_blank");
+    if (printWindow && reportData) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>${reportData.title}</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+              h1 { color: #1e293b; border-bottom: 3px solid #10b981; padding-bottom: 10px; }
+              h2 { color: #334155; margin-top: 30px; }
+              .meta { color: #64748b; font-size: 14px; margin-bottom: 30px; }
+              .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0; }
+              .metric { background: #f8fafc; padding: 15px; border-radius: 8px; }
+              .metric-value { font-size: 24px; font-weight: bold; color: #10b981; }
+              .metric-label { font-size: 12px; color: #64748b; }
+            </style>
+          </head>
+          <body>
+            <h1>${reportData.title}</h1>
+            <div class="meta">
+              <p>Generated: ${new Date(reportData.generatedAt).toLocaleString()}</p>
+              <p>Period: ${new Date(reportData.period.start).toLocaleDateString()} - ${new Date(reportData.period.end).toLocaleDateString()}</p>
+              <p>Generated by: ${reportData.generatedBy}</p>
+            </div>
+            <div class="metrics">
+              <div class="metric"><div class="metric-value">${reportData.metrics.progress}%</div><div class="metric-label">Overall Progress</div></div>
+              <div class="metric"><div class="metric-value">${reportData.metrics.tasks.completed}</div><div class="metric-label">Tasks Completed</div></div>
+              <div class="metric"><div class="metric-value">${reportData.metrics.safety.incidents}</div><div class="metric-label">Safety Incidents</div></div>
+              <div class="metric"><div class="metric-value">£${reportData.metrics.commercial.changeOrderValue.toLocaleString()}</div><div class="metric-label">Change Order Value</div></div>
+            </div>
+            <div style="white-space: pre-wrap;">${reportData.content}</div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const selectedReportConfig = REPORT_TYPES.find(r => r.id === selectedReportType);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="p-8 space-y-8">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-8 text-white">
+          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
+                <FileText className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold mb-2">AI Report Generator</h1>
+                <p className="text-violet-100 text-lg">Generate comprehensive project reports with AI-powered insights</p>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI-Powered
+              </Badge>
+              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm">
+                <FileText className="w-4 h-4 mr-2" />
+                4 Report Types
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Configuration Panel */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Project Selection */}
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-lg">Select Project</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <select
+                  value={selectedProject}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                  className="w-full p-3 border-2 rounded-xl bg-white dark:bg-slate-900 focus:border-violet-500 outline-none"
+                >
+                  <option value="">Choose a project...</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+              </CardContent>
+            </Card>
+
+            {/* Report Type Selection */}
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-lg">Report Type</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {REPORT_TYPES.map((type) => (
+                  <motion.button
+                    key={type.id}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => setSelectedReportType(type.id)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      selectedReportType === type.id
+                        ? `border-${type.color}-500 bg-${type.color}-50 dark:bg-${type.color}-950/30`
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <type.icon className={`w-5 h-5 text-${type.color}-600`} />
+                      <div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">{type.title}</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">{type.description}</div>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Date Range */}
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Reporting Period
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-2">
+                  {DATE_RANGES.map((range) => (
+                    <button
+                      key={range.id}
+                      onClick={() => setSelectedDateRange(range.id)}
+                      className={`flex-1 p-3 rounded-xl text-sm font-medium transition-all ${
+                        selectedDateRange === range.id
+                          ? "bg-violet-600 text-white"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Generate Button */}
+            <Button
+              onClick={generateReport}
+              disabled={generating || !selectedProject}
+              className="w-full h-14 text-lg bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white"
+            >
+              {generating ? (
+                <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Generating Report...</>
+              ) : (
+                <><Sparkles className="w-5 h-5 mr-2" />Generate Report</>
+              )}
+            </Button>
+          </div>
+
+          {/* Report Output */}
+          <div className="lg:col-span-2">
+            <Card className="border-2 h-full">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-violet-600" />
+                      {reportData ? reportData.title : "Report Preview"}
+                    </CardTitle>
+                    {reportData && (
+                      <CardDescription>
+                        Generated {new Date(reportData.generatedAt).toLocaleString()}
+                      </CardDescription>
+                    )}
+                  </div>
+                  {reportData && (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={copyToClipboard}>
+                        <Copy className="w-4 h-4 mr-2" />Copy
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={printReport}>
+                        <Printer className="w-4 h-4 mr-2" />Print
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {generating ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900 dark:to-purple-900 flex items-center justify-center">
+                        <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
+                      </div>
+                      <div className="absolute inset-0 rounded-full border-4 border-violet-500/30 animate-ping" />
+                    </div>
+                    <p className="mt-6 text-slate-600 dark:text-slate-400 font-medium">AI is analyzing your project data...</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-500">This may take 15-30 seconds</p>
+                  </div>
+                ) : reportData ? (
+                  <div className="space-y-6">
+                    {/* Metrics Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-xl">
+                        <div className="text-2xl font-bold text-blue-600">{reportData.metrics.progress}%</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Progress</div>
+                      </div>
+                      <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
+                        <div className="text-2xl font-bold text-emerald-600">{reportData.metrics.tasks.completed}</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Tasks Done</div>
+                      </div>
+                      <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-xl">
+                        <div className="text-2xl font-bold text-amber-600">{reportData.metrics.safety.incidents}</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Incidents</div>
+                      </div>
+                      <div className="p-4 bg-purple-50 dark:bg-purple-950/30 rounded-xl">
+                        <div className="text-2xl font-bold text-purple-600">£{(reportData.metrics.commercial.changeOrderValue / 1000).toFixed(0)}k</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Changes</div>
+                      </div>
+                    </div>
+
+                    {/* Report Content */}
+                    <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {reportData.content}
+                      </pre>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900 dark:to-purple-900 flex items-center justify-center mb-6">
+                      <FileText className="w-10 h-10 text-violet-600 dark:text-violet-300" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">Ready to Generate</h3>
+                    <p className="text-slate-600 dark:text-slate-400 max-w-md">
+                      Select a project and report type, then click "Generate Report" to create an AI-powered analysis.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

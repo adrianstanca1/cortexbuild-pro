@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: cortexbuild-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cortexbuild}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CortexSecure2026}
+      POSTGRES_DB: ${POSTGRES_DB:-cortexbuild}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "5433:5432"
+    networks:
+      - cortexbuild-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cortexbuild} -d ${POSTGRES_DB:-cortexbuild}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: cortexbuild-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - cortexbuild-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  cortexbuild-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

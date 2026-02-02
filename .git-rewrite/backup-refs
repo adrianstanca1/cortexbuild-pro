@@ -1,0 +1,8 @@
+f06dcc74be68cc281fb0e17e2b2d4df6c76458fc commit	refs/heads/cortexbuildpro-merge
+20e2e9e7043cd1b6560961a00c503807fd9f5b05 commit	refs/heads/master
+20e2e9e7043cd1b6560961a00c503807fd9f5b05 commit	refs/heads/merge-backup
+0fb899472b4a9c6b9a1c5c086e3fd31bc160d11a commit	refs/remotes/origin/copilot/commit-all-changes
+12dd0679ce00c774497fe75b2854e5015ffac981 commit	refs/remotes/origin/copilot/merge-branches-and-cleanup
+f06dcc74be68cc281fb0e17e2b2d4df6c76458fc commit	refs/remotes/origin/cortexbuildpro
+7dbc2bdbf70136ad1dad71933ffca481d094c794 commit	refs/stash
+b89a6b7f219f1d22ad97dea11e7135824d1ce3a0 commit	refs/tags/Red
