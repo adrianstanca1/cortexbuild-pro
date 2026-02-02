@@ -161,8 +161,10 @@ echo ""
 
 # Check docker-compose.yml
 if [ -f "deployment/docker-compose.yml" ]; then
-    if docker compose -f deployment/docker-compose.yml config > /dev/null 2>&1; then
+    if command -v docker &> /dev/null && docker compose -f deployment/docker-compose.yml config > /dev/null 2>&1; then
         check_pass "docker-compose.yml is valid"
+    elif ! command -v docker &> /dev/null; then
+        check_warn "docker-compose.yml validation skipped (Docker not installed)"
     else
         check_fail "docker-compose.yml has syntax errors"
     fi
