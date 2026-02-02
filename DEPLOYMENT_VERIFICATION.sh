@@ -5,7 +5,7 @@
 # ============================================
 # Run this script to verify deployment readiness
 
-set -e
+# Note: Intentionally not using set -e to allow error counting across all checks
 
 # Colors
 GREEN='\033[0;32m'
