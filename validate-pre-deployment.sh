@@ -111,16 +111,19 @@ if git rev-parse --git-dir > /dev/null 2>&1; then
     fi
     
     # Check if branch is up to date
-    git fetch origin > /dev/null 2>&1
-    LOCAL=$(git rev-parse @)
-    REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
-    
-    if [ -z "$REMOTE" ]; then
-        check_warn "No remote tracking branch"
-    elif [ "$LOCAL" = "$REMOTE" ]; then
-        check_pass "Branch is up to date with remote"
-    elif [ "$LOCAL" != "$REMOTE" ]; then
-        check_warn "Branch is not up to date with remote"
+    if ! git fetch origin > /dev/null 2>&1; then
+        check_warn "Failed to fetch from remote 'origin'; skipping remote up-to-date check"
+    else
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
+        
+        if [ -z "$REMOTE" ]; then
+            check_warn "No remote tracking branch"
+        elif [ "$LOCAL" = "$REMOTE" ]; then
+            check_pass "Branch is up to date with remote"
+        elif [ "$LOCAL" != "$REMOTE" ]; then
+            check_warn "Branch is not up to date with remote"
+        fi
     fi
 else
     check_fail "Not inside a git repository"

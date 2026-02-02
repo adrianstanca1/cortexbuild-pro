@@ -26,9 +26,9 @@ Settings → Secrets and variables → Actions → New repository secret
 - `VPS_HOST` - Your VPS server IP address or hostname
 - `VPS_USER` - SSH username (e.g., root, ubuntu)
 - `VPS_SSH_KEY` - Private SSH key for server access
-- `VPS_PORT` - SSH port (default: 22)
 
 **Optional Secrets (recommended for full functionality):**
+- `VPS_PORT` - SSH port (optional, defaults to 22 if not set)
 - `AWS_ACCESS_KEY_ID` - AWS S3 for file storage
 - `AWS_SECRET_ACCESS_KEY` - AWS S3 secret key
 - `SENDGRID_API_KEY` - Email notifications
