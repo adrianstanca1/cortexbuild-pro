@@ -130,7 +130,7 @@ export function CompanyDashboardClient({
 }: CompanyDashboardClientProps) {
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {

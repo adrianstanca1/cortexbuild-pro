@@ -3,17 +3,17 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, HardHat, Construction, Clock } from 'lucide-react';
+import { HardHat, Construction, Clock } from 'lucide-react';
 import { SiteAccessLogTable } from './site-access-log-table';
 import { WorkerCertsTable } from './worker-certs-table';
 import { LiftingOpsTable } from './lifting-ops-table';
 
 interface ComplianceClientProps {
-    initialAccessLogs: any[];
-    initialCerts: any[];
-    initialLifts: any[];
-    projects: any[];
-    teamMembers: any[];
+    initialAccessLogs: Array<Record<string, unknown>>;
+    initialCerts: Array<Record<string, unknown>>;
+    initialLifts: Array<Record<string, unknown>>;
+    projects: Array<Record<string, unknown>>;
+    teamMembers: Array<Record<string, unknown>>;
 }
 
 /**
@@ -44,7 +44,10 @@ export function ComplianceClient({
                         <div>
                             <p className="text-sm font-medium text-blue-600">Active Site Personnel</p>
                             <h3 className="text-2xl font-bold text-blue-900">
-                                {initialAccessLogs.filter((l: any) => l.accessType === 'ENTRY' && !l.entryLogId).length}
+                                {initialAccessLogs.filter((l) => {
+                                    const log = l as { accessType?: string; entryLogId?: unknown };
+                                    return log.accessType === 'ENTRY' && !log.entryLogId;
+                                }).length}
                             </h3>
                         </div>
                         <Clock className="h-8 w-8 text-blue-500 opacity-50" />
@@ -56,9 +59,10 @@ export function ComplianceClient({
                         <div>
                             <p className="text-sm font-medium text-amber-600">Pending Cert Expiries</p>
                             <h3 className="text-2xl font-bold text-amber-900">
-                                {initialCerts.filter((c: any) => {
-                                    if (!c.expiryDate) return false;
-                                    const expiry = new Date(c.expiryDate);
+                                {initialCerts.filter((c) => {
+                                    const cert = c as { expiryDate?: string };
+                                    if (!cert.expiryDate) return false;
+                                    const expiry = new Date(cert.expiryDate);
                                     const now = new Date();
                                     const diff = expiry.getTime() - now.getTime();
                                     return diff > 0 && diff < 30 * 24 * 60 * 60 * 1000;
@@ -74,7 +78,10 @@ export function ComplianceClient({
                         <div>
                             <p className="text-sm font-medium text-red-600">Active Lift Permits</p>
                             <h3 className="text-2xl font-bold text-red-900">
-                                {initialLifts.filter((l: any) => l.status === 'IN_PROGRESS').length}
+                                {initialLifts.filter((l) => {
+                                    const lift = l as { status?: string };
+                                    return lift.status === 'IN_PROGRESS';
+                                }).length}
                             </h3>
                         </div>
                         <Construction className="h-8 w-8 text-red-500 opacity-50" />

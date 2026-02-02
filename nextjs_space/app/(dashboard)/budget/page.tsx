@@ -6,6 +6,18 @@ import { BudgetClient } from "./_components/budget-client";
 
 export const dynamic = "force-dynamic";
 
+type BudgetSummary = {
+  totalEstimated: number;
+  totalCommitted: number;
+  totalActual: number;
+};
+
+type CostItemForSummary = {
+  estimatedAmount: number;
+  committedAmount: number;
+  actualAmount: number;
+};
+
 export default async function BudgetPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
@@ -37,7 +49,7 @@ export default async function BudgetPage() {
   ]);
 
   const summary = costItems.reduce(
-    (acc: any, item: any) => {
+    (acc: BudgetSummary, item: CostItemForSummary) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;
