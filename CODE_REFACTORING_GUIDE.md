@@ -61,8 +61,8 @@ useMultiEntitySubscription(['project', 'task', 'document']);
 - `MATERIAL_STATUS_CONFIG` - Material status (AVAILABLE, IN_USE, LOW_STOCK, etc.)
 - `PROJECT_STATUS_CONFIG` - Project statuses (PLANNING, IN_PROGRESS, etc.)
 - `PROJECT_HEALTH_CONFIG` - Project health indicators (excellent, on-track, at-risk, critical)
-- `TASK_PRIORITY_CONFIG` - Task priorities (LOW, MEDIUM, HIGH, URGENT)
-- `TASK_STATUS_CONFIG` - Task statuses (TODO, IN_PROGRESS, IN_REVIEW, etc.)
+- `TASK_PRIORITY_CONFIG` - Task priorities (LOW, MEDIUM, HIGH, CRITICAL)
+- `TASK_STATUS_CONFIG` - Task statuses (TODO, IN_PROGRESS, REVIEW, COMPLETE, etc.)
 
 **Before**:
 ```typescript
