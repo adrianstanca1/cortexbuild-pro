@@ -3,14 +3,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { _Button } from '@/components/ui/button';
 import {
-  TrendingUp,
-  TrendingDown,
+  _TrendingUp,
+  _TrendingDown,
   AlertTriangle,
   Calendar,
   DollarSign,
-  Clock,
+  _Clock,
   Target,
   Brain,
   Sparkles,
@@ -72,8 +72,8 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
 
     // Schedule Analysis
     let totalScheduleVariance = 0;
-    let delayedProjects: string[] = [];
-    let atRiskProjects: string[] = [];
+    const delayedProjects: string[] = [];
+    const atRiskProjects: string[] = [];
 
     projects.forEach(project => {
       const endDate = new Date(project.endDate);
@@ -124,7 +124,7 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
 
     // Budget Analysis
     let totalBudgetVariance = 0;
-    let overBudgetProjects: string[] = [];
+    const overBudgetProjects: string[] = [];
 
     projects.forEach(project => {
       const spent = project.actualCost || (project.budget * (project.progress / 100) * (0.9 + Math.random() * 0.3));

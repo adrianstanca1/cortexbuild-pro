@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, _useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
+import { _format } from 'date-fns';
 import {
-  FileText, Plus, Search, Copy, Edit, Trash2, Download, Filter, Upload,
+  FileText, Plus, Search, Copy, Edit, Trash2, _Download, _Filter, Upload,
   Loader2, LayoutGrid, List, Eye, FileSignature, Shield, ClipboardList,
-  HardHat, CheckSquare, Settings, Sparkles, Lock, Globe, ChevronRight,
+  HardHat, _CheckSquare, _Settings, Sparkles, Lock, Globe, _ChevronRight,
   Package, AlertTriangle, Calendar, Wrench, X, ChevronDown, ChevronUp,
   File, FileUp, Check, Info, Tag, FolderOpen
 } from 'lucide-react';
@@ -395,7 +395,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
 
   const renderSectionEditor = (sections: TemplateSection[], setter: Function) => (
     <div className="space-y-4">
-      {sections.map((section, idx) => (
+      {sections.map((section, _idx) => (
         <Card key={section.id} className="border-slate-200 dark:border-slate-700">
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
@@ -420,7 +420,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
               <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No fields yet. Click "+ Field" to add.</p>
             ) : (
               <div className="space-y-2">
-                {section.fields.map((field, fIdx) => (
+                {section.fields.map((field, _fIdx) => (
                   <div key={field.name} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                     <Input
                       value={field.label}

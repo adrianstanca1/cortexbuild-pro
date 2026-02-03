@@ -4,27 +4,27 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
-  Trash2,
+  _Trash2,
   TrendingDown,
-  TrendingUp,
+  _TrendingUp,
   AlertTriangle,
   CheckCircle2,
   PoundSterling,
   Leaf,
   Recycle,
-  Building2,
+  _Building2,
   Sparkles,
   Loader2,
   RefreshCw,
   BarChart3,
   Target,
-  Zap,
+  _Zap,
   Search,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { _Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import {
@@ -38,9 +38,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
-  Legend,
+  _LineChart,
+  _Line,
+  _Legend,
 } from 'recharts';
 
 interface MaterialUsage {
@@ -74,7 +74,7 @@ interface Project {
   name: string;
 }
 
-const COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
+const _COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
 
 const formatCurrency = (value: number) => {
   if (value >= 1000000) return `\u00a3${(value / 1000000).toFixed(1)}M`;
@@ -184,7 +184,7 @@ export default function WasteTrackerPage() {
     { name: 'At Risk', value: metrics?.materialsAtRisk || 0, color: '#ef4444' },
   ].filter((d) => d.value > 0);
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'on_track':
         return 'bg-green-500';

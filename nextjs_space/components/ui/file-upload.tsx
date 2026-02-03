@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, X, FileIcon, Loader2, Download, Trash2 } from 'lucide-react';
+import { Upload, _X, FileIcon, Loader2, Download, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -37,7 +37,7 @@ export function FileUpload({
   disabled = false,
   isPublic = false
 }: FileUploadProps) {
-  const [uploading, setUploading] = useState<string[]>([]);
+  const [_uploading, setUploading] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

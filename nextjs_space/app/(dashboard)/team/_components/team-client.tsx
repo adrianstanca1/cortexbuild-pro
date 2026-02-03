@@ -4,9 +4,9 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, ChevronRight, User,
-  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, Shield, HardHat,
-  ChevronDown, Phone, Calendar, Award, MapPin, Clock
+  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, _ChevronRight, User,
+  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, _Shield, HardHat,
+  ChevronDown, _Phone, _Calendar, _Award, _MapPin, _Clock
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -167,7 +167,7 @@ function OrganizationTreeView({ teamMembers }: { teamMembers: any[] }) {
                             {/* Vertical tree line */}
                             <div className="absolute left-3 top-0 bottom-4 w-0.5 bg-gradient-to-b from-slate-300 to-slate-200 dark:from-slate-600 dark:to-slate-700" />
                             
-                            {members.map((member, memberIndex) => (
+                            {members.map((member, _memberIndex) => (
                               <div key={member.id} className="relative flex items-center gap-3">
                                 {/* Horizontal branch */}
                                 <div className="absolute left-[-20px] top-1/2 w-5 h-0.5 bg-slate-300 dark:bg-slate-600" />

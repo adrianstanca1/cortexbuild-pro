@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate date range
     const endDate = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
     
     switch (dateRange) {
       case "week":

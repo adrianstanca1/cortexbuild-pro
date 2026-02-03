@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, _AnimatePresence } from "framer-motion";
 import {
   Server,
   Plus,
@@ -22,16 +22,16 @@ import {
   Zap,
   Eye,
   EyeOff,
-  Copy,
+  _Copy,
   RotateCcw,
   Power,
   PowerOff,
   Activity,
   History,
-  Filter,
+  _Filter,
   Settings,
   ExternalLink,
-  ChevronDown,
+  _ChevronDown,
   Terminal,
   Mail,
   Brain,
@@ -80,7 +80,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { format, formatDistanceToNow } from "date-fns";
+import { _format, formatDistanceToNow } from "date-fns";
 import { HealthMonitoring } from "./health-monitoring";
 import { UsageAnalytics } from "./usage-analytics";
 import { RateLimiting } from "./rate-limiting";
@@ -243,10 +243,10 @@ export function ApiManagementClient() {
   const [logs, setLogs] = useState<ApiConnectionLog[]>([]);
   const [dependencies, setDependencies] = useState<DependencyModule[]>([]);
   const [stats, setStats] = useState<any>({});
-  const [categories, setCategories] = useState<string[]>([]);
+  const [_categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCategory, _setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
 
@@ -255,7 +255,7 @@ export function ApiManagementClient() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRotateModal, setShowRotateModal] = useState(false);
   const [showCustomApiModal, setShowCustomApiModal] = useState(false);
-  const [showDependenciesModal, setShowDependenciesModal] = useState(false);
+  const [_showDependenciesModal, _setShowDependenciesModal] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<ApiConnection | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
@@ -799,7 +799,7 @@ export function ApiManagementClient() {
   };
 
   // Copy to clipboard
-  const handleCopyToClipboard = (text: string) => {
+  const _handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
   };
@@ -1007,7 +1007,7 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
+              const _statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div

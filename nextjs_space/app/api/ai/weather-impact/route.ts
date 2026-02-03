@@ -145,12 +145,12 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId');
+    const _projectId = searchParams.get('projectId');
     const days = parseInt(searchParams.get('days') || '14');
 
     // Get project location or use default (London)
-    let latitude = 51.5074;
-    let longitude = -0.1278;
+    const latitude = 51.5074;
+    const longitude = -0.1278;
     let locationName = 'London, UK';
 
     if (projectId) {
@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { projectId, forecast, impacts, upcomingTasks } = body;
+    const { _projectId, forecast, impacts, upcomingTasks } = body;
 
     // Prepare context for AI analysis
     const context = {

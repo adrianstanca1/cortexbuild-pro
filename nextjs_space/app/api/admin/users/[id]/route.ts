@@ -71,7 +71,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, email, role, organizationId, phone, password, suspended } = body;
+    const { name, email, role, organizationId, phone, password, _suspended } = body;
 
     const existingUser = await prisma.user.findUnique({ where: { id: id } });
     if (!existingUser) {

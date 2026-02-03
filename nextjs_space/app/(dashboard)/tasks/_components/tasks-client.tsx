@@ -2,13 +2,13 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format, formatDistanceToNow, isPast, isToday } from "date-fns";
+import { format, _formatDistanceToNow, isPast, isToday } from "date-fns";
 import {
-  Plus, Search, ListTodo, User, Clock, Loader2, LayoutGrid, List,
-  GanttChart as GanttIcon, Filter, Calendar, AlertCircle, CheckCircle2,
-  ChevronRight, Target, Flame, TrendingUp, MoreHorizontal
+  Plus, Search, ListTodo, _User, _Clock, Loader2, LayoutGrid, List,
+  GanttChart as GanttIcon, _Filter, Calendar, AlertCircle, CheckCircle2,
+  ChevronRight, Target, Flame, TrendingUp, _MoreHorizontal
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { KanbanBoard } from "./kanban-board";
-import { TaskCard, TaskDetailDialog } from "@/components/ui/task-card";
+import { _TaskCard, TaskDetailDialog } from "@/components/ui/task-card";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { GanttChart } from "@/components/ui/gantt-chart";
 

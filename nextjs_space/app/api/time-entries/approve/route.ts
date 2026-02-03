@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
-    const userId = searchParams.get("userId");
+    const _userId = searchParams.get("userId");
 
     const where: any = {
       status: "PENDING",
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
     // Group by user for easier review
     const groupedByUser: Record<string, any[]> = {};
     pendingEntries.forEach(entry => {
-      const userId = entry.user.id;
+      const _userId = entry.user.id;
       if (!groupedByUser[userId]) {
         groupedByUser[userId] = [];
       }
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
     const summary = {
       totalPending: pendingEntries.length,
       totalHours: pendingEntries.reduce((sum, e) => sum + e.hours, 0),
-      byUser: Object.entries(groupedByUser).map(([userId, entries]) => ({
+      byUser: Object.entries(groupedByUser).map(([_userId, entries]) => ({
         user: entries[0].user,
         count: entries.length,
         totalHours: entries.reduce((sum, e) => sum + e.hours, 0)

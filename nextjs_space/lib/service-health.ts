@@ -4,7 +4,7 @@
 // =====================================================
 
 import { prisma } from "@/lib/db";
-import { serviceRegistry, getAllServiceInstances, ServiceInstance, ServiceStatus } from "./service-registry";
+import { serviceRegistry, getAllServiceInstances, _ServiceInstance, ServiceStatus } from "./service-registry";
 import { SendGridAdapter, AIAdapter, TwilioAdapter, StripeAdapter } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
 
@@ -288,7 +288,7 @@ export async function getServiceUptimeStats(
     }
   });
 
-  let totalChecks = logs.length;
+  const totalChecks = logs.length;
   let successfulChecks = 0;
   let totalResponseTime = 0;
   let responseTimeCount = 0;

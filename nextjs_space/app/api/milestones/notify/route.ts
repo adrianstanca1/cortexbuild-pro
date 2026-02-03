@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET endpoint to check upcoming/overdue milestones
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

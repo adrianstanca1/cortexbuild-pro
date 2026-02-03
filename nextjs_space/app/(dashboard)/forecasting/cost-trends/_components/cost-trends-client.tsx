@@ -3,19 +3,19 @@
 import { useState, useMemo } from 'react';
 import {
   TrendingUp,
-  TrendingDown,
+  _TrendingDown,
   PoundSterling,
   BarChart3,
   PieChart,
   Sparkles,
   ArrowUpRight,
-  ArrowDownRight,
+  _ArrowDownRight,
   AlertTriangle,
   CheckCircle2,
   Loader2,
-  RefreshCw,
-  Download,
-  Filter
+  _RefreshCw,
+  _Download,
+  _Filter
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
+  _LineChart,
+  _Line,
   PieChart as RePieChart,
   Pie,
   Cell,
@@ -102,7 +102,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [analysisType, setAnalysisType] = useState<'trend' | 'forecast' | 'variance'>('trend');
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [aiMetrics, setAiMetrics] = useState<Record<string, number | null> | null>(null);
+  const [_aiMetrics, setAiMetrics] = useState<Record<string, number | null> | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   // Project budget breakdown for pie chart
@@ -200,7 +200,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
     }
   };
 
-  const getHealthIndicator = (cpi: number) => {
+  const _getHealthIndicator = (cpi: number) => {
     if (cpi >= 1) return { icon: CheckCircle2, color: 'text-green-500', label: 'On Track' };
     if (cpi >= 0.9) return { icon: AlertTriangle, color: 'text-yellow-500', label: 'At Risk' };
     return { icon: AlertTriangle, color: 'text-red-500', label: 'Over Budget' };

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCircle, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useRealtime } from '@/hooks/use-realtime';
-import { Badge } from '@/components/ui/badge';
+import { _Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -36,7 +36,7 @@ export function NotificationsDropdown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Real-time updates
-  const { lastEvent } = useRealtime((event) => {
+  const { _lastEvent } = useRealtime((event) => {
     if (event.type === 'activity_logged' || event.type === 'notification') {
       fetchNotifications();
     }

@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, _useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Edit, Trash2, MapPin, Calendar, PoundSterling, User,
-  ListTodo, FileText, Users, Plus, Loader2, CheckCircle, Clock, AlertCircle, Activity, TrendingUp,
-  Upload, Download, Eye, Ruler, Image, FileSpreadsheet, File, Brain, BarChart3, Camera,
+  ArrowLeft, Edit, _Trash2, MapPin, _Calendar, PoundSterling, User,
+  _ListTodo, FileText, Users, Plus, Loader2, CheckCircle, _Clock, AlertCircle, Activity, TrendingUp,
+  _Upload, _Download, _Eye, _Ruler, _Image, _FileSpreadsheet, _File, Brain, _BarChart3, Camera,
   ClipboardList, Timer, Wallet, Receipt, Package, HardHat, FileQuestion, Send, FileCheck,
   Shield, PenTool, BookOpen, AlertTriangle, Target, Search, ChevronRight, FolderOpen,
-  Milestone, Building2, Hammer, Truck, UserCheck, Scale, LayoutGrid, List,
-  FolderClosed, Home, ChevronDown, Minus, CornerDownRight, Gauge, Sparkles, Settings,
-  ExternalLink, Network, MoreVertical, Share2, Star, Archive, Copy, Zap,
-  PanelLeftClose, PanelLeft, ChevronLeft
+  Milestone, Building2, _Hammer, Truck, UserCheck, Scale, LayoutGrid, _List,
+  FolderClosed, _Home, ChevronDown, _Minus, _CornerDownRight, _Gauge, _Sparkles, Settings,
+  _ExternalLink, Network, _MoreVertical, Share2, Star, _Archive, _Copy, Zap,
+  _PanelLeftClose, _PanelLeft, ChevronLeft
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +22,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, _DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { DocumentViewer } from "@/components/ui/document-viewer";
+import { _DocumentViewer } from "@/components/ui/document-viewer";
 import { ProjectIntelligence } from "@/components/ui/project-intelligence";
 import { PhotoGallery } from "@/components/ui/photo-gallery";
 import { WeatherWidget } from "@/components/ui/weather-widget";
@@ -46,7 +46,7 @@ interface ProjectDetailClientProps {
   certifications?: any[];
 }
 
-const statusColors = {
+const _statusColors = {
   PLANNING: "info",
   IN_PROGRESS: "default",
   ON_HOLD: "warning",
@@ -54,7 +54,7 @@ const statusColors = {
   ARCHIVED: "secondary"
 } as const;
 
-const taskStatusColors = {
+const _taskStatusColors = {
   TODO: "secondary",
   IN_PROGRESS: "info",
   REVIEW: "warning",
@@ -178,21 +178,21 @@ const featureCategories = [
 ];
 
 // Helper: Check if tab is in top menu
-const isTopMenuTab = (tabId: string) => {
+const _isTopMenuTab = (tabId: string) => {
   return topMenuCategories.some(cat => cat.items.some(item => item.id === tabId));
 };
 
-export function ProjectDetailClient({ project, availableTeamMembers, currentUserId, activities = [], certifications = [] }: ProjectDetailClientProps) {
+export function ProjectDetailClient({ project, availableTeamMembers, _currentUserId, _activities = [], certifications = [] }: ProjectDetailClientProps) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const _fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showNewItemModal, setShowNewItemModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [_searchQuery, _setSearchQuery] = useState("");
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["overview"]));
-  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [_showQuickActions, _setShowQuickActions] = useState(false);
   const [expandedTopMenu, setExpandedTopMenu] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -1519,7 +1519,7 @@ function OverviewTab({ project, counts, setActiveTab }: { project: any; counts: 
   );
 }
 
-function TasksTab({ project, availableTeamMembers, onCreateTask, router }: { project: any; availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
+function TasksTab({ project, _availableTeamMembers, onCreateTask, router }: { project: any; _availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
   const [filter, setFilter] = useState("all");
   const tasks = project?.tasks || [];
   const filteredTasks = filter === "all" ? tasks : tasks.filter((t: any) => t?.status === filter);
@@ -1750,7 +1750,7 @@ function ChangeOrdersTab({ project }: { project: any }) {
   );
 }
 
-function TeamTab({ project, availableTeamMembers }: { project: any; availableTeamMembers: any[] }) {
+function TeamTab({ project, _availableTeamMembers }: { project: any; _availableTeamMembers: any[] }) {
   const teamMembers = project?.teamMembers || [];
   return (
     <div className="space-y-4">
@@ -2173,7 +2173,7 @@ function SafetyTab({ project }: { project: any }) {
   );
 }
 
-function TimelineTab({ activities }: { activities: any[] }) {
+function _TimelineTab({ activities }: { activities: any[] }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Activity Timeline</h2>
