@@ -86,11 +86,11 @@ if docker compose version &> /dev/null 2>&1; then
     echo -e "${GREEN}✓ Docker Compose available${NC}"
 else
     echo -e "${YELLOW}Installing Docker Compose plugin...${NC}"
-    apt-get update && apt-get install -y docker-compose-plugin || {
+    if ! apt-get update || ! apt-get install -y docker-compose-plugin; then
         echo -e "${RED}Failed to install Docker Compose plugin${NC}"
         echo "Please install manually: apt-get install docker-compose-plugin"
         exit 1
-    }
+    fi
 fi
 
 echo ""
@@ -173,12 +173,37 @@ case $choice in
             echo -e "${YELLOW}Installing Windmill...${NC}"
             mkdir -p "$WINDMILL_DIR"
             cd "$WINDMILL_DIR"
-            curl -o docker-compose.yml https://raw.githubusercontent.com/windmill-labs/windmill/main/docker-compose.yml
+            
+            if ! curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/windmill-labs/windmill/main/docker-compose.yml; then
+                echo -e "${RED}Failed to download Windmill docker-compose.yml${NC}"
+                exit 1
+            fi
+            
             docker compose up -d
             
-            echo -e "${GREEN}✓ Windmill installed successfully${NC}"
+            echo -e "${GREEN}✓ Windmill containers starting...${NC}"
             echo -e "${YELLOW}Waiting for Windmill to be ready...${NC}"
-            sleep 30
+            
+            MAX_ATTEMPTS=30
+            SLEEP_SECONDS=2
+            WINDMILL_URL="http://localhost:8000"
+            ATTEMPT=1
+            
+            while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+                if curl -fsS "$WINDMILL_URL" > /dev/null 2>&1; then
+                    echo -e "${GREEN}✓ Windmill is responding at $WINDMILL_URL${NC}"
+                    break
+                fi
+                echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS: Windmill not ready yet, retrying in ${SLEEP_SECONDS}s..."
+                ATTEMPT=$((ATTEMPT + 1))
+                sleep "$SLEEP_SECONDS"
+            done
+            
+            if ! curl -fsS "$WINDMILL_URL" > /dev/null 2>&1; then
+                echo -e "${RED}✗ Windmill did not become ready after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds.${NC}"
+                echo -e "${RED}  Please check the Docker logs (e.g., 'docker compose logs') and try again.${NC}"
+                exit 1
+            fi
         fi
         
         echo ""
@@ -234,11 +259,30 @@ case $choice in
         echo -e "${YELLOW}Starting services...${NC}"
         docker compose up -d
         
-        echo -e "${YELLOW}Waiting for services to be ready...${NC}"
-        sleep 20
+        # Wait for application to be healthy before running migrations
+        echo -e "${YELLOW}Waiting for application to be healthy...${NC}"
+        MAX_ATTEMPTS=30
+        ATTEMPT=1
+        
+        while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+            if curl -fsS http://localhost:3000/ > /dev/null 2>&1; then
+                echo -e "${GREEN}✓ Application is healthy${NC}"
+                break
+            fi
+            echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS: Waiting for application..."
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 2
+        done
+        
+        if [ "$ATTEMPT" -gt "$MAX_ATTEMPTS" ]; then
+            echo -e "${YELLOW}Warning: Application health check timed out. Proceeding with migrations anyway.${NC}"
+        fi
         
         echo -e "${YELLOW}Running database migrations...${NC}"
-        docker compose exec -T app npx prisma migrate deploy || echo "Migrations may need manual run"
+        if ! docker compose exec -T app npx prisma migrate deploy; then
+            echo -e "${RED}✗ Migrations failed. You can retry manually with:${NC}"
+            echo "  docker compose exec app npx prisma migrate deploy"
+        fi
         
         echo ""
         echo -e "${GREEN}═══════════════════════════════════════${NC}"

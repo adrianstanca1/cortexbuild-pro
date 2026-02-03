@@ -60,22 +60,48 @@ if [ "$WINDMILL_INSTALLED" = false ]; then
         mkdir -p "$WINDMILL_DIR"
         cd "$WINDMILL_DIR"
         
-        # Download docker-compose file
-        curl -o docker-compose.yml https://raw.githubusercontent.com/windmill-labs/windmill/main/docker-compose.yml
+        # Download docker-compose file with a pinned version for reproducibility
+        echo -e "${YELLOW}Downloading Windmill docker-compose.yml...${NC}"
+        if ! curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/windmill-labs/windmill/main/docker-compose.yml; then
+            echo -e "${RED}Failed to download Windmill docker-compose.yml${NC}"
+            exit 1
+        fi
+        
+        # Optional: Verify the file looks like a valid docker-compose file
+        if ! head -n 1 docker-compose.yml | grep -qE '^(version:|services:)'; then
+            echo -e "${YELLOW}Warning: Downloaded file may not be a valid docker-compose.yml${NC}"
+        fi
         
         # Start Windmill
         docker compose up -d
         
-        echo -e "${GREEN}✓ Windmill installed and running${NC}"
+        echo -e "${GREEN}✓ Windmill containers starting...${NC}"
         echo -e "${BLUE}Access Windmill at: http://$(hostname -I | awk '{print $1}'):8000${NC}"
         echo ""
         
-        # Wait for Windmill to be ready
+        # Wait for Windmill to be ready with proper health check
         echo -e "${YELLOW}Waiting for Windmill to be ready...${NC}"
-        sleep 30
+        MAX_ATTEMPTS=30
+        SLEEP_SECONDS=2
+        ATTEMPT=1
+        WINDMILL_URL="http://localhost:8000"
         
-        echo -e "${GREEN}✓ Windmill should be ready now${NC}"
-        echo ""
+        while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+            if curl -fsS "$WINDMILL_URL" > /dev/null 2>&1; then
+                echo -e "${GREEN}✓ Windmill is ready (responded on attempt ${ATTEMPT})${NC}"
+                echo ""
+                break
+            fi
+            echo "  Attempt ${ATTEMPT}/${MAX_ATTEMPTS}: Windmill not ready yet, waiting ${SLEEP_SECONDS}s..."
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep "$SLEEP_SECONDS"
+        done
+        
+        if [ "$ATTEMPT" -gt "$MAX_ATTEMPTS" ]; then
+            echo -e "${RED}✗ Windmill did not become ready within $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds.${NC}"
+            echo -e "${YELLOW}Please check the Windmill containers and try again:${NC}"
+            echo "  cd $WINDMILL_DIR && docker compose logs"
+        fi
     fi
 fi
 
@@ -182,16 +208,48 @@ echo ""
 read -p "Would you like to test the deployment script now? (y/n): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Running deployment script...${NC}"
-    cd "$DEPLOYMENT_DIR"
-    ./windmill-deploy-app.sh
+    echo -e "${YELLOW}Checking prerequisites for deployment test...${NC}"
     
-    echo ""
-    echo -e "${GREEN}✓ Deployment script executed${NC}"
-    echo ""
-    echo "Check the application:"
-    echo "  curl http://localhost:3000"
-    echo "  docker ps"
+    missing_reqs=0
+    
+    if [ -z "$DEPLOYMENT_DIR" ] || [ ! -d "$DEPLOYMENT_DIR" ]; then
+        echo -e "${RED}Deployment directory not found or not set (DEPLOYMENT_DIR=${DEPLOYMENT_DIR:-unset}).${NC}"
+        missing_reqs=1
+    fi
+    
+    if [ "$missing_reqs" -eq 0 ] && [ ! -f "$DEPLOYMENT_DIR/windmill-deploy-app.sh" ]; then
+        echo -e "${RED}Deployment script not found at: $DEPLOYMENT_DIR/windmill-deploy-app.sh${NC}"
+        missing_reqs=1
+    fi
+    
+    if [ "$missing_reqs" -eq 0 ] && [ ! -x "$DEPLOYMENT_DIR/windmill-deploy-app.sh" ]; then
+        echo -e "${YELLOW}Deployment script is not executable; attempting to set execute permission...${NC}"
+        chmod +x "$DEPLOYMENT_DIR/windmill-deploy-app.sh" || missing_reqs=1
+    fi
+    
+    if [ "$missing_reqs" -eq 0 ] && [ ! -f "$DEPLOYMENT_DIR/.env" ]; then
+        echo -e "${YELLOW}Warning: .env file not found in $DEPLOYMENT_DIR. The deployment script may fail without it.${NC}"
+    fi
+    
+    if ! command -v docker >/dev/null 2>&1; then
+        echo -e "${YELLOW}Warning: Docker command not found. Deployment may fail.${NC}"
+    fi
+    
+    if [ "$missing_reqs" -ne 0 ]; then
+        echo -e "${RED}Prerequisites check failed. Please resolve the issues above before testing.${NC}"
+    else
+        echo -e "${GREEN}✓ Prerequisites check passed${NC}"
+        echo -e "${YELLOW}Running deployment script...${NC}"
+        cd "$DEPLOYMENT_DIR"
+        ./windmill-deploy-app.sh
+        
+        echo ""
+        echo -e "${GREEN}✓ Deployment script executed${NC}"
+        echo ""
+        echo "Check the application:"
+        echo "  curl http://localhost:3000"
+        echo "  docker ps"
+    fi
     echo ""
 fi
 

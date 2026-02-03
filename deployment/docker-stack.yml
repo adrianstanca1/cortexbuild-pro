@@ -12,7 +12,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-cortexbuild}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
+      # Note: For backups, use a named volume or absolute path in production
+      # - /var/lib/cortexbuild/backups:/backups
     networks:
       - cortexbuild-network
     deploy:
@@ -32,10 +33,10 @@ services:
 
   # Next.js Application
   app:
+    # Note: Image must be built beforehand using:
+    #   cd deployment && docker build -t cortexbuild-app:latest -f Dockerfile ..
+    # or use the docker-manager-deploy.sh script
     image: cortexbuild-app:latest
-    build:
-      context: ..
-      dockerfile: deployment/Dockerfile
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
@@ -63,7 +64,7 @@ services:
         parallelism: 1
         delay: 5s
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/', res => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));\""]
       interval: 30s
       timeout: 10s
       retries: 3

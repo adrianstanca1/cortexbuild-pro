@@ -22,6 +22,7 @@ echo ""
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
   echo -e "${RED}Please run as root or with sudo${NC}"
+  echo -e "${YELLOW}Example: sudo $0${NC}"
   exit 1
 fi
 
@@ -32,10 +33,24 @@ DEPLOYMENT_DIR="$PROJECT_DIR/deployment"
 # Step 1: Check Docker installation
 echo -e "${YELLOW}Step 1: Verifying Docker installation...${NC}"
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}Docker is not installed. Installing Docker...${NC}"
-    curl -fsSL https://get.docker.com | sh
+    echo -e "${RED}Docker is not installed.${NC}"
+    echo -e "${YELLOW}Docker will be installed using the official convenience script from get.docker.com.${NC}"
+    read -rp "Do you want to download and install Docker? [y/N] " DOCKER_CONFIRM
+    if [[ ! "$DOCKER_CONFIRM" =~ ^[Yy]$ ]]; then
+        echo -e "${RED}Docker installation aborted by user.${NC}"
+        exit 1
+    fi
+    
+    echo -e "${YELLOW}Installing Docker...${NC}"
+    if ! curl -fsSL https://get.docker.com | sh; then
+        echo -e "${RED}Failed to install Docker.${NC}"
+        exit 1
+    fi
+    
     systemctl enable docker
     systemctl start docker
+    
+    echo -e "${GREEN}✓ Docker installed successfully${NC}"
 else
     echo -e "${GREEN}✓ Docker is installed${NC}"
 fi
@@ -43,7 +58,16 @@ fi
 # Check Docker Compose
 if ! docker compose version &> /dev/null; then
     echo -e "${YELLOW}Installing Docker Compose plugin...${NC}"
-    apt-get update && apt-get install -y docker-compose-plugin
+    if ! apt-get update || ! apt-get install -y docker-compose-plugin; then
+        echo -e "${RED}Failed to install Docker Compose plugin. Please check your APT configuration and try again.${NC}"
+        exit 1
+    fi
+    
+    # Verify Docker Compose is now available
+    if ! docker compose version &> /dev/null; then
+        echo -e "${RED}Docker Compose is still not available after installation. Aborting.${NC}"
+        exit 1
+    fi
 fi
 echo -e "${GREEN}✓ Docker Compose is available${NC}"
 echo ""
@@ -121,15 +145,28 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Waiting for database to be ready...${NC}"
     sleep 20
     
-    # Run migrations
+    # Run migrations with proper error handling
     echo -e "${YELLOW}Running database migrations...${NC}"
-    docker compose exec -T app npx prisma migrate deploy || echo "Migrations may need retry"
+    migration_failed=false
+    if ! docker compose exec -T app npx prisma migrate deploy; then
+        migration_failed=true
+        echo -e "${RED}✗ Database migrations failed.${NC}"
+        echo -e "${YELLOW}You can retry manually with:${NC}"
+        echo "  docker compose exec app npx prisma migrate deploy"
+    fi
     
     # Show status
     echo ""
-    echo -e "${GREEN}=========================================${NC}"
-    echo -e "${GREEN}Deployment Complete!${NC}"
-    echo -e "${GREEN}=========================================${NC}"
+    if [ "$migration_failed" = true ]; then
+        echo -e "${YELLOW}=========================================${NC}"
+        echo -e "${YELLOW}Deployment completed, but migrations FAILED${NC}"
+        echo -e "${YELLOW}Please run migrations manually before using the app${NC}"
+        echo -e "${YELLOW}=========================================${NC}"
+    else
+        echo -e "${GREEN}=========================================${NC}"
+        echo -e "${GREEN}Deployment Complete!${NC}"
+        echo -e "${GREEN}=========================================${NC}"
+    fi
     echo ""
     docker compose ps
     echo ""
