@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { getClientCount, _getOrganizationClientCount } from "@/lib/realtime-clients";
+import { getClientCount, getOrganizationClientCount } from "@/lib/realtime-clients";
 
 export async function GET(_request: NextRequest) {
   try {

@@ -23,7 +23,7 @@ export async function sendCompanyInvitationNotification(
   }
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
 
     const htmlBody = `
@@ -100,9 +100,9 @@ export async function sendCompanyInvitationNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_COMPANY_INVITATION,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_COMPANYINVITATION,
         subject: `🏗️ You're invited to join ${invitation.companyName} on CortexBuild Pro`,
         body: htmlBody,
         is_html: true,
@@ -137,7 +137,7 @@ export async function sendTeamMemberInvitationNotification(
   }
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
 
     const roleLabels: Record<string, string> = {
@@ -213,9 +213,9 @@ export async function sendTeamMemberInvitationNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_TEAM_MEMBER_INVITATION,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_TEAM_MEMBERINVITATION,
         subject: `👋 You're invited to join ${invitation.organizationName} on CortexBuild Pro`,
         body: htmlBody,
         is_html: true,
@@ -250,7 +250,7 @@ export async function sendTaskAssignmentNotification(
   recipientName: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const priorityColors: Record<string, { bg: string; text: string }> = {
@@ -309,9 +309,9 @@ export async function sendTaskAssignmentNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_TASK_ASSIGNMENT,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_TASKASSIGNMENT,
         subject: `📋 New Task Assigned: ${task.title}`,
         body: htmlBody,
         is_html: true,
@@ -347,7 +347,7 @@ export async function sendSafetyAlertNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const typeLabels: Record<string, { emoji: string; label: string; color: string }> = {
@@ -415,9 +415,9 @@ export async function sendSafetyAlertNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_SAFETY_ALERT,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_SAFETYALERT,
         subject: `${typeInfo.emoji} URGENT: ${typeInfo.label} - ${alert.title}`,
         body: htmlBody,
         is_html: true,
@@ -453,7 +453,7 @@ export async function sendProjectStatusUpdateNotification(
   recipientName: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColors: Record<string, { bg: string; text: string }> = {
@@ -518,9 +518,9 @@ export async function sendProjectStatusUpdateNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_PROJECT_STATUS_UPDATE,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_PROJECT_STATUSUPDATE,
         subject: `📊 Project Update: ${update.projectName} - ${update.newStatus}`,
         body: htmlBody,
         is_html: true,
@@ -556,7 +556,7 @@ export async function sendDailyReportSubmittedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const htmlBody = `
@@ -619,9 +619,9 @@ export async function sendDailyReportSubmittedNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_DAILY_REPORT_SUBMITTED,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_DAILY_REPORTSUBMITTED,
         subject: `📝 Daily Report: ${report.projectName} - ${new Date(report.date).toLocaleDateString('en-GB')}`,
         body: htmlBody,
         is_html: true,
@@ -657,7 +657,7 @@ export async function sendToolboxTalkCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const htmlBody = `
@@ -712,9 +712,9 @@ export async function sendToolboxTalkCompletedNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_TOOLBOX_TALK_COMPLETED,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_TOOLBOX_TALKCOMPLETED,
         subject: `✅ Toolbox Talk Completed: ${talk.title}`,
         body: htmlBody,
         is_html: true,
@@ -747,7 +747,7 @@ export async function sendMEWPCheckCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';
@@ -815,9 +815,9 @@ export async function sendMEWPCheckCompletedNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_MEWP_CHECK_COMPLETED,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_MEWP_CHECKCOMPLETED,
         subject: `🚧 MEWP Check ${check.overallStatus}: ${check.equipmentName}`,
         body: htmlBody,
         is_html: true,
@@ -851,7 +851,7 @@ export async function sendToolCheckCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';
@@ -932,9 +932,9 @@ export async function sendToolCheckCompletedNotification(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_TOOL_CHECK_COMPLETED,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_TOOL_CHECKCOMPLETED,
         subject: `🛠️ Tool Check ${check.overallStatus}: ${check.toolName}`,
         body: htmlBody,
         is_html: true,

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  _LayoutDashboard,
+  LayoutDashboard,
   Users,
   Building2,
   Activity,

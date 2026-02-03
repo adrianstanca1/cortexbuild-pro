@@ -45,7 +45,7 @@ export async function GET(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
+        deployment_token: process.env.ABACUSAI_APIKEY,
         html_content: htmlContent,
         pdf_options: { format: 'A4', print_background: true },
         base_url: process.env.NEXTAUTH_URL || '',

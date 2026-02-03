@@ -2,13 +2,13 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { _format } from "date-fns";
+import { format } from "date-fns";
 import {
-  _Plus, Search, FileText, Upload, Download, Trash2, _Filter, Loader2,
+  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
   Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, _MoreHorizontal, HardDrive
+  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

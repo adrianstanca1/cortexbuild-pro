@@ -3,19 +3,19 @@
 import { useState, useMemo } from 'react';
 import {
   TrendingUp,
-  _TrendingDown,
+  TrendingDown,
   PoundSterling,
   BarChart3,
   PieChart,
   Sparkles,
   ArrowUpRight,
-  _ArrowDownRight,
+  ArrowDownRight,
   AlertTriangle,
   CheckCircle2,
   Loader2,
-  _RefreshCw,
-  _Download,
-  _Filter
+  RefreshCw,
+  Download,
+  Filter
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  _LineChart,
-  _Line,
+  LineChart,
+  Line,
   PieChart as RePieChart,
   Pie,
   Cell,
@@ -200,7 +200,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
     }
   };
 
-  const _getHealthIndicator = (cpi: number) => {
+  const getHealthIndicator = (cpi: number) => {
     if (cpi >= 1) return { icon: CheckCircle2, color: 'text-green-500', label: 'On Track' };
     if (cpi >= 0.9) return { icon: AlertTriangle, color: 'text-yellow-500', label: 'At Risk' };
     return { icon: AlertTriangle, color: 'text-red-500', label: 'Over Budget' };

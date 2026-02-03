@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, _useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FileCheck, Plus, Search, _Filter, Calendar, Building2, AlertCircle,
-  CheckCircle, Clock, _XCircle, Loader2, Eye, Edit, _Trash2, PoundSterling
+  FileCheck, Plus, Search, Filter, Calendar, Building2, AlertCircle,
+  CheckCircle, Clock, XCircle, Loader2, Eye, Edit, Trash2, PoundSterling
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +48,7 @@ interface PermitsClientProps {
 }
 
 export function PermitsClient({ permits: initialPermits, projects }: PermitsClientProps) {
-  const _router = useRouter();
+  const router = useRouter();
   const [permits, setPermits] = useState(initialPermits);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

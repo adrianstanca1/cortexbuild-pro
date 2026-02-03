@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
   Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
-  Eraser, _Save, Undo, Redo, Users, _FileText, Eye, EyeOff, Trash2,
-  _ChevronDown, MousePointer, Triangle, Cloud, MessageSquare,
-  _Grid3X3, Move, _PaintBucket, Pipette, _Spline, Pen, Brush, Sparkles,
-  Star, Hexagon, ArrowUpRight, _ArrowDownLeft, Hash, Stamp, Target,
-  RotateCcw, _Crosshair, ScanLine, _Maximize, _Minimize2, Lock, Unlock,
-  _Copy, _Clipboard, _FlipHorizontal, _FlipVertical, _AlignLeft, _AlignCenter,
-  _AlignRight, _AlignStartVertical, _AlignCenterVertical, _AlignEndVertical,
-  _Palette, _Settings2, LayoutGrid, _Shapes, MessageCircle, Tag, _Bookmark,
-  CheckCircle, XCircle, AlertCircle, Clock, Info, _ChevronLeft, _ChevronRight,
-  _ChevronsUpDown, _MoreVertical, _Search, _Filter, _SortAsc, _Sliders,
-  PanelLeftClose, PanelLeft, _ImagePlus
+  Eraser, Save, Undo, Redo, Users, FileText, Eye, EyeOff, Trash2,
+  ChevronDown, MousePointer, Triangle, Cloud, MessageSquare,
+  Grid3X3, Move, PaintBucket, Pipette, Spline, Pen, Brush, Sparkles,
+  Star, Hexagon, ArrowUpRight, ArrowDownLeft, Hash, Stamp, Target,
+  RotateCcw, Crosshair, ScanLine, Maximize, Minimize2, Lock, Unlock,
+  Copy, Clipboard, FlipHorizontal, FlipVertical, AlignLeft, AlignCenter,
+  AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical,
+  Palette, Settings2, LayoutGrid, Shapes, MessageCircle, Tag, Bookmark,
+  CheckCircle, XCircle, AlertCircle, Clock, Info, ChevronLeft, ChevronRight,
+  ChevronsUpDown, MoreVertical, Search, Filter, SortAsc, Sliders,
+  PanelLeftClose, PanelLeft, ImagePlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +27,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  _DropdownMenuSub,
-  _DropdownMenuSubTrigger,
-  _DropdownMenuSubContent,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";

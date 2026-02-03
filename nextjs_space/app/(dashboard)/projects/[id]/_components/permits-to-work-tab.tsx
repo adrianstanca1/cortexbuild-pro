@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Flame, AlertOctagon, Check, X, Eye, Loader2, Clock, _ShieldAlert, _Wind } from 'lucide-react';
+import { Plus, Flame, AlertOctagon, Check, X, Eye, Loader2, Clock, ShieldAlert, Wind } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
-import { format, _differenceInHours } from 'date-fns';
+import { format, differenceInHours } from 'date-fns';
 import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface PermitsToWorkTabProps {
@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   EXPIRED: 'bg-orange-500'
 };
 
-export function PermitsToWorkTab({ project, _teamMembers, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
+export function PermitsToWorkTab({ project, teamMembers, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
   const router = useRouter();
   const [hotWorkPermits, setHotWorkPermits] = useState(initialHotWork || []);
   const [csPermits, setCsPermits] = useState(initialCS || []);

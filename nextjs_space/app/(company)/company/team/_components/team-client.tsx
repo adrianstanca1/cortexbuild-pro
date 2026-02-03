@@ -7,12 +7,12 @@ import {
   Search,
   MoreVertical,
   Mail,
-  _Phone,
-  _Calendar,
+  Phone,
+  Calendar,
   Shield,
   Briefcase,
   Edit2,
-  _Trash2,
+  Trash2,
   UserX,
   Clock,
   FolderKanban,
@@ -53,7 +53,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { formatDistanceToNow, _format } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import Link from "next/link";
 
 interface CompanyTeamClientProps {

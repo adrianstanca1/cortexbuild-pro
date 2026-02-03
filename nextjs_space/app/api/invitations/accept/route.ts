@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
+          deployment_token: process.env.ABACUSAI_APIKEY,
           subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
@@ -236,7 +236,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
+          deployment_token: process.env.ABACUSAI_APIKEY,
           subject: `[Admin] New Company: ${result.organization.name}`,
           body: htmlBody,
           is_html: true,

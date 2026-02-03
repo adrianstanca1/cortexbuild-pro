@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, _AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   AlertTriangle,
@@ -14,8 +14,8 @@ import {
   Sparkles,
   Download,
   Copy,
-  _RefreshCw,
-  _ChevronRight,
+  RefreshCw,
+  ChevronRight,
   Building2,
   MapPin,
   Calendar,

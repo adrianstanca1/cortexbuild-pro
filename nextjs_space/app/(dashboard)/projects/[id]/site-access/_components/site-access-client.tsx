@@ -9,8 +9,8 @@ import {
   UserCheck,
   Building2,
   Clock,
-  _Phone,
-  _Car,
+  Phone,
+  Car,
   Download,
   RefreshCw,
   HardHat,
@@ -49,7 +49,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
   const [stats, setStats] = useState(initialStats);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const _canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Real-time updates
   useRealtime((event) => {

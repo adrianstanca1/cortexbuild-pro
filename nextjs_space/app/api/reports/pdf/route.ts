@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       const [projects, tasks, milestones] = await Promise.all([
         prisma.project.findMany({
           where: { organizationId: orgId },
-          include: { _count: { select: { tasks: true } } }
+          include: { count: { select: { tasks: true } } }
         }),
         prisma.task.findMany({
           where: { project: { organizationId: orgId } }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
+        deployment_token: process.env.ABACUSAI_APIKEY,
         html_content: htmlContent,
         pdf_options: {
           format: "A4",

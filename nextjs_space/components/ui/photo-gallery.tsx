@@ -7,8 +7,8 @@ import {
   X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw,
   Download, Maximize2, Minimize2, Grid3X3, LayoutGrid,
   Camera, FileText, Shield, CheckSquare, ClipboardCheck,
-  Calendar, Filter, Search, Loader2, ImageOff, _Info,
-  Eye, _ExternalLink
+  Calendar, Filter, Search, Loader2, ImageOff, Info,
+  Eye, ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

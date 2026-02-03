@@ -124,7 +124,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       onAnnotationComplete,
       onAnnotationSelect,
       onAnnotationMove,
-      _onAnnotationResize,
+      onAnnotationResize,
       onColorPick,
       onCursorMove,
     },
@@ -284,7 +284,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       // Draw selection handles
       if (selectedAnnotationId) {
-        const _annotation = annotations.find(a => a.id === selectedAnnotationId);
+        const annotation = annotations.find(a => a.id === selectedAnnotationId);
         if (annotation && !annotation.locked) {
           drawSelectionHandles(ctx, annotation);
         }
@@ -1646,7 +1646,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       if (e.ctrlKey) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -10 : 10;
-        const _newZoom = Math.max(25, Math.min(400, zoom + delta));
+        const newZoom = Math.max(25, Math.min(400, zoom + delta));
         // Zoom toward cursor position (not implemented yet)
       } else {
         setPanOffset(prev => ({
@@ -1673,7 +1673,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
     const findAnnotationAtPoint = (point: Point): Annotation | null => {
       // Search in reverse order (top to bottom)
       for (let i = annotations.length - 1; i >= 0; i--) {
-        const _annotation = annotations[i];
+        const annotation = annotations[i];
         if (!annotation.visible) continue;
         const bounds = getAnnotationBounds(annotation);
         if (
