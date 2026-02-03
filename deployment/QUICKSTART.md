@@ -469,14 +469,14 @@ After seeding the database, several demo accounts are created for testing.
    - Creating your own admin account with strong credentials
    - Using the application's user management to add real users
 
-**Default Demo Accounts** (for testing only):
+**Important:** The actual seeded accounts are defined in `nextjs_space/scripts/seed.ts`. The seed script creates specific test accounts with default credentials. For security reasons, we do not list the actual email addresses and passwords here in the public documentation.
 
-| Role | Email | Initial Password |
-|------|-------|------------------|
-| Super Admin | admin@yourdomain.com | **Change on first login** |
-| Company Owner | owner@yourdomain.com | **Change on first login** |
-
-**Note:** Check `nextjs_space/scripts/seed.ts` for the complete list of seeded accounts. Remember to delete or disable demo accounts before going into production!
+**After Deployment:**
+1. Run the seed script: `docker compose exec app npx prisma db seed`
+2. Check `nextjs_space/scripts/seed.ts` to see which accounts were created
+3. Log in with one of the admin accounts from the seed file
+4. **Immediately change all passwords** through the user management interface
+5. Delete or disable any demo/test accounts before production use
 
 **Production Best Practices:**
 - Set up your own admin account during initial configuration

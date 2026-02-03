@@ -173,15 +173,23 @@ setup_environment() {
     # Check if secrets need to be generated (check for weak/placeholder values)
     local needs_secrets=false
     
-    # Check NEXTAUTH_SECRET length and strength
-    if ! grep -q "NEXTAUTH_SECRET=" .env || \
-       grep -E "NEXTAUTH_SECRET=\"?[a-zA-Z0-9]{1,20}\"?" .env >/dev/null || \
-       grep -q "your.*secret" .env; then
+    # Check NEXTAUTH_SECRET - look for missing, empty, or obvious placeholders
+    if ! grep -q "NEXTAUTH_SECRET=" .env; then
         needs_secrets=true
+    else
+        # Extract the secret value
+        local secret_value=$(grep "NEXTAUTH_SECRET=" .env | cut -d'=' -f2- | tr -d '"' | tr -d "'")
+        
+        # Check if it's a placeholder or too short
+        if [[ -z "$secret_value" ]] || \
+           [[ ${#secret_value} -lt 24 ]] || \
+           echo "$secret_value" | grep -qi "secret\|placeholder\|changeme\|example"; then
+            needs_secrets=true
+        fi
     fi
     
-    # Check password placeholders
-    if grep -q "YOUR_PASSWORD_HERE\|your.*password\|changeme" .env; then
+    # Check password placeholders (specific patterns only)
+    if grep -q "YOUR_PASSWORD_HERE\|<YOUR_PASSWORD\|REPLACE.*PASSWORD\|changeme123" .env; then
         needs_secrets=true
     fi
     
@@ -192,11 +200,12 @@ setup_environment() {
         NEXTAUTH_SECRET=$(openssl rand -base64 32)
         sed -i "s|NEXTAUTH_SECRET=.*|NEXTAUTH_SECRET=\"$NEXTAUTH_SECRET\"|g" .env
         
-        # Generate DB password (replace placeholders)
+        # Generate DB password (replace specific placeholders only)
         DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-32)
         sed -i "s|YOUR_PASSWORD_HERE|$DB_PASSWORD|g" .env
-        sed -i "s|your.*password.*here|$DB_PASSWORD|gi" .env
-        sed -i "s|changeme|$DB_PASSWORD|gi" .env
+        sed -i "s|<YOUR_PASSWORD[^>]*>|$DB_PASSWORD|gi" .env
+        sed -i "s|REPLACE.*PASSWORD[^\"']*|$DB_PASSWORD|gi" .env
+        sed -i "s|changeme123|$DB_PASSWORD|gi" .env
         
         log_success "Secure secrets generated"
     fi
