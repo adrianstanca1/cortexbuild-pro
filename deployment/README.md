@@ -2,27 +2,14 @@
 
 Complete guide to deploy CortexBuild Pro on your private VPS.
 
-## 🎯 Deployment Options
+## 📌 Version Management
 
-Choose the deployment method that best fits your needs:
+The current version is tracked in the `VERSION` file at the repository root. Version information is:
+- Displayed during deployment scripts
+- Available via API at `/api/version`
+- Shown in the application footer
 
-1. **[Docker Manager (Portainer)](./QUICKSTART-DOCKER-MANAGER.md)** - Recommended for visual management
-   - Web UI for container management
-   - Easy monitoring and updates
-   - Perfect for teams
-
-2. **[Windmill Automation](./README-DOCKER-MANAGER.md#windmill-workflow-setup)** - Recommended for automation
-   - Automated build and deploy workflows
-   - Scheduled deployments
-   - CI/CD integration
-
-3. **Docker Compose** (This Guide) - Traditional method
-   - Simple command-line deployment
-   - Good for developers
-
-> **Quick Start:** For Docker Manager/Windmill, see [QUICKSTART-DOCKER-MANAGER.md](./QUICKSTART-DOCKER-MANAGER.md)
-
----
+Current version: **2.1.0**
 
 ## 📦 Prerequisites
 

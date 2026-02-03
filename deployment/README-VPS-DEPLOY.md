@@ -1,29 +1,10 @@
 # CortexBuild Pro - VPS Deployment Guide
 
-## 🎯 New: Docker Manager & Windmill Support
+## Version
 
-**We now support multiple deployment methods!**
+**Current Version:** 2.1.0
 
-Choose the best option for your needs:
-- **[Docker Manager (Portainer)](./QUICKSTART-DOCKER-MANAGER.md)** - Visual web interface for container management
-- **[Windmill Automation](./README-DOCKER-MANAGER.md#windmill-workflow-setup)** - Automated deployment workflows
-- **[Quick Deploy Script](./quick-deploy.sh)** - Interactive one-command deployment
-- **Docker Compose** (This guide) - Traditional CLI deployment
-
-> **Quick Start:** Run `./quick-deploy.sh` for guided deployment
-
----
-
-## ⚠️ Security Warning
-
-**IMPORTANT:** This file contains production credentials for a specific VPS deployment. 
-- Change the root password immediately after first login
-- Store credentials securely (password manager)
-- Do not share this file publicly
-- Consider using SSH keys instead of password authentication
-- Restrict SSH access to specific IPs if possible
-
----
+The application version is tracked in the `VERSION` file and displayed during deployment and in the application footer.
 
 ## Server Details
 - **IP Address**: 72.62.132.43

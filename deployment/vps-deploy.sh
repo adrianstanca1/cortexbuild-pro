@@ -4,7 +4,11 @@
 
 set -e
 
+# Read version from VERSION file
+VERSION=$(cat /root/cortexbuild_pro/VERSION 2>/dev/null || echo "unknown")
+
 echo "=== CortexBuild Pro VPS Deployment ==="
+echo "Version: $VERSION"
 echo "Domain: cortexbuildpro.com"
 echo ""
 
@@ -59,5 +63,6 @@ docker compose ps
 
 echo ""
 echo "=== Deployment Complete ==="
+echo "Version: $VERSION"
 echo "HTTP Access: http://72.62.132.43"
 echo "After SSL: https://cortexbuildpro.com"
