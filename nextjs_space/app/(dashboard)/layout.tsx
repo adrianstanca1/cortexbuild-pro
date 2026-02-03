@@ -9,6 +9,7 @@ import { RealtimeStatusIndicator } from "@/components/realtime-status-indicator"
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 export default async function DashboardLayout({
   children
@@ -22,18 +23,22 @@ export default async function DashboardLayout({
   }
 
   return (
-    <RealtimeProvider showToasts={true}>
-      <SidebarProvider>
-        <div className="min-h-screen bg-background">
-          <DashboardSidebar userRole={(session.user as { role: string }).role} />
-          <DashboardContent user={session.user} userRole={(session.user as { role: string }).role}>
-            {children}
-          </DashboardContent>
-          <RealtimeStatusIndicator />
-          <AIAssistant />
-          <FloatingActionButton />
-        </div>
-      </SidebarProvider>
-    </RealtimeProvider>
+    <ErrorBoundary fallbackTitle="Dashboard Error" fallbackMessage="An error occurred in the dashboard. Please try refreshing the page.">
+      <RealtimeProvider showToasts={true}>
+        <SidebarProvider>
+          <div className="min-h-screen bg-background">
+            <DashboardSidebar userRole={(session.user as { role: string }).role} />
+            <DashboardContent user={session.user} userRole={(session.user as { role: string }).role}>
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
+            </DashboardContent>
+            <RealtimeStatusIndicator />
+            <AIAssistant />
+            <FloatingActionButton />
+          </div>
+        </SidebarProvider>
+      </RealtimeProvider>
+    </ErrorBoundary>
   );
 }

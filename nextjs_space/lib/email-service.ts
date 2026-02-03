@@ -81,7 +81,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         };
       }
 
-      const errorText = await response.text();
+      const _errorText = await response.text();
       
       return {
         success: false,
