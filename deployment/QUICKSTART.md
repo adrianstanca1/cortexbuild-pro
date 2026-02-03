@@ -517,7 +517,7 @@ git pull && docker compose build --no-cache app && docker compose up -d
 
 - [Full Deployment Guide](README.md)
 - [CloudPanel Guide](CLOUDPANEL-GUIDE.md)
-- [VPS Deployment Guide](README.md)
+- [Docker Manager Guide](README-DOCKER-MANAGER.md)
 - [GitHub Repository](https://github.com/adrianstanca1/cortexbuild-pro)
 
 ---

@@ -389,7 +389,7 @@ print_summary() {
     echo ""
     echo -e "${GREEN}Default Login Information:${NC}"
     echo "  • Default accounts may be created by the database seed script."
-    echo "  • Please refer to deployment/README-VPS-DEPLOY.md or nextjs_space/scripts/seed.ts"
+    echo "  • Please refer to deployment/README.md or nextjs_space/scripts/seed.ts"
     echo "    for current default login details."
     echo ""
     echo -e "${GREEN}Useful Commands:${NC}"

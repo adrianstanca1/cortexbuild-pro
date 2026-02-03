@@ -36,7 +36,6 @@ This implementation adds comprehensive support for Docker Manager (Portainer) an
 | `quick-deploy.sh` | Interactive guided deployment | 12KB |
 
 ### Updated Files
-- `deployment/README.md` - Added deployment options
 - `deployment/README.md` - Updated with comprehensive deployment options and security warnings
 
 ---
@@ -179,8 +178,6 @@ deployment/
 │
 ├── 📖 Full Documentation
 │   ├── README-DOCKER-MANAGER.md           # Complete guide
-│   ├── README-DOCKER-MANAGER-QUICKSTART.md # Summary
-
 │   └── README.md                          # General guide
 │
 └── 🔧 Existing Files (Compatible)
