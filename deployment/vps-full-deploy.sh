@@ -1,8 +1,19 @@
 #!/bin/bash
 set -e
 
+# Read version from VERSION file using an absolute path relative to this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+VERSION_FILE="$REPO_ROOT/VERSION"
+if [ -r "$VERSION_FILE" ]; then
+    VERSION="$(cat "$VERSION_FILE")"
+else
+    VERSION="unknown"
+fi
+
 echo "========================================"
 echo "CortexBuild Pro - Full VPS Deployment"
+echo "Version: $VERSION"
 echo "========================================"
 
 # Configuration
@@ -111,6 +122,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/auth/providers 
 echo ""
 echo "========================================"
 echo_info "Deployment Complete!"
+echo "Version: $VERSION"
 echo "========================================"
 echo ""
 echo "Application URL: https://cortexbuildpro.com"

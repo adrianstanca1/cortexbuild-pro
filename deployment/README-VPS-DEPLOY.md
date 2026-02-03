@@ -1,5 +1,11 @@
 # CortexBuild Pro - VPS Deployment Guide
 
+## Version
+
+**Current Version:** 2.1.0
+
+The application version is tracked in the `VERSION` file and displayed during deployment and in the application footer.
+
 ## Server Details
 - **IP Address**: 72.62.132.43
 - **Root Password**: Cumparavinde1@
