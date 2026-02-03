@@ -69,8 +69,18 @@ export async function PATCH(request: NextRequest) {
 
     const { name, email, phone, title } = validation.data;
 
-    // Check if email is already in use by another user
-    if (email !== session.user.email) {
+    // Fetch current user data to ensure we have the latest email
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { email: true },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check if email is being changed and if it's already in use by another user
+    if (email !== currentUser.email) {
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });

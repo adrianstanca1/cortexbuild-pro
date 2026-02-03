@@ -79,7 +79,7 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
       toast.error("Password must be at least 8 characters");
       return;
     }
-    
+
     setLoading(true);
     try {
       const response = await fetch('/api/user/password', {

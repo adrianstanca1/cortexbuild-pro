@@ -81,8 +81,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         };
       }
 
-      const _errorText = await response.text();
-      
+      // Abacus API failed, fall through to return error
       return {
         success: false,
         provider: "abacus",
