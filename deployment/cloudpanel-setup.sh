@@ -31,12 +31,8 @@ if [ "$NODE_VERSION" -lt 20 ]; then
 fi
 echo -e "${GREEN}✓ Node.js $(node -v)${NC}"
 
-# Check yarn
-if ! command -v yarn &> /dev/null; then
-    echo "Installing yarn..."
-    npm install -g yarn
-fi
-echo -e "${GREEN}✓ Yarn $(yarn -v)${NC}"
+# Check npm (bundled with Node.js)
+echo -e "${GREEN}✓ npm $(npm -v)${NC}"
 
 echo -e "${YELLOW}Step 2: Setting up application...${NC}"
 
@@ -44,11 +40,11 @@ cd $APP_DIR
 
 # Install dependencies
 echo "Installing dependencies..."
-yarn install
+npm install
 
 # Generate Prisma client
 echo "Generating Prisma client..."
-yarn prisma generate
+npm run prisma generate
 
 echo -e "${YELLOW}Step 3: Creating .env file...${NC}"
 
@@ -75,13 +71,13 @@ else
 fi
 
 echo -e "${YELLOW}Step 4: Running database migrations...${NC}"
-yarn prisma migrate deploy
+npm run prisma migrate deploy
 
 echo -e "${YELLOW}Step 5: Seeding database...${NC}"
-yarn prisma db seed || echo "Seeding skipped or already done"
+npm run prisma db seed || echo "Seeding skipped or already done"
 
 echo -e "${YELLOW}Step 6: Building application...${NC}"
-yarn build
+npm run build
 
 echo -e "${GREEN}========================================="
 echo "✓ Setup Complete!"
@@ -89,7 +85,7 @@ echo "=========================================${NC}"
 echo ""
 echo "Next steps:"
 echo "1. Edit .env file with your actual values"
-echo "2. In CloudPanel, set startup command: yarn start"
+echo "2. In CloudPanel, set startup command: npm start"
 echo "3. Set Node.js version to 20 in CloudPanel"
 echo "4. Enable SSL in CloudPanel"
 echo ""

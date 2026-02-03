@@ -64,7 +64,8 @@ Next.js 15 requires all page `params` to be async (`Promise<{ id: string }>`). T
    - Version 5.x adds ESLint 9 support
 
 3. **Removed Yarn Lock File**: Deleted broken symlink to yarn.lock
-   - Project now uses npm exclusively with package-lock.json
+   - Project now uses npm with package-lock.json for dependency management
+   - All deployment scripts and documentation updated to use npm commands
 
 ## API Connections & Websockets Verification
 
