@@ -1,0 +1,133 @@
+# Windmill Workflow for CortexBuild Pro Deployment
+# This workflow automates the build and deployment process
+summary: Deploy CortexBuild Pro Application
+description: Automated workflow to build Docker image and deploy via Docker Manager
+
+# Workflow steps
+steps:
+  # Step 1: Pull latest code
+  - id: pull_code
+    summary: Pull latest code from repository
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        cd /root/cortexbuild_pro
+        git pull origin main || git pull origin master
+        echo "Code pulled successfully"
+      language: bash
+    
+  # Step 2: Build Docker image
+  - id: build_image
+    summary: Build Docker image for the application
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        cd /root/cortexbuild_pro/deployment
+        
+        echo "Building Docker image..."
+        docker build -t cortexbuild-app:latest -f Dockerfile ..
+        
+        # Tag with timestamp
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+        docker tag cortexbuild-app:latest cortexbuild-app:$TIMESTAMP
+        
+        echo "Image built successfully: cortexbuild-app:latest"
+        echo "Backup tag: cortexbuild-app:$TIMESTAMP"
+      language: bash
+    depends_on:
+      - pull_code
+  
+  # Step 3: Deploy/Update container
+  - id: deploy_container
+    summary: Deploy or update the application container
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        cd /root/cortexbuild_pro/deployment
+        
+        echo "Deploying application..."
+        
+        # Check if using Docker Compose or Docker Stack
+        if docker stack ls 2>/dev/null | grep -q cortexbuild; then
+          echo "Updating Docker Stack..."
+          docker stack deploy -c docker-stack.yml cortexbuild
+        else
+          echo "Using Docker Compose..."
+          docker compose up -d --no-deps --build app
+        fi
+        
+        echo "Deployment initiated"
+      language: bash
+    depends_on:
+      - build_image
+  
+  # Step 4: Wait for health check
+  - id: health_check
+    summary: Wait for application to be healthy
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        echo "Waiting for application to be healthy..."
+        RETRIES=30
+        COUNT=0
+        
+        while [ $COUNT -lt $RETRIES ]; do
+          if curl -f http://localhost:3000/ >/dev/null 2>&1; then
+            echo "Application is healthy!"
+            exit 0
+          fi
+          
+          COUNT=$((COUNT + 1))
+          echo "Attempt $COUNT/$RETRIES - waiting..."
+          sleep 10
+        done
+        
+        echo "Health check failed after $RETRIES attempts"
+        exit 1
+      language: bash
+    depends_on:
+      - deploy_container
+  
+  # Step 5: Run database migrations
+  - id: run_migrations
+    summary: Run database migrations
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        echo "Running database migrations..."
+        
+        # Get container name
+        CONTAINER=$(docker ps --filter "name=cortexbuild-app" --format "{{.Names}}" | head -n1)
+        
+        if [ -z "$CONTAINER" ]; then
+          echo "Error: Could not find cortexbuild-app container"
+          exit 1
+        fi
+        
+        docker exec $CONTAINER npx prisma migrate deploy
+        
+        echo "Migrations completed successfully"
+      language: bash
+    depends_on:
+      - health_check
+
+# Trigger configuration
+trigger:
+  schedule: "0 2 * * *"  # Run daily at 2 AM (optional)
+  webhook: true  # Enable webhook trigger for manual/CI deployments
+
+# Notification settings
+notifications:
+  on_success:
+    - type: email
+      message: "CortexBuild Pro deployed successfully"
+  on_failure:
+    - type: email
+      message: "CortexBuild Pro deployment failed"

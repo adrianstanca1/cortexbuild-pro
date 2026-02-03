@@ -1,0 +1,79 @@
+# Docker Stack file for Portainer/Docker Manager deployment
+# This file can be used directly in Portainer's Stack editor or Docker Swarm
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cortexbuild}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CortexSecure2026}
+      POSTGRES_DB: ${POSTGRES_DB:-cortexbuild}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - cortexbuild-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cortexbuild} -d ${POSTGRES_DB:-cortexbuild}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  app:
+    image: cortexbuild-app:latest
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-aab7e27d61c14a81a2bcf4d395478e4c}
+    ports:
+      - "3000:3000"
+    networks:
+      - cortexbuild-network
+    depends_on:
+      - db
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  cortexbuild-network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  postgres_data:
+    driver: local
