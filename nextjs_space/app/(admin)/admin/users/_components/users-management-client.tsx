@@ -21,7 +21,11 @@ import {
   _X,
   Check,
   Eye,
-  _Key
+  _Key,
+  Download,
+  Upload,
+  UserCheck,
+  CheckSquare
 } from "lucide-react";
 import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -94,7 +98,10 @@ export function UsersManagementClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -256,6 +263,158 @@ export function UsersManagementClient() {
     setShowDetailModal(true);
   };
 
+  const handleImpersonate = async (user: User) => {
+    if (!confirm(`Impersonate ${user.name}? You will be logged in as this user for support purposes.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/users/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(`Now impersonating ${user.name}. Redirecting...`);
+        // Store impersonation data in session storage for the banner
+        sessionStorage.setItem("impersonation", JSON.stringify(data.impersonationData));
+        // Redirect to dashboard
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1000);
+      } else {
+        toast.error(data.error || "Failed to start impersonation");
+      }
+    } catch (error) {
+      toast.error("Failed to start impersonation");
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUserIds(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.length === users.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(users.map(u => u.id));
+    }
+  };
+
+  const handleBulkAction = async () => {
+    if (selectedUserIds.length === 0) {
+      toast.error("No users selected");
+      return;
+    }
+
+    if (!bulkAction) {
+      toast.error("Please select a bulk action");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      let endpoint = "/api/admin/users/bulk";
+      let body: any = { action: bulkAction, userIds: selectedUserIds };
+
+      if (bulkAction === "update_role") {
+        const newRole = prompt("Enter new role (SUPER_ADMIN, ADMIN, PROJECT_MANAGER, FIELD_WORKER):");
+        if (!newRole) {
+          setSaving(false);
+          return;
+        }
+        body.data = { role: newRole };
+      } else if (bulkAction === "update_organization") {
+        const orgId = prompt("Enter organization ID (or leave empty to remove):");
+        body.data = { organizationId: orgId || null };
+      } else if (bulkAction === "delete") {
+        if (!confirm(`Delete ${selectedUserIds.length} user(s)? This cannot be undone.`)) {
+          setSaving(false);
+          return;
+        }
+      }
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || "Bulk action completed successfully");
+        setShowBulkModal(false);
+        setSelectedUserIds([]);
+        setBulkAction("");
+        fetchUsers();
+      } else {
+        toast.error(data.error || "Bulk action failed");
+      }
+    } catch (error) {
+      toast.error("Failed to perform bulk action");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExportSelected = async () => {
+    if (selectedUserIds.length === 0) {
+      toast.error("No users selected");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin/users/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "export", userIds: selectedUserIds })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Create CSV content
+        const csv = [
+          ["ID", "Name", "Email", "Role", "Organization", "Phone", "Created At", "Last Login"].join(","),
+          ...data.users.map((u: any) => [
+            u.id,
+            u.name,
+            u.email,
+            u.role,
+            u.organization?.name || "",
+            u.phone || "",
+            new Date(u.createdAt).toISOString(),
+            u.lastLogin ? new Date(u.lastLogin).toISOString() : ""
+          ].join(","))
+        ].join("\n");
+
+        // Download CSV
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `users-export-${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        toast.success("Users exported successfully");
+      } else {
+        toast.error(data.error || "Export failed");
+      }
+    } catch (error) {
+      toast.error("Failed to export users");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -274,10 +433,24 @@ export function UsersManagementClient() {
           </h1>
           <p className="text-gray-500 mt-1">Manage all platform users across organizations</p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        <div className="flex gap-2">
+          {selectedUserIds.length > 0 && (
+            <>
+              <Button variant="outline" onClick={handleExportSelected}>
+                <Download className="h-4 w-4 mr-2" />
+                Export ({selectedUserIds.length})
+              </Button>
+              <Button variant="outline" onClick={() => setShowBulkModal(true)}>
+                <CheckSquare className="h-4 w-4 mr-2" />
+                Bulk Actions ({selectedUserIds.length})
+              </Button>
+            </>
+          )}
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add User
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -329,6 +502,14 @@ export function UsersManagementClient() {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.length === users.length && users.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded border-gray-300"
+                    />
+                  </th>
                   <th className="text-left py-4 px-6 font-medium text-gray-500">User</th>
                   <th className="text-left py-4 px-6 font-medium text-gray-500">Role</th>
                   <th className="text-left py-4 px-6 font-medium text-gray-500">Organization</th>
@@ -345,6 +526,14 @@ export function UsersManagementClient() {
                     animate={{ opacity: 1 }}
                     className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
+                    <td className="py-4 px-6">
+                      <input
+                        type="checkbox"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => toggleUserSelection(user.id)}
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                    </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-medium">
@@ -402,6 +591,12 @@ export function UsersManagementClient() {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit User
                           </DropdownMenuItem>
+                          {user.role !== "SUPER_ADMIN" && (
+                            <DropdownMenuItem onClick={() => handleImpersonate(user)}>
+                              <UserCheck className="h-4 w-4 mr-2" />
+                              Impersonate User
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDeleteUser(user)}
@@ -678,6 +873,77 @@ export function UsersManagementClient() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Actions Modal */}
+      <Dialog open={showBulkModal} onOpenChange={setShowBulkModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckSquare className="h-5 w-5" />
+              Bulk Actions
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <p className="text-sm text-gray-500 mb-4">
+                {selectedUserIds.length} user(s) selected
+              </p>
+              <Label>Select Action</Label>
+              <Select value={bulkAction} onValueChange={setBulkAction}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose an action" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="update_role">Update Role</SelectItem>
+                  <SelectItem value="update_organization">Update Organization</SelectItem>
+                  <SelectItem value="delete">Delete Users</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {bulkAction === "update_role" && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  You will be prompted to enter the new role after clicking Apply.
+                </p>
+              </div>
+            )}
+
+            {bulkAction === "update_organization" && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  You will be prompted to enter the organization ID after clicking Apply.
+                </p>
+              </div>
+            )}
+
+            {bulkAction === "delete" && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  ⚠️ This action cannot be undone. Super admin users cannot be deleted.
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowBulkModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleBulkAction}
+                disabled={!bulkAction || saving}
+              >
+                {saving ? "Processing..." : "Apply Action"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

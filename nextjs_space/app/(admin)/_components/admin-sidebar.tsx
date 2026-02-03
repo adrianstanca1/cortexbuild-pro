@@ -16,7 +16,8 @@ import {
   Eye,
   Settings,
   Terminal,
-  Key
+  Key,
+  Megaphone
 } from "lucide-react";
 
 const adminNavItems = [
@@ -26,6 +27,7 @@ const adminNavItems = [
   { href: "/admin/users", label: "User Management", icon: Users, description: "Manage users" },
   { href: "/admin/organizations", label: "Organizations", icon: Building2, description: "Manage tenants" },
   { href: "/admin/invitations", label: "Invitations", icon: Mail, description: "Pending invites" },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone, description: "System messages" },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: Eye, description: "Activity tracking" },
   { href: "/admin/activity", label: "Activity Monitor", icon: Activity, description: "Real-time events" },
   { href: "/admin/storage", label: "Storage & Data", icon: Database, description: "File management" },
