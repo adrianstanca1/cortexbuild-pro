@@ -39,6 +39,31 @@ This document describes the security improvements made to the CortexBuild Pro pr
 
 **Recommendation**: Schedule a Next.js 15+ upgrade in a separate task to ensure thorough testing and validation.
 
+### Why Next.js 15 Upgrade Was Not Done
+
+An attempt was made to upgrade to Next.js 15.5.11 (latest stable) to fix this vulnerability. However, this introduces **breaking changes** that affect 69+ files:
+
+1. **Async Params Pattern**: Next.js 15 requires all page `params` to be async (`Promise<{ id: string }>`)
+   - Currently: `params: { id: string }`
+   - Required: `params: Promise<{ id: string }>`
+   - Affects all dynamic route pages in app/(dashboard)
+
+2. **Build Failure**: TypeScript compilation fails with:
+   ```
+   Type error: Type 'ProjectDetailPageProps' does not satisfy the constraint 'PageProps'.
+   Types of property 'params' are incompatible.
+   Type '{ id: string; }' is missing the following properties from type 'Promise<any>'
+   ```
+
+3. **Scope of Changes**: This requires:
+   - Updating all page components to await params
+   - Updating all TypeScript interfaces for page props
+   - Testing all dynamic routes
+   - Potential updates to middleware
+   - Comprehensive testing across the application
+
+**This is not a "minimal change"** as required by the task. The upgrade from Next.js 14 to 15 is a major version change requiring extensive refactoring and testing.
+
 ## Dependency Conflict Resolution
 
 ### Fixed Conflicts
