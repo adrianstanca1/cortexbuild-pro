@@ -13,13 +13,18 @@ export function DashboardFooter() {
 
   useEffect(() => {
     fetch("/api/version")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch version: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then((data) => setVersionInfo(data))
       .catch((err) => {
         console.error("Failed to fetch version:", err);
         // Set a fallback version on error
         setVersionInfo({
-          version: "1.0.0",
+          version: "2.1.0",
           name: "CortexBuild Pro",
           environment: "unknown",
         });
@@ -28,6 +33,12 @@ export function DashboardFooter() {
 
   if (!versionInfo) return null;
 
+  // Format environment display
+  const formatEnvironment = (env: string) => {
+    if (env === 'unknown') return 'Unknown';
+    return env.charAt(0).toUpperCase() + env.slice(1);
+  };
+
   return (
     <footer className="border-t bg-background py-4 px-6 text-sm text-muted-foreground">
       <div className="flex items-center justify-between">
@@ -35,7 +46,7 @@ export function DashboardFooter() {
           {versionInfo.name} v{versionInfo.version}
         </div>
         <div className="text-xs">
-          {versionInfo.environment === "production" ? "Production" : "Development"}
+          {formatEnvironment(versionInfo.environment)}
         </div>
       </div>
     </footer>

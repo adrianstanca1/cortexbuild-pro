@@ -1,8 +1,15 @@
 #!/bin/bash
 set -e
 
-# Read version from VERSION file
-VERSION=$(cat VERSION 2>/dev/null || echo "unknown")
+# Read version from VERSION file using an absolute path relative to this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+VERSION_FILE="$REPO_ROOT/VERSION"
+if [ -r "$VERSION_FILE" ]; then
+    VERSION="$(cat "$VERSION_FILE")"
+else
+    VERSION="unknown"
+fi
 
 echo "========================================"
 echo "CortexBuild Pro - Full VPS Deployment"

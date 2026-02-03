@@ -9,7 +9,7 @@ The current version is tracked in the `VERSION` file at the repository root. Ver
 - Available via API at `/api/version`
 - Shown in the application footer
 
-Current version: **1.0.0**
+Current version: **2.1.0**
 
 ## 📦 Prerequisites
 

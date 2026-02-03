@@ -6,8 +6,9 @@ This implementation adds comprehensive version tracking to CortexBuild Pro in re
 ## What Was Implemented
 
 ### 1. Version Configuration
-- **VERSION file**: Created at repository root with version `1.0.0`
-- **package.json**: Added `"version": "1.0.0"` field to `nextjs_space/package.json`
+- **VERSION file**: Created at repository root with version `2.1.0`
+- **package.json**: Added `"version": "2.1.0"` field to `nextjs_space/package.json`
+- **Synchronized with existing platform-config API**: Both endpoints now return the same version
 
 ### 2. API Endpoint
 - **Path**: `/api/version`
@@ -15,30 +16,33 @@ This implementation adds comprehensive version tracking to CortexBuild Pro in re
 - **Response**: 
   ```json
   {
-    "version": "1.0.0",
+    "version": "2.1.0",
     "name": "CortexBuild Pro",
     "environment": "production|development"
   }
   ```
 - **Features**:
   - Reads version from package.json
+  - Always returns "CortexBuild Pro" as the application name
   - Indicates current environment
   - Proper error handling with detailed messages
+  - HTTP status check before parsing JSON response
 
 ### 3. UI Display
 - **Component**: `DashboardFooter` 
 - **Location**: Bottom of all dashboard pages
 - **Features**:
   - Displays application name and version
-  - Shows environment indicator (Production/Development)
+  - Smart environment formatting (capitalizes first letter: Production, Development, Staging, etc.)
+  - HTTP status check before parsing API response
   - Fallback version on API failure
   - Clean, minimal design matching the UI theme
 
 ### 4. Deployment Scripts
 Updated three deployment scripts to display version information:
-- `vps-deploy.sh`: Reads from `/root/cortexbuild_pro/VERSION`
-- `deploy.sh`: Reads from `/root/cortexbuild/VERSION`
-- `vps-full-deploy.sh`: Reads from local `VERSION` file
+- `vps-deploy.sh`: Reads from `/root/cortexbuild_pro/VERSION` (absolute path)
+- `deploy.sh`: Reads from `/root/cortexbuild/VERSION` (absolute path)
+- `vps-full-deploy.sh`: Uses script-relative absolute path resolution for VERSION file
 
 Each script now displays the version at the start and end of deployment.
 

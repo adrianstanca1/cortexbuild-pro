@@ -10,11 +10,11 @@ export async function GET() {
     // Read version from package.json
     const packageJsonPath = join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-    const version = packageJson.version || '1.0.0';
+    const version = packageJson.version || '2.1.0';
 
     return NextResponse.json({
       version,
-      name: packageJson.name || 'CortexBuild Pro',
+      name: 'CortexBuild Pro',
       environment: process.env.NODE_ENV || 'development',
     });
   } catch (error) {
