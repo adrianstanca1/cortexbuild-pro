@@ -179,6 +179,11 @@ case $choice in
                 exit 1
             fi
             
+            # Validate the downloaded file
+            if ! docker compose -f docker-compose.yml config --quiet 2>/dev/null; then
+                echo -e "${YELLOW}Warning: Downloaded docker-compose.yml may not be valid. Proceeding anyway.${NC}"
+            fi
+            
             docker compose up -d
             
             echo -e "${GREEN}✓ Windmill containers starting...${NC}"
@@ -199,7 +204,7 @@ case $choice in
                 sleep "$SLEEP_SECONDS"
             done
             
-            if ! curl -fsS "$WINDMILL_URL" > /dev/null 2>&1; then
+            if [ "$ATTEMPT" -gt "$MAX_ATTEMPTS" ]; then
                 echo -e "${RED}✗ Windmill did not become ready after $((MAX_ATTEMPTS * SLEEP_SECONDS)) seconds.${NC}"
                 echo -e "${RED}  Please check the Docker logs (e.g., 'docker compose logs') and try again.${NC}"
                 exit 1

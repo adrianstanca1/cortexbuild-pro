@@ -67,9 +67,9 @@ if [ "$WINDMILL_INSTALLED" = false ]; then
             exit 1
         fi
         
-        # Optional: Verify the file looks like a valid docker-compose file
-        if ! head -n 1 docker-compose.yml | grep -qE '^(version:|services:)'; then
-            echo -e "${YELLOW}Warning: Downloaded file may not be a valid docker-compose.yml${NC}"
+        # Validate the downloaded file
+        if ! docker compose -f docker-compose.yml config --quiet 2>/dev/null; then
+            echo -e "${YELLOW}Warning: Downloaded docker-compose.yml may not be valid. Proceeding anyway.${NC}"
         fi
         
         # Start Windmill

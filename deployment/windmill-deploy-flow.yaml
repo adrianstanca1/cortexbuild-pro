@@ -23,7 +23,7 @@ steps:
         cd "$PROJECT_DIR"
         
         # Check for local modifications to avoid pull conflicts
-        if ! git diff --quiet || ! git diff --cached --quiet; then
+        if ! git diff --quiet && ! git diff --cached --quiet; then
           echo "Error: Local changes detected in $PROJECT_DIR."
           echo "Please commit, stash, or discard local changes before running this deployment."
           git status
@@ -174,7 +174,8 @@ steps:
           exit 1
         fi
         
-        CONTAINER_COUNT=$(echo "$CONTAINERS" | wc -l | tr -d ' ')
+        # Count containers using a reliable method
+        CONTAINER_COUNT=$(echo "$CONTAINERS" | grep -c '^')
         if [ "$CONTAINER_COUNT" -gt 1 ]; then
           echo "Error: Multiple cortexbuild-app containers found:"
           echo "$CONTAINERS"
