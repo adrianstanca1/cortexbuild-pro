@@ -1,0 +1,511 @@
+# CortexBuild Pro - VPS Deployment Quick Start
+
+## 🚀 One-Command Deployment
+
+The easiest way to deploy CortexBuild Pro to your VPS:
+
+```bash
+# Download the deployment package
+wget https://github.com/adrianstanca1/cortexbuild-pro/archive/main.tar.gz
+tar -xzf main.tar.gz
+cd cortexbuild-pro-main/deployment
+
+# Run one-click deployment
+sudo bash one-click-deploy.sh
+```
+
+That's it! The script will:
+- ✅ Check system requirements
+- ✅ Install Docker & Docker Compose
+- ✅ Configure environment
+- ✅ Build and deploy application
+- ✅ Run database migrations
+- ✅ Verify deployment health
+- ✅ Create automatic backups
+
+---
+
+## 📋 System Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **OS** | Ubuntu 20.04+ | Ubuntu 22.04 LTS |
+| **RAM** | 2GB | 4GB+ |
+| **CPU** | 2 cores | 4 cores |
+| **Disk** | 20GB SSD | 40GB+ SSD |
+| **Ports** | 22, 80, 443 | 22, 80, 443, 3000 |
+
+---
+
+## 📦 Deployment Methods
+
+### Method 1: One-Click Deployment (Recommended)
+
+**Best for:** Fresh VPS installations, automated setup
+
+```bash
+cd /root
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
+
+**Features:**
+- Fully automated setup
+- Automatic prerequisites installation
+- Built-in health checks
+- Automatic backup creation
+- Comprehensive error handling
+
+---
+
+### Method 2: Manual Docker Deployment
+
+**Best for:** Custom configurations, existing Docker setups
+
+```bash
+# 1. Install Docker (if needed)
+curl -fsSL https://get.docker.com | sh
+
+# 2. Clone repository
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+
+# 3. Configure environment
+cp .env.example .env
+nano .env  # Edit with your settings
+
+# 4. Deploy
+docker compose build --no-cache app
+docker compose up -d
+
+# 5. Run migrations
+docker compose exec app npx prisma migrate deploy
+
+# 6. Seed database (optional)
+docker compose exec app npx prisma db seed
+```
+
+---
+
+### Method 3: CloudPanel Deployment
+
+**Best for:** Managed hosting, GUI preference
+
+See [CLOUDPANEL-GUIDE.md](CLOUDPANEL-GUIDE.md) for detailed instructions.
+
+Quick steps:
+1. Install CloudPanel: `curl -fsSL https://installer.cloudpanel.io/ce/v2/install.sh | sudo bash`
+2. Create Node.js site (port 3000)
+3. Create PostgreSQL database
+4. Run `cloudpanel-deploy.sh` script
+
+---
+
+## ⚙️ Configuration
+
+### Essential Environment Variables
+
+Edit `.env` file with these critical settings:
+
+```bash
+# Database
+DATABASE_URL="postgresql://cortexbuild:YOUR_PASSWORD@localhost:5432/cortexbuild"
+
+# Authentication (generate with: openssl rand -base64 32)
+NEXTAUTH_SECRET="your-generated-secret-here"
+NEXTAUTH_URL="https://your-domain.com"
+
+# Optional: AWS S3 for file uploads
+AWS_ACCESS_KEY_ID="your-key"
+AWS_SECRET_ACCESS_KEY="your-secret"
+AWS_BUCKET_NAME="your-bucket"
+AWS_REGION="eu-west-2"
+```
+
+---
+
+## 🔒 SSL/HTTPS Setup
+
+### Option A: Let's Encrypt (Automatic)
+
+```bash
+cd /root/cortexbuild-pro/deployment
+./setup-ssl.sh your-domain.com admin@your-domain.com
+```
+
+### Option B: Manual Certificate
+
+```bash
+# Install certbot
+apt install certbot -y
+
+# Get certificate
+certbot certonly --standalone -d your-domain.com -d www.your-domain.com
+
+# Configure nginx with SSL
+cp nginx-ssl.conf nginx.conf
+docker compose restart nginx
+```
+
+---
+
+## 🛠️ Management Commands
+
+### Check Deployment Health
+
+```bash
+cd /root/cortexbuild-pro/deployment
+./health-check.sh
+```
+
+This provides comprehensive status including:
+- Docker & container status
+- Database connectivity
+- Application health
+- System resources
+- Recent errors
+- Backup status
+
+### View Logs
+
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f app
+docker compose logs -f db
+
+# Last 100 lines
+docker compose logs --tail=100 app
+```
+
+### Restart Services
+
+```bash
+# Restart application only
+docker compose restart app
+
+# Restart all services
+docker compose restart
+
+# Full restart (down + up)
+docker compose down
+docker compose up -d
+```
+
+### Database Operations
+
+```bash
+# Run migrations
+docker compose exec app npx prisma migrate deploy
+
+# Seed database
+docker compose exec app npx prisma db seed
+
+# Access database
+docker compose exec db psql -U cortexbuild -d cortexbuild
+
+# Database backup
+./backup.sh
+
+# Database restore
+./restore.sh backups/db_backup_20240123.sql.gz
+```
+
+---
+
+## 🔄 Rollback
+
+If something goes wrong, rollback to a previous state:
+
+```bash
+# Interactive rollback (select backup)
+./rollback.sh
+
+# Quick rollback (most recent backup)
+./rollback.sh --quick
+```
+
+The rollback script:
+- Creates a safety backup before rollback
+- Restores database from backup
+- Restarts application
+- Verifies deployment
+
+---
+
+## 📊 Monitoring
+
+### Container Resource Usage
+
+```bash
+docker stats
+```
+
+### System Resources
+
+```bash
+# Memory
+free -h
+
+# Disk
+df -h
+
+# CPU load
+uptime
+```
+
+### Application Health Endpoint
+
+```bash
+curl http://localhost:3000/api/auth/providers
+```
+
+---
+
+## 🔐 Security Checklist
+
+- [ ] Change default database password
+- [ ] Generate strong `NEXTAUTH_SECRET`
+- [ ] Enable firewall (UFW)
+- [ ] Setup SSL/HTTPS
+- [ ] Disable root SSH login
+- [ ] Configure automated backups
+- [ ] Update system packages regularly
+- [ ] Monitor logs for suspicious activity
+
+### Quick Firewall Setup
+
+```bash
+# Install and configure UFW
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+---
+
+## 🔄 Updates
+
+### Update Application
+
+```bash
+cd /root/cortexbuild-pro
+
+# Pull latest changes
+git pull origin main
+
+# Rebuild and deploy
+cd deployment
+docker compose build --no-cache app
+docker compose up -d app
+
+# Run any new migrations
+docker compose exec app npx prisma migrate deploy
+```
+
+### Update Dependencies
+
+```bash
+# Update Docker images
+docker compose pull
+
+# Rebuild with new dependencies
+docker compose build --no-cache
+docker compose up -d
+```
+
+---
+
+## 🗄️ Backup Strategy
+
+### Automated Backups
+
+Create a cron job for daily backups:
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add daily backup at 3 AM
+0 3 * * * cd /root/cortexbuild-pro/deployment && ./backup.sh
+```
+
+### Manual Backup
+
+```bash
+cd /root/cortexbuild-pro/deployment
+./backup.sh
+```
+
+Backups are stored in `/root/cortexbuild_backups/`
+
+### Backup Retention
+
+```bash
+# Keep last 30 days of backups
+find /root/cortexbuild_backups -name "*.sql.gz" -mtime +30 -delete
+```
+
+---
+
+## 🌐 DNS Configuration
+
+Point your domain to your VPS:
+
+| Type | Name | Value | TTL |
+|------|------|-------|-----|
+| A | @ | YOUR_VPS_IP | 300 |
+| A | www | YOUR_VPS_IP | 300 |
+
+Wait 5-10 minutes for DNS propagation.
+
+---
+
+## 🔧 Troubleshooting
+
+### Application Won't Start
+
+```bash
+# Check logs
+docker compose logs app
+
+# Check database connection
+docker compose exec app npx prisma db pull
+
+# Verify environment
+docker compose exec app env | grep DATABASE
+```
+
+### Database Connection Issues
+
+```bash
+# Test database
+docker compose exec db pg_isready -U cortexbuild
+
+# Restart database
+docker compose restart db
+
+# Check database logs
+docker compose logs db
+```
+
+### Port Already in Use
+
+```bash
+# Find process using port 80
+sudo lsof -i :80
+
+# Stop conflicting service
+sudo systemctl stop apache2
+sudo systemctl stop nginx
+```
+
+### Out of Memory
+
+```bash
+# Increase Docker memory limit
+# Edit docker-compose.yml:
+services:
+  app:
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+```
+
+### SSL Certificate Issues
+
+```bash
+# Verify certificates
+docker run --rm -v certbot-etc:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/
+
+# Renew certificates
+docker compose run --rm certbot renew
+docker compose restart nginx
+```
+
+---
+
+## 📞 Getting Help
+
+### Check Health Status
+
+```bash
+./health-check.sh
+```
+
+### Review Logs
+
+```bash
+docker compose logs -f app
+tail -f /var/log/cortexbuild-deploy.log
+```
+
+### Common Issues
+
+1. **Build fails**: Increase memory, clear Docker cache: `docker system prune -a`
+2. **Migration fails**: Check DATABASE_URL format in .env
+3. **Can't access app**: Verify firewall rules and port 3000 is open
+4. **Slow performance**: Check resource usage with `docker stats`
+
+---
+
+## 📄 Default Login Credentials
+
+After seeding the database:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | adrian.stanca1@gmail.com | Cumparavinde1 |
+| Company Owner | adrian@ascladdingltd.co.uk | Cumparavinde1 |
+| Demo Admin | admin@cortexbuild.com | johndoe123 |
+| Project Manager | pm@cortexbuild.com | manager123 |
+| Field Worker | worker@cortexbuild.com | worker123 |
+
+**⚠️ Important:** Change these passwords immediately after first login!
+
+---
+
+## 🎯 Quick Reference
+
+```bash
+# Deploy
+sudo bash one-click-deploy.sh
+
+# Check health
+./health-check.sh
+
+# View logs
+docker compose logs -f app
+
+# Restart
+docker compose restart app
+
+# Backup
+./backup.sh
+
+# Rollback
+./rollback.sh
+
+# Update
+git pull && docker compose build --no-cache app && docker compose up -d
+```
+
+---
+
+## 📚 Additional Resources
+
+- [Full Deployment Guide](README.md)
+- [CloudPanel Guide](CLOUDPANEL-GUIDE.md)
+- [VPS Deployment Details](README-VPS-DEPLOY.md)
+- [GitHub Repository](https://github.com/adrianstanca1/cortexbuild-pro)
+
+---
+
+**Need help?** Open an issue on GitHub or check the troubleshooting section above.
