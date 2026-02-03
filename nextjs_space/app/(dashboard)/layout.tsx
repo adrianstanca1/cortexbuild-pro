@@ -9,6 +9,7 @@ import { RealtimeStatusIndicator } from "@/components/realtime-status-indicator"
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
+import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
 
 export default async function DashboardLayout({
   children
@@ -25,6 +26,7 @@ export default async function DashboardLayout({
     <RealtimeProvider showToasts={true}>
       <SidebarProvider>
         <div className="min-h-screen bg-background">
+          <ImpersonationBanner />
           <DashboardSidebar userRole={(session.user as { role: string }).role} />
           <DashboardContent user={session.user} userRole={(session.user as { role: string }).role}>
             {children}
