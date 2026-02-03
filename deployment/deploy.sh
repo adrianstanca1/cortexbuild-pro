@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# Read version from VERSION file
-VERSION=$(cat ../VERSION 2>/dev/null || echo "unknown")
-
 echo "=== CortexBuild Pro Deployment ==="
-echo "Version: $VERSION"
 cd /root/cortexbuild
+
+# Read version from VERSION file
+VERSION=$(cat /root/cortexbuild/VERSION 2>/dev/null || echo "unknown")
+echo "Version: $VERSION"
 
 # Create .env file if not exists
 if [ ! -f .env ]; then

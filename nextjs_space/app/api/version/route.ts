@@ -20,7 +20,10 @@ export async function GET() {
   } catch (error) {
     console.error('Error reading version:', error);
     return NextResponse.json(
-      { error: 'Unable to read version' },
+      { 
+        error: 'Failed to read package.json file',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

@@ -15,7 +15,15 @@ export function DashboardFooter() {
     fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersionInfo(data))
-      .catch((err) => console.error("Failed to fetch version:", err));
+      .catch((err) => {
+        console.error("Failed to fetch version:", err);
+        // Set a fallback version on error
+        setVersionInfo({
+          version: "1.0.0",
+          name: "CortexBuild Pro",
+          environment: "unknown",
+        });
+      });
   }, []);
 
   if (!versionInfo) return null;
