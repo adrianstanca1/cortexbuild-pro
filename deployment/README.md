@@ -43,13 +43,32 @@ docker-compose --version
 
 ## 🚀 Quick Start
 
+### One-Click Deployment (Recommended)
+
+The easiest way to deploy:
+
+```bash
+cd /root
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
+
+This script handles everything: Docker installation, environment setup, deployment, migrations, and health checks.
+
+For more options, see our [Quick Start Guide](QUICKSTART.md).
+
+---
+
+### Manual Deployment
+
 ### 1. Upload Project to Server
 ```bash
 # Option A: SCP from local machine
 scp -r cortexbuild_pro user@your-server:/home/user/
 
 # Option B: Git clone (if hosted)
-git clone https://github.com/your-repo/cortexbuild_pro.git
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 ```
 
 ### 2. Configure Environment
@@ -95,15 +114,19 @@ chmod +x *.sh
 
 ```
 deployment/
-├── .env.example      # Environment template
-├── docker-compose.yml # Container orchestration
-├── Dockerfile        # App build instructions
-├── nginx.conf        # Reverse proxy config
-├── deploy.sh         # Main deployment script
-├── setup-ssl.sh      # SSL certificate setup
-├── backup.sh         # Database backup
-├── restore.sh        # Database restore
-└── seed-db.sh        # Seed initial data
+├── .env.example          # Environment template
+├── docker-compose.yml    # Container orchestration
+├── Dockerfile            # App build instructions
+├── nginx.conf            # Reverse proxy config
+├── one-click-deploy.sh   # ⭐ One-click deployment (NEW)
+├── health-check.sh       # ⭐ Health monitoring (NEW)
+├── rollback.sh           # ⭐ Deployment rollback (NEW)
+├── QUICKSTART.md         # ⭐ Quick start guide (NEW)
+├── deploy.sh             # Main deployment script
+├── setup-ssl.sh          # SSL certificate setup
+├── backup.sh             # Database backup
+├── restore.sh            # Database restore
+└── seed-db.sh            # Seed initial data
 ```
 
 ---
@@ -133,6 +156,31 @@ DATABASE_URL="postgresql://user:pass@host:5432/dbname?schema=public"
 ---
 
 ## 🛠️ Management Commands
+
+### Health Check & Monitoring
+
+```bash
+# Check deployment health
+./health-check.sh
+
+# Returns comprehensive status:
+# - Docker & container status
+# - Database connectivity
+# - Application health
+# - System resources
+# - Log analysis
+# - Backup status
+```
+
+### Deployment Rollback
+
+```bash
+# Interactive rollback (select backup)
+./rollback.sh
+
+# Quick rollback to most recent backup
+./rollback.sh --quick
+```
 
 ### View Logs
 ```bash
