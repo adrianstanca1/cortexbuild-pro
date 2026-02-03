@@ -18,9 +18,30 @@ import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { DocumentViewer } from "@/components/ui/document-viewer";
 
+interface Document {
+  id: string;
+  name: string;
+  documentType: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedAt: Date;
+  project?: {
+    id: string;
+    name: string;
+  };
+  uploadedBy?: {
+    name: string;
+  };
+}
+
+interface Project {
+  id: string;
+  name: string;
+}
+
 interface DocumentsClientProps {
-  documents: any[];
-  projects: any[];
+  documents: Document[];
+  projects: Project[];
 }
 
 const typeConfig = {
@@ -45,7 +66,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [uploadForm, setUploadForm] = useState({ projectId: "", documentType: "OTHER" });
 
   const handleDocumentEvent = useCallback(() => {
