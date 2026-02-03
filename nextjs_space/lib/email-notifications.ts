@@ -114,7 +114,7 @@ export async function sendCompanyInvitationNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending company invitation notification:', error);
+    // console.error('Error sending company invitation notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -227,7 +227,7 @@ export async function sendTeamMemberInvitationNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending team member invitation notification:', error);
+    // console.error('Error sending team member invitation notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -324,7 +324,7 @@ export async function sendTaskAssignmentNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending task assignment notification:', error);
+    // console.error('Error sending task assignment notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -430,7 +430,7 @@ export async function sendSafetyAlertNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending safety alert notification:', error);
+    // console.error('Error sending safety alert notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -533,7 +533,7 @@ export async function sendProjectStatusUpdateNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending project status update notification:', error);
+    // console.error('Error sending project status update notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -634,7 +634,7 @@ export async function sendDailyReportSubmittedNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending daily report notification:', error);
+    // console.error('Error sending daily report notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -727,7 +727,7 @@ export async function sendToolboxTalkCompletedNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending toolbox talk notification:', error);
+    // console.error('Error sending toolbox talk notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -830,7 +830,7 @@ export async function sendMEWPCheckCompletedNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending MEWP check notification:', error);
+    // console.error('Error sending MEWP check notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }
@@ -947,7 +947,7 @@ export async function sendToolCheckCompletedNotification(
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error('Error sending tool check notification:', error);
+    // console.error('Error sending tool check notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }

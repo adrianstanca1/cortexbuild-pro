@@ -21,10 +21,23 @@ import { _TaskCard, TaskDetailDialog } from "@/components/ui/task-card";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { GanttChart } from "@/components/ui/gantt-chart";
 
+import { TaskWithRelations } from "@/lib/types";
+
+interface Project {
+  id: string;
+  name: string;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+}
+
 interface TasksClientProps {
-  tasks: any[];
-  projects: any[];
-  teamMembers: any[];
+  tasks: TaskWithRelations[];
+  projects: Project[];
+  teamMembers: TeamMember[];
 }
 
 const statusColors = {

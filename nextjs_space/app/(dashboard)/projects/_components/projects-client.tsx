@@ -25,8 +25,10 @@ import { isBefore, _format, formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+import { ProjectWithRelations } from "@/lib/types";
+
 interface ProjectsClientProps {
-  projects: any[];
+  projects: ProjectWithRelations[];
 }
 
 const statusConfig = {

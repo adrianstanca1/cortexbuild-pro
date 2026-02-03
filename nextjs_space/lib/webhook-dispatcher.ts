@@ -125,7 +125,7 @@ export async function dispatchWebhook(
 
     await Promise.allSettled(deliveries);
   } catch (error) {
-    console.error('Webhook dispatch error:', error);
+    // console.error('Webhook dispatch error:', error);
   }
 }
 
