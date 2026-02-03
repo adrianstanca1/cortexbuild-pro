@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
-import { format, _differenceInHours } from 'date-fns';
+import { format, differenceInHours } from 'date-fns';
 import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface PermitsToWorkTabProps {

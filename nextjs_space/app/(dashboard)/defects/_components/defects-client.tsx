@@ -51,7 +51,7 @@ interface DefectsClientProps {
   teamMembers: any[];
 }
 
-export function DefectsClient({ defects: initialDefects, projects, _teamMembers }: DefectsClientProps) {
+export function DefectsClient({ defects: initialDefects, projects, teamMembers }: DefectsClientProps) {
   const [defects, setDefects] = useState(initialDefects);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

@@ -704,9 +704,9 @@ export function DashboardClient({
                 <div className="space-y-4">
                   <h4 className="font-semibold text-slate-800 dark:text-slate-100">Status Breakdown</h4>
                   {[
-                    { label: "In Progress", value: projectStatusCounts.INPROGRESS, color: "bg-blue-500", total: totalProjects },
+                    { label: "In Progress", value: projectStatusCounts.IN_PROGRESS, color: "bg-blue-500", total: totalProjects },
                     { label: "Planning", value: projectStatusCounts.PLANNING, color: "bg-amber-500", total: totalProjects },
-                    { label: "On Hold", value: projectStatusCounts.ONHOLD, color: "bg-slate-400", total: totalProjects },
+                    { label: "On Hold", value: projectStatusCounts.ON_HOLD, color: "bg-slate-400", total: totalProjects },
                     { label: "Completed", value: projectStatusCounts.COMPLETED, color: "bg-emerald-500", total: totalProjects }
                   ].map((item, i) => (
                     <div key={i} className="space-y-2">
