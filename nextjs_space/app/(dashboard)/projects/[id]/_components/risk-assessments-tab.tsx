@@ -40,7 +40,7 @@ function getRiskLevel(score: number) {
   return riskLevels.find(l => score >= l.score[0] && score <= l.score[1]) || riskLevels[0];
 }
 
-export function RiskAssessmentsTab({ project, _teamMembers, riskAssessments: initialAssessments }: RiskAssessmentsTabProps) {
+export function RiskAssessmentsTab({ project, teamMembers, riskAssessments: initialAssessments }: RiskAssessmentsTabProps) {
   const router = useRouter();
   const [assessments, setAssessments] = useState(initialAssessments || []);
   const [showCreateModal, setShowCreateModal] = useState(false);

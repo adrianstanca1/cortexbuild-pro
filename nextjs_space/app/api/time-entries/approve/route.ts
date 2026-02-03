@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
-    const _userId = searchParams.get("userId");
+    const userId = searchParams.get("userId");
 
     const where: any = {
       status: "PENDING",
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
     // Group by user for easier review
     const groupedByUser: Record<string, any[]> = {};
     pendingEntries.forEach(entry => {
-      const _userId = entry.user.id;
+      const userId = entry.user.id;
       if (!groupedByUser[userId]) {
         groupedByUser[userId] = [];
       }

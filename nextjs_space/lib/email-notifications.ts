@@ -23,7 +23,7 @@ export async function sendCompanyInvitationNotification(
   }
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
 
     const htmlBody = `
@@ -137,7 +137,7 @@ export async function sendTeamMemberInvitationNotification(
   }
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
 
     const roleLabels: Record<string, string> = {
@@ -250,7 +250,7 @@ export async function sendTaskAssignmentNotification(
   recipientName: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const priorityColors: Record<string, { bg: string; text: string }> = {
@@ -347,7 +347,7 @@ export async function sendSafetyAlertNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const typeLabels: Record<string, { emoji: string; label: string; color: string }> = {
@@ -453,7 +453,7 @@ export async function sendProjectStatusUpdateNotification(
   recipientName: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColors: Record<string, { bg: string; text: string }> = {
@@ -556,7 +556,7 @@ export async function sendDailyReportSubmittedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const htmlBody = `
@@ -657,7 +657,7 @@ export async function sendToolboxTalkCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const htmlBody = `
@@ -747,7 +747,7 @@ export async function sendMEWPCheckCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';
@@ -851,7 +851,7 @@ export async function sendToolCheckCompletedNotification(
   recipientEmail: string
 ): Promise<NotificationResult> {
   try {
-    const _appUrl = process.env.NEXTAUTH_URL || '';
+    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = appUrl ? new URL(appUrl).hostname.split('.')[0] : 'CortexBuild';
 
     const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';

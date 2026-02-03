@@ -799,7 +799,7 @@ export function ApiManagementClient() {
   };
 
   // Copy to clipboard
-  const _handleCopyToClipboard = (text: string) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
   };
@@ -1007,7 +1007,7 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const _statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
+              const statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div

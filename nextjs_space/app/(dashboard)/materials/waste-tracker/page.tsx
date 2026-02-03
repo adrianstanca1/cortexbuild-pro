@@ -184,7 +184,7 @@ export default function WasteTrackerPage() {
     { name: 'At Risk', value: metrics?.materialsAtRisk || 0, color: '#ef4444' },
   ].filter((d) => d.value > 0);
 
-  const _getStatusColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'on_track':
         return 'bg-green-500';

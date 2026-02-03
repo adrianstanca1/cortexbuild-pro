@@ -166,7 +166,7 @@ export default function ResourceSchedulerPage() {
     count: data.count,
   }));
 
-  const _getStatusColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
         return 'bg-green-500';

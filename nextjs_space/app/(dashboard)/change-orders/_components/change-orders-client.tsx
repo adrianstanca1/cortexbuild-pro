@@ -107,7 +107,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
     handleChangeOrderEvent
   );
 
-  const _fetchChangeOrders = async () => {
+  const fetchChangeOrders = async () => {
     try {
       const res = await fetch('/api/change-orders');
       if (res.ok) {

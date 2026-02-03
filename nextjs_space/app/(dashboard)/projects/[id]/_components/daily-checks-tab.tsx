@@ -89,7 +89,7 @@ export function DailyChecksTab({
   projectId,
   mewpChecks: initialMewpChecks,
   toolChecks: initialToolChecks,
-  _equipment
+  equipment
 }: DailyChecksTabProps) {
   const router = useRouter();
   const [mewpChecks, setMewpChecks] = useState(initialMewpChecks || []);

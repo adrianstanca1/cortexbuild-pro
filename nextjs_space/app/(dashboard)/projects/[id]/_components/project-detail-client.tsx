@@ -46,7 +46,7 @@ interface ProjectDetailClientProps {
   certifications?: any[];
 }
 
-const _statusColors = {
+const statusColors = {
   PLANNING: "info",
   IN_PROGRESS: "default",
   ON_HOLD: "warning",
@@ -54,7 +54,7 @@ const _statusColors = {
   ARCHIVED: "secondary"
 } as const;
 
-const _taskStatusColors = {
+const taskStatusColors = {
   TODO: "secondary",
   IN_PROGRESS: "info",
   REVIEW: "warning",
@@ -182,9 +182,9 @@ const isTopMenuTab = (tabId: string) => {
   return topMenuCategories.some(cat => cat.items.some(item => item.id === tabId));
 };
 
-export function ProjectDetailClient({ project, availableTeamMembers, _currentUserId, _activities = [], certifications = [] }: ProjectDetailClientProps) {
+export function ProjectDetailClient({ project, availableTeamMembers, currentUserId, activities = [], certifications = [] }: ProjectDetailClientProps) {
   const router = useRouter();
-  const _fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showNewItemModal, setShowNewItemModal] = useState(false);
@@ -1519,7 +1519,7 @@ function OverviewTab({ project, counts, setActiveTab }: { project: any; counts: 
   );
 }
 
-function TasksTab({ project, _availableTeamMembers, onCreateTask, router }: { project: any; _availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
+function TasksTab({ project, availableTeamMembers, onCreateTask, router }: { project: any; availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
   const [filter, setFilter] = useState("all");
   const tasks = project?.tasks || [];
   const filteredTasks = filter === "all" ? tasks : tasks.filter((t: any) => t?.status === filter);
@@ -1750,7 +1750,7 @@ function ChangeOrdersTab({ project }: { project: any }) {
   );
 }
 
-function TeamTab({ project, _availableTeamMembers }: { project: any; _availableTeamMembers: any[] }) {
+function TeamTab({ project, availableTeamMembers }: { project: any; availableTeamMembers: any[] }) {
   const teamMembers = project?.teamMembers || [];
   return (
     <div className="space-y-4">

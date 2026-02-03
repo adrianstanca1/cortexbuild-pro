@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   EXPIRED: 'bg-orange-500'
 };
 
-export function PermitsToWorkTab({ project, _teamMembers, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
+export function PermitsToWorkTab({ project, teamMembers, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
   const router = useRouter();
   const [hotWorkPermits, setHotWorkPermits] = useState(initialHotWork || []);
   const [csPermits, setCsPermits] = useState(initialCS || []);

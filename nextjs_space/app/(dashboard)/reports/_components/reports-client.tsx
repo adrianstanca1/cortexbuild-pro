@@ -90,7 +90,7 @@ export function ReportsClient({
     fill: PRIORITY_COLORS[name as keyof typeof PRIORITY_COLORS]
   }));
 
-  const _projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
+  const projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
     name: name.replace('_', ' '),
     value
   }));

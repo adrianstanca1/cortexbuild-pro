@@ -101,7 +101,7 @@ const typeLabels: Record<string, string> = {
 };
 
 export function TodayAgenda() {
-  const _router = useRouter();
+  const router = useRouter();
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [summary, setSummary] = useState<AgendaSummary | null>(null);
   const [loading, setLoading] = useState(true);

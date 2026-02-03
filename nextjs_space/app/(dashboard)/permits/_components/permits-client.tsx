@@ -48,7 +48,7 @@ interface PermitsClientProps {
 }
 
 export function PermitsClient({ permits: initialPermits, projects }: PermitsClientProps) {
-  const _router = useRouter();
+  const router = useRouter();
   const [permits, setPermits] = useState(initialPermits);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

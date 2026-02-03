@@ -200,7 +200,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
     }
   };
 
-  const _getHealthIndicator = (cpi: number) => {
+  const getHealthIndicator = (cpi: number) => {
     if (cpi >= 1) return { icon: CheckCircle2, color: 'text-green-500', label: 'On Track' };
     if (cpi >= 0.9) return { icon: AlertTriangle, color: 'text-yellow-500', label: 'At Risk' };
     return { icon: AlertTriangle, color: 'text-red-500', label: 'Over Budget' };

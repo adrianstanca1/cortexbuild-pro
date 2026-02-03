@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const _projectId = searchParams.get('projectId');
+    const projectId = searchParams.get('projectId');
     const days = parseInt(searchParams.get('days') || '14');
 
     // Get project location or use default (London)

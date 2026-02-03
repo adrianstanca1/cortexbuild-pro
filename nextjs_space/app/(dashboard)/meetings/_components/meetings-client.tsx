@@ -142,7 +142,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
   const upcomingMeetings = filteredMeetings.filter(m => !isPast(new Date(m.meetingDate)));
   const pastMeetings = filteredMeetings.filter(m => isPast(new Date(m.meetingDate)));
 
-  const _getMeetingDateLabel = (date: string) => {
+  const getMeetingDateLabel = (date: string) => {
     const d = new Date(date);
     if (isToday(d)) return 'Today';
     if (isTomorrow(d)) return 'Tomorrow';

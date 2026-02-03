@@ -139,7 +139,7 @@ function calculateProjectMetrics(project: ProjectData): ProjectMetrics {
   const cpi = totalActual > 0 && totalEstimated > 0 ? totalEstimated / totalActual : 1;
 
   const changeOrders = project.changeOrders || [];
-  const _approvedCOValue = changeOrders
+  const approvedCOValue = changeOrders
     .filter(co => co.status === 'APPROVED')
     .reduce((acc, co) => acc + (co.costChange || 0), 0);
   const pendingCOValue = changeOrders
