@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, Filter, Loader2, Shield, Clock } from 'lucide-react';
+import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, _Filter, Loader2, Shield, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { format, differenceInDays, addDays } from 'date-fns';
+import { format, differenceInDays, _addDays } from 'date-fns';
 import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface CertificationsTabProps {

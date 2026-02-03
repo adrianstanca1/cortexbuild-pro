@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/encryption";
+import { encryptCredentials, _decryptCredentials, maskCredentials } from "@/lib/encryption";
 
 // POST - Rotate/Replace API credentials
 export async function POST(

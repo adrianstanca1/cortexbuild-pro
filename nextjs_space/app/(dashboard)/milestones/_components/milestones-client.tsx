@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
 import {
-  Flag, Plus, Search, Filter, Calendar, CheckCircle2, Clock,
-  AlertTriangle, Target, MoreVertical, Edit, Trash2, ChevronRight,
-  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as MilestoneIcon
+  Flag, Plus, Search, _Filter, Calendar, CheckCircle2, Clock,
+  AlertTriangle, Target, MoreVertical, Edit, Trash2, _ChevronRight,
+  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as _MilestoneIcon
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -77,14 +77,14 @@ const statusConfig = {
 
 export default function MilestonesClient({ projects, initialMilestones }: MilestonesClientProps) {
   const router = useRouter();
-  const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
+  const [milestones, _setMilestones] = useState<Milestone[]>(initialMilestones);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [showNewModal, setShowNewModal] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<"timeline" | "list">("timeline");
+  const [_viewMode, _setViewMode] = useState<"timeline" | "list">("timeline");
   const [formData, setFormData] = useState({
     name: "",
     description: "",

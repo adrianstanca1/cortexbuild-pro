@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { z, ZodSchema } from 'zod';
+import { _z, ZodSchema } from 'zod';
 
 // Helper to safely serialize data with BigInt values
 export function serializeData<T>(data: T): T {

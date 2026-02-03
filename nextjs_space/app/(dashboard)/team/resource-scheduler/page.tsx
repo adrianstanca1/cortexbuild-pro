@@ -5,21 +5,21 @@ import { motion } from 'framer-motion';
 import {
   Users,
   Wrench,
-  Calendar,
+  _Calendar,
   AlertTriangle,
   CheckCircle2,
-  Clock,
+  _Clock,
   Target,
   TrendingUp,
-  Building2,
+  _Building2,
   Sparkles,
   Loader2,
   RefreshCw,
   BarChart3,
   User,
-  Zap,
+  _Zap,
   Search,
-  ChevronRight,
+  _ChevronRight,
   HardHat,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +39,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
+  _Legend,
 } from 'recharts';
 
 interface ResourceAllocation {
@@ -77,7 +77,7 @@ interface ProjectSummary {
   teamCount: number;
 }
 
-const COLORS = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#8b5cf6', '#eab308'];
+const _COLORS = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#8b5cf6', '#eab308'];
 
 export default function ResourceSchedulerPage() {
   const [resources, setResources] = useState<ResourceAllocation[]>([]);
@@ -166,7 +166,7 @@ export default function ResourceSchedulerPage() {
     count: data.count,
   }));
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
         return 'bg-green-500';

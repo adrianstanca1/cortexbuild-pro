@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   FileText,
   Sparkles,
-  Download,
+  _Download,
   Copy,
   Loader2,
   BarChart3,
@@ -12,17 +12,17 @@ import {
   PoundSterling,
   TrendingUp,
   Calendar,
-  Users,
-  ClipboardCheck,
+  _Users,
+  _ClipboardCheck,
   Printer,
-  CheckCircle2
+  _CheckCircle2
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { _Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, _AnimatePresence } from "framer-motion";
 
 interface Project {
   id: string;
@@ -175,7 +175,7 @@ export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
     }
   };
 
-  const selectedReportConfig = REPORT_TYPES.find(r => r.id === selectedReportType);
+  const _selectedReportConfig = REPORT_TYPES.find(r => r.id === selectedReportType);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">

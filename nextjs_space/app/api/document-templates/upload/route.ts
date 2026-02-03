@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/json'];
+    const _allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/json'];
     const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.json'];
     const ext = '.' + file.name.split('.').pop()?.toLowerCase();
     

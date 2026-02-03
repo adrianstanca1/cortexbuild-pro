@@ -12,9 +12,9 @@ import {
   Send,
   Eye,
   Paperclip,
-  ArrowRight,
+  _ArrowRight,
   RefreshCw,
-  FileCheck,
+  _FileCheck,
   LayoutGrid,
   List,
   Calendar,
@@ -23,7 +23,7 @@ import {
   ChevronRight,
   AlertCircle,
   FileText,
-  Timer
+  _Timer
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,7 +84,7 @@ const statusConfig: Record<SubmittalStatus, { color: string; bgColor: string; ic
   REVISE_RESUBMIT: { color: 'text-orange-600', bgColor: 'bg-orange-100 dark:bg-orange-900/30', icon: <RefreshCw className="w-3.5 h-3.5" />, label: 'Revise & Resubmit' }
 };
 
-export function SubmittalsClient({ initialSubmittals, projects, teamMembers }: SubmittalsClientProps) {
+export function SubmittalsClient({ initialSubmittals, projects, _teamMembers }: SubmittalsClientProps) {
   const router = useRouter();
   const [submittals, setSubmittals] = useState<Submittal[]>(initialSubmittals);
   const [searchQuery, setSearchQuery] = useState('');

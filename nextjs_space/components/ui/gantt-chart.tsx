@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, _useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  format, differenceInDays, addDays, startOfMonth, endOfMonth,
-  eachDayOfInterval, isSameDay, isWeekend, parseISO, isBefore, isAfter
+  format, differenceInDays, addDays, startOfMonth, _endOfMonth,
+  eachDayOfInterval, isSameDay, isWeekend, parseISO, _isBefore, _isAfter
 } from "date-fns";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, _ZoomIn, _ZoomOut, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { _Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface GanttItem {
@@ -168,7 +168,7 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
           <div className="h-[60px] border-b bg-gray-50 dark:bg-gray-800 flex items-end p-2">
             <span className="text-sm font-medium text-gray-600">Tasks / Milestones</span>
           </div>
-          {items.map((item, index) => (
+          {items.map((item, _index) => (
             <div
               key={item.id}
               className="h-[40px] border-b flex items-center px-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"

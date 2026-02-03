@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, _CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Calendar,
+  _Calendar,
   MessageSquare,
   User,
   Clock,

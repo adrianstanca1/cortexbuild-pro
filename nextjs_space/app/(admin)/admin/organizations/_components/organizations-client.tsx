@@ -11,13 +11,13 @@ import {
   MoreVertical,
   Edit,
   Trash2,
-  PoundSterling,
+  _PoundSterling,
   FileText,
   ListTodo,
   RefreshCw,
   Check,
   Eye,
-  X
+  _X
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

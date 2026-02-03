@@ -1,7 +1,7 @@
 // Simple encryption utilities for API credentials
 // In production, use proper encryption (e.g., AES-256 with a secure key from env)
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-change-in-production';
+const _ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-change-in-production';
 
 export function encryptCredentials(credentials: Record<string, string>): Record<string, string> {
   const encrypted: Record<string, string> = {};

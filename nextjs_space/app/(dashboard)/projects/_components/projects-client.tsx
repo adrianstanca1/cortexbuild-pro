@@ -4,24 +4,24 @@ import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Plus, Search, FolderKanban, LayoutGrid, List, TrendingUp,
-  AlertTriangle, PoundSterling, ChevronRight, Building2, Calendar, Users,
-  FolderOpen, Folder, FolderClosed, FileText, CheckCircle2, Clock,
-  MoreVertical, Star, StarOff, Pin, Archive, Trash2, Edit, Copy,
-  MapPin, Activity, Layers, Target, ArrowUpRight, Sparkles,
-  FolderPlus, FolderSearch, Filter, SortAsc, SortDesc, Grid3X3,
-  LayoutList, Boxes, FolderTree, FolderGit2, Briefcase, HardHat,
-  CircleDot, ArrowRight, Eye, Shield, FileCheck, BarChart3, Zap,
-  CornerDownRight, Home, ChevronDown, ChevronUp, Minus, ExternalLink,
-  GitBranch, Network, Workflow, Gauge, Timer, TrendingDown, PackageOpen
+  _Plus, _Search, FolderKanban, _LayoutGrid, _List, TrendingUp,
+  AlertTriangle, PoundSterling, ChevronRight, Building2, _Calendar, Users,
+  FolderOpen, _Folder, FolderClosed, FileText, CheckCircle2, Clock,
+  MoreVertical, _Star, _StarOff, _Pin, Archive, _Trash2, Edit, Copy,
+  MapPin, Activity, _Layers, Target, _ArrowUpRight, _Sparkles,
+  FolderPlus, FolderSearch, _Filter, SortAsc, SortDesc, Grid3X3,
+  LayoutList, Boxes, FolderTree, _FolderGit2, _Briefcase, _HardHat,
+  _CircleDot, ArrowRight, Eye, Shield, FileCheck, BarChart3, _Zap,
+  _CornerDownRight, Home, ChevronDown, _ChevronUp, _Minus, ExternalLink,
+  _GitBranch, Network, _Workflow, Gauge, _Timer, _TrendingDown, _PackageOpen
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { _Card, _CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
-import { isBefore, format, formatDistanceToNow } from "date-fns";
+import { isBefore, _format, formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -224,7 +224,7 @@ export function ProjectsClient({ projects }: ProjectsClientProps) {
 
   // Filter and sort projects
   const filteredProjects = useMemo(() => {
-    let filtered = projectsWithHealth.filter((project: any) => {
+    const filtered = projectsWithHealth.filter((project: any) => {
       const matchesSearch = (project?.name ?? "")?.toLowerCase()?.includes(search?.toLowerCase() ?? "") ||
         (project?.clientName ?? "")?.toLowerCase()?.includes(search?.toLowerCase() ?? "");
       const matchesStatus = statusFilter === "all" || project?.status === statusFilter;
