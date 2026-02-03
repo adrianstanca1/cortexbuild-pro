@@ -156,7 +156,7 @@ docker exec -i cortexbuild-db psql -U cortexbuild cortexbuild < backup.sql
 ## 🔗 Links
 
 - **Full Documentation:** [README-DOCKER-MANAGER.md](./README-DOCKER-MANAGER.md)
-- **VPS Deployment Guide:** [README-VPS-DEPLOY.md](./README-VPS-DEPLOY.md)
+- **VPS Deployment Guide:** [README.md](./README.md)
 - **General Deployment:** [README.md](./README.md)
 
 ---
