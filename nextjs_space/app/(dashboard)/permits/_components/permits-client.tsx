@@ -189,6 +189,11 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
     }
   };
 
+  const handleViewPermit = (permit: any) => {
+    setSelectedPermit(permit);
+    setShowDetailModal(true);
+  };
+
   const stats = {
     total: permits.length,
     approved: permits.filter(p => p.status === "APPROVED").length,
@@ -354,7 +359,7 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => { setSelectedPermit(permit); setShowDetailModal(true); }}
+                      onClick={() => handleViewPermit(permit)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

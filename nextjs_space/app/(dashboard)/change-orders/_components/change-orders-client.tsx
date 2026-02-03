@@ -231,6 +231,9 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
         const updated = await res.json();
         setChangeOrders(changeOrders.map(co => co.id === updated.id ? updated : co));
         setSelectedCO(updated);
+        setShowRejectDialog(false);
+        setRejectReason('');
+        setRejectComments('');
         toast.success('Change order rejected');
         router.refresh();
       } else {
@@ -522,12 +525,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
             </Button>
             <Button 
               className="bg-red-600 hover:bg-red-700"
-              onClick={() => {
-                handleReject(rejectReason, rejectComments);
-                setShowRejectDialog(false);
-                setRejectReason('');
-                setRejectComments('');
-              }}
+              onClick={() => handleReject(rejectReason, rejectComments)}
               disabled={loading || !rejectReason}
             >
               <XCircle className="w-4 h-4 mr-2" />
