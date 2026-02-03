@@ -4,6 +4,10 @@ set -e
 echo "=== CortexBuild Pro Deployment ==="
 cd /root/cortexbuild
 
+# Read version from VERSION file
+VERSION=$(cat /root/cortexbuild/VERSION 2>/dev/null || echo "unknown")
+echo "Version: $VERSION"
+
 # Create .env file if not exists
 if [ ! -f .env ]; then
     cat > .env << 'EOF'
@@ -40,5 +44,6 @@ docker ps -a
 
 echo ""
 echo "=== Deployment Complete ==="
+echo "Version: $VERSION"
 echo "App should be available at http://localhost:3000"
 echo "Configure CloudPanel to proxy to port 3000"
