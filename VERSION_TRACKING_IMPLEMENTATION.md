@@ -48,8 +48,7 @@ Each script now displays the version at the start and end of deployment.
 
 ### 5. Documentation
 Updated deployment documentation:
-- `deployment/README.md`: Added version management section
-- `deployment/README-VPS-DEPLOY.md`: Added version information
+- `deployment/README.md`: Added version management section with comprehensive deployment options
 
 ## Benefits
 
