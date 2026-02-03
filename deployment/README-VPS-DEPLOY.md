@@ -14,9 +14,20 @@ Choose the best option for your needs:
 
 ---
 
+## ⚠️ Security Warning
+
+**IMPORTANT:** This file contains production credentials for a specific VPS deployment. 
+- Change the root password immediately after first login
+- Store credentials securely (password manager)
+- Do not share this file publicly
+- Consider using SSH keys instead of password authentication
+- Restrict SSH access to specific IPs if possible
+
+---
+
 ## Server Details
 - **IP Address**: 72.62.132.43
-- **Root Password**: Cumparavinde1@
+- **Root Password**: Cumparavinde1@ *(Change immediately after login)*
 
 ## Quick Deployment Steps (Traditional Docker Compose)
 
