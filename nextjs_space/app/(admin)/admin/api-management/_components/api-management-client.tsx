@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, _AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Server,
   Plus,
@@ -22,16 +22,16 @@ import {
   Zap,
   Eye,
   EyeOff,
-  _Copy,
+  Copy,
   RotateCcw,
   Power,
   PowerOff,
   Activity,
   History,
-  _Filter,
+  Filter,
   Settings,
   ExternalLink,
-  _ChevronDown,
+  ChevronDown,
   Terminal,
   Mail,
   Brain,
@@ -80,7 +80,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { _format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { HealthMonitoring } from "./health-monitoring";
 import { UsageAnalytics } from "./usage-analytics";
 import { RateLimiting } from "./rate-limiting";
@@ -799,7 +799,7 @@ export function ApiManagementClient() {
   };
 
   // Copy to clipboard
-  const _handleCopyToClipboard = (text: string) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
   };
@@ -1007,7 +1007,7 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const _statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
+              const statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div

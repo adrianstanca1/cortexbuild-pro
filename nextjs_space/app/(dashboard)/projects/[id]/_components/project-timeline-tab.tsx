@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { format, differenceInDays, _isAfter, isBefore, _addDays, startOfDay } from "date-fns";
+import { format, differenceInDays, isAfter, isBefore, addDays, startOfDay } from "date-fns";
 import {
   Calendar, Target, CheckCircle2, Clock, AlertTriangle, ChevronRight,
-  Play, _Pause, Flag, CircleDot, Milestone as MilestoneIcon
+  Play, Pause, Flag, CircleDot, Milestone as MilestoneIcon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

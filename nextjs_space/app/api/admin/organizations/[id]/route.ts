@@ -126,7 +126,7 @@ export async function DELETE(
 
     const organization = await prisma.organization.findUnique({
       where: { id: id },
-      include: { _count: { select: { users: true, projects: true } } }
+      include: { count: { select: { users: true, projects: true } } }
     });
 
     if (!organization) {

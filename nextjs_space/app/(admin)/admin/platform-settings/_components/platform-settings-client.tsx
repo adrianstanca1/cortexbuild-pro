@@ -13,14 +13,14 @@ import {
   RefreshCw,
   Save,
   ArrowLeft,
-  _Check,
+  Check,
   AlertTriangle,
-  _Info,
+  Info,
   Users,
   FolderKanban,
   HardDrive,
   Palette,
-  _FileText,
+  FileText,
   LayoutGrid,
   Server,
   Download,
@@ -28,11 +28,11 @@ import {
   RotateCcw,
   Activity,
   Clock,
-  _Copy,
-  _ExternalLink,
+  Copy,
+  ExternalLink,
   Wrench,
-  _Eye,
-  _EyeOff
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,11 +43,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  _Select,
-  _SelectContent,
-  _SelectItem,
-  _SelectTrigger,
-  _SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,

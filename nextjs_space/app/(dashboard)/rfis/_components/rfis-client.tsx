@@ -6,30 +6,30 @@ import {
   FileQuestion,
   Plus,
   Search,
-  _Filter,
+  Filter,
   AlertCircle,
   CheckCircle,
   Clock,
   Send,
   Paperclip,
   Calendar,
-  _ArrowRight,
-  _X,
+  ArrowRight,
+  X,
   PoundSterling,
   Timer,
   LayoutGrid,
   List,
-  _TrendingUp,
+  TrendingUp,
   AlertTriangle,
   MessageSquare,
-  _Eye,
+  Eye,
   User,
   Building2,
   ChevronRight,
-  _MoreHorizontal,
-  _ExternalLink
+  MoreHorizontal,
+  ExternalLink
 } from 'lucide-react';
-import { Card, CardContent, _CardHeader, _CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

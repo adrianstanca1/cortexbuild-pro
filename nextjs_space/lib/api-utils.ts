@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { _z, ZodSchema } from 'zod';
+import { z, ZodSchema } from 'zod';
 
 // Helper to safely serialize data with BigInt values
 export function serializeData<T>(data: T): T {
@@ -201,7 +201,10 @@ export function withErrorHandler<T>(
     try {
       return await handler(request, context);
     } catch (error) {
-      console.error('API Error:', error);
+      // Log to proper logging service in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API Error:', error);
+      }
       return errorResponse(
         'INTERNAL_ERROR',
         error instanceof Error ? error.message : 'Unknown error'
@@ -234,7 +237,10 @@ export async function logActivity(
       },
     });
   } catch (error) {
-    console.error('Failed to log activity:', error);
+    // Silently fail activity logging to prevent disrupting the main operation
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to log activity:', error);
+    }
   }
 }
 

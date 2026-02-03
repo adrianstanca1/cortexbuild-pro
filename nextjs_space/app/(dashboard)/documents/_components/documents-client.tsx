@@ -2,13 +2,13 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { _format } from "date-fns";
+import { format } from "date-fns";
 import {
-  _Plus, Search, FileText, Upload, Download, Trash2, _Filter, Loader2,
+  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
   Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, _MoreHorizontal, HardDrive
+  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +18,30 @@ import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { DocumentViewer } from "@/components/ui/document-viewer";
 
+interface Document {
+  id: string;
+  name: string;
+  documentType: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedAt: Date;
+  project?: {
+    id: string;
+    name: string;
+  };
+  uploadedBy?: {
+    name: string;
+  };
+}
+
+interface Project {
+  id: string;
+  name: string;
+}
+
 interface DocumentsClientProps {
-  documents: any[];
-  projects: any[];
+  documents: Document[];
+  projects: Project[];
 }
 
 const typeConfig = {
@@ -45,7 +66,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [uploadForm, setUploadForm] = useState({ projectId: "", documentType: "OTHER" });
 
   const handleDocumentEvent = useCallback(() => {

@@ -5,24 +5,24 @@ import {
   Award, 
   Plus, 
   Search, 
-  _Filter, 
-  _AlertTriangle, 
+  Filter, 
+  AlertTriangle, 
   CheckCircle, 
   Clock, 
   XCircle,
-  _FileText,
+  FileText,
   User,
   Calendar,
   Building2,
   CreditCard,
   Shield,
-  _Download,
-  _Upload,
-  _MoreVertical,
-  _Edit,
+  Download,
+  Upload,
+  MoreVertical,
+  Edit,
   Trash2,
   Eye,
-  _RefreshCw,
+  RefreshCw,
   HardHat,
   Loader2
 } from 'lucide-react';
@@ -33,7 +33,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { format, differenceInDays, _isPast, _isFuture } from 'date-fns';
+import { format, differenceInDays, isPast, isFuture } from 'date-fns';
 
 const CERTIFICATION_TYPES = [
   { value: 'CSCS_CARD', label: 'CSCS Card', color: 'bg-blue-500' },

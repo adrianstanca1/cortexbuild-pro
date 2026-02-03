@@ -10,23 +10,23 @@ import {
   Award,
   AlertTriangle,
   Shield,
-  _Clock,
-  _CheckCircle2,
-  _Star,
+  Clock,
+  CheckCircle2,
+  Star,
   BarChart3,
-  _Building2,
+  Building2,
   Loader2,
   Sparkles,
-  _ChevronRight,
+  ChevronRight,
   Target,
   Zap,
-  _FileText,
+  FileText,
   Search,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { _Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import {
@@ -40,11 +40,11 @@ import {
   PieChart,
   Pie,
   Cell,
-  _RadarChart,
-  _PolarGrid,
-  _PolarAngleAxis,
-  _PolarRadiusAxis,
-  _Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
   Legend,
 } from 'recharts';
 
@@ -88,7 +88,7 @@ interface PerformanceDistribution {
   poor: number;
 }
 
-const _COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444'];
+const COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444'];
 
 export default function SubcontractorAnalyticsPage() {
   const [subcontractors, setSubcontractors] = useState<SubcontractorMetrics[]>([]);

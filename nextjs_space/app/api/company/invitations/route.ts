@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
     const user = session.user as any;
     
-    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can view invitations
+    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can view invitations
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     const user = session.user as any;
     
-    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can create invitations
+    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can create invitations
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
