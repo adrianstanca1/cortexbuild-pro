@@ -1,10 +1,24 @@
 # CortexBuild Pro - VPS Deployment Guide
 
+## 🎯 New: Docker Manager & Windmill Support
+
+**We now support multiple deployment methods!**
+
+Choose the best option for your needs:
+- **[Docker Manager (Portainer)](./QUICKSTART-DOCKER-MANAGER.md)** - Visual web interface for container management
+- **[Windmill Automation](./README-DOCKER-MANAGER.md#windmill-workflow-setup)** - Automated deployment workflows
+- **[Quick Deploy Script](./quick-deploy.sh)** - Interactive one-command deployment
+- **Docker Compose** (This guide) - Traditional CLI deployment
+
+> **Quick Start:** Run `./quick-deploy.sh` for guided deployment
+
+---
+
 ## Server Details
 - **IP Address**: 72.62.132.43
 - **Root Password**: Cumparavinde1@
 
-## Quick Deployment Steps
+## Quick Deployment Steps (Traditional Docker Compose)
 
 ### 1. Upload Files to VPS
 ```bash
@@ -24,7 +38,30 @@ cd /root/cortexbuild_pro/deployment
 cp .env.production .env
 ```
 
-### 4. Build and Start
+### 4. Choose Deployment Method
+
+#### Option A: Quick Deploy (Recommended)
+```bash
+cd /root/cortexbuild_pro/deployment
+./quick-deploy.sh
+# Follow the interactive prompts
+```
+
+#### Option B: Docker Manager (Portainer)
+```bash
+cd /root/cortexbuild_pro/deployment
+./docker-manager-deploy.sh
+# Then access Portainer UI at http://72.62.132.43:9000
+```
+
+#### Option C: Windmill Automation
+```bash
+cd /root/cortexbuild_pro/deployment
+./windmill-setup.sh
+# Then access Windmill UI at http://72.62.132.43:8000
+```
+
+#### Option D: Traditional Docker Compose
 ```bash
 docker compose build app
 docker compose up -d
