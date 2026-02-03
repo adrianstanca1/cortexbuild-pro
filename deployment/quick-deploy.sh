@@ -86,7 +86,11 @@ if docker compose version &> /dev/null 2>&1; then
     echo -e "${GREEN}✓ Docker Compose available${NC}"
 else
     echo -e "${YELLOW}Installing Docker Compose plugin...${NC}"
-    apt-get update && apt-get install -y docker-compose-plugin
+    apt-get update && apt-get install -y docker-compose-plugin || {
+        echo -e "${RED}Failed to install Docker Compose plugin${NC}"
+        echo "Please install manually: apt-get install docker-compose-plugin"
+        exit 1
+    }
 fi
 
 echo ""
