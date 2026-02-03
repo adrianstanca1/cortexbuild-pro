@@ -93,7 +93,8 @@ check_containers() {
     fi
     
     # Get container status
-    local containers=($(docker compose ps --format '{{.Service}}'))
+    local containers=()
+    mapfile -t containers < <(docker compose ps --format '{{.Service}}')
     
     if [[ ${#containers[@]} -eq 0 ]]; then
         status_error "No containers running"
@@ -296,8 +297,8 @@ check_backups() {
         if [[ $backup_count -gt 0 ]]; then
             status_ok "Found $backup_count backup(s)"
             
-            # Find most recent backup
-            local latest_backup=$(find "$backup_dir" -type f \( -name "*.sql.gz" -o -name "*.sql" \) -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
+            # Find most recent backup (portable approach)
+            local latest_backup=$(find "$backup_dir" -type f \( -name "*.sql.gz" -o -name "*.sql" \) -exec stat -c '%Y %n' {} \; 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
             
             if [[ -n "$latest_backup" ]]; then
                 local backup_age=$(( ($(date +%s) - $(stat -c %Y "$latest_backup")) / 86400 ))

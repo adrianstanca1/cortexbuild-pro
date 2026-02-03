@@ -50,8 +50,10 @@ get_db_backups() {
         backups+=("$file")
     done < <(find "$BACKUP_DIR" \( -name "db_backup_*.sql.gz" -o -name "db_backup_*.sql" \) -print0 | sort -zr)
     
-    # Return backups via stdout (one per line)
-    printf '%s\n' "${backups[@]}"
+    # Return backups via stdout (one per line) - handle empty array safely
+    if [[ ${#backups[@]} -gt 0 ]]; then
+        printf '%s\n' "${backups[@]}"
+    fi
 }
 
 # List available backups
@@ -132,18 +134,23 @@ restore_database() {
     # Restore from backup
     log_info "Restoring data..."
     if [[ "$backup_file" == *.gz ]]; then
-        gunzip -c "$backup_file" | docker compose exec -T db psql -U cortexbuild -d cortexbuild
+        if gunzip -c "$backup_file" | docker compose exec -T db psql -U cortexbuild -d cortexbuild; then
+            log_success "Database restored successfully"
+            return 0
+        else
+            log_error "Database restore failed"
+            log_info "Safety backup available at: $safety_backup"
+            return 1
+        fi
     else
-        cat "$backup_file" | docker compose exec -T db psql -U cortexbuild -d cortexbuild
-    fi
-    
-    if [[ $? -eq 0 ]]; then
-        log_success "Database restored successfully"
-        return 0
-    else
-        log_error "Database restore failed"
-        log_info "Safety backup available at: $safety_backup"
-        return 1
+        if cat "$backup_file" | docker compose exec -T db psql -U cortexbuild -d cortexbuild; then
+            log_success "Database restored successfully"
+            return 0
+        else
+            log_error "Database restore failed"
+            log_info "Safety backup available at: $safety_backup"
+            return 1
+        fi
     fi
 }
 

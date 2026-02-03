@@ -183,7 +183,7 @@ setup_environment() {
         # Check if it's a placeholder or too short
         if [[ -z "$secret_value" ]] || \
            [[ ${#secret_value} -lt 24 ]] || \
-           echo "$secret_value" | grep -qi "secret\|placeholder\|changeme\|example"; then
+           echo "$secret_value" | grep -qiE "^(your-secret-here|change.*me|example.*secret|placeholder.*|secret.*here)$"; then
             needs_secrets=true
         fi
     fi
@@ -204,7 +204,7 @@ setup_environment() {
         DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-32)
         sed -i "s|YOUR_PASSWORD_HERE|$DB_PASSWORD|g" .env
         sed -i "s|<YOUR_PASSWORD[^>]*>|$DB_PASSWORD|gi" .env
-        sed -i "s|REPLACE.*PASSWORD[^\"']*|$DB_PASSWORD|gi" .env
+        sed -i "s|^POSTGRES_PASSWORD=REPLACE.*PASSWORD.*|POSTGRES_PASSWORD=$DB_PASSWORD|g" .env
         sed -i "s|changeme123|$DB_PASSWORD|gi" .env
         
         log_success "Secure secrets generated"
@@ -312,6 +312,7 @@ wait_for_services() {
     done
     
     log_warn "Application health check timeout, but may still be starting..."
+    return 1
 }
 
 # Run database migrations
@@ -382,10 +383,10 @@ print_summary() {
     echo "  • Local URL: http://localhost:3000"
     echo "  • Docker containers running: $(docker compose ps -q | wc -l)"
     echo ""
-    echo -e "${GREEN}Default Login Credentials:${NC}"
-    echo "  • Super Admin: adrian.stanca1@gmail.com"
-    echo "  • Company Owner: adrian@ascladdingltd.co.uk"
-    echo "  • Check deployment/README-VPS-DEPLOY.md for passwords"
+    echo -e "${GREEN}Default Login Information:${NC}"
+    echo "  • Default accounts may be created by the database seed script."
+    echo "  • Please refer to deployment/README-VPS-DEPLOY.md or nextjs_space/scripts/seed.ts"
+    echo "    for current default login details."
     echo ""
     echo -e "${GREEN}Useful Commands:${NC}"
     echo "  • View logs: docker compose -f $DEPLOYMENT_DIR/docker-compose.yml logs -f app"
