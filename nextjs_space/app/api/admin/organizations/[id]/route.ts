@@ -69,7 +69,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, slug, logoUrl } = body;
+    const { name, slug, logoUrl, isActive, entitlements } = body;
 
     const existingOrg = await prisma.organization.findUnique({ where: { id: id } });
     if (!existingOrg) {
@@ -88,6 +88,11 @@ export async function PATCH(
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    
+    // Note: Entitlements structure validation could be added here in the future
+    // based on business requirements. Currently accepts any JSON object.
+    if (entitlements !== undefined) updateData.entitlements = entitlements;
 
     const organization = await prisma.organization.update({
       where: { id: id },
