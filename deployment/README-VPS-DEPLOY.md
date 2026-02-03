@@ -6,22 +6,43 @@
 
 The application version is tracked in the `VERSION` file and displayed during deployment and in the application footer.
 
-## Server Details
-- **IP Address**: 72.62.132.43
-- **Root Password**: Cumparavinde1@
+## Server Configuration
 
-## Quick Deployment Steps
+**IMPORTANT:** This section should contain your VPS-specific configuration.
+
+For security reasons:
+- **DO NOT** commit actual server IP addresses or credentials to version control
+- Store sensitive information in a secure password manager
+- Use SSH keys instead of password authentication when possible
+- Change default passwords immediately after initial setup
+- Restrict SSH access to specific IP addresses if possible
+
+### Example Configuration (Replace with your values):
+
+```bash
+# VPS Details (DO NOT commit real values)
+export VPS_IP="YOUR_SERVER_IP"
+export VPS_USER="YOUR_USERNAME"
+
+# Use SSH keys instead of passwords
+ssh-copy-id $VPS_USER@$VPS_IP
+```
+
+## Quick Deployment Steps (Traditional Docker Compose)
 
 ### 1. Upload Files to VPS
 ```bash
-# From local machine:
-scp -r /home/ubuntu/cortexbuild_pro root@72.62.132.43:/root/
+# From local machine (replace with your values):
+scp -r /path/to/cortexbuild_pro $VPS_USER@$VPS_IP:/home/$VPS_USER/
 ```
 
 ### 2. SSH into VPS
 ```bash
-ssh root@72.62.132.43
-# Password: Cumparavinde1@
+# Using SSH key (recommended)
+ssh $VPS_USER@$VPS_IP
+
+# Or using password (less secure)
+# ssh $VPS_USER@$VPS_IP
 ```
 
 ### 3. Setup Environment
@@ -30,7 +51,30 @@ cd /root/cortexbuild_pro/deployment
 cp .env.production .env
 ```
 
-### 4. Build and Start
+### 4. Choose Deployment Method
+
+#### Option A: Quick Deploy (Recommended)
+```bash
+cd /root/cortexbuild_pro/deployment
+./quick-deploy.sh
+# Follow the interactive prompts
+```
+
+#### Option B: Docker Manager (Portainer)
+```bash
+cd /root/cortexbuild_pro/deployment
+./docker-manager-deploy.sh
+# Then access Portainer UI at http://YOUR_SERVER_IP:9000
+```
+
+#### Option C: Windmill Automation
+```bash
+cd /root/cortexbuild_pro/deployment
+./windmill-setup.sh
+# Then access Windmill UI at http://72.62.132.43:8000
+```
+
+#### Option D: Traditional Docker Compose
 ```bash
 docker compose build app
 docker compose up -d
