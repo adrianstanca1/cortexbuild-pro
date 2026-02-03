@@ -187,11 +187,12 @@ check_application() {
     local response_time=$(curl -s -o /dev/null -w "%{time_total}" http://localhost:3000/api/auth/providers 2>/dev/null || echo "0")
     
     if [[ -n "$response_time" ]] && [[ "$response_time" != "0" ]]; then
-        local response_ms=$(echo "$response_time * 1000" | bc 2>/dev/null || echo "$response_time")
+        local response_ms=$(awk -v time="$response_time" 'BEGIN {printf "%.0f", time * 1000}')
         
-        if (( $(echo "$response_time < 1.0" | bc -l 2>/dev/null || echo 0) )); then
+        # Use awk for floating point comparison
+        if awk -v time="$response_time" 'BEGIN {exit !(time < 1.0)}'; then
             status_ok "Response time: ${response_ms}ms"
-        elif (( $(echo "$response_time < 3.0" | bc -l 2>/dev/null || echo 0) )); then
+        elif awk -v time="$response_time" 'BEGIN {exit !(time < 3.0)}'; then
             status_warn "Response time: ${response_ms}ms (slow)"
         else
             status_error "Response time: ${response_ms}ms (very slow)"
@@ -208,11 +209,12 @@ check_resources() {
     # Memory usage
     local mem_total=$(free -m | awk '/^Mem:/{print $2}')
     local mem_used=$(free -m | awk '/^Mem:/{print $3}')
-    local mem_percent=$(echo "scale=1; $mem_used * 100 / $mem_total" | bc)
+    local mem_percent=$(awk -v used="$mem_used" -v total="$mem_total" 'BEGIN {printf "%.1f", used * 100 / total}')
     
-    if (( $(echo "$mem_percent < 80" | bc -l) )); then
+    # Use awk for floating point comparison
+    if awk -v pct="$mem_percent" 'BEGIN {exit !(pct < 80)}'; then
         status_ok "Memory: ${mem_used}MB / ${mem_total}MB (${mem_percent}%)"
-    elif (( $(echo "$mem_percent < 90" | bc -l) )); then
+    elif awk -v pct="$mem_percent" 'BEGIN {exit !(pct < 90)}'; then
         status_warn "Memory: ${mem_used}MB / ${mem_total}MB (${mem_percent}%) - High usage"
     else
         status_error "Memory: ${mem_used}MB / ${mem_total}MB (${mem_percent}%) - Critical"

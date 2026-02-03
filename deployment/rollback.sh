@@ -43,6 +43,17 @@ print_header() {
     echo -e "${NC}"
 }
 
+# Get database backup files (helper function)
+get_db_backups() {
+    local -a backups
+    while IFS= read -r -d '' file; do
+        backups+=("$file")
+    done < <(find "$BACKUP_DIR" \( -name "db_backup_*.sql.gz" -o -name "db_backup_*.sql" \) -print0 | sort -zr)
+    
+    # Return backups via stdout (one per line)
+    printf '%s\n' "${backups[@]}"
+}
+
 # List available backups
 list_backups() {
     log_info "Available backups:"
@@ -53,8 +64,8 @@ list_backups() {
         exit 1
     fi
     
-    # Find database backups
-    local db_backups=($(find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -o -name "db_backup_*.sql" | sort -r))
+    # Get database backups
+    mapfile -t db_backups < <(get_db_backups)
     
     if [[ ${#db_backups[@]} -eq 0 ]]; then
         log_error "No database backups found"
@@ -71,7 +82,10 @@ list_backups() {
     echo ""
     
     # Find environment backups
-    local env_backups=($(find "$BACKUP_DIR" -name ".env.backup.*" | sort -r))
+    local env_backups=()
+    while IFS= read -r -d '' file; do
+        env_backups+=("$file")
+    done < <(find "$BACKUP_DIR" -name ".env.backup.*" -print0 | sort -zr)
     
     if [[ ${#env_backups[@]} -gt 0 ]]; then
         echo "Environment Backups:"
@@ -190,8 +204,8 @@ interactive_rollback() {
     
     list_backups
     
-    # Get database backups
-    local db_backups=($(find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -o -name "db_backup_*.sql" | sort -r))
+    # Get database backups using helper function
+    mapfile -t db_backups < <(get_db_backups)
     
     # Select database backup
     echo -e "${YELLOW}Select database backup to restore:${NC}"
@@ -239,7 +253,8 @@ quick_rollback() {
     
     log_info "Quick rollback to most recent backup..."
     
-    local db_backups=($(find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -o -name "db_backup_*.sql" | sort -r))
+    # Get database backups using helper function
+    mapfile -t db_backups < <(get_db_backups)
     
     if [[ ${#db_backups[@]} -eq 0 ]]; then
         log_error "No backups found"

@@ -456,19 +456,33 @@ tail -f /var/log/cortexbuild-deploy.log
 
 ---
 
-## 📄 Default Login Credentials
+## 📄 Initial Setup - User Accounts
 
-After seeding the database:
+After seeding the database, several demo accounts are created for testing. 
 
-| Role | Email | Password |
-|------|-------|----------|
-| Super Admin | adrian.stanca1@gmail.com | Cumparavinde1 |
-| Company Owner | adrian@ascladdingltd.co.uk | Cumparavinde1 |
-| Demo Admin | admin@cortexbuild.com | johndoe123 |
-| Project Manager | pm@cortexbuild.com | manager123 |
-| Field Worker | worker@cortexbuild.com | worker123 |
+**⚠️ SECURITY CRITICAL:** 
 
-**⚠️ Important:** Change these passwords immediately after first login!
+1. **First-time setup**: The database seed creates default accounts with preset passwords
+2. **You MUST change these passwords immediately** after deployment
+3. For production use, consider:
+   - Deleting demo accounts after setup
+   - Creating your own admin account with strong credentials
+   - Using the application's user management to add real users
+
+**Default Demo Accounts** (for testing only):
+
+| Role | Email | Initial Password |
+|------|-------|------------------|
+| Super Admin | admin@yourdomain.com | **Change on first login** |
+| Company Owner | owner@yourdomain.com | **Change on first login** |
+
+**Note:** Check `nextjs_space/scripts/seed.ts` for the complete list of seeded accounts. Remember to delete or disable demo accounts before going into production!
+
+**Production Best Practices:**
+- Set up your own admin account during initial configuration
+- Never use default/demo credentials in production
+- Enable two-factor authentication if available
+- Regularly audit user accounts and permissions
 
 ---
 

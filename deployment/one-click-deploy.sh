@@ -170,17 +170,33 @@ setup_environment() {
         exit 1
     fi
     
-    # Generate secure secrets if needed
-    if grep -q "your-nextauth-secret-here" .env || grep -q "YOUR_PASSWORD_HERE" .env; then
+    # Check if secrets need to be generated (check for weak/placeholder values)
+    local needs_secrets=false
+    
+    # Check NEXTAUTH_SECRET length and strength
+    if ! grep -q "NEXTAUTH_SECRET=" .env || \
+       grep -E "NEXTAUTH_SECRET=\"?[a-zA-Z0-9]{1,20}\"?" .env >/dev/null || \
+       grep -q "your.*secret" .env; then
+        needs_secrets=true
+    fi
+    
+    # Check password placeholders
+    if grep -q "YOUR_PASSWORD_HERE\|your.*password\|changeme" .env; then
+        needs_secrets=true
+    fi
+    
+    if [[ "$needs_secrets" == "true" ]]; then
         log_info "Generating secure secrets..."
         
-        # Generate NEXTAUTH_SECRET
+        # Generate NEXTAUTH_SECRET (replace weak or placeholder values)
         NEXTAUTH_SECRET=$(openssl rand -base64 32)
-        sed -i "s|your-nextauth-secret-here|$NEXTAUTH_SECRET|g" .env
+        sed -i "s|NEXTAUTH_SECRET=.*|NEXTAUTH_SECRET=\"$NEXTAUTH_SECRET\"|g" .env
         
-        # Generate DB password
+        # Generate DB password (replace placeholders)
         DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-32)
         sed -i "s|YOUR_PASSWORD_HERE|$DB_PASSWORD|g" .env
+        sed -i "s|your.*password.*here|$DB_PASSWORD|gi" .env
+        sed -i "s|changeme|$DB_PASSWORD|gi" .env
         
         log_success "Secure secrets generated"
     fi
