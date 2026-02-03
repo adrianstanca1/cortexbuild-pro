@@ -118,7 +118,9 @@ Provide helpful, accurate answers based on this data. If asked about something n
             controller.enqueue(encoder.encode(chunk));
           }
         } catch (error) {
-          console.error('Stream error:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Stream error:', error);
+          }
           controller.error(error);
         } finally {
           controller.close();
@@ -134,7 +136,9 @@ Provide helpful, accurate answers based on this data. If asked about something n
       }
     });
   } catch (error) {
-    console.error('AI API Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('AI API Error:', error);
+    }
     return NextResponse.json({ error: 'Failed to process AI request' }, { status: 500 });
   }
 }

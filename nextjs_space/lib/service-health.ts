@@ -235,7 +235,7 @@ async function updateServiceStatus(
       });
     }
   } catch (error) {
-    console.error(`Failed to update service status for ${serviceId}:`, error);
+    // console.error(`Failed to update service status for ${serviceId}:`, error);
   }
 }
 
@@ -258,7 +258,7 @@ export function broadcastServiceStatusChange(
       }
     });
   } catch (error) {
-    console.error("Failed to broadcast service status change:", error);
+    // console.error("Failed to broadcast service status change:", error);
   }
 }
 
