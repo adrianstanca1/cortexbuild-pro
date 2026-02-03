@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { 
-  Wrench, Plus, Pencil, Trash2, X, Calendar, DollarSign, User, FileText 
+  Wrench, Plus, Pencil, Trash2, Calendar, DollarSign, User, FileText 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -256,7 +256,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Total Cost</p>
-                  <p className="text-2xl font-bold text-green-600">${totalCost.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-green-600">£{totalCost.toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">Last Service</p>
@@ -375,7 +375,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
               />
             </div>
             <div>
-              <Label htmlFor="cost">Cost ($)</Label>
+              <Label htmlFor="cost">Cost (£)</Label>
               <Input
                 id="cost"
                 type="number"
@@ -444,7 +444,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
               />
             </div>
             <div>
-              <Label htmlFor="editCost">Cost ($)</Label>
+              <Label htmlFor="editCost">Cost (£)</Label>
               <Input
                 id="editCost"
                 type="number"

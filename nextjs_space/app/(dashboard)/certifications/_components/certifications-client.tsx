@@ -653,7 +653,7 @@ export default function CertificationsClient({
                             onClick={() => handleEdit(cert)}
                             className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                           >
-                            <_Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
                             variant="ghost" 

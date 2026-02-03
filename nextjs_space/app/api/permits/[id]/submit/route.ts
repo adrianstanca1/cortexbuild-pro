@@ -55,31 +55,31 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Update permit to submitted
-    const updatedPermit = await prisma.permit.update({
-      where: { id },
-      data: {
-        status: 'SUBMITTED',
-        applicationDate: applicationDate ? new Date(applicationDate) : new Date(),
-        issuingAuthority,
-        fee: fee ? parseFloat(fee) : existingPermit.fee
-      },
-      include: {
-        project: { select: { id: true, name: true } },
-        documents: true
-      }
-    });
-
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        action: 'submitted',
-        entityType: 'permit',
-        entityId: id,
-        entityName: `${existingPermit.type} - ${existingPermit.title}`,
-        userId: session.user.id
-      }
-    });
+    // Update permit to submitted and log activity in a single transaction
+    const [updatedPermit] = await prisma.$transaction([
+      prisma.permit.update({
+        where: { id },
+        data: {
+          status: 'SUBMITTED',
+          applicationDate: applicationDate ? new Date(applicationDate) : new Date(),
+          issuingAuthority,
+          fee: fee ? parseFloat(fee) : existingPermit.fee
+        },
+        include: {
+          project: { select: { id: true, name: true } },
+          documents: true
+        }
+      }),
+      prisma.activityLog.create({
+        data: {
+          action: 'submitted',
+          entityType: 'permit',
+          entityId: id,
+          entityName: `${existingPermit.type} - ${existingPermit.title}`,
+          userId: session.user.id
+        }
+      })
+    ]);
 
     // Broadcast real-time event
     broadcastToOrganization(existingPermit.project.organizationId, {

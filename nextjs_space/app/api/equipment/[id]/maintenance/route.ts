@@ -86,37 +86,41 @@ export async function POST(
       );
     }
 
-    const maintenanceLog = await prisma.equipmentMaintenanceLog.create({
-      data: {
-        equipmentId: id,
-        serviceDate: new Date(serviceDate),
-        serviceType,
-        description,
-        cost: cost ? parseFloat(cost) : null,
-        performedById: performedById || session.user.id
-      },
-      include: {
-        performedBy: {
-          select: { id: true, name: true, email: true }
+    const maintenanceLog = await prisma.$transaction(async (tx) => {
+      const log = await tx.equipmentMaintenanceLog.create({
+        data: {
+          equipmentId: id,
+          serviceDate: new Date(serviceDate),
+          serviceType,
+          description,
+          cost: cost ? parseFloat(cost) : null,
+          performedById: performedById || session.user.id
+        },
+        include: {
+          performedBy: {
+            select: { id: true, name: true, email: true }
+          }
         }
-      }
-    });
+      });
 
-    // Update equipment's last service date
-    await prisma.equipment.update({
-      where: { id },
-      data: { lastServiceDate: new Date(serviceDate) }
-    });
+      // Update equipment's last service date
+      await tx.equipment.update({
+        where: { id },
+        data: { lastServiceDate: new Date(serviceDate) }
+      });
 
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        action: 'created',
-        entityType: 'equipment_maintenance',
-        entityId: maintenanceLog.id,
-        entityName: `${equipment.name} - ${serviceType}`,
-        userId: session.user.id
-      }
+      // Log activity
+      await tx.activityLog.create({
+        data: {
+          action: 'created',
+          entityType: 'equipment_maintenance',
+          entityId: log.id,
+          entityName: `${equipment.name} - ${serviceType}`,
+          userId: session.user.id
+        }
+      });
+
+      return log;
     });
 
     // Broadcast real-time event

@@ -64,51 +64,56 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Update change order to rejected
-    const updatedCO = await prisma.changeOrder.update({
-      where: { id },
-      data: {
-        status: 'REJECTED'
-      },
-      include: {
-        project: { select: { id: true, name: true, organizationId: true, budget: true } },
-        requestedBy: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true, email: true } }
-      }
-    });
+    // Perform all related database updates in a single transaction
+    const updatedCO = await prisma.$transaction(async (tx) => {
+      // Update change order to rejected
+      const co = await tx.changeOrder.update({
+        where: { id },
+        data: {
+          status: 'REJECTED'
+        },
+        include: {
+          project: { select: { id: true, name: true, organizationId: true, budget: true } },
+          requestedBy: { select: { id: true, name: true, email: true } },
+          approvedBy: { select: { id: true, name: true, email: true } }
+        }
+      });
 
-    // Create version record for audit trail
-    await prisma.changeOrderVersion.create({
-      data: {
-        changeOrderId: id,
-        version: existingCO.currentVersion + 1,
-        title: existingCO.title,
-        description: existingCO.description,
-        reason: existingCO.reason,
-        costChange: existingCO.costChange,
-        scheduleChange: existingCO.scheduleChange,
-        status: 'REJECTED',
-        createdById: session.user.id,
-        rejectionReason: reason,
-        comments: comments || null
-      }
-    });
+      // Create version record for audit trail
+      await tx.changeOrderVersion.create({
+        data: {
+          changeOrderId: id,
+          version: existingCO.currentVersion + 1,
+          title: existingCO.title,
+          description: existingCO.description,
+          reason: existingCO.reason,
+          costChange: existingCO.costChange,
+          scheduleChange: existingCO.scheduleChange,
+          status: 'REJECTED',
+          createdById: session.user.id,
+          rejectionReason: reason,
+          comments: comments || null
+        }
+      });
 
-    // Update version number
-    await prisma.changeOrder.update({
-      where: { id },
-      data: { currentVersion: existingCO.currentVersion + 1 }
-    });
+      // Update version number
+      await tx.changeOrder.update({
+        where: { id },
+        data: { currentVersion: existingCO.currentVersion + 1 }
+      });
 
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        action: 'rejected',
-        entityType: 'change_order',
-        entityId: id,
-        entityName: `CO-${existingCO.number}: ${existingCO.title}`,
-        userId: session.user.id
-      }
+      // Log activity
+      await tx.activityLog.create({
+        data: {
+          action: 'rejected',
+          entityType: 'change_order',
+          entityId: id,
+          entityName: `CO-${existingCO.number}: ${existingCO.title}`,
+          userId: session.user.id
+        }
+      });
+
+      return co;
     });
 
     // Broadcast real-time event

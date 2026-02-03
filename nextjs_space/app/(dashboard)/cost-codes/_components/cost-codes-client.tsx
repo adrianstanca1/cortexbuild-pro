@@ -646,9 +646,9 @@ export function CostCodesClient({ initialCostCodes }: Props) {
             <AlertDialogDescription>
               Are you sure you want to delete &quot;{selectedCode?.code} - {selectedCode?.name}&quot;? 
               This action cannot be undone.
-              {selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0) && (
+              {selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0) && (
                 <p className="mt-2 text-red-600 font-semibold">
-                  This cost code has associated work packages or cost items and cannot be deleted.
+                  This cost code has associated work packages, cost items, or budget lines and cannot be deleted.
                 </p>
               )}
             </AlertDialogDescription>
@@ -657,7 +657,7 @@ export function CostCodesClient({ initialCostCodes }: Props) {
             <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={saving || (selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0))}
+              disabled={saving || (selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0))}
               className="bg-red-600 hover:bg-red-700"
             >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

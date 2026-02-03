@@ -59,61 +59,65 @@ export async function POST(
     }
 
     // Update change order to approved
-    const updatedCO = await prisma.changeOrder.update({
-      where: { id },
-      data: {
-        status: 'APPROVED',
-        approvedAt: new Date(),
-        approvedById: session.user.id
-      },
-      include: {
-        project: { select: { id: true, name: true, organizationId: true, budget: true } },
-        requestedBy: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true, email: true } }
-      }
-    });
-
-    // Update project budget if there's a cost change
-    if (existingCO.costChange !== 0) {
-      await prisma.project.update({
-        where: { id: existingCO.projectId },
-        data: { budget: (existingCO.project.budget || 0) + existingCO.costChange }
+    const updatedCO = await prisma.$transaction(async (tx) => {
+      const co = await tx.changeOrder.update({
+        where: { id },
+        data: {
+          status: 'APPROVED',
+          approvedAt: new Date(),
+          approvedById: session.user.id
+        },
+        include: {
+          project: { select: { id: true, name: true, organizationId: true, budget: true } },
+          requestedBy: { select: { id: true, name: true, email: true } },
+          approvedBy: { select: { id: true, name: true, email: true } }
+        }
       });
-    }
 
-    // Create version record for audit trail
-    await prisma.changeOrderVersion.create({
-      data: {
-        changeOrderId: id,
-        version: existingCO.currentVersion + 1,
-        title: existingCO.title,
-        description: existingCO.description,
-        reason: existingCO.reason,
-        costChange: existingCO.costChange,
-        scheduleChange: existingCO.scheduleChange,
-        status: 'APPROVED',
-        createdById: session.user.id,
-        approvedById: session.user.id,
-        approvedAt: new Date(),
-        comments: comments || null
+      // Update project budget if there's a cost change
+      if (existingCO.costChange !== 0) {
+        await tx.project.update({
+          where: { id: existingCO.projectId },
+          data: { budget: (existingCO.project.budget || 0) + existingCO.costChange }
+        });
       }
-    });
 
-    // Update version number
-    await prisma.changeOrder.update({
-      where: { id },
-      data: { currentVersion: existingCO.currentVersion + 1 }
-    });
+      // Create version record for audit trail
+      await tx.changeOrderVersion.create({
+        data: {
+          changeOrderId: id,
+          version: existingCO.currentVersion + 1,
+          title: existingCO.title,
+          description: existingCO.description,
+          reason: existingCO.reason,
+          costChange: existingCO.costChange,
+          scheduleChange: existingCO.scheduleChange,
+          status: 'APPROVED',
+          createdById: session.user.id,
+          approvedById: session.user.id,
+          approvedAt: new Date(),
+          comments: comments || null
+        }
+      });
 
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        action: 'approved',
-        entityType: 'change_order',
-        entityId: id,
-        entityName: `CO-${existingCO.number}: ${existingCO.title}`,
-        userId: session.user.id
-      }
+      // Update version number
+      await tx.changeOrder.update({
+        where: { id },
+        data: { currentVersion: existingCO.currentVersion + 1 }
+      });
+
+      // Log activity
+      await tx.activityLog.create({
+        data: {
+          action: 'approved',
+          entityType: 'change_order',
+          entityId: id,
+          entityName: `CO-${existingCO.number}: ${existingCO.title}`,
+          userId: session.user.id
+        }
+      });
+
+      return co;
     });
 
     // Broadcast real-time event
