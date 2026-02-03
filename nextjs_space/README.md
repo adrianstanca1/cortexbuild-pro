@@ -44,6 +44,8 @@ A comprehensive multi-tenant construction management platform built with Next.js
 
 ## Getting Started
 
+### Development Setup
+
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database
@@ -85,6 +87,30 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Deployment (VPS)
+
+For production deployment to a VPS (Virtual Private Server):
+
+**Quick Start:**
+```bash
+cd /root
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
+
+See the [Deployment Quick Start Guide](../deployment/QUICKSTART.md) for complete instructions, including:
+- One-click deployment script
+- Health monitoring
+- Rollback capability
+- SSL setup
+- Backup strategies
+
+**Documentation:**
+- [Quick Start Guide](../deployment/QUICKSTART.md) - Fastest deployment method
+- [Full Deployment Guide](../deployment/README.md) - Comprehensive instructions
+- [CloudPanel Guide](../deployment/CLOUDPANEL-GUIDE.md) - Managed hosting option
 
 ## Environment Variables
 
