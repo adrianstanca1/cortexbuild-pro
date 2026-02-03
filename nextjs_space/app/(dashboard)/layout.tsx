@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
-import { _DashboardHeader } from "@/components/dashboard/header";
+import { DashboardHeader } from "@/components/dashboard/header";
 import { AIAssistant } from "@/components/ai-assistant";
 import { RealtimeProvider } from "@/components/realtime-provider";
 import { RealtimeStatusIndicator } from "@/components/realtime-status-indicator";

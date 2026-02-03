@@ -3,12 +3,12 @@
 import { useState, useMemo, useRef, _useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  format, differenceInDays, addDays, startOfMonth, _endOfMonth,
-  eachDayOfInterval, isSameDay, isWeekend, parseISO, _isBefore, _isAfter
+  format, differenceInDays, addDays, startOfMonth, endOfMonth,
+  eachDayOfInterval, isSameDay, isWeekend, parseISO, isBefore, isAfter
 } from "date-fns";
-import { ChevronLeft, ChevronRight, _ZoomIn, _ZoomOut, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { _Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface GanttItem {

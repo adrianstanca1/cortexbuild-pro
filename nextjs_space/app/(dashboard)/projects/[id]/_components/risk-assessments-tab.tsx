@@ -2,15 +2,15 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, _FileText, _AlertTriangle, Shield, Check, _X, _ChevronDown, _ChevronUp, _Users, _Edit, _Trash2, Eye, _Download, Loader2 } from 'lucide-react';
-import { Card, CardContent, _CardHeader, _CardTitle } from '@/components/ui/card';
+import { Plus, FileText, AlertTriangle, Shield, Check, X, ChevronDown, ChevronUp, Users, Edit, Trash2, Eye, Download, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SignaturePad, _SignatureDisplay } from '@/components/ui/signature-pad';
+import { SignaturePad, SignatureDisplay } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useRealtimeSubscription } from '@/hooks/use-realtime';

@@ -4,9 +4,9 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, _ChevronRight, User,
-  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, _Shield, HardHat,
-  ChevronDown, _Phone, _Calendar, _Award, _MapPin, _Clock
+  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, ChevronRight, User,
+  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, Shield, HardHat,
+  ChevronDown, Phone, Calendar, Award, MapPin, Clock
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

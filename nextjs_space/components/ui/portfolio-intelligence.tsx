@@ -4,13 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { _Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
 import {
-  Brain, _TrendingUp, _TrendingDown, AlertTriangle, CheckCircle,
-  Clock, Shield, _Target, Zap, ChevronRight, _Calendar, _BarChart3,
-  _Loader2, AlertCircle, Activity, _Gauge, _Flame, _Award, PoundSterling,
-  _FileQuestion, _Package, _Users, _HardHat
+  Brain, TrendingUp, TrendingDown, AlertTriangle, CheckCircle,
+  Clock, Shield, Target, Zap, ChevronRight, Calendar, BarChart3,
+  Loader2, AlertCircle, Activity, Gauge, Flame, Award, PoundSterling,
+  FileQuestion, Package, Users, HardHat
 } from 'lucide-react';
 
 interface ProjectHealthData {

@@ -15,7 +15,7 @@ import {
   MapPin,
   User,
   ChevronRight,
-  _Activity,
+  Activity,
   XCircle,
   LayoutGrid,
   List,
@@ -26,7 +26,7 @@ import {
   FileText,
   Camera
 } from 'lucide-react';
-import { Card, CardContent, _CardHeader, _CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

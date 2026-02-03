@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
         prompt = `Provide a summary analysis of this subcontractor:\n\n${JSON.stringify(subcontractorContext, null, 2)}\n\nInclude key insights and recommendations.`;
     }
 
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

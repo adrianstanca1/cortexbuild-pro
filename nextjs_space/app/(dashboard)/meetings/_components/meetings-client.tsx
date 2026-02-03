@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   FileText, Plus, Search, Calendar, Clock, Users, CheckSquare,
-  MapPin, Loader2, _Video, ChevronRight, _Filter, _LayoutGrid, _List,
-  _AlertCircle, CalendarDays
+  MapPin, Loader2, Video, ChevronRight, Filter, LayoutGrid, List,
+  AlertCircle, CalendarDays
 } from 'lucide-react';
-import { Card, CardContent, _CardHeader, _CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

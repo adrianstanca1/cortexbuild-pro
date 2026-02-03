@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { _Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   TrendingUp, TrendingDown, Plus, RefreshCw, PoundSterling,
-  Target, Activity, _AlertTriangle, Loader2, Calendar, BarChart3
+  Target, Activity, AlertTriangle, Loader2, Calendar, BarChart3
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';

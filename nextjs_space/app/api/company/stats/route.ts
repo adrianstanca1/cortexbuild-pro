@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "No organization" }, { status: 400 });
     }
 
-    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can access
+    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can access
     if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

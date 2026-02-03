@@ -3,29 +3,29 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, _AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  FolderKanban, ListTodo, Users, Clock, Plus, _ArrowRight, Activity, _Calendar,
-  FileQuestion, _FileCheck, Shield, _AlertTriangle, ClipboardCheck, PoundSterling,
-  _TrendingUp, _CheckCircle2, _XCircle, AlertCircle, _Target, _Wrench, _FileText,
-  ChevronRight, _Bell, BarChart3, Building2, Briefcase, _Timer, _Eye, Sparkles,
-  Zap, _Brain, _Gauge, _Award, _Package, HardHat, _TrendingDown, Flame,
-  Folder, FolderOpen, FolderCog, _FolderHeart, _FolderSync, _FolderCheck,
-  _Milestone, Flag, _MapPin, CircleDot, _Play, _Pause, CheckCircle,
-  _LayoutGrid, _LayoutList, FileStack, _Truck, _Hammer, _Receipt, Wallet
+  FolderKanban, ListTodo, Users, Clock, Plus, ArrowRight, Activity, Calendar,
+  FileQuestion, FileCheck, Shield, AlertTriangle, ClipboardCheck, PoundSterling,
+  TrendingUp, CheckCircle2, XCircle, AlertCircle, Target, Wrench, FileText,
+  ChevronRight, Bell, BarChart3, Building2, Briefcase, Timer, Eye, Sparkles,
+  Zap, Brain, Gauge, Award, Package, HardHat, TrendingDown, Flame,
+  Folder, FolderOpen, FolderCog, FolderHeart, FolderSync, FolderCheck,
+  Milestone, Flag, MapPin, CircleDot, Play, Pause, CheckCircle,
+  LayoutGrid, LayoutList, FileStack, Truck, Hammer, Receipt, Wallet
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { _MetricCard, _CompactMetric, _MetricSection } from "@/components/ui/metric-card";
+import { MetricCard, CompactMetric, MetricSection } from "@/components/ui/metric-card";
 import { KPICard, QuickAction, AlertBanner, ProgressRing } from "@/components/ui/kpi-dashboard";
-import { _ProjectStatusChart } from "./project-status-chart";
+import { ProjectStatusChart } from "./project-status-chart";
 import { TodayAgenda } from "./today-agenda";
 import { PortfolioIntelligence } from "@/components/ui/portfolio-intelligence";
 import { PredictiveAnalytics } from "@/components/ui/predictive-analytics";
 import { SmartAlerts } from "@/components/ui/smart-alerts";
 import { ResourceIntelligence } from "@/components/ui/resource-intelligence";
-import { formatDistanceToNow, format, isToday, isPast, _addDays } from "date-fns";
+import { formatDistanceToNow, format, isToday, isPast, addDays } from "date-fns";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 
 interface ConstructionMetrics {
@@ -92,7 +92,7 @@ function CommandCenter({
   constructionMetrics, 
   projectStatusCounts,
   tasks,
-  _rfis
+  rfis
 }: { 
   constructionMetrics?: ConstructionMetrics;
   projectStatusCounts: { PLANNING: number; IN_PROGRESS: number; ON_HOLD: number; COMPLETED: number };
@@ -436,11 +436,11 @@ export function DashboardClient({
   projectStatusCounts,
   constructionMetrics,
   rfis = [],
-  _submittals = [],
-  _safetyIncidents = [],
-  _punchLists = [],
+  submittals = [],
+  safetyIncidents = [],
+  punchLists = [],
   upcomingMilestones = [],
-  _changeOrders = []
+  changeOrders = []
 }: DashboardClientProps) {
   const router = useRouter();
 
@@ -704,9 +704,9 @@ export function DashboardClient({
                 <div className="space-y-4">
                   <h4 className="font-semibold text-slate-800 dark:text-slate-100">Status Breakdown</h4>
                   {[
-                    { label: "In Progress", value: projectStatusCounts.IN_PROGRESS, color: "bg-blue-500", total: totalProjects },
+                    { label: "In Progress", value: projectStatusCounts.INPROGRESS, color: "bg-blue-500", total: totalProjects },
                     { label: "Planning", value: projectStatusCounts.PLANNING, color: "bg-amber-500", total: totalProjects },
-                    { label: "On Hold", value: projectStatusCounts.ON_HOLD, color: "bg-slate-400", total: totalProjects },
+                    { label: "On Hold", value: projectStatusCounts.ONHOLD, color: "bg-slate-400", total: totalProjects },
                     { label: "Completed", value: projectStatusCounts.COMPLETED, color: "bg-emerald-500", total: totalProjects }
                   ].map((item, i) => (
                     <div key={i} className="space-y-2">

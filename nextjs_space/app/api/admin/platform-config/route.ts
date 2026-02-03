@@ -92,7 +92,7 @@ async function loadConfigFromDb(): Promise<void> {
     });
     if (stored?.details) {
       const parsed = typeof stored.details === "string" ? JSON.parse(stored.details) : stored.details;
-      platformConfig = deepMerge(DEFAULT_CONFIG, parsed);
+      platformConfig = deepMerge(DEFAULTCONFIG, parsed);
     }
     lastLoadedAt = new Date();
   } catch (e) {
@@ -152,7 +152,7 @@ export async function GET(_request: NextRequest) {
       prisma.user.count({ where: { lastLogin: { gte: oneDayAgo } } }),
       prisma.user.count({ where: { lastLogin: { gte: oneWeekAgo } } }),
       prisma.activityLog.count({ where: { createdAt: { gte: oneDayAgo } } }),
-      prisma.document.aggregate({ _sum: { fileSize: true } })
+      prisma.document.aggregate({ sum: { fileSize: true } })
     ]);
 
     return NextResponse.json({
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest) {
         if (!data) {
           return NextResponse.json({ error: "No configuration data provided" }, { status: 400 });
         }
-        platformConfig = deepMerge(DEFAULT_CONFIG, data);
+        platformConfig = deepMerge(DEFAULTCONFIG, data);
         await prisma.activityLog.create({
           data: {
             action: "platform_config_imported",

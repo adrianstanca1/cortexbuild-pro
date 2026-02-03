@@ -4,27 +4,27 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
-  _Trash2,
+  Trash2,
   TrendingDown,
-  _TrendingUp,
+  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   PoundSterling,
   Leaf,
   Recycle,
-  _Building2,
+  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
   BarChart3,
   Target,
-  _Zap,
+  Zap,
   Search,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { _Progress } from '@/components/ui/progress';
+import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import {
@@ -38,9 +38,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  _LineChart,
-  _Line,
-  _Legend,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
 
 interface MaterialUsage {
@@ -74,7 +74,7 @@ interface Project {
   name: string;
 }
 
-const _COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
+const COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
 
 const formatCurrency = (value: number) => {
   if (value >= 1000000) return `\u00a3${(value / 1000000).toFixed(1)}M`;

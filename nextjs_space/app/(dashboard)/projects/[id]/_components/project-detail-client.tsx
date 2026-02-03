@@ -5,15 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Edit, _Trash2, MapPin, _Calendar, PoundSterling, User,
-  _ListTodo, FileText, Users, Plus, Loader2, CheckCircle, _Clock, AlertCircle, Activity, TrendingUp,
-  _Upload, _Download, _Eye, _Ruler, _Image, _FileSpreadsheet, _File, Brain, _BarChart3, Camera,
+  ArrowLeft, Edit, Trash2, MapPin, Calendar, PoundSterling, User,
+  ListTodo, FileText, Users, Plus, Loader2, CheckCircle, Clock, AlertCircle, Activity, TrendingUp,
+  Upload, Download, Eye, Ruler, Image, FileSpreadsheet, File, Brain, BarChart3, Camera,
   ClipboardList, Timer, Wallet, Receipt, Package, HardHat, FileQuestion, Send, FileCheck,
   Shield, PenTool, BookOpen, AlertTriangle, Target, Search, ChevronRight, FolderOpen,
-  Milestone, Building2, _Hammer, Truck, UserCheck, Scale, LayoutGrid, _List,
-  FolderClosed, _Home, ChevronDown, _Minus, _CornerDownRight, _Gauge, _Sparkles, Settings,
-  _ExternalLink, Network, _MoreVertical, Share2, Star, _Archive, _Copy, Zap,
-  _PanelLeftClose, _PanelLeft, ChevronLeft
+  Milestone, Building2, Hammer, Truck, UserCheck, Scale, LayoutGrid, List,
+  FolderClosed, Home, ChevronDown, Minus, CornerDownRight, Gauge, Sparkles, Settings,
+  ExternalLink, Network, MoreVertical, Share2, Star, Archive, Copy, Zap,
+  PanelLeftClose, PanelLeft, ChevronLeft
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +22,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, _DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { _DocumentViewer } from "@/components/ui/document-viewer";
+import { DocumentViewer } from "@/components/ui/document-viewer";
 import { ProjectIntelligence } from "@/components/ui/project-intelligence";
 import { PhotoGallery } from "@/components/ui/photo-gallery";
 import { WeatherWidget } from "@/components/ui/weather-widget";
@@ -178,7 +178,7 @@ const featureCategories = [
 ];
 
 // Helper: Check if tab is in top menu
-const _isTopMenuTab = (tabId: string) => {
+const isTopMenuTab = (tabId: string) => {
   return topMenuCategories.some(cat => cat.items.some(item => item.id === tabId));
 };
 
@@ -2173,7 +2173,7 @@ function SafetyTab({ project }: { project: any }) {
   );
 }
 
-function _TimelineTab({ activities }: { activities: any[] }) {
+function TimelineTab({ activities }: { activities: any[] }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Activity Timeline</h2>

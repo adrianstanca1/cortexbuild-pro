@@ -121,7 +121,7 @@ Provide practical insights useful for construction management.`;
     }
 
     // Call Abacus AI API with the image
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

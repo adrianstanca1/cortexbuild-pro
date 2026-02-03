@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         prompt = `Provide a comprehensive waste analysis for this construction project:\n\n${JSON.stringify(context, null, 2)}\n\nInclude overview, key findings, and recommendations.`;
     }
 
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

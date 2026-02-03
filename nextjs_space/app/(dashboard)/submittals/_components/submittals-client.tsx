@@ -12,9 +12,9 @@ import {
   Send,
   Eye,
   Paperclip,
-  _ArrowRight,
+  ArrowRight,
   RefreshCw,
-  _FileCheck,
+  FileCheck,
   LayoutGrid,
   List,
   Calendar,
@@ -23,7 +23,7 @@ import {
   ChevronRight,
   AlertCircle,
   FileText,
-  _Timer
+  Timer
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

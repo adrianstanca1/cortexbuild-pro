@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
   HardHat, Wrench, Plus, Check, X, AlertTriangle, ChevronRight,
-  _Loader2, Calendar, User, _FileText, CheckCircle2, XCircle, _Shield, Download
+  Loader2, Calendar, User, FileText, CheckCircle2, XCircle, Shield, Download
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

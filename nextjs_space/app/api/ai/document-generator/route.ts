@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
 
     const prompt = promptFn(enhancedContext);
 
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

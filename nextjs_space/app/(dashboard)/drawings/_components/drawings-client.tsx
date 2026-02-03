@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  FileImage, Plus, Search, _Filter, Grid, List, Loader2,
-  Eye, Edit, Upload, History, CheckCircle, Clock, _XCircle
+  FileImage, Plus, Search, Filter, Grid, List, Loader2,
+  Eye, Edit, Upload, History, CheckCircle, Clock, XCircle
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { _format } from "date-fns";
+import { format } from "date-fns";
 
 const DISCIPLINES = [
   "ARCHITECTURAL", "STRUCTURAL", "MECHANICAL", "ELECTRICAL", "PLUMBING",

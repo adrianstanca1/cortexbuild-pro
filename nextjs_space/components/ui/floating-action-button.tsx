@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Plus, X, FolderKanban, ListTodo, FileQuestion, _FileText,
-  ClipboardList, Shield, _Users, Calendar, _FileCheck, _Target
+  Plus, X, FolderKanban, ListTodo, FileQuestion, FileText,
+  ClipboardList, Shield, Users, Calendar, FileCheck, Target
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

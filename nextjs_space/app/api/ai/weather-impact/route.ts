@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { _projectId, forecast, impacts, upcomingTasks } = body;
+    const { projectId, forecast, impacts, upcomingTasks } = body;
 
     // Prepare context for AI analysis
     const context = {
@@ -282,7 +282,7 @@ Provide:
 
 Use UK construction terminology. Be specific about dates and activities.`;
 
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

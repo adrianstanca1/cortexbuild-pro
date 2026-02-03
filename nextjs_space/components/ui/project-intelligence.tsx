@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { _Progress } from '@/components/ui/progress';
-import _Link from 'next/link';
+import { Progress } from '@/components/ui/progress';
+import Link from 'next/link';
 import {
   Brain, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, 
-  _Clock, _PoundSterling, _Users, _Target, Zap, _RefreshCw, ChevronRight,
-  Calendar, _BarChart3, _Loader2, _Shield, _FileQuestion, _Gauge, Activity,
+  Clock, PoundSterling, Users, Target, Zap, RefreshCw, ChevronRight,
+  Calendar, BarChart3, Loader2, Shield, FileQuestion, Gauge, Activity,
   AlertCircle
 } from 'lucide-react';
 

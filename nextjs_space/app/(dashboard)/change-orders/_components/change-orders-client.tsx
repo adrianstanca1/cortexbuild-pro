@@ -11,12 +11,12 @@ import {
   CheckCircle,
   XCircle,
   Send,
-  _PoundSterling,
+  PoundSterling,
   Calendar,
   ArrowRight,
   TrendingUp,
   TrendingDown,
-  _AlertTriangle,
+  AlertTriangle,
   Play
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';

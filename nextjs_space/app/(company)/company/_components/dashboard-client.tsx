@@ -19,13 +19,13 @@ import {
   ShieldAlert,
   FileText,
   AlertTriangle,
-  _RefreshCw,
+  RefreshCw,
   BarChart3,
   PieChart,
-  _Calendar,
+  Calendar,
   Target,
-  _ArrowUpRight,
-  _ArrowDownRight,
+  ArrowUpRight,
+  ArrowDownRight,
   Shield
 } from "lucide-react";
 import { SafetyComplianceDashboard } from "./safety-compliance-dashboard";

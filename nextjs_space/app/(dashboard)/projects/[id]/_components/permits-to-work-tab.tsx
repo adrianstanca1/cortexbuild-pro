@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Flame, AlertOctagon, Check, X, Eye, Loader2, Clock, _ShieldAlert, _Wind } from 'lucide-react';
+import { Plus, Flame, AlertOctagon, Check, X, Eye, Loader2, Clock, ShieldAlert, Wind } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

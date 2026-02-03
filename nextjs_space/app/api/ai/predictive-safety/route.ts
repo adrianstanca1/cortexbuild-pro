@@ -211,7 +211,7 @@ export async function POST(request: NextRequest) {
         prompt = `Provide a comprehensive safety analysis for this UK construction operation:\n\n${JSON.stringify(safetyContext, null, 2)}\n\nInclude: Overall Safety Score, Key Risk Areas, Immediate Actions Required, Recommendations.`;
     }
 
-    const response = await fetch(ABACUS_API_URL, {
+    const response = await fetch(ABACUS_APIURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

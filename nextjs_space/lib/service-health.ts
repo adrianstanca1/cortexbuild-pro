@@ -4,7 +4,7 @@
 // =====================================================
 
 import { prisma } from "@/lib/db";
-import { serviceRegistry, getAllServiceInstances, _ServiceInstance, ServiceStatus } from "./service-registry";
+import { serviceRegistry, getAllServiceInstances, ServiceInstance, ServiceStatus } from "./service-registry";
 import { SendGridAdapter, AIAdapter, TwilioAdapter, StripeAdapter } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
 

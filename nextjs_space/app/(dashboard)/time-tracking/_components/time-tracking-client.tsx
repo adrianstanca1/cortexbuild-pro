@@ -2,12 +2,12 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { _motion, _AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from "date-fns";
 import {
-  Clock, Plus, _Search, _Filter, _Calendar, CheckCircle2, XCircle,
+  Clock, Plus, Search, Filter, Calendar, CheckCircle2, XCircle,
   MoreVertical, Edit, Trash2, ChevronLeft, ChevronRight, Timer,
-  _FolderKanban, Loader2, _User, TrendingUp, PoundSterling, _FileSpreadsheet
+  FolderKanban, Loader2, User, TrendingUp, PoundSterling, FileSpreadsheet
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
