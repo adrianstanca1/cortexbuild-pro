@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
         prompt = `Provide a comprehensive resource scheduling analysis:\n\n${JSON.stringify(context, null, 2)}\n\nInclude overview, key insights, and actionable recommendations.`;
     }
 
-    const response = await fetch(ABACUS_APIURL, {
+    const response = await fetch(ABACUS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

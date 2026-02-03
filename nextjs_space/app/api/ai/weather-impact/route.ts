@@ -282,7 +282,7 @@ Provide:
 
 Use UK construction terminology. Be specific about dates and activities.`;
 
-    const response = await fetch(ABACUS_APIURL, {
+    const response = await fetch(ABACUS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

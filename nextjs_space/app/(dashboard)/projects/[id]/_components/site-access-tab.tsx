@@ -23,7 +23,7 @@ interface SiteAccessTabProps {
 
 const roleTypes = ['Worker', 'Visitor', 'Delivery', 'Inspector', 'Client', 'Contractor', 'Consultant'];
 
-export function SiteAccessTab({ project, _teamMembers, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
+export function SiteAccessTab({ project, teamMembers, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
   const router = useRouter();
   const [logs, setLogs] = useState(initialLogs || []);
   const [showSignInModal, setShowSignInModal] = useState(false);

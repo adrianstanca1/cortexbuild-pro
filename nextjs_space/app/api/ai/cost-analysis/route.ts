@@ -153,7 +153,7 @@ Use UK construction terminology and £ currency.`;
     }
 
     // Call Abacus AI
-    const response = await fetch(ABACUS_APIURL, {
+    const response = await fetch(ABACUS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

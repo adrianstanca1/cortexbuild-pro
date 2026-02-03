@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format, _formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   MessageSquare, Plus, Users, Calendar, Clock, MapPin, Check,
   ChevronRight, Loader2, PenTool, AlertTriangle, CheckCircle2, Download
@@ -59,7 +59,7 @@ const statusColors: Record<string, string> = {
   CANCELLED: "destructive"
 };
 
-export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, _teamMembers }: ToolboxTalksTabProps) {
+export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMembers }: ToolboxTalksTabProps) {
   const router = useRouter();
   const [talks, setTalks] = useState<ToolboxTalk[]>(initialTalks || []);
   const [loading, setLoading] = useState(false);

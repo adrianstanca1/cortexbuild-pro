@@ -27,7 +27,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
   const setCollapsed = useCallback((value: boolean) => {
     setCollapsedState(value);
-    localStorage.setItem(SIDEBAR_STORAGEKEY, String(value));
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(value));
   }, []);
 
   const toggleSidebar = useCallback(() => {

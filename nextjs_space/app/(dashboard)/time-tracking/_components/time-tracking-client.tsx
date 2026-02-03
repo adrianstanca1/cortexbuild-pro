@@ -76,14 +76,14 @@ export default function TimeTrackingClient({
   projects,
   tasks,
   initialEntries,
-  _teamMembers,
-  _currentUserId,
+  teamMembers,
+  currentUserId,
   userRole
 }: TimeTrackingClientProps) {
   const router = useRouter();
-  const [entries, _setEntries] = useState<TimeEntry[]>(initialEntries);
+  const [entries, setEntries] = useState<TimeEntry[]>(initialEntries);
   const [projectFilter, setProjectFilter] = useState<string>("all");
-  const [userFilter, _setUserFilter] = useState<string>("all");
+  const [userFilter, setUserFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [showNewModal, setShowNewModal] = useState(false);
