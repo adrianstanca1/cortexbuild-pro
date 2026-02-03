@@ -89,6 +89,9 @@ export async function PATCH(
     if (slug !== undefined) updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
     if (isActive !== undefined) updateData.isActive = isActive;
+    
+    // Note: Entitlements structure validation could be added here in the future
+    // based on business requirements. Currently accepts any JSON object.
     if (entitlements !== undefined) updateData.entitlements = entitlements;
 
     const organization = await prisma.organization.update({

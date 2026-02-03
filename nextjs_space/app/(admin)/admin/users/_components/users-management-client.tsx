@@ -104,6 +104,8 @@ export function UsersManagementClient() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState<string>("");
+  const [bulkRole, setBulkRole] = useState<string>("");
+  const [bulkOrgId, setBulkOrgId] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -328,15 +330,14 @@ export function UsersManagementClient() {
       let body: any = { action: bulkAction, userIds: selectedUserIds };
 
       if (bulkAction === "update_role") {
-        const newRole = prompt("Enter new role (SUPER_ADMIN, ADMIN, PROJECT_MANAGER, FIELD_WORKER):");
-        if (!newRole) {
+        if (!bulkRole) {
+          toast.error("Please select a role");
           setSaving(false);
           return;
         }
-        body.data = { role: newRole };
+        body.data = { role: bulkRole };
       } else if (bulkAction === "update_organization") {
-        const orgId = prompt("Enter organization ID (or leave empty to remove):");
-        body.data = { organizationId: orgId || null };
+        body.data = { organizationId: bulkOrgId || null };
       } else if (bulkAction === "delete") {
         if (!confirm(`Delete ${selectedUserIds.length} user(s)? This cannot be undone.`)) {
           setSaving(false);
@@ -357,6 +358,8 @@ export function UsersManagementClient() {
         setShowBulkModal(false);
         setSelectedUserIds([]);
         setBulkAction("");
+        setBulkRole("");
+        setBulkOrgId("");
         fetchUsers();
       } else {
         toast.error(data.error || "Bulk action failed");
@@ -921,17 +924,43 @@ export function UsersManagementClient() {
             </div>
 
             {bulkAction === "update_role" && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-blue-600 dark:text-blue-400">
-                  You will be prompted to enter the new role after clicking Apply.
+              <div>
+                <Label>Select New Role</Label>
+                <Select value={bulkRole} onValueChange={setBulkRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
+                    <SelectItem value="FIELD_WORKER">Field Worker</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-2">
+                  Super admin users cannot have their role changed.
                 </p>
               </div>
             )}
 
             {bulkAction === "update_organization" && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-blue-600 dark:text-blue-400">
-                  You will be prompted to enter the organization ID after clicking Apply.
+              <div>
+                <Label>Select Organization</Label>
+                <Select value={bulkOrgId} onValueChange={setBulkOrgId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose an organization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No Organization</SelectItem>
+                    {organizations.map((org) => (
+                      <SelectItem key={org.id} value={org.id}>
+                        {org.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-2">
+                  Select "No Organization" to remove users from their current organization.
                 </p>
               </div>
             )}

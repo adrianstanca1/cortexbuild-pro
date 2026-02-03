@@ -186,6 +186,16 @@ export async function POST(req: NextRequest) {
               continue;
             }
 
+            // Validate password strength (minimum 8 characters)
+            if (userData.password.length < 8) {
+              importResults.failed++;
+              importResults.errors.push({
+                email: userData.email,
+                error: "Password must be at least 8 characters long"
+              });
+              continue;
+            }
+
             // Check if user exists
             const exists = await prisma.user.findUnique({
               where: { email: userData.email }
