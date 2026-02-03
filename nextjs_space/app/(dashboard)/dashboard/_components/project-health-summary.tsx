@@ -6,9 +6,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
-  _TrendingUp,
-  _TrendingDown,
-  _ArrowRight,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
   Activity
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

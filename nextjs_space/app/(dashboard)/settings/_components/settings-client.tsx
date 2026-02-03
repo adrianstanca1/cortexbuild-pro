@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { _Settings, User, Bell, Shield, Lock, Building2, Save, Loader2, Check, Mail, Phone, Key, _Moon, _Sun, _Globe } from "lucide-react";
-import { _Card, _CardContent, _CardHeader, _CardTitle, _CardDescription } from "@/components/ui/card";
+import { Settings, User, Bell, Shield, Lock, Building2, Save, Loader2, Check, Mail, Phone, Key, Moon, Sun, Globe } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,10 +50,21 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
   const handleProfileUpdate = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/user/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileForm),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update profile');
+      }
+
       toast.success("Profile updated successfully!");
     } catch (error) {
-      toast.error("Failed to update profile");
+      toast.error(error instanceof Error ? error.message : "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -68,13 +79,25 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
       toast.error("Password must be at least 8 characters");
       return;
     }
+
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/user/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(passwordForm),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to change password');
+      }
+
       toast.success("Password changed successfully!");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
-      toast.error("Failed to change password");
+      toast.error(error instanceof Error ? error.message : "Failed to change password");
     } finally {
       setLoading(false);
     }

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const exportType = searchParams.get('type') || 'projects';
     const projectId = searchParams.get('projectId');
-    const _formatType = searchParams.get('format') || 'csv';
+    const formatType = searchParams.get('format') || 'csv';
 
     let data: any[] = [];
     let filename = '';

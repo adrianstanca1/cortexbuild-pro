@@ -680,7 +680,7 @@ async function main() {
       version: "v1",
       status: "ACTIVE" as const,
       dependentModules: ["ai-insights", "document-generator", "photo-analysis", "predictive-signals", "risk-assessment"],
-      credentials: JSON.stringify({ apiKey: "aab7e27d61c14a81a2bcf4d395478e4c" }),
+      credentials: JSON.stringify({ apiKey: process.env.ABACUSAI_API_KEY || "CONFIGURE_IN_ADMIN_PANEL" }),
       configSchema: JSON.stringify({
         type: "object",
         properties: {

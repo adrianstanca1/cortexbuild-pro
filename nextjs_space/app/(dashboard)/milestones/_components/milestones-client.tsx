@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
 import {
-  Flag, Plus, Search, _Filter, Calendar, CheckCircle2, Clock,
-  AlertTriangle, Target, MoreVertical, Edit, Trash2, _ChevronRight,
-  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as _MilestoneIcon
+  Flag, Plus, Search, Filter, Calendar, CheckCircle2, Clock,
+  AlertTriangle, Target, MoreVertical, Edit, Trash2, ChevronRight,
+  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as MilestoneIcon
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

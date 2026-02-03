@@ -4,7 +4,7 @@
 // =====================================================
 
 import { prisma } from "@/lib/db";
-import { serviceRegistry, getAllServiceInstances, _ServiceInstance, ServiceStatus } from "./service-registry";
+import { serviceRegistry, getAllServiceInstances, ServiceInstance, ServiceStatus } from "./service-registry";
 import { SendGridAdapter, AIAdapter, TwilioAdapter, StripeAdapter } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
 
@@ -235,7 +235,7 @@ async function updateServiceStatus(
       });
     }
   } catch (error) {
-    console.error(`Failed to update service status for ${serviceId}:`, error);
+    // console.error(`Failed to update service status for ${serviceId}:`, error);
   }
 }
 
@@ -258,7 +258,7 @@ export function broadcastServiceStatusChange(
       }
     });
   } catch (error) {
-    console.error("Failed to broadcast service status change:", error);
+    // console.error("Failed to broadcast service status change:", error);
   }
 }
 

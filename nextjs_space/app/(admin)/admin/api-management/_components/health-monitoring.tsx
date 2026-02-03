@@ -7,18 +7,18 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  _Clock,
+  Clock,
   RefreshCw,
-  _TrendingUp,
-  _TrendingDown,
+  TrendingUp,
+  TrendingDown,
   Heart,
-  _Zap,
+  Zap,
   Server
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { _Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,

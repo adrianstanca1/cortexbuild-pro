@@ -48,10 +48,9 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         };
       }
 
-      // SendGrid failed, log and fall through to fallback
-      console.warn("SendGrid email failed, trying fallback:", result.error);
-    } catch (error) {
-      console.warn("SendGrid adapter error, trying fallback:", error);
+      // SendGrid failed, fall through to fallback
+    } catch {
+      // SendGrid adapter error, fall through to fallback
     }
   }
 
@@ -65,8 +64,8 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          app_id: process.env.WEB_APP_ID,
+          deployment_token: process.env.ABACUSAI_APIKEY,
+          app_id: process.env.WEB_APPID,
           subject: options.subject,
           body: options.html,
           is_html: true,
@@ -82,16 +81,13 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         };
       }
 
-      const errorText = await response.text();
-      console.error("Abacus email API failed:", errorText);
-      
+      // Abacus API failed, fall through to return error
       return {
         success: false,
         provider: "abacus",
         error: `Abacus API error: ${response.status}`
       };
     } catch (error) {
-      console.error("Abacus email API error:", error);
       return {
         success: false,
         provider: "abacus",

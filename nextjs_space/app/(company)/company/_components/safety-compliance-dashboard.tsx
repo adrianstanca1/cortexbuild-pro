@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
-  Shield, HardHat, Wrench, AlertTriangle, CheckCircle, _XCircle,
-  TrendingUp, Users, _FileText, _Download, RefreshCw, Loader2,
-  _ChevronRight, BarChart3, Target, Calendar
+  Shield, HardHat, Wrench, AlertTriangle, CheckCircle, XCircle,
+  TrendingUp, Users, FileText, Download, RefreshCw, Loader2,
+  ChevronRight, BarChart3, Target, Calendar
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

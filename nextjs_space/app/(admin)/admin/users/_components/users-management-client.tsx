@@ -6,28 +6,24 @@ import {
   Users,
   Plus,
   Search,
-  _Filter,
+  Filter,
   MoreVertical,
   Edit,
   Trash2,
   UserCog,
-  _Shield,
-  _Mail,
-  _Phone,
+  Shield,
+  Mail,
+  Phone,
   Building2,
-  _Calendar,
+  Calendar,
   Clock,
   RefreshCw,
-  _X,
+  X,
   Check,
   Eye,
-  _Key,
-  Download,
-  Upload,
-  UserCheck,
-  CheckSquare
+  Key
 } from "lucide-react";
-import { Card, CardContent, _CardHeader, _CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
