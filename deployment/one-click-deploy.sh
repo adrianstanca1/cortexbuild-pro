@@ -180,10 +180,14 @@ setup_environment() {
         # Extract the secret value
         local secret_value=$(grep "NEXTAUTH_SECRET=" .env | cut -d'=' -f2- | tr -d '"' | tr -d "'")
         
-        # Check if it's a placeholder or too short
+        # Check if it's a placeholder or too short - use exact placeholder matches
         if [[ -z "$secret_value" ]] || \
            [[ ${#secret_value} -lt 24 ]] || \
-           echo "$secret_value" | grep -qiE "^(your-secret-here|change.*me|example.*secret|placeholder.*|secret.*here)$"; then
+           [[ "$secret_value" == "your-secret-here" ]] || \
+           [[ "$secret_value" == "changeme" ]] || \
+           [[ "$secret_value" == "example-secret" ]] || \
+           [[ "$secret_value" == "placeholder" ]] || \
+           [[ "$secret_value" == "your-nextauth-secret-here" ]]; then
             needs_secrets=true
         fi
     fi
@@ -204,7 +208,7 @@ setup_environment() {
         DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-32)
         sed -i "s|YOUR_PASSWORD_HERE|$DB_PASSWORD|g" .env
         sed -i "s|<YOUR_PASSWORD[^>]*>|$DB_PASSWORD|gi" .env
-        sed -i "s|^POSTGRES_PASSWORD=REPLACE.*PASSWORD.*|POSTGRES_PASSWORD=$DB_PASSWORD|g" .env
+        sed -i "s|^POSTGRES_PASSWORD=REPLACE_WITH_PASSWORD$|POSTGRES_PASSWORD=$DB_PASSWORD|g" .env
         sed -i "s|changeme123|$DB_PASSWORD|gi" .env
         
         log_success "Secure secrets generated"
