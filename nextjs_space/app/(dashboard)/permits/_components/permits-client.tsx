@@ -54,7 +54,23 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [showNewModal, setShowNewModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [selectedPermit, setSelectedPermit] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [submitData, setSubmitData] = useState({
+    applicationDate: '',
+    issuingAuthority: '',
+    fee: ''
+  });
+  const [approveData, setApproveData] = useState({
+    approvalDate: '',
+    permitNumber: '',
+    expirationDate: '',
+    inspectionDate: '',
+    conditions: ''
+  });
   const [newPermit, setNewPermit] = useState({
     projectId: "",
     type: "BUILDING",
@@ -101,6 +117,81 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmitPermit = async () => {
+    if (!selectedPermit || !submitData.issuingAuthority) {
+      toast.error("Issuing authority is required");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/permits/${selectedPermit.id}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(submitData),
+      });
+      if (!res.ok) throw new Error("Failed to submit permit");
+      const updated = await res.json();
+      setPermits(permits.map(p => p.id === updated.id ? updated : p));
+      setSelectedPermit(updated);
+      setShowSubmitDialog(false);
+      setSubmitData({ applicationDate: '', issuingAuthority: '', fee: '' });
+      toast.success("Permit submitted successfully");
+    } catch (error) {
+      toast.error("Failed to submit permit");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprovePermit = async () => {
+    if (!selectedPermit) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/permits/${selectedPermit.id}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(approveData),
+      });
+      if (!res.ok) throw new Error("Failed to approve permit");
+      const updated = await res.json();
+      setPermits(permits.map(p => p.id === updated.id ? updated : p));
+      setSelectedPermit(updated);
+      setShowApproveDialog(false);
+      setApproveData({ approvalDate: '', permitNumber: '', expirationDate: '', inspectionDate: '', conditions: '' });
+      toast.success("Permit approved successfully");
+    } catch (error) {
+      toast.error("Failed to approve permit");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    if (!selectedPermit) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/permits/${selectedPermit.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      const updated = await res.json();
+      setPermits(permits.map(p => p.id === updated.id ? updated : p));
+      setSelectedPermit(updated);
+      toast.success(`Permit status updated to ${newStatus.replace('_', ' ').toLowerCase()}`);
+    } catch (error) {
+      toast.error("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewPermit = (permit: any) => {
+    setSelectedPermit(permit);
+    setShowDetailModal(true);
   };
 
   const stats = {
@@ -265,7 +356,11 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewPermit(permit)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="sm">
@@ -369,6 +464,261 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
             <Button onClick={handleCreatePermit} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Create Permit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permit Detail Modal */}
+      <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+        <DialogContent className="max-w-3xl">
+          {selectedPermit && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Permit Details - #{selectedPermit.number}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-lg">{selectedPermit.title}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedPermit.project?.name}</p>
+                  </div>
+                  <Badge className={getStatusColor(selectedPermit.status)}>
+                    {selectedPermit.status.replace("_", " ")}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Type:</span>
+                    <p className="font-medium">{selectedPermit.type.replace("_", " ")}</p>
+                  </div>
+                  {selectedPermit.permitNumber && (
+                    <div>
+                      <span className="text-muted-foreground">Permit Number:</span>
+                      <p className="font-medium">{selectedPermit.permitNumber}</p>
+                    </div>
+                  )}
+                  {selectedPermit.issuingAuthority && (
+                    <div>
+                      <span className="text-muted-foreground">Issuing Authority:</span>
+                      <p className="font-medium">{selectedPermit.issuingAuthority}</p>
+                    </div>
+                  )}
+                  {selectedPermit.fee && (
+                    <div>
+                      <span className="text-muted-foreground">Fee:</span>
+                      <p className="font-medium">£{selectedPermit.fee.toLocaleString()}</p>
+                    </div>
+                  )}
+                </div>
+
+                {selectedPermit.description && (
+                  <div>
+                    <span className="text-sm text-muted-foreground">Description:</span>
+                    <p className="text-sm mt-1">{selectedPermit.description}</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {selectedPermit.applicationDate && (
+                    <div>
+                      <span className="text-muted-foreground">Application Date:</span>
+                      <p className="font-medium">{format(new Date(selectedPermit.applicationDate), "MMM d, yyyy")}</p>
+                    </div>
+                  )}
+                  {selectedPermit.approvalDate && (
+                    <div>
+                      <span className="text-muted-foreground">Approval Date:</span>
+                      <p className="font-medium">{format(new Date(selectedPermit.approvalDate), "MMM d, yyyy")}</p>
+                    </div>
+                  )}
+                  {selectedPermit.expirationDate && (
+                    <div>
+                      <span className="text-muted-foreground">Expiration Date:</span>
+                      <p className="font-medium">{format(new Date(selectedPermit.expirationDate), "MMM d, yyyy")}</p>
+                    </div>
+                  )}
+                  {selectedPermit.inspectionDate && (
+                    <div>
+                      <span className="text-muted-foreground">Inspection Date:</span>
+                      <p className="font-medium">{format(new Date(selectedPermit.inspectionDate), "MMM d, yyyy")}</p>
+                    </div>
+                  )}
+                </div>
+
+                {selectedPermit.conditions && (
+                  <div>
+                    <span className="text-sm text-muted-foreground">Conditions:</span>
+                    <p className="text-sm mt-1">{selectedPermit.conditions}</p>
+                  </div>
+                )}
+
+                {/* Workflow Actions */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  {selectedPermit.status === 'DRAFT' && (
+                    <Button 
+                      onClick={() => setShowSubmitDialog(true)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Submit Permit
+                    </Button>
+                  )}
+                  {['SUBMITTED', 'UNDER_REVIEW'].includes(selectedPermit.status) && (
+                    <>
+                      {selectedPermit.status === 'SUBMITTED' && (
+                        <Button 
+                          variant="outline"
+                          onClick={() => handleStatusUpdate('UNDER_REVIEW')}
+                          disabled={loading}
+                        >
+                          Move to Review
+                        </Button>
+                      )}
+                      <Button 
+                        onClick={() => setShowApproveDialog(true)}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve
+                      </Button>
+                    </>
+                  )}
+                  {selectedPermit.status === 'APPROVED' && (
+                    <Button 
+                      variant="outline"
+                      onClick={() => handleStatusUpdate('CLOSED')}
+                      disabled={loading}
+                    >
+                      Close Permit
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Submit Dialog */}
+      <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Submit Permit for Review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-sm font-medium">Issuing Authority *</label>
+              <Input
+                value={submitData.issuingAuthority}
+                onChange={(e) => setSubmitData({ ...submitData, issuingAuthority: e.target.value })}
+                placeholder="e.g., City Building Department"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Application Date</label>
+              <Input
+                type="date"
+                value={submitData.applicationDate}
+                onChange={(e) => setSubmitData({ ...submitData, applicationDate: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Fee (£)</label>
+              <Input
+                type="number"
+                value={submitData.fee}
+                onChange={(e) => setSubmitData({ ...submitData, fee: e.target.value })}
+                placeholder="0.00"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSubmitDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitPermit} 
+              disabled={loading || !submitData.issuingAuthority}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Submit Permit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Approve Dialog */}
+      <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve Permit</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-sm font-medium">Official Permit Number</label>
+              <Input
+                value={approveData.permitNumber}
+                onChange={(e) => setApproveData({ ...approveData, permitNumber: e.target.value })}
+                placeholder="e.g., BP-2024-12345"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Approval Date</label>
+              <Input
+                type="date"
+                value={approveData.approvalDate}
+                onChange={(e) => setApproveData({ ...approveData, approvalDate: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Expiration Date</label>
+                <Input
+                  type="date"
+                  value={approveData.expirationDate}
+                  onChange={(e) => setApproveData({ ...approveData, expirationDate: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Inspection Date</label>
+                <Input
+                  type="date"
+                  value={approveData.inspectionDate}
+                  onChange={(e) => setApproveData({ ...approveData, inspectionDate: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Conditions/Requirements</label>
+              <Textarea
+                value={approveData.conditions}
+                onChange={(e) => setApproveData({ ...approveData, conditions: e.target.value })}
+                placeholder="Any special conditions or requirements..."
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApproveDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleApprovePermit} 
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Approve Permit
             </Button>
           </DialogFooter>
         </DialogContent>

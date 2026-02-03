@@ -86,6 +86,9 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [showNewModal, setShowNewModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectComments, setRejectComments] = useState('');
   const [selectedCO, setSelectedCO] = useState<ChangeOrder | null>(null);
   const [loading, setLoading] = useState(false);
   const [newCO, setNewCO] = useState({
@@ -175,6 +178,70 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
       }
     } catch (error) {
       toast.error('Failed to update change order');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (comments?: string) => {
+    if (!selectedCO) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/change-orders/${selectedCO.id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setChangeOrders(changeOrders.map(co => co.id === updated.id ? updated : co));
+        setSelectedCO(updated);
+        toast.success('Change order approved successfully');
+        router.refresh();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to approve change order');
+      }
+    } catch (error) {
+      toast.error('Failed to approve change order');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async (reason: string, comments?: string) => {
+    if (!selectedCO) return;
+
+    if (!reason) {
+      toast.error('Please provide a reason for rejection');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/change-orders/${selectedCO.id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason, comments })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setChangeOrders(changeOrders.map(co => co.id === updated.id ? updated : co));
+        setSelectedCO(updated);
+        setShowRejectDialog(false);
+        setRejectReason('');
+        setRejectComments('');
+        toast.success('Change order rejected');
+        router.refresh();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to reject change order');
+      }
+    } catch (error) {
+      toast.error('Failed to reject change order');
     } finally {
       setLoading(false);
     }
@@ -391,8 +458,21 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
                 )}
                 {selectedCO.status === 'PENDING_APPROVAL' && canApprove && (
                   <div className="flex justify-end gap-3 pt-4 border-t">
-                    <Button variant="outline" className="text-red-600 border-red-200" onClick={() => handleStatusChange('REJECTED')} disabled={loading}><XCircle className="w-4 h-4 mr-2" />Reject</Button>
-                    <Button className="bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange('APPROVED')} disabled={loading}><CheckCircle className="w-4 h-4 mr-2" />Approve</Button>
+                    <Button 
+                      variant="outline" 
+                      className="text-red-600 border-red-200 hover:bg-red-50" 
+                      onClick={() => setShowRejectDialog(true)} 
+                      disabled={loading}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />Reject
+                    </Button>
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700" 
+                      onClick={() => handleApprove()} 
+                      disabled={loading}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />Approve
+                    </Button>
                   </div>
                 )}
                 {selectedCO.status === 'APPROVED' && (
@@ -401,6 +481,57 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
               </div>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Change Order</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Reason for Rejection *</label>
+              <Textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Please provide a clear reason for rejecting this change order..."
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Additional Comments</label>
+              <Textarea
+                value={rejectComments}
+                onChange={(e) => setRejectComments(e.target.value)}
+                placeholder="Any additional feedback or suggestions (optional)..."
+                rows={2}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowRejectDialog(false);
+                setRejectReason('');
+                setRejectComments('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => handleReject(rejectReason, rejectComments)}
+              disabled={loading || !rejectReason}
+            >
+              <XCircle className="w-4 h-4 mr-2" />
+              Reject Change Order
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

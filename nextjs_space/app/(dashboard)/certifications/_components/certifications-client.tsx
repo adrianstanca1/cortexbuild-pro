@@ -81,6 +81,7 @@ export default function CertificationsClient({
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showNewModal, setShowNewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCert, setSelectedCert] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -238,6 +239,47 @@ export default function CertificationsClient({
     }
   };
 
+  const handleEdit = (cert: any) => {
+    setSelectedCert(cert);
+    setFormData({
+      workerId: cert.worker?.id || '',
+      certificationType: cert.certificationType,
+      certificationName: cert.certificationName,
+      cardNumber: cert.cardNumber || '',
+      issuingBody: cert.issuingBody || '',
+      issueDate: cert.issueDate ? format(new Date(cert.issueDate), 'yyyy-MM-dd') : '',
+      expiryDate: cert.expiryDate ? format(new Date(cert.expiryDate), 'yyyy-MM-dd') : '',
+      isLifetime: cert.isLifetime || false,
+      notes: cert.notes || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedCert) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/certifications/${selectedCert.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!res.ok) throw new Error('Failed to update');
+      
+      const updated = await res.json();
+      setCertifications(certifications.map(c => c.id === selectedCert.id ? updated : c));
+      setShowEditModal(false);
+      setSelectedCert(null);
+      toast.success('Certification updated successfully');
+    } catch (error) {
+      toast.error('Failed to update certification');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Training Matrix View
   const renderTrainingMatrix = () => {
     const workers = teamMembers.filter(tm => tm.user);
@@ -326,6 +368,66 @@ export default function CertificationsClient({
 
   return (
     <div className="p-6 space-y-6">
+      {/* Expiry Alerts */}
+      {(stats.expiringSoon > 0 || stats.expired > 0) && (
+        <div className="space-y-2">
+          {stats.expired > 0 && (
+            <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-900 dark:text-red-200">
+                      {stats.expired} {stats.expired === 1 ? 'Certification has' : 'Certifications have'} Expired
+                    </h3>
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      Immediate action required - workers may not be compliant for site work
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setActiveTab('expired')}
+                    className="border-red-200 text-red-700 hover:bg-red-100 dark:border-red-800 dark:text-red-400"
+                  >
+                    View Expired
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {stats.expiringSoon > 0 && (
+            <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-amber-900 dark:text-amber-200">
+                      {stats.expiringSoon} {stats.expiringSoon === 1 ? 'Certification' : 'Certifications'} Expiring Soon
+                    </h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      {stats.expiringSoon === 1 ? 'This certification expires' : 'These certifications expire'} within the next 30 days
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setActiveTab('expiring')}
+                    className="border-amber-200 text-amber-700 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-400"
+                  >
+                    View Expiring
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -548,6 +650,14 @@ export default function CertificationsClient({
                           <Button 
                             variant="ghost" 
                             size="sm"
+                            onClick={() => handleEdit(cert)}
+                            className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
                             onClick={() => handleDelete(cert.id)}
                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
                           >
@@ -679,6 +789,127 @@ export default function CertificationsClient({
             <Button onClick={handleCreate} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Add Certification
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Certification Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Certification</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Worker *</label>
+              <Select value={formData.workerId} onValueChange={(v) => setFormData({...formData, workerId: v})}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select worker" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers.filter(tm => tm.user?.id).map(tm => (
+                    <SelectItem key={tm.user.id} value={tm.user.id}>{tm.user.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Certification Type *</label>
+              <Select 
+                value={formData.certificationType} 
+                onValueChange={(v) => {
+                  const type = CERTIFICATION_TYPES.find(t => t.value === v);
+                  setFormData({...formData, certificationType: v, certificationName: type?.label || formData.certificationName});
+                }}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CERTIFICATION_TYPES.map(ct => (
+                    <SelectItem key={ct.value} value={ct.value}>{ct.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Certification Name *</label>
+              <Input 
+                className="mt-1"
+                value={formData.certificationName}
+                onChange={(e) => setFormData({...formData, certificationName: e.target.value})}
+                placeholder="e.g., First Aid Level 3"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Card Number</label>
+                <Input 
+                  className="mt-1"
+                  value={formData.cardNumber}
+                  onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
+                  placeholder="Optional"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Issuing Body</label>
+                <Input 
+                  className="mt-1"
+                  value={formData.issuingBody}
+                  onChange={(e) => setFormData({...formData, issuingBody: e.target.value})}
+                  placeholder="e.g., CITB"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Issue Date</label>
+                <Input 
+                  className="mt-1"
+                  type="date"
+                  value={formData.issueDate}
+                  onChange={(e) => setFormData({...formData, issueDate: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Expiry Date</label>
+                <Input 
+                  className="mt-1"
+                  type="date"
+                  value={formData.expiryDate}
+                  onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
+                  disabled={formData.isLifetime}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="editIsLifetime"
+                checked={formData.isLifetime}
+                onChange={(e) => setFormData({...formData, isLifetime: e.target.checked, expiryDate: e.target.checked ? '' : formData.expiryDate})}
+                className="rounded border-slate-300"
+              />
+              <label htmlFor="editIsLifetime" className="text-sm text-slate-700 dark:text-slate-300">Lifetime certification</label>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Notes</label>
+              <Input 
+                className="mt-1"
+                value={formData.notes}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                placeholder="Optional notes"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={loading}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={loading || !formData.workerId || !formData.certificationType || !formData.certificationName}>
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Update Certification
             </Button>
           </DialogFooter>
         </DialogContent>
