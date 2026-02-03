@@ -208,7 +208,7 @@ setup_environment() {
         DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-32)
         sed -i "s|YOUR_PASSWORD_HERE|$DB_PASSWORD|g" .env
         sed -i "s|<YOUR_PASSWORD[^>]*>|$DB_PASSWORD|gi" .env
-        sed -i "s|^POSTGRES_PASSWORD=REPLACE_WITH_PASSWORD$|POSTGRES_PASSWORD=$DB_PASSWORD|g" .env
+        sed -i "s|^POSTGRES_PASSWORD=REPLACE_WITH_PASSWORD$|POSTGRES_PASSWORD=$DB_PASSWORD|" .env
         sed -i "s|changeme123|$DB_PASSWORD|gi" .env
         
         log_success "Secure secrets generated"
