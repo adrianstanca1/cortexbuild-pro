@@ -3,11 +3,12 @@
 import { useState, useCallback } from 'react';
 import { format, _isPast, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   Truck, Plus, Search, Wrench, MapPin, _Calendar, _PoundSterling,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
-  ChevronRight, _Clock, _Filter, LayoutGrid, List, AlertCircle
+  ChevronRight, _Clock, _Filter, LayoutGrid, List, AlertCircle, Eye
 } from 'lucide-react';
 import { Card, CardContent, _CardHeader, _CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -365,6 +366,12 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link href={`/equipment/${item.id}`} className="flex-shrink-0">
+                      <Button size="sm" variant="outline" className="h-9">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </Link>
                     {item.status === 'AVAILABLE' && (
                       <Select onValueChange={(projectId) => handleStatusUpdate(item.id, 'IN_USE', projectId)}>
                         <SelectTrigger className="flex-1 h-9 text-sm">
