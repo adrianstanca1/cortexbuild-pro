@@ -7,7 +7,7 @@ This document describes the security improvements made to the CortexBuild Pro pr
 
 ### ✅ All Vulnerabilities Fixed (57 vulnerabilities resolved)
 
-1. **Next.js**: Upgraded from 14.2.28 to 15.5.11
+1. **Next.js**: Upgraded from 14.2.35 to 15.5.11
    - Fixed 7 critical security vulnerabilities including cache key confusion, SSRF, content injection, and multiple DoS vulnerabilities
    - Fixed the remaining HTTP request deserialization DoS vulnerability (CVE affecting versions >= 13.0.0, < 15.0.8)
    - Successfully migrated to Next.js 15 with async params pattern
