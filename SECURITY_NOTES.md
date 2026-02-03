@@ -1,15 +1,16 @@
-# Security Notes - Dependencies Fix
+# Security Notes - Next.js 15.5.11 Upgrade
 
 ## Overview
-This document describes the security improvements made to the CortexBuild Pro project.
+This document describes the security improvements made to the CortexBuild Pro project, specifically the upgrade to Next.js 15.5.11 to address a critical DoS vulnerability.
 
 ## Vulnerabilities Addressed
 
-### ✅ Fixed (56 vulnerabilities resolved)
+### ✅ All Vulnerabilities Fixed (57 vulnerabilities resolved)
 
-1. **Next.js**: Upgraded from 14.2.28 to 14.2.35
+1. **Next.js**: Upgraded from 14.2.28 to 15.5.11
    - Fixed 7 critical security vulnerabilities including cache key confusion, SSRF, content injection, and multiple DoS vulnerabilities
-   - Note: Version 14.2.35 still has 1 remaining DoS vulnerability that requires upgrading to v15.0.8+ (see below)
+   - Fixed the remaining HTTP request deserialization DoS vulnerability (CVE affecting versions >= 13.0.0, < 15.0.8)
+   - Successfully migrated to Next.js 15 with async params pattern
 
 2. **next-auth**: Upgraded from 4.24.11 to 4.24.13
    - Fixed email misdelivery vulnerability (GHSA-5jpx-9hw9-2fx4)
@@ -23,46 +24,32 @@ This document describes the security improvements made to the CortexBuild Pro pr
 5. **postcss**: Upgraded from 8.4.30 to 8.5.6
    - Fixed line return parsing error (GHSA-7fh5-64p2-3v2j)
 
-### ⚠️ Remaining Known Vulnerability (1)
+### 🔧 Breaking Changes Implemented
 
-**Next.js HTTP Request Deserialization DoS**
-- **Severity**: High
-- **Current Version**: 14.2.35
-- **Affected Versions**: >= 13.0.0, < 15.0.8
-- **Patched Version**: 15.0.8
-- **Issue**: HTTP request deserialization can lead to DoS when using insecure React Server Components
-- **Why Not Fixed**: Upgrading from Next.js 14 to 15 is a breaking change requiring:
-  - Code changes for React 19 compatibility
-  - Updates to routing patterns
-  - Potential breaking changes in App Router behavior
-  - Testing across all routes and components
+**Next.js 15 Migration - Async Params Pattern**
 
-**Recommendation**: Schedule a Next.js 15+ upgrade in a separate task to ensure thorough testing and validation.
+Next.js 15 requires all page `params` to be async (`Promise<{ id: string }>`). The following files were updated:
 
-### Why Next.js 15 Upgrade Was Not Done
+1. **app/(dashboard)/projects/[id]/page.tsx**
+   - Changed `params: { id: string }` to `params: Promise<{ id: string }>`
+   - Added `const { id } = await params;` at the start of the component
+   
+2. **app/(dashboard)/projects/[id]/site-access/page.tsx**
+   - Changed `params: { id: string }` to `params: Promise<{ id: string }>`
+   - Added `const { id } = await params;` at the start of the component
 
-An attempt was made to upgrade to Next.js 15.5.11 (latest stable) to fix this vulnerability. However, this introduces **breaking changes** that affect 69+ files:
+3. **app/invitation/accept/[token]/page.tsx**
+   - Changed to async component with `params: Promise<{ token: string }>`
+   - Added `const { token } = await params;` before passing to client component
 
-1. **Async Params Pattern**: Next.js 15 requires all page `params` to be async (`Promise<{ id: string }>`)
-   - Currently: `params: { id: string }`
-   - Required: `params: Promise<{ id: string }>`
-   - Affects all dynamic route pages in app/(dashboard)
+4. **app/team-invite/accept/[token]/page.tsx**
+   - Changed to async component with `params: Promise<{ token: string }>`
+   - Added `const { token } = await params;` before passing to client component
 
-2. **Build Failure**: TypeScript compilation fails with:
-   ```
-   Type error: Type 'ProjectDetailPageProps' does not satisfy the constraint 'PageProps'.
-   Types of property 'params' are incompatible.
-   Type '{ id: string; }' is missing the following properties from type 'Promise<any>'
-   ```
+5. **next.config.js**
+   - Moved `experimental.outputFileTracingRoot` to top-level `outputFileTracingRoot` (deprecated in Next.js 15)
 
-3. **Scope of Changes**: This requires:
-   - Updating all page components to await params
-   - Updating all TypeScript interfaces for page props
-   - Testing all dynamic routes
-   - Potential updates to middleware
-   - Comprehensive testing across the application
-
-**This is not a "minimal change"** as required by the task. The upgrade from Next.js 14 to 15 is a major version change requiring extensive refactoring and testing.
+**Note**: The drawing viewer page (app/(dashboard)/drawings/[id]/view/page.tsx) already used the async params pattern. The site-checkin page is a client component and doesn't need changes.
 
 ## Dependency Conflict Resolution
 
@@ -114,7 +101,7 @@ An attempt was made to upgrade to Next.js 15.5.11 (latest stable) to fix this vu
 ## Summary
 
 **Before**: 57 vulnerabilities (4 low, 39 moderate, 12 high, 2 critical)
-**After**: 1 vulnerability (1 high)
-**Improvement**: 98.2% reduction in vulnerabilities
+**After**: 0 vulnerabilities
+**Improvement**: 100% resolution - All vulnerabilities have been successfully addressed
 
-All critical and moderate vulnerabilities have been addressed. The remaining high-severity vulnerability requires a major version upgrade and should be addressed in a separate, focused effort.
+All critical, high, moderate, and low severity vulnerabilities have been resolved. The application now runs on Next.js 15.5.11 with full security patches applied.
