@@ -2,6 +2,15 @@
 
 Complete guide to deploy CortexBuild Pro on your private VPS.
 
+## 📌 Version Management
+
+The current version is tracked in the `VERSION` file at the repository root. Version information is:
+- Displayed during deployment scripts
+- Available via API at `/api/version`
+- Shown in the application footer
+
+Current version: **1.0.0**
+
 ## 📦 Prerequisites
 
 ### Server Requirements

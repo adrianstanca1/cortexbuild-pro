@@ -1,0 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+interface VersionInfo {
+  version: string;
+  name: string;
+  environment: string;
+}
+
+export function DashboardFooter() {
+  const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/version")
+      .then((res) => res.json())
+      .then((data) => setVersionInfo(data))
+      .catch((err) => console.error("Failed to fetch version:", err));
+  }, []);
+
+  if (!versionInfo) return null;
+
+  return (
+    <footer className="border-t bg-background py-4 px-6 text-sm text-muted-foreground">
+      <div className="flex items-center justify-between">
+        <div>
+          {versionInfo.name} v{versionInfo.version}
+        </div>
+        <div className="text-xs">
+          {versionInfo.environment === "production" ? "Production" : "Development"}
+        </div>
+      </div>
+    </footer>
+  );
+}

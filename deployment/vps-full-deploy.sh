@@ -1,8 +1,12 @@
 #!/bin/bash
 set -e
 
+# Read version from VERSION file
+VERSION=$(cat VERSION 2>/dev/null || echo "unknown")
+
 echo "========================================"
 echo "CortexBuild Pro - Full VPS Deployment"
+echo "Version: $VERSION"
 echo "========================================"
 
 # Configuration
@@ -111,6 +115,7 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/auth/providers 
 echo ""
 echo "========================================"
 echo_info "Deployment Complete!"
+echo "Version: $VERSION"
 echo "========================================"
 echo ""
 echo "Application URL: https://cortexbuildpro.com"
