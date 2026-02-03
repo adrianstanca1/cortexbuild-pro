@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   Users,
   Plus,
@@ -21,7 +22,11 @@ import {
   X,
   Check,
   Eye,
-  Key
+  Key,
+  Download,
+  Upload,
+  UserCheck,
+  CheckSquare
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,6 +90,7 @@ const roleColors: Record<string, string> = {
 };
 
 export function UsersManagementClient() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
@@ -277,9 +283,9 @@ export function UsersManagementClient() {
         toast.success(`Now impersonating ${user.name}. Redirecting...`);
         // Store impersonation data in session storage for the banner
         sessionStorage.setItem("impersonation", JSON.stringify(data.impersonationData));
-        // Redirect to dashboard
+        // Redirect to dashboard using Next.js router
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          router.push("/dashboard");
         }, 1000);
       } else {
         toast.error(data.error || "Failed to start impersonation");
@@ -378,27 +384,42 @@ export function UsersManagementClient() {
       const data = await res.json();
 
       if (res.ok) {
-        // Create CSV content
+        // Helper function to properly escape CSV values
+        const escapeCSV = (value: string | number | null | undefined): string => {
+          if (value === null || value === undefined) return "";
+          const strValue = String(value);
+          // Escape potential formula injection
+          if (strValue.startsWith("=") || strValue.startsWith("+") || strValue.startsWith("-") || strValue.startsWith("@")) {
+            return `"'${strValue.replace(/"/g, '""')}"`;
+          }
+          // Escape values with commas, quotes, or newlines
+          if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+            return `"${strValue.replace(/"/g, '""')}"`;
+          }
+          return strValue;
+        };
+
+        // Create CSV content with proper escaping
         const csv = [
-          ["ID", "Name", "Email", "Role", "Organization", "Phone", "Created At", "Last Login"].join(","),
+          ["Name", "Email", "Role", "Organization", "Phone", "Created At", "Last Login"].join(","),
           ...data.users.map((u: any) => [
-            u.id,
-            u.name,
-            u.email,
-            u.role,
-            u.organization?.name || "",
-            u.phone || "",
-            new Date(u.createdAt).toISOString(),
-            u.lastLogin ? new Date(u.lastLogin).toISOString() : ""
+            escapeCSV(u.name),
+            escapeCSV(u.email),
+            escapeCSV(u.role),
+            escapeCSV(u.organization?.name),
+            escapeCSV(u.phone),
+            escapeCSV(new Date(u.createdAt).toISOString()),
+            escapeCSV(u.lastLogin ? new Date(u.lastLogin).toISOString() : "")
           ].join(","))
         ].join("\n");
 
-        // Download CSV
+        // Download CSV with timestamp in filename
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-").split("T")[0];
         const blob = new Blob([csv], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `users-export-${new Date().toISOString().split("T")[0]}.csv`;
+        a.download = `users-export-${timestamp}.csv`;
         a.click();
         window.URL.revokeObjectURL(url);
 

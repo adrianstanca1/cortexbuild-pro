@@ -108,12 +108,17 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { originalAdminId, impersonatedUserId } = body;
+
+    // Verify the session user ID matches the originalAdminId
+    if (session.user.id !== originalAdminId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
     // Log the end of impersonation
     await prisma.activityLog.create({

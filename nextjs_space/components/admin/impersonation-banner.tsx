@@ -4,6 +4,24 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+interface ImpersonationData {
+  originalAdmin: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  targetUser: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    organizationId: string | null;
+    avatarUrl: string | null;
+  };
+  impersonationStarted: string;
+}
 
 /**
  * Impersonation Banner
@@ -11,18 +29,49 @@ import { Button } from "@/components/ui/button";
  * Displayed at the top of the page to make it clear the admin is in impersonation mode
  */
 export function ImpersonationBanner() {
-  const [impersonationData, setImpersonationData] = useState<any>(null);
+  const [impersonationData, setImpersonationData] = useState<ImpersonationData | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if we're in impersonation mode
-    const data = sessionStorage.getItem("impersonation");
-    if (data) {
+    const updateImpersonationData = () => {
+      const data = sessionStorage.getItem("impersonation");
+      if (!data) {
+        setImpersonationData(null);
+        return;
+      }
       try {
         setImpersonationData(JSON.parse(data));
       } catch (e) {
-        console.error("Failed to parse impersonation data:", e);
+        console.error(
+          "Failed to parse impersonation data from sessionStorage key 'impersonation'. Raw value:",
+          data,
+          e
+        );
+        // Clear corrupted impersonation data to avoid repeated failures
+        sessionStorage.removeItem("impersonation");
+        // Notify the admin that the impersonation session was corrupted
+        if (typeof window !== "undefined") {
+          window.alert(
+            "Your impersonation session data was corrupted and has been cleared. Please start a new impersonation session."
+          );
+        }
+        setImpersonationData(null);
       }
-    }
+    };
+
+    // Initial check when the component mounts
+    updateImpersonationData();
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.storageArea === sessionStorage && event.key === "impersonation") {
+        updateImpersonationData();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const handleEndImpersonation = async () => {
@@ -42,8 +91,8 @@ export function ImpersonationBanner() {
       // Clear session storage
       sessionStorage.removeItem("impersonation");
       
-      // Redirect back to admin panel
-      window.location.href = "/admin/users";
+      // Redirect back to admin panel using Next.js router
+      router.push("/admin/users");
     } catch (error) {
       console.error("Failed to end impersonation:", error);
     }

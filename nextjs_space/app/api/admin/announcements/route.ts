@@ -17,7 +17,7 @@ import { broadcastToAll } from "@/lib/realtime-clients";
 export async function GET(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -82,11 +82,31 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+    // Validate title and message length
+    if (title.length > 200) {
+      return NextResponse.json({ 
+        error: "Title must be 200 characters or less" 
+      }, { status: 400 });
+    }
+
+    if (message.length > 2000) {
+      return NextResponse.json({ 
+        error: "Message must be 2000 characters or less" 
+      }, { status: 400 });
+    }
+
     // Validate severity
     const validSeverities = ["info", "warning", "error", "success"];
     if (!validSeverities.includes(severity)) {
       return NextResponse.json({ 
         error: "Invalid severity. Must be: info, warning, error, or success" 
+      }, { status: 400 });
+    }
+
+    // Validate expiresAt is in the future if provided
+    if (expiresAt && new Date(expiresAt) <= new Date()) {
+      return NextResponse.json({ 
+        error: "Expiration date must be in the future" 
       }, { status: 400 });
     }
 
@@ -152,6 +172,15 @@ export async function DELETE(req: NextRequest) {
 
     if (!announcementId) {
       return NextResponse.json({ error: "Missing announcement ID" }, { status: 400 });
+    }
+
+    // Check if announcement exists
+    const announcement = await prisma.activityLog.findUnique({
+      where: { id: announcementId }
+    });
+
+    if (!announcement) {
+      return NextResponse.json({ error: "Announcement not found" }, { status: 404 });
     }
 
     // Delete the announcement

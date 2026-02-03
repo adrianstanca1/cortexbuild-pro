@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing action parameter" }, { status: 400 });
     }
 
-    let result: any = { success: true };
+    let result: any;
 
     switch (action) {
       case "delete":
@@ -40,6 +40,13 @@ export async function POST(req: NextRequest) {
         if (superAdmins > 0) {
           return NextResponse.json({ 
             error: "Cannot bulk delete super admin users" 
+          }, { status: 403 });
+        }
+
+        // Prevent deleting the currently authenticated user
+        if (userIds.includes(session.user.id)) {
+          return NextResponse.json({
+            error: "Cannot delete your own account"
           }, { status: 403 });
         }
 
@@ -83,6 +90,13 @@ export async function POST(req: NextRequest) {
         if (existingSuperAdmins > 0) {
           return NextResponse.json({ 
             error: "Cannot bulk change role of super admin users" 
+          }, { status: 403 });
+        }
+
+        // Prevent modifying the currently authenticated user's role
+        if (userIds.includes(session.user.id)) {
+          return NextResponse.json({ 
+            error: "Cannot modify your own role" 
           }, { status: 403 });
         }
 
@@ -148,6 +162,13 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: "Missing or invalid users array" }, { status: 400 });
         }
 
+        // Limit batch size to prevent performance issues
+        if (data.users.length > 1000) {
+          return NextResponse.json({ 
+            error: "Cannot import more than 1000 users at once" 
+          }, { status: 400 });
+        }
+
         const importResults = {
           success: 0,
           failed: 0,
@@ -197,7 +218,9 @@ export async function POST(req: NextRequest) {
             importResults.failed++;
             importResults.errors.push({
               email: userData.email,
-              error: error.message || "Failed to create user"
+              error: error?.message || "Failed to create user",
+              code: error?.code,
+              field: error?.meta?.target
             });
           }
         }
