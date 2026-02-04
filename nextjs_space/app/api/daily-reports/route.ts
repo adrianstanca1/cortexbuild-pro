@@ -33,16 +33,16 @@ export async function GET(request: NextRequest) {
     if (startDate) dateFilter.gte = new Date(startDate);
     if (endDate) dateFilter.lte = new Date(endDate);
 
-    const where: any = {
-      project: { organizationId }, // Filter by organization via project relation
-      ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
-    };
-
-    // If specific project requested, override with exact projectId
-    if (projectId) {
-      where.projectId = projectId;
-      delete where.project;
-    }
+    // Build where clause conditionally
+    const where: any = projectId
+      ? { 
+          projectId,
+          ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
+        }
+      : { 
+          project: { organizationId },
+          ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
+        };
 
     const [reports, total] = await Promise.all([
       prisma.dailyReport.findMany({

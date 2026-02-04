@@ -247,8 +247,8 @@ export async function POST(req: NextRequest) {
           })
         );
 
-        // Filter out failed password hashes
-        const usersToCreate = usersWithHashedPasswords.filter(u => u !== null);
+        // Filter out failed password hashes with type predicate
+        const usersToCreate = usersWithHashedPasswords.filter((u): u is NonNullable<typeof u> => u !== null);
 
         // Batch create all users at once
         if (usersToCreate.length > 0) {

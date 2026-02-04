@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           const validTasks = tasks.filter(task => task.title && task.projectId);
           
           if (validTasks.length > 0) {
-            // Use createMany for batch insert (much faster)
+            // Use createMany for batch insert (much faster than individual creates)
             const tasksData = validTasks.map(task => ({
               title: task.title!,
               description: task.description || '',
@@ -86,9 +86,14 @@ export async function POST(request: NextRequest) {
             });
             processed = createResult.count;
 
-            // Fetch created tasks for results (if needed)
-            // Note: createMany doesn't return created records, so we skip detailed results for performance
-            results.push({ created: processed });
+            // Note: For performance, batch create (createMany) returns count only, 
+            // not individual task objects. This is documented in the API response schema.
+            // Clients should handle the response format: { success: true, created: N, message: "..." }
+            results.push({ 
+              success: true, 
+              created: processed,
+              message: `Successfully created ${processed} tasks`
+            });
           }
 
           broadcastToOrganization(user.organizationId, {

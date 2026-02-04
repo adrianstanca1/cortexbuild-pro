@@ -124,8 +124,9 @@ export async function dispatchWebhook(
           }
         }
       })
-    ).catch(() => {
-      // Silently handle errors in background delivery
+    ).catch((error) => {
+      // Log errors but don't block - fire-and-forget pattern
+      console.error('Webhook delivery error (non-blocking):', error);
     });
 
     // Return immediately without waiting for webhook deliveries
