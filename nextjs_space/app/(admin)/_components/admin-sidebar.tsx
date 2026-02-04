@@ -17,7 +17,16 @@ import {
   Settings,
   Terminal,
   Key,
-  Megaphone
+  Megaphone,
+  BarChart3,
+  HardDrive,
+  Calendar,
+  FileText,
+  Lock,
+  Gauge,
+  Zap,
+  Fingerprint,
+  Webhook
 } from "lucide-react";
 
 const adminNavItems = [
@@ -32,6 +41,15 @@ const adminNavItems = [
   { href: "/admin/activity", label: "Activity Monitor", icon: Activity, description: "Real-time events" },
   { href: "/admin/storage", label: "Storage & Data", icon: Database, description: "File management" },
   { href: "/admin/platform-settings", label: "Platform Settings", icon: Settings, description: "Configuration" },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3, description: "Data insights" },
+  { href: "/admin/backup-restore", label: "Backup & Restore", icon: HardDrive, description: "Data backups" },
+  { href: "/admin/scheduled-tasks", label: "Scheduled Tasks", icon: Calendar, description: "Automation" },
+  { href: "/admin/custom-reports", label: "Custom Reports", icon: FileText, description: "Report builder" },
+  { href: "/admin/permissions", label: "Permissions", icon: Lock, description: "Access control" },
+  { href: "/admin/quotas", label: "Resource Quotas", icon: Gauge, description: "Usage limits" },
+  { href: "/admin/rate-limits", label: "Rate Limits", icon: Zap, description: "API throttling" },
+  { href: "/admin/mfa", label: "MFA Management", icon: Fingerprint, description: "Security" },
+  { href: "/admin/webhooks", label: "Webhooks", icon: Webhook, description: "Integrations" },
 ];
 
 export function AdminSidebar() {
