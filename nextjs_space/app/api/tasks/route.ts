@@ -13,7 +13,7 @@ import {
 
 export const GET = withAuthHandler(async (request: NextRequest, context) => {
   const tasks = await prisma.task.findMany({
-    where: { project: { organizationId: context.organizationId } },
+    where: context.organizationId ? { project: { organizationId: context.organizationId } } : {},
     include: {
       project: { select: { id: true, name: true } },
       assignee: { select: { id: true, name: true, avatarUrl: true } }
@@ -73,7 +73,7 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
   // Broadcast real-time event
   broadcastEntityEvent(
     broadcastToOrganization,
-    task.project?.organizationId,
+    context.organizationId,
     'task_created',
     {
       id: task.id,

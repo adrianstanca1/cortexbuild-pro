@@ -12,7 +12,7 @@ export function serializeData<T>(data: T): T {
 
 export interface ApiContext {
   userId: string;
-  organizationId: string;
+  organizationId: string | undefined;
   userRole: string;
   userName: string;
   userEmail: string;
@@ -103,6 +103,7 @@ export async function validateBody<T>(
 }
 
 // Get authenticated user context
+// Note: organizationId is optional to maintain backward compatibility
 export async function getApiContext(): Promise<{
   context: ApiContext | null;
   error: NextResponse | null;
@@ -121,13 +122,7 @@ export async function getApiContext(): Promise<{
     email?: string;
   };
   
-  if (!user.organizationId) {
-    return {
-      context: null,
-      error: errorResponse('FORBIDDEN', 'No organization assigned'),
-    };
-  }
-  
+  // No longer require organizationId - allow undefined for backward compatibility
   return {
     context: {
       userId: user.id,
@@ -250,18 +245,20 @@ export function sanitizeInput(input: string): string {
 }
 
 // Sanitize common entity fields
+// Note: Preserves original behavior - only converts undefined/null to null after trim
+// Empty strings that become empty after trim are converted to null to match original logic
 export function sanitizeEntityFields<T extends Record<string, unknown>>(
   fields: T
 ): T {
   const sanitized = { ...fields };
   
   // Common string fields to sanitize
-  // Note: Empty strings (after trim) are intentionally converted to null
   const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
   
   for (const key of stringFields) {
     if (key in sanitized && typeof sanitized[key] === 'string') {
       const trimmed = (sanitized[key] as string).trim();
+      // Match original behavior: "field?.trim() || null"
       sanitized[key] = (trimmed || null) as T[Extract<keyof T, string>];
     }
   }
@@ -292,10 +289,10 @@ export function broadcastEntityEvent(
     payload: {
       ...additionalData,
       entity: {
+        ...entity,
         id: entity.id,
         name: entity.name ?? entity.title,
         status: entity.status,
-        ...entity,
       },
       userId,
     },

@@ -106,15 +106,47 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
 // =====================================================
 // PRE-BUILT EMAIL TEMPLATES
-// Re-export from unified email templates
+// Re-export from unified email templates with backward compatibility
 // =====================================================
 
 export {
   generateCompanyInvitationEmail,
-  generateTeamInvitationEmail,
   generatePasswordResetEmail,
   generateNotificationEmail,
   type CompanyInvitationTemplateParams,
   type TeamInvitationTemplateParams,
   type PasswordResetTemplateParams,
 } from './email-templates';
+
+// Backward compatible wrapper for generateTeamInvitationEmail
+// Accepts simpler parameters for existing code
+import { 
+  generateTeamInvitationEmail as generateTeamInvitationEmailNew,
+  type TeamInvitationTemplateParams 
+} from './email-templates';
+
+export function generateTeamInvitationEmail(
+  params: TeamInvitationTemplateParams | {
+    memberName: string;
+    inviterName: string;
+    organizationName: string;
+    role: string;
+    acceptUrl: string;
+  }
+): string {
+  // Check if it's the old format (missing new required fields)
+  if (!('memberEmail' in params) || !('expiresAt' in params)) {
+    // Old format - add default values for new required fields
+    return generateTeamInvitationEmailNew({
+      memberName: params.memberName,
+      memberEmail: '', // Default empty since old format didn't have this
+      inviterName: params.inviterName,
+      organizationName: params.organizationName,
+      role: params.role,
+      acceptUrl: params.acceptUrl,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 7 days
+    });
+  }
+  // New format - pass through
+  return generateTeamInvitationEmailNew(params as TeamInvitationTemplateParams);
+}

@@ -30,24 +30,24 @@ export const taskStatusColors = {
 // Task priority configuration
 export const taskPriorityConfig = {
   LOW: { 
-    bg: "bg-slate-100", 
-    text: "text-slate-600", 
-    border: "border-slate-200" 
+    bg: "bg-slate-100 dark:bg-slate-800", 
+    text: "text-slate-600 dark:text-slate-300", 
+    border: "border-slate-200 dark:border-slate-700" 
   },
   MEDIUM: { 
-    bg: "bg-blue-100", 
-    text: "text-blue-700", 
-    border: "border-blue-200" 
+    bg: "bg-blue-100 dark:bg-blue-900/30", 
+    text: "text-blue-700 dark:text-blue-300", 
+    border: "border-blue-200 dark:border-blue-700" 
   },
   HIGH: { 
-    bg: "bg-orange-100", 
-    text: "text-orange-700", 
-    border: "border-orange-200" 
+    bg: "bg-orange-100 dark:bg-orange-900/30", 
+    text: "text-orange-700 dark:text-orange-300", 
+    border: "border-orange-200 dark:border-orange-700" 
   },
   CRITICAL: { 
-    bg: "bg-red-100", 
-    text: "text-red-700", 
-    border: "border-red-200" 
+    bg: "bg-red-100 dark:bg-red-900/30", 
+    text: "text-red-700 dark:text-red-300", 
+    border: "border-red-200 dark:border-red-700" 
   }
 } as const;
 

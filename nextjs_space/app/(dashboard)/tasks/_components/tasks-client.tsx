@@ -41,10 +41,6 @@ interface TasksClientProps {
   teamMembers: TeamMember[];
 }
 
-// Re-export for use in this component
-const statusColors = taskStatusColors;
-const priorityConfig = taskPriorityConfig;
-
 export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -435,8 +431,8 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
         <div className="space-y-3">
           {filteredTasks?.map((task: any) => {
             const isOverdue = task?.dueDate && isPast(new Date(task.dueDate)) && task?.status !== "COMPLETE";
-            const statusStyle = statusColors[task?.status as keyof typeof statusColors] || statusColors.TODO;
-            const priorityStyle = priorityConfig[task?.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
+            const statusStyle = taskStatusColors[task?.status as keyof typeof taskStatusColors] || taskStatusColors.TODO;
+            const priorityStyle = taskPriorityConfig[task?.priority as keyof typeof taskPriorityConfig] || taskPriorityConfig.MEDIUM;
 
             return (
               <Card
