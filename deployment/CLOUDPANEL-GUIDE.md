@@ -189,7 +189,7 @@ git pull origin main
 npm install
 
 # Run migrations
-npm run prisma migrate deploy
+npm run prisma:migrate:deploy
 
 # Rebuild
 npm run build

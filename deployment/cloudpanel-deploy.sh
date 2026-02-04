@@ -109,20 +109,20 @@ echo -e "${GREEN}✓ Dependencies installed${NC}"
 
 # Generate Prisma client
 echo -e "${YELLOW}[5/8] Generating Prisma client...${NC}"
-npm run prisma generate
+npm run prisma:generate
 echo -e "${GREEN}✓ Prisma client generated${NC}"
 
 # Run database migrations
 echo -e "${YELLOW}[6/8] Running database migrations...${NC}"
-npm run prisma migrate deploy || {
+npm run prisma:migrate:deploy || {
     echo -e "${YELLOW}  Attempting db push instead...${NC}"
-    npm run prisma db push -- --accept-data-loss
+    npm run prisma:db:push -- --accept-data-loss
 }
 echo -e "${GREEN}✓ Database schema synchronized${NC}"
 
 # Seed database
 echo -e "${YELLOW}[7/8] Seeding database...${NC}"
-npm run prisma db seed 2>/dev/null || {
+npm run prisma:db:seed 2>/dev/null || {
     echo -e "${YELLOW}  Database already seeded or seed failed (non-critical)${NC}"
 }
 echo -e "${GREEN}✓ Database seeding complete${NC}"

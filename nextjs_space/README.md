@@ -155,8 +155,10 @@ Key API routes include:
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm start` - Start production server
-- `npm run prisma generate` - Generate Prisma client
-- `npm run prisma db push` - Push schema to database
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:db:push` - Push schema to database
+- `npm run prisma:db:seed` - Seed the database
+- `npm run prisma:studio` - Open Prisma Studio
 
 ## License
 
