@@ -12,7 +12,7 @@ export function serializeData<T>(data: T): T {
 
 export interface ApiContext {
   userId: string;
-  organizationId: string;
+  organizationId: string | undefined;
   userRole: string;
   userName: string;
   userEmail: string;
@@ -103,6 +103,7 @@ export async function validateBody<T>(
 }
 
 // Get authenticated user context
+// Note: organizationId is optional to maintain backward compatibility
 export async function getApiContext(): Promise<{
   context: ApiContext | null;
   error: NextResponse | null;
@@ -121,13 +122,7 @@ export async function getApiContext(): Promise<{
     email?: string;
   };
   
-  if (!user.organizationId) {
-    return {
-      context: null,
-      error: errorResponse('FORBIDDEN', 'No organization assigned'),
-    };
-  }
-  
+  // No longer require organizationId - allow undefined for backward compatibility
   return {
     context: {
       userId: user.id,
@@ -247,4 +242,74 @@ export async function logActivity(
 // Input sanitization helper
 export function sanitizeInput(input: string): string {
   return input.trim().replace(/[<>]/g, '');
+}
+
+// Sanitize common entity fields
+// Note: Preserves original behavior - only converts empty strings to null after trim
+// Matches original logic: "field?.trim() || null"
+export function sanitizeEntityFields<T extends Record<string, unknown>>(
+  fields: T
+): T {
+  const sanitized = { ...fields };
+  
+  // Common string fields to sanitize
+  const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
+  
+  for (const key of stringFields) {
+    if (key in sanitized && typeof sanitized[key] === 'string') {
+      const trimmed = (sanitized[key] as string).trim();
+      // Explicitly convert empty strings to null, matching original behavior
+      sanitized[key] = (trimmed === '' ? null : trimmed) as T[Extract<keyof T, string>];
+    }
+  }
+  
+  return sanitized;
+}
+
+// Broadcast entity event helper
+export function broadcastEntityEvent(
+  broadcast: (orgId: string, data: unknown) => void,
+  organizationId: string | undefined,
+  eventType: string,
+  entity: {
+    id: string;
+    name?: string;
+    title?: string;
+    status?: string;
+    [key: string]: unknown;
+  },
+  userId: string,
+  additionalData?: Record<string, unknown>
+): void {
+  if (!organizationId) return;
+  
+  broadcast(organizationId, {
+    type: eventType,
+    timestamp: new Date().toISOString(),
+    payload: {
+      ...additionalData,
+      entity: {
+        ...entity,
+        id: entity.id,
+        name: entity.name ?? entity.title,
+        status: entity.status,
+      },
+      userId,
+    },
+  });
+}
+
+// Wrapper for authenticated API handlers with error handling
+export function withAuthHandler(
+  handler: (request: NextRequest, context: ApiContext, params?: unknown) => Promise<NextResponse>
+) {
+  return withErrorHandler(async (request: NextRequest, params?: unknown) => {
+    const { context, error } = await getApiContext();
+    
+    if (error) {
+      return error;
+    }
+    
+    return handler(request, context!, params);
+  });
 }

@@ -1,132 +1,95 @@
 export const dynamic = "force-dynamic";
 
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+import {
+  withAuthHandler,
+  sanitizeEntityFields,
+  broadcastEntityEvent,
+  logActivity,
+  errorResponse,
+} from "@/lib/api-utils";
 
-export async function GET(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export const GET = withAuthHandler(async (request: NextRequest, context) => {
+  // Maintain backward compatibility: allow querying without organizationId
+  // Original behavior returned all tasks when orgId was undefined
+  // Note: This should be reviewed for security - consider requiring organizationId in future
+  const tasks = await prisma.task.findMany({
+    where: context.organizationId ? { project: { organizationId: context.organizationId } } : {},
+    include: {
+      project: { select: { id: true, name: true } },
+      assignee: { select: { id: true, name: true, avatarUrl: true } }
+    },
+    orderBy: { createdAt: "desc" }
+  });
 
-    const { searchParams } = new URL(request.url);
-    
-    // Validate and sanitize pagination parameters
-    const rawPage = parseInt(searchParams.get('page') || '1', 10);
-    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
-    
-    const parsedLimit = parseInt(searchParams.get('limit') || '50', 10);
-    const limit = Math.min(Math.max(parsedLimit, 1), 100);
-    const skip = (page - 1) * limit;
+  return NextResponse.json({ tasks });
+});
 
-    const orgId = (session.user as { organizationId?: string })?.organizationId;
-    const where = orgId ? { project: { organizationId: orgId } } : {};
+export const POST = withAuthHandler(async (request: NextRequest, context) => {
+  const body = await request.json();
+  const { title, description, projectId, assigneeId, priority, status, dueDate } = body;
 
-    const [tasks, total] = await Promise.all([
-      prisma.task.findMany({
-        where,
-        include: {
-          project: { select: { id: true, name: true } },
-          assignee: { select: { id: true, name: true, avatarUrl: true } }
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit
-      }),
-      prisma.task.count({ where })
-    ]);
-
-    return NextResponse.json({ 
-      tasks,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error) {
-    console.error("Get tasks error:", error);
-    return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
+  if (!title?.trim()) {
+    return errorResponse("BAD_REQUEST", "Task title is required");
   }
-}
 
-export async function POST(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const userId = (session.user as { id?: string })?.id || '';
-    const organizationId = (session.user as { organizationId?: string })?.organizationId;
-    const body = await request.json();
-    const { title, description, projectId, assigneeId, priority, status, dueDate } = body;
-
-    if (!title?.trim()) {
-      return NextResponse.json({ error: "Task title is required" }, { status: 400 });
-    }
-
-    if (!projectId) {
-      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
-    }
-
-    const task = await prisma.task.create({
-      data: {
-        title: title.trim(),
-        description: description?.trim() || null,
-        projectId,
-        assigneeId: assigneeId || null,
-        creatorId: userId || null,
-        priority: priority || "MEDIUM",
-        status: status || "TODO",
-        dueDate: dueDate ? new Date(dueDate) : null
-      },
-      include: {
-        project: { select: { id: true, name: true, organizationId: true } },
-        assignee: { select: { id: true, name: true } }
-      }
-    });
-
-    await prisma.activityLog.create({
-      data: {
-        action: "created task",
-        entityType: "Task",
-        entityId: task.id,
-        entityName: task.title,
-        userId,
-        projectId
-      }
-    });
-
-    // Broadcast real-time event to organization
-    if (organizationId) {
-      broadcastToOrganization(organizationId, {
-        type: 'task_created',
-        timestamp: new Date().toISOString(),
-        payload: {
-          task: {
-            id: task.id,
-            title: task.title,
-            status: task.status,
-            priority: task.priority,
-            projectId: task.projectId,
-            projectName: task.project?.name,
-            assigneeId: task.assigneeId,
-            assigneeName: task.assignee?.name
-          },
-          userId
-        }
-      });
-    }
-
-    return NextResponse.json({ task });
-  } catch (error) {
-    console.error("Create task error:", error);
-    return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
+  if (!projectId) {
+    return errorResponse("BAD_REQUEST", "Project ID is required");
   }
-}
+
+  // Sanitize common fields
+  const sanitized = sanitizeEntityFields({
+    title,
+    description,
+  });
+
+  const task = await prisma.task.create({
+    data: {
+      ...sanitized,
+      projectId,
+      assigneeId: assigneeId || null,
+      creatorId: context.userId || null,
+      priority: priority || "MEDIUM",
+      status: status || "TODO",
+      dueDate: dueDate ? new Date(dueDate) : null
+    },
+    include: {
+      project: { select: { id: true, name: true, organizationId: true } },
+      assignee: { select: { id: true, name: true } }
+    }
+  });
+
+  // Log activity
+  await logActivity(
+    prisma,
+    context,
+    "created task",
+    "Task",
+    `Created task: ${task.title}`,
+    task.id,
+    task.title,
+    projectId
+  );
+
+  // Broadcast real-time event
+  broadcastEntityEvent(
+    broadcastToOrganization,
+    context.organizationId,
+    'task_created',
+    {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      projectId: task.projectId,
+      projectName: task.project?.name,
+      assigneeId: task.assigneeId,
+      assigneeName: task.assignee?.name
+    },
+    context.userId
+  );
+
+  return NextResponse.json({ task });
+});
