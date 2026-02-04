@@ -21,11 +21,11 @@ export async function POST(_request: NextRequest) {
     }
 
     // Check if user has MFA enabled
-    const mfaMethod = await prisma.mFAMethod.findFirst({
-      where: { userId: user.id, isEnabled: true },
+    const userMFA = await prisma.userMFA.findFirst({
+      where: { userId: user.id, status: 'ACTIVE' },
     });
 
-    if (!mfaMethod) {
+    if (!userMFA) {
       return NextResponse.json({ error: 'MFA must be enabled before generating backup codes' }, { status: 400 });
     }
 
@@ -41,12 +41,12 @@ export async function POST(_request: NextRequest) {
       crypto.createHash('sha256').update(code).digest('hex')
     );
 
-    await prisma.mFABackupCode.createMany({
-      data: hashedCodes.map(hashedCode => ({
-        userId: user.id,
-        code: hashedCode,
-        isUsed: false,
-      })),
+    // Update UserMFA record with backup codes
+    await prisma.userMFA.update({
+      where: { id: userMFA.id },
+      data: {
+        backupCodes: hashedCodes,
+      },
     });
 
     return NextResponse.json({

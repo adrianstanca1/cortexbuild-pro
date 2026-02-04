@@ -19,9 +19,9 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
 
-    const quotas = await prisma.organizationQuota.findMany({
+    const quotas = await prisma.resourceQuota.findMany({
       where: { organizationId: user.organizationId },
-      orderBy: { resource: 'asc' },
+      orderBy: { name: 'asc' },
     });
 
     return NextResponse.json(quotas);

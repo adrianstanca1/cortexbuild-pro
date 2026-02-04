@@ -38,21 +38,21 @@ export async function POST(
     const body = await request.json();
     const { restoreFiles, restoreDatabase } = body;
 
-    // Create a restore record
-    const restoreRecord = await prisma.restoreRecord.create({
+    // TODO: Trigger actual restore process asynchronously
+    // For now, just update the backup record status
+    await prisma.backupRecord.update({
+      where: { id },
       data: {
-        backupId: id,
-        status: 'PENDING',
-        restoreFiles: restoreFiles !== undefined ? restoreFiles : true,
-        restoreDatabase: restoreDatabase !== undefined ? restoreDatabase : true,
-        organizationId: user.organizationId,
-        triggeredById: user.id,
+        status: 'RESTORING',
       },
     });
 
-    // TODO: Trigger actual restore process asynchronously
-
-    return NextResponse.json(restoreRecord, { status: 201 });
+    return NextResponse.json({ 
+      message: 'Restore initiated',
+      backupId: id,
+      restoreFiles: restoreFiles !== undefined ? restoreFiles : true,
+      restoreDatabase: restoreDatabase !== undefined ? restoreDatabase : true,
+    }, { status: 201 });
   } catch (error) {
     console.error('Restore backup error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

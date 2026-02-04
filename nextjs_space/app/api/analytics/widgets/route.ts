@@ -57,21 +57,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, type, config, dashboardId, position } = body;
+    const { name, chartType, dataSource, query, dashboardId, position, settings } = body;
 
-    if (!name || !type) {
-      return NextResponse.json({ error: 'Name and type are required' }, { status: 400 });
+    if (!name || !chartType || !dataSource || !query) {
+      return NextResponse.json({ error: 'Name, chartType, dataSource, and query are required' }, { status: 400 });
     }
 
     const widget = await prisma.analyticsWidget.create({
       data: {
         name,
-        type,
-        config: config || {},
+        chartType,
+        dataSource,
+        query,
         dashboardId: dashboardId || null,
-        position: position || 0,
+        position: position || null,
+        settings: settings || {},
         organizationId: user.organizationId,
-        createdById: user.id,
       },
     });
 

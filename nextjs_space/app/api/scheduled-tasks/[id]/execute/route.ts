@@ -36,13 +36,10 @@ export async function POST(
     }
 
     // Create execution record
-    const execution = await prisma.taskExecution.create({
+    const execution = await prisma.scheduledTaskExecution.create({
       data: {
         taskId: id,
-        status: 'RUNNING',
-        triggeredBy: 'MANUAL',
-        organizationId: user.organizationId,
-        triggeredById: user.id,
+        status: 'PENDING',
       },
     });
 

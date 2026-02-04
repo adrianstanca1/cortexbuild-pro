@@ -25,14 +25,14 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
-    const roleId = searchParams.get('roleId');
+    const role = searchParams.get('role');
 
     const where: any = { organizationId: user.organizationId };
     if (userId) {
       where.userId = userId;
     }
-    if (roleId) {
-      where.roleId = roleId;
+    if (role) {
+      where.role = role;
     }
 
     const grants = await prisma.permissionGrant.findMany({
@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
       include: {
         permission: true,
         user: true,
-        role: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -70,14 +69,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { permissionId, userId, roleId } = body;
+    const { permissionId, userId, role } = body;
 
-    if (!permissionId || (!userId && !roleId)) {
-      return NextResponse.json({ error: 'Permission ID and either user ID or role ID are required' }, { status: 400 });
+    if (!permissionId || (!userId && !role)) {
+      return NextResponse.json({ error: 'Permission ID and either user ID or role are required' }, { status: 400 });
     }
 
-    if (userId && roleId) {
-      return NextResponse.json({ error: 'Provide either userId or roleId, not both' }, { status: 400 });
+    if (userId && role) {
+      return NextResponse.json({ error: 'Provide either userId or role, not both' }, { status: 400 });
     }
 
     // Check if permission exists
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Permission not found' }, { status: 404 });
     }
 
-    // Check if user/role exists in organization
+    // Check if user exists in organization
     if (userId) {
       const targetUser = await prisma.user.findFirst({
         where: { id: userId, organizationId: user.organizationId },
@@ -99,12 +98,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (roleId) {
-      const role = await prisma.role.findFirst({
-        where: { id: roleId, organizationId: user.organizationId },
-      });
-      if (!role) {
-        return NextResponse.json({ error: 'Role not found in organization' }, { status: 404 });
+    // Validate role if provided
+    if (role) {
+      const validRoles = ['SUPER_ADMIN', 'COMPANY_OWNER', 'ADMIN', 'PROJECT_MANAGER', 'FIELD_WORKER'];
+      if (!validRoles.includes(role)) {
+        return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
       }
     }
 
@@ -112,14 +110,13 @@ export async function POST(request: NextRequest) {
       data: {
         permissionId,
         userId: userId || null,
-        roleId: roleId || null,
+        role: role || null,
         organizationId: user.organizationId,
         grantedById: user.id,
       },
       include: {
         permission: true,
         user: true,
-        role: true,
       },
     });
 

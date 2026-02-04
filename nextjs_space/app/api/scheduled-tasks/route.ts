@@ -53,21 +53,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, type, schedule, config, isEnabled } = body;
+    const { name, taskType, schedule, payload } = body;
 
-    if (!name || !type || !schedule) {
-      return NextResponse.json({ error: 'Name, type, and schedule are required' }, { status: 400 });
+    if (!name || !taskType || !schedule) {
+      return NextResponse.json({ error: 'Name, taskType, and schedule are required' }, { status: 400 });
     }
 
     const task = await prisma.scheduledTask.create({
       data: {
         name,
-        type,
+        taskType,
         schedule,
-        config: config || {},
-        isEnabled: isEnabled !== undefined ? isEnabled : true,
+        payload: payload || {},
         organizationId: user.organizationId,
-        createdById: user.id,
       },
     });
 

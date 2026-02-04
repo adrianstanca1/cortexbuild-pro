@@ -49,21 +49,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, type, config, schedule } = body;
+    const { name, description, dataSource, columns, filters, groupBy, sortBy } = body;
 
-    if (!name || !type) {
-      return NextResponse.json({ error: 'Name and type are required' }, { status: 400 });
+    if (!name || !dataSource) {
+      return NextResponse.json({ error: 'Name and dataSource are required' }, { status: 400 });
     }
 
     const report = await prisma.customReport.create({
       data: {
         name,
         description: description || null,
-        type,
-        config: config || {},
-        schedule: schedule || null,
+        dataSource,
+        columns: columns || [],
+        filters: filters || null,
+        groupBy: groupBy || null,
+        sortBy: sortBy || null,
         organizationId: user.organizationId,
-        createdById: user.id,
       },
     });
 

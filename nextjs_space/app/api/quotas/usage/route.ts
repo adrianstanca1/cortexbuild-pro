@@ -19,16 +19,15 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
 
-    const quotas = await prisma.organizationQuota.findMany({
+    const quotas = await prisma.resourceQuota.findMany({
       where: { organizationId: user.organizationId },
     });
 
     const usage = quotas.map(quota => ({
-      resource: quota.resource,
-      used: quota.used,
-      limit: quota.limit,
-      percentage: quota.limit > 0 ? (quota.used / quota.limit) * 100 : 0,
-      remaining: quota.limit - quota.used,
+      name: quota.name,
+      quotaType: quota.quotaType,
+      limit: quota.limitValue,
+      warningThreshold: quota.warningThreshold,
     }));
 
     return NextResponse.json(usage);

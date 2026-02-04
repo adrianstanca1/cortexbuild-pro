@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       where.taskId = taskId;
     }
 
-    const executions = await prisma.taskExecution.findMany({
+    const executions = await prisma.scheduledTaskExecution.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       include: {

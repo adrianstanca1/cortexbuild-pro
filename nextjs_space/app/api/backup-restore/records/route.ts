@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { configurationId, type } = body;
+    const { configurationId, backupType } = body;
 
     if (!configurationId) {
       return NextResponse.json({ error: 'Configuration ID is required' }, { status: 400 });
@@ -72,11 +72,11 @@ export async function POST(request: NextRequest) {
 
     const record = await prisma.backupRecord.create({
       data: {
-        configurationId,
-        type: type || 'MANUAL',
+        configId: configurationId,
+        backupType: backupType || 'MANUAL',
         status: 'PENDING',
+        fileName: `backup-${Date.now()}.zip`, // Placeholder filename
         organizationId: user.organizationId,
-        triggeredById: user.id,
       },
     });
 

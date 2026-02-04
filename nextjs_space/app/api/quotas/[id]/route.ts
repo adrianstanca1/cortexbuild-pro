@@ -27,7 +27,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Insufficient permissions - only SUPER_ADMIN and COMPANY_OWNER can update quotas' }, { status: 403 });
     }
 
-    const existing = await prisma.organizationQuota.findFirst({
+    const existing = await prisma.resourceQuota.findFirst({
       where: { id: id, organizationId: user.organizationId },
     });
 
@@ -36,13 +36,13 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { limit, used } = body;
+    const { limitValue, warningThreshold } = body;
 
-    const quota = await prisma.organizationQuota.update({
+    const quota = await prisma.resourceQuota.update({
       where: { id: id },
       data: {
-        ...(limit !== undefined && { limit }),
-        ...(used !== undefined && { used }),
+        ...(limitValue !== undefined && { limitValue }),
+        ...(warningThreshold !== undefined && { warningThreshold }),
       },
     });
 
