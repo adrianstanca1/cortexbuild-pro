@@ -8,7 +8,7 @@ import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   Truck, Plus, Search, Wrench, MapPin, Calendar, PoundSterling,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
-  ChevronRight, Clock, Filter, LayoutGrid, List, AlertCircle
+  ChevronRight, Clock, Filter, LayoutGrid, List, AlertCircle, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
