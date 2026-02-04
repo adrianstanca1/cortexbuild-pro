@@ -152,7 +152,7 @@ export async function GET(_request: NextRequest) {
       prisma.user.count({ where: { lastLogin: { gte: oneDayAgo } } }),
       prisma.user.count({ where: { lastLogin: { gte: oneWeekAgo } } }),
       prisma.activityLog.count({ where: { createdAt: { gte: oneDayAgo } } }),
-      prisma.document.aggregate({ sum: { fileSize: true } })
+      prisma.document.aggregate({ _sum: { fileSize: true } })
     ]);
 
     return NextResponse.json({

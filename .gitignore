@@ -26,3 +26,6 @@ out
 /deployment/.env.*
 !/deployment/.env.example
 !/deployment/.env.production
+
+# Git rewrite artifacts
+.git-rewrite/

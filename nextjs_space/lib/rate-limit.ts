@@ -79,26 +79,35 @@ async function incrementUsage(rateLimitId: string, endpoint: string, userId?: st
     const duration = windowType === 'minute' ? 60 : windowType === 'hour' ? 3600 : 86400;
     const windowStart = new Date(Math.floor(now.getTime() / (duration * 1000)) * duration * 1000);
     
-    await prisma.rateLimitUsage.upsert({
+    // Try to find existing usage record
+    const existing = await prisma.rateLimitUsage.findFirst({
       where: {
-        rateLimitId_windowType_windowStart: {
-          rateLimitId,
-          windowType,
-          windowStart
-        }
-      },
-      create: {
         rateLimitId,
-        endpoint,
         windowType,
         windowStart,
-        requestCount: 1,
-        ...(userId && { userId })
-      },
-      update: {
-        requestCount: { increment: 1 }
+        endpoint
       }
     });
+
+    if (existing) {
+      await prisma.rateLimitUsage.update({
+        where: { id: existing.id },
+        data: {
+          requestCount: { increment: 1 }
+        }
+      });
+    } else {
+      await prisma.rateLimitUsage.create({
+        data: {
+          rateLimitId,
+          endpoint,
+          windowType,
+          windowStart,
+          requestCount: 1,
+          ...(userId && { userId })
+        }
+      });
+    }
   }
 }
 

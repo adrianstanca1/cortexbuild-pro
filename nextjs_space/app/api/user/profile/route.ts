@@ -28,7 +28,6 @@ export async function GET() {
         email: true,
         phone: true,
         role: true,
-        title: true,
         organizationId: true,
         createdAt: true,
         updatedAt: true,
@@ -99,7 +98,6 @@ export async function PATCH(request: NextRequest) {
         name,
         email,
         phone: phone || null,
-        title: title || null,
         updatedAt: new Date(),
       },
       select: {
@@ -108,7 +106,6 @@ export async function PATCH(request: NextRequest) {
         email: true,
         phone: true,
         role: true,
-        title: true,
         updatedAt: true,
       },
     });

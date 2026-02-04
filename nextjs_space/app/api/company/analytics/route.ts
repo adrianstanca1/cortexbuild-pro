@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       // Organization info
       prisma.organization.findUnique({
         where: { id: user.organizationId },
-        include: { count: { select: { projects: true, teamMembers: true, users: true } } }
+        include: { _count: { select: { projects: true, teamMembers: true, users: true } } }
       }),
       // All projects
       prisma.project.findMany({
