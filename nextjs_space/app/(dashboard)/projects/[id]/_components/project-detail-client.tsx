@@ -185,7 +185,7 @@ const _isTopMenuTab = (tabId: string) => {
 
 export function ProjectDetailClient({ project, availableTeamMembers }: ProjectDetailClientProps) {
   const router = useRouter();
-  const _fileInputRef = useState<HTMLInputElement>(null)[0];
+  const _fileInputRef = useState<HTMLInputElement | null>(null)[0];
   const _currentUserId = project?.userId || "";
   const _activities = project?.activities || [];
   const [activeTab, setActiveTab] = useState("overview");
@@ -273,7 +273,7 @@ export function ProjectDetailClient({ project, availableTeamMembers }: ProjectDe
     confinedSpacePermits: project?.confinedSpacePermits?.length || 0,
     liftingOperations: project?.liftingOperations?.length || 0,
     siteAccessLogs: project?.siteAccessLogs?.length || 0,
-    certifications: certifications?.length || 0,
+    certifications: project?.certifications?.length || 0,
   });
   const counts = getCounts();
 
@@ -452,7 +452,7 @@ export function ProjectDetailClient({ project, availableTeamMembers }: ProjectDe
       case "intelligence":
         return <ProjectIntelligence project={project} />;
       case "tasks":
-        return <TasksTab project={project} availableTeamMembers={availableTeamMembers} onCreateTask={() => setShowNewTaskModal(true)} router={router} />;
+        return <TasksTab project={project} _availableTeamMembers={availableTeamMembers} onCreateTask={() => setShowNewTaskModal(true)} router={router} />;
       case "milestones":
         return <MilestonesTab project={project} onCreateMilestone={() => openCreateModal("milestone")} />;
       case "time-tracking":
@@ -508,7 +508,7 @@ export function ProjectDetailClient({ project, availableTeamMembers }: ProjectDe
       case "site-access":
         return <SiteAccessTab project={project} teamMembers={availableTeamMembers} siteAccessLogs={project?.siteAccessLogs || []} />;
       case "certifications":
-        return <CertificationsTab teamMembers={availableTeamMembers} certifications={certifications} />;
+        return <CertificationsTab teamMembers={availableTeamMembers} certifications={project?.certifications} />;
       default:
         return <OverviewTab project={project} counts={counts} setActiveTab={setActiveTab} />;
     }

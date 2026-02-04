@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { 
   Wrench, Plus, Pencil, Trash2, Calendar, DollarSign, User, FileText 
@@ -76,11 +76,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
     cost: ''
   });
 
-  useEffect(() => {
-    fetchMaintenanceLogs();
-  }, [equipmentId, fetchMaintenanceLogs]);
-
-  const fetchMaintenanceLogs = async () => {
+  const fetchMaintenanceLogs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/equipment/${equipmentId}/maintenance`);
@@ -93,7 +89,11 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
     } finally {
       setLoading(false);
     }
-  };
+  }, [equipmentId]);
+
+  useEffect(() => {
+    fetchMaintenanceLogs();
+  }, [fetchMaintenanceLogs]);
 
   const handleAddLog = async () => {
     if (!formData.serviceDate || !formData.serviceType) {

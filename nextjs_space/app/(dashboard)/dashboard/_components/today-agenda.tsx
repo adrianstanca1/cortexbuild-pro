@@ -6,7 +6,7 @@ import {
   Calendar, Clock, ListTodo, Users, ClipboardCheck, Shield, Target,
   AlertTriangle, ChevronRight, Loader2, FileQuestion, RefreshCw,
   Wrench, MessageSquare, FileText,
-  CheckCircle2, Flame, Clock4
+  CheckCircle2, Flame, Clock4, Send
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
