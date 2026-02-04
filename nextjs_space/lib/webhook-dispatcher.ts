@@ -33,97 +33,103 @@ export async function dispatchWebhook(
       organizationId,
     };
 
-    // Send to all webhooks concurrently
-    const deliveries = webhooks.map(async (webhook) => {
-      const startTime = Date.now();
-      let success = false;
-      let statusCode = 0;
-      let responseBody = '';
-      let errorMessage = '';
+    // Fire-and-forget: Send to all webhooks without blocking
+    // This improves API response time by not waiting for webhook deliveries
+    webhooks.forEach((webhook) => {
+      // Each webhook delivery runs independently in the background
+      (async () => {
+        const startTime = Date.now();
+        let success = false;
+        let statusCode = 0;
+        let responseBody = '';
+        let errorMessage = '';
 
-      try {
-        // Create signature if secret is set
-        const signature = webhook.secret
-          ? crypto
-              .createHmac('sha256', webhook.secret)
-              .update(JSON.stringify(payload))
-              .digest('hex')
-          : null;
+        try {
+          // Create signature if secret is set
+          const signature = webhook.secret
+            ? crypto
+                .createHmac('sha256', webhook.secret)
+                .update(JSON.stringify(payload))
+                .digest('hex')
+            : null;
 
-        // Build headers
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          'X-Webhook-Event': event,
-          'X-Webhook-Timestamp': payload.timestamp,
-          ...(signature && { 'X-Webhook-Signature': `sha256=${signature}` }),
-          ...((webhook.headers as Record<string, string>) || {}),
-        };
+          // Build headers
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            'X-Webhook-Event': event,
+            'X-Webhook-Timestamp': payload.timestamp,
+            ...(signature && { 'X-Webhook-Signature': `sha256=${signature}` }),
+            ...((webhook.headers as Record<string, string>) || {}),
+          };
 
-        // Send request with timeout
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
+          // Send request with timeout
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 30000);
 
-        const response = await fetch(webhook.url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
-
-        statusCode = response.status;
-        responseBody = await response.text().catch(() => '');
-        success = response.ok;
-
-        if (!success) {
-          errorMessage = `HTTP ${statusCode}: ${responseBody.substring(0, 500)}`;
-        }
-      } catch (error) {
-        errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      }
-
-      const duration = Date.now() - startTime;
-
-      // Log delivery attempt
-      await prisma.webhookDelivery.create({
-        data: {
-          webhookId: webhook.id,
-          event,
-          payload: payload as object,
-          statusCode,
-          responseBody: responseBody.substring(0, 5000),
-          success,
-          errorMessage,
-          duration,
-        },
-      });
-
-      // Update webhook last triggered
-      await prisma.webhook.update({
-        where: { id: webhook.id },
-        data: {
-          lastTriggeredAt: new Date(),
-          ...(success ? { consecutiveFailures: 0 } : { consecutiveFailures: { increment: 1 } }),
-        },
-      });
-
-      // Disable webhook after 10 consecutive failures
-      if (!success) {
-        const updatedWebhook = await prisma.webhook.findUnique({
-          where: { id: webhook.id },
-          select: { consecutiveFailures: true },
-        });
-        if (updatedWebhook && updatedWebhook.consecutiveFailures >= 10) {
-          await prisma.webhook.update({
-            where: { id: webhook.id },
-            data: { isActive: false },
+          const response = await fetch(webhook.url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+            signal: controller.signal,
           });
+
+          clearTimeout(timeout);
+
+          statusCode = response.status;
+          responseBody = await response.text().catch(() => '');
+          success = response.ok;
+
+          if (!success) {
+            errorMessage = `HTTP ${statusCode}: ${responseBody.substring(0, 500)}`;
+          }
+        } catch (error) {
+          errorMessage = error instanceof Error ? error.message : 'Unknown error';
         }
-      }
+
+        const duration = Date.now() - startTime;
+
+        try {
+          // Log delivery attempt
+          await prisma.webhookDelivery.create({
+            data: {
+              webhookId: webhook.id,
+              event,
+              payload: payload as object,
+              statusCode,
+              responseBody: responseBody.substring(0, 5000),
+              success,
+              errorMessage,
+              duration,
+            },
+          });
+
+          // Use atomic update to handle consecutive failures and disabling
+          // This prevents race conditions when multiple deliveries happen simultaneously
+          const updatedWebhook = await prisma.webhook.update({
+            where: { id: webhook.id },
+            data: {
+              lastTriggeredAt: new Date(),
+              ...(success ? { consecutiveFailures: 0 } : { consecutiveFailures: { increment: 1 } }),
+              // Disable webhook if it reaches 10 consecutive failures
+              ...((!success && webhook.consecutiveFailures + 1 >= 10) && { isActive: false }),
+            },
+            select: { consecutiveFailures: true, isActive: true },
+          });
+
+          // Log if webhook was disabled
+          if (!updatedWebhook.isActive && !webhook.isActive) {
+            console.warn(`Webhook ${webhook.id} disabled after ${updatedWebhook.consecutiveFailures} consecutive failures`);
+          }
+        } catch (dbError) {
+          console.error('Webhook delivery logging error (non-blocking):', dbError);
+        }
+      })().catch((error) => {
+        // Catch any unhandled errors from the async function
+        console.error('Webhook delivery error (non-blocking):', error);
+      });
     });
 
-    await Promise.allSettled(deliveries);
+    // Return immediately without waiting for webhook deliveries
   } catch (error) {
     // console.error('Webhook dispatch error:', error);
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCircle, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useRealtime } from '@/hooks/use-realtime';
@@ -34,15 +34,9 @@ export function NotificationsDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real-time updates
-  const { lastEvent } = useRealtime((event) => {
-    if (event.type === 'activity_logged' || event.type === 'notification') {
-      fetchNotifications();
-    }
-  });
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/notifications?limit=10');
@@ -56,11 +50,35 @@ export function NotificationsDropdown() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Debounced fetch to prevent excessive API calls on rapid real-time events
+  const debouncedFetchNotifications = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      fetchNotifications();
+    }, 500); // Wait 500ms after last event
+  }, [fetchNotifications]);
+
+  // Real-time updates with debouncing
+  useRealtime((event) => {
+    if (event.type === 'activity_logged' || event.type === 'notification') {
+      debouncedFetchNotifications();
+    }
+  });
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+    
+    // Cleanup debounce timer on unmount
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [fetchNotifications]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

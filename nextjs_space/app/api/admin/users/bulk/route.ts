@@ -175,63 +175,141 @@ export async function POST(req: NextRequest) {
           errors: [] as any[]
         };
 
+        // Batch validation - check all emails at once
+        const emailsToCheck = data.users
+          .filter((u: any) => u.email)
+          .map((u: any) => u.email);
+
+        const existingUsers = await prisma.user.findMany({
+          where: { email: { in: emailsToCheck } },
+          select: { email: true }
+        });
+
+        const existingEmails = new Set(existingUsers.map(u => u.email));
+
+        // Prepare validated users for batch creation
+        const validatedUsers: any[] = [];
+
         for (const userData of data.users) {
-          try {
-            if (!userData.email || !userData.password || !userData.name) {
-              importResults.failed++;
-              importResults.errors.push({
-                email: userData.email,
-                error: "Missing required fields"
-              });
-              continue;
-            }
-
-            // Validate password strength (minimum 8 characters)
-            if (userData.password.length < 8) {
-              importResults.failed++;
-              importResults.errors.push({
-                email: userData.email,
-                error: "Password must be at least 8 characters long"
-              });
-              continue;
-            }
-
-            // Check if user exists
-            const exists = await prisma.user.findUnique({
-              where: { email: userData.email }
+          if (!userData.email || !userData.password || !userData.name) {
+            importResults.failed++;
+            importResults.errors.push({
+              email: userData.email,
+              error: "Missing required fields"
             });
+            continue;
+          }
 
-            if (exists) {
-              importResults.failed++;
-              importResults.errors.push({
-                email: userData.email,
-                error: "User already exists"
-              });
-              continue;
-            }
+          // Validate password strength (minimum 8 characters)
+          if (userData.password.length < 8) {
+            importResults.failed++;
+            importResults.errors.push({
+              email: userData.email,
+              error: "Password must be at least 8 characters long"
+            });
+            continue;
+          }
 
-            const hashedPassword = await bcrypt.hash(userData.password, 12);
+          // Check if user exists (from batch query)
+          if (existingEmails.has(userData.email)) {
+            importResults.failed++;
+            importResults.errors.push({
+              email: userData.email,
+              error: "User already exists"
+            });
+            continue;
+          }
 
-            await prisma.user.create({
-              data: {
+          validatedUsers.push(userData);
+        }
+
+        // Hash passwords in parallel
+        const usersWithHashedPasswords = await Promise.all(
+          validatedUsers.map(async (userData) => {
+            try {
+              const hashedPassword = await bcrypt.hash(userData.password, 12);
+              return {
                 email: userData.email,
                 password: hashedPassword,
                 name: userData.name,
                 role: userData.role || "FIELD_WORKER",
                 organizationId: userData.organizationId || null,
                 phone: userData.phone || null
-              }
-            });
+              };
+            } catch (error) {
+              importResults.failed++;
+              importResults.errors.push({
+                email: userData.email,
+                error: "Failed to hash password"
+              });
+              return null;
+            }
+          })
+        );
 
-            importResults.success++;
-          } catch (error: any) {
-            importResults.failed++;
-            importResults.errors.push({
-              email: userData.email,
-              error: error?.message || "Failed to create user",
-              code: error?.code,
-              field: error?.meta?.target
+        // Filter out failed password hashes with type predicate
+        const usersToCreate = usersWithHashedPasswords.filter((u): u is NonNullable<typeof u> => u !== null);
+
+        // Batch create all users at once
+        if (usersToCreate.length > 0) {
+          try {
+            const expectedCreates = usersToCreate.length;
+            const createResult = await prisma.user.createMany({
+              data: usersToCreate,
+              skipDuplicates: true
             });
+            const actualCreates = createResult.count;
+            importResults.success = actualCreates;
+            
+            // When skipDuplicates: true, Prisma silently skips duplicates
+            // Track skipped duplicates in the failed count
+            const skippedDueToDuplicates = expectedCreates - actualCreates;
+            if (skippedDueToDuplicates > 0) {
+              importResults.failed += skippedDueToDuplicates;
+              importResults.errors.push({
+                email: null,
+                error: `${skippedDueToDuplicates} user(s) were skipped because they already exist (duplicate unique fields)`,
+                code: "DUPLICATE_SKIPPED",
+                field: undefined
+              });
+            }
+          } catch (error: any) {
+            // If the entire batch fails, use chunked batch creates to retain performance
+            const CHUNK_SIZE = 100;
+            
+            for (let i = 0; i < usersToCreate.length; i += CHUNK_SIZE) {
+              const chunk = usersToCreate.slice(i, i + CHUNK_SIZE);
+              
+              try {
+                const chunkResult = await prisma.user.createMany({
+                  data: chunk,
+                  skipDuplicates: true
+                });
+                importResults.success += chunkResult.count;
+                
+                // Track skipped duplicates in chunk
+                const skippedInChunk = chunk.length - chunkResult.count;
+                if (skippedInChunk > 0) {
+                  importResults.failed += skippedInChunk;
+                }
+              } catch (chunkError: any) {
+                // If a chunk fails, fall back to individual creates only for that chunk
+                for (const userData of chunk) {
+                  try {
+                    await prisma.user.create({ data: userData });
+                    importResults.success++;
+                  } catch (err: any) {
+                    importResults.failed++;
+                    importResults.errors.push({
+                      email: userData.email,
+                      error: err?.message || "Failed to create user",
+                      code: err?.code,
+                      field: err?.meta?.target
+                    });
+                  }
+                }
+              }
+            }
           }
         }
 
