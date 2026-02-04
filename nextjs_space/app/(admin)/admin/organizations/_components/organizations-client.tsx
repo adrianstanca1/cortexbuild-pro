@@ -17,7 +17,6 @@ import {
   RefreshCw,
   Check,
   Eye,
-  X,
   XCircle,
   CheckCircle
 } from "lucide-react";
