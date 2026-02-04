@@ -22,9 +22,11 @@ BRANCHES=(
   "copilot/continue-build-and-debug-session"
   "copilot/commit-all-changes"
   "copilot/merge-branches-and-cleanup"
+  "copilot/improve-slow-code-efficiency"
+  "copilot/refactor-duplicated-code"
 )
 
-echo "📋 Branches marked for deletion (11 total):"
+echo "📋 Branches marked for deletion (13 total):"
 echo ""
 for branch in "${BRANCHES[@]}"; do
   echo "  - $branch"
