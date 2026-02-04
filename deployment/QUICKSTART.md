@@ -39,7 +39,35 @@ That's it! The script will:
 
 ## 📦 Deployment Methods
 
-### Method 1: One-Click Deployment (Recommended)
+### Method 1: Production Deployment (Recommended for Updates)
+
+**Best for:** Production updates, code deployments, regular maintenance
+
+```bash
+cd /root/cortexbuild-pro/deployment
+./production-deploy.sh
+```
+
+**Features:**
+- Complete production workflow
+- Commits all changes
+- Fresh production build (no cache)
+- Automatic migrations
+- Repository cleanup
+- Health verification
+
+**What it does:**
+1. ✅ Commits all pending changes
+2. ✅ Rebuilds application for production
+3. ✅ Deploys to VPS with migrations
+4. ✅ Cleans up Docker and Git artifacts
+5. ✅ Verifies deployment health
+
+See [PRODUCTION-DEPLOY-GUIDE.md](PRODUCTION-DEPLOY-GUIDE.md) for complete details.
+
+---
+
+### Method 2: One-Click Deployment (For Initial Setup)
 
 **Best for:** Fresh VPS installations, automated setup
 
@@ -59,7 +87,7 @@ sudo bash one-click-deploy.sh
 
 ---
 
-### Method 2: Manual Docker Deployment
+### Method 3: Manual Docker Deployment
 
 **Best for:** Custom configurations, existing Docker setups
 
@@ -88,7 +116,7 @@ docker compose exec app npx prisma db seed
 
 ---
 
-### Method 3: CloudPanel Deployment
+### Method 4: CloudPanel Deployment
 
 **Best for:** Managed hosting, GUI preference
 
@@ -292,7 +320,27 @@ sudo ufw enable
 
 ## 🔄 Updates
 
-### Update Application
+### Update Application (Production Workflow - Recommended)
+
+```bash
+cd /root/cortexbuild-pro
+
+# Pull latest changes
+git pull origin main
+
+# Run production deployment
+cd deployment
+./production-deploy.sh
+```
+
+This will:
+1. Commit any pending changes
+2. Rebuild application with no cache
+3. Deploy with migrations
+4. Clean up repositories
+5. Verify deployment
+
+### Manual Update
 
 ```bash
 cd /root/cortexbuild-pro
@@ -489,8 +537,17 @@ After seeding the database, several demo accounts are created for testing.
 ## 🎯 Quick Reference
 
 ```bash
-# Deploy
+# Initial Deploy
 sudo bash one-click-deploy.sh
+
+# Production Deploy (Updates)
+./production-deploy.sh
+
+# Repository Cleanup
+./cleanup-repos.sh
+
+# Repository Cleanup (Aggressive)
+./cleanup-repos.sh --aggressive
 
 # Check health
 ./health-check.sh
@@ -507,8 +564,51 @@ docker compose restart app
 # Rollback
 ./rollback.sh
 
-# Update
+# Manual Update
 git pull && docker compose build --no-cache app && docker compose up -d
+```
+
+---
+
+## 🧹 Maintenance
+
+### Regular Maintenance Tasks
+
+**Weekly:**
+```bash
+# Check health
+./health-check.sh
+
+# Clean up repositories
+./cleanup-repos.sh
+
+# Review logs
+docker compose logs --tail=100
+```
+
+**Monthly:**
+```bash
+# Aggressive cleanup (careful!)
+./cleanup-repos.sh --aggressive
+
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Update Docker images
+docker compose pull
+```
+
+**As Needed:**
+```bash
+# Deploy updates
+./production-deploy.sh
+
+# Create backup before major changes
+./backup.sh
+
+# Monitor resources
+docker stats
+df -h
 ```
 
 ---
@@ -516,6 +616,7 @@ git pull && docker compose build --no-cache app && docker compose up -d
 ## 📚 Additional Resources
 
 - [Full Deployment Guide](README.md)
+- [Production Deployment Guide](PRODUCTION-DEPLOY-GUIDE.md) ⭐ NEW
 - [CloudPanel Guide](CLOUDPANEL-GUIDE.md)
 - [Docker Manager Guide](README-DOCKER-MANAGER.md)
 - [GitHub Repository](https://github.com/adrianstanca1/cortexbuild-pro)
