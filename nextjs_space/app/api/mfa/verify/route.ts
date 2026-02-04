@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Method ID and code are required' }, { status: 400 });
     }
 
-    const mfaMethod = await prisma.mFAMethod.findFirst({
+    const mfaMethod = await prisma.userMFA.findFirst({
       where: { id: methodId, userId: user.id },
     });
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Enable the MFA method after successful verification
-    await prisma.mFAMethod.update({
+    await prisma.userMFA.update({
       where: { id: methodId },
       data: {
         isEnabled: true,

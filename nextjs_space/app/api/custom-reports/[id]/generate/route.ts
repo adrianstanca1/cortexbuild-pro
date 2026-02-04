@@ -31,17 +31,11 @@ export async function POST(
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
 
-    const body = await request.json();
-    const { parameters } = body;
-
     // Create execution record
     const execution = await prisma.reportExecution.create({
       data: {
         reportId: id,
-        status: 'PROCESSING',
-        parameters: parameters || {},
-        organizationId: user.organizationId,
-        triggeredById: user.id,
+        status: 'PENDING',
       },
     });
 

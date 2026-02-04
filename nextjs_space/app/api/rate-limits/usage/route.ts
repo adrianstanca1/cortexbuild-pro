@@ -26,14 +26,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const endpoint = searchParams.get('endpoint');
 
-    const where: any = { organizationId: user.organizationId };
+    const where: any = {};
     if (endpoint) {
       where.endpoint = endpoint;
     }
 
     const usageRecords = await prisma.rateLimitUsage.findMany({
       where,
-      orderBy: { timestamp: 'desc' },
+      orderBy: { windowStart: 'desc' },
       take: 100,
       include: {
         rateLimit: true,

@@ -19,7 +19,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
 
-    const mfaMethods = await prisma.mFAMethod.findMany({
+    const mfaMethods = await prisma.userMFA.findMany({
       where: { userId: user.id },
       select: {
         id: true,
@@ -52,7 +52,7 @@ export async function DELETE(_request: NextRequest) {
     }
 
     // Disable all MFA methods for the user
-    await prisma.mFAMethod.updateMany({
+    await prisma.userMFA.updateMany({
       where: { userId: user.id },
       data: { isEnabled: false },
     });

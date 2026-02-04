@@ -53,22 +53,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, schedule, retentionDays, isEnabled, includeFiles, includeDatabase } = body;
+    const { name, schedule, retention, includeDocuments, includeDatabase, includeMedia } = body;
 
-    if (!name || !schedule) {
-      return NextResponse.json({ error: 'Name and schedule are required' }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
     const configuration = await prisma.backupConfiguration.create({
       data: {
         name,
-        schedule,
-        retentionDays: retentionDays || 30,
-        isEnabled: isEnabled !== undefined ? isEnabled : true,
-        includeFiles: includeFiles !== undefined ? includeFiles : true,
+        schedule: schedule || null,
+        retention: retention || 30,
+        includeDocuments: includeDocuments !== undefined ? includeDocuments : true,
         includeDatabase: includeDatabase !== undefined ? includeDatabase : true,
+        includeMedia: includeMedia !== undefined ? includeMedia : true,
         organizationId: user.organizationId,
-        createdById: user.id,
       },
     });
 

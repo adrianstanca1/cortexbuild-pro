@@ -66,16 +66,18 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, description, type, config, schedule } = body;
+    const { name, description, dataSource, columns, filters, groupBy, sortBy } = body;
 
     const report = await prisma.customReport.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
-        ...(type !== undefined && { type }),
-        ...(config !== undefined && { config }),
-        ...(schedule !== undefined && { schedule }),
+        ...(dataSource !== undefined && { dataSource }),
+        ...(columns !== undefined && { columns }),
+        ...(filters !== undefined && { filters }),
+        ...(groupBy !== undefined && { groupBy }),
+        ...(sortBy !== undefined && { sortBy }),
       },
     });
 

@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const rateLimits = await prisma.rateLimit.findMany({
+    const rateLimits = await prisma.organizationRateLimit.findMany({
       where: { organizationId: user.organizationId },
       orderBy: { createdAt: 'desc' },
     });
@@ -53,21 +53,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, endpoint, maxRequests, windowMs, isEnabled } = body;
+    const { endpoint, requestsPerMinute, requestsPerHour, requestsPerDay, burstSize } = body;
 
-    if (!name || !endpoint || !maxRequests || !windowMs) {
-      return NextResponse.json({ error: 'Name, endpoint, maxRequests, and windowMs are required' }, { status: 400 });
+    if (!endpoint) {
+      return NextResponse.json({ error: 'Endpoint is required' }, { status: 400 });
     }
 
-    const rateLimit = await prisma.rateLimit.create({
+    const rateLimit = await prisma.organizationRateLimit.create({
       data: {
-        name,
         endpoint,
-        maxRequests,
-        windowMs,
-        isEnabled: isEnabled !== undefined ? isEnabled : true,
+        requestsPerMinute: requestsPerMinute || 60,
+        requestsPerHour: requestsPerHour || 1000,
+        requestsPerDay: requestsPerDay || 10000,
+        burstSize: burstSize || 10,
         organizationId: user.organizationId,
-        createdById: user.id,
       },
     });
 

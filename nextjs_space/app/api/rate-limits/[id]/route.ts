@@ -27,7 +27,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const existing = await prisma.rateLimit.findFirst({
+    const existing = await prisma.organizationRateLimit.findFirst({
       where: { id: id, organizationId: user.organizationId },
     });
 
@@ -36,16 +36,16 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, endpoint, maxRequests, windowMs, isEnabled } = body;
+    const { endpoint, requestsPerMinute, requestsPerHour, requestsPerDay, burstSize } = body;
 
-    const rateLimit = await prisma.rateLimit.update({
+    const rateLimit = await prisma.organizationRateLimit.update({
       where: { id: id },
       data: {
-        ...(name !== undefined && { name }),
         ...(endpoint !== undefined && { endpoint }),
-        ...(maxRequests !== undefined && { maxRequests }),
-        ...(windowMs !== undefined && { windowMs }),
-        ...(isEnabled !== undefined && { isEnabled }),
+        ...(requestsPerMinute !== undefined && { requestsPerMinute }),
+        ...(requestsPerHour !== undefined && { requestsPerHour }),
+        ...(requestsPerDay !== undefined && { requestsPerDay }),
+        ...(burstSize !== undefined && { burstSize }),
       },
     });
 

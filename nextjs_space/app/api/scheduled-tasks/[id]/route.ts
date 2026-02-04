@@ -70,16 +70,15 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, type, schedule, config, isEnabled } = body;
+    const { name, taskType, schedule, payload } = body;
 
     const task = await prisma.scheduledTask.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
-        ...(type !== undefined && { type }),
+        ...(taskType !== undefined && { taskType }),
         ...(schedule !== undefined && { schedule }),
-        ...(config !== undefined && { config }),
-        ...(isEnabled !== undefined && { isEnabled }),
+        ...(payload !== undefined && { payload }),
       },
     });
 

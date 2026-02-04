@@ -24,13 +24,12 @@ export async function POST(_request: NextRequest) {
     const secret = crypto.randomBytes(20).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
     // Create a pending MFA method (not enabled until verified)
-    const mfaMethod = await prisma.mFAMethod.create({
+    const mfaMethod = await prisma.userMFA.create({
       data: {
         userId: user.id,
-        type: 'TOTP',
+        mfaType: 'TOTP',
         secret,
-        isEnabled: false,
-        isPrimary: false,
+        status: 'PENDING_SETUP',
       },
     });
 

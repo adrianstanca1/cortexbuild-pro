@@ -26,9 +26,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const taskId = searchParams.get('taskId');
 
-    const where: any = { organizationId: user.organizationId };
+    const where: any = {};
     if (taskId) {
       where.taskId = taskId;
+      // Verify task belongs to user's organization
+      const task = await prisma.scheduledTask.findFirst({
+        where: { id: taskId, organizationId: user.organizationId },
+      });
+      if (!task) {
+        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      }
     }
 
     const executions = await prisma.scheduledTaskExecution.findMany({

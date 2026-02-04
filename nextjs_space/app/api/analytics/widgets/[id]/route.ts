@@ -66,16 +66,18 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, type, config, dashboardId, position } = body;
+    const { name, chartType, dataSource, query, dashboardId, position, settings } = body;
 
     const widget = await prisma.analyticsWidget.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
-        ...(type !== undefined && { type }),
-        ...(config !== undefined && { config }),
+        ...(chartType !== undefined && { chartType }),
+        ...(dataSource !== undefined && { dataSource }),
+        ...(query !== undefined && { query }),
         ...(dashboardId !== undefined && { dashboardId }),
         ...(position !== undefined && { position }),
+        ...(settings !== undefined && { settings }),
       },
     });
 
