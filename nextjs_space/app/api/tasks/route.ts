@@ -73,7 +73,7 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
   // Broadcast real-time event
   broadcastEntityEvent(
     broadcastToOrganization,
-    task.project?.organizationId || context.organizationId,
+    task.project?.organizationId,
     'task_created',
     {
       id: task.id,

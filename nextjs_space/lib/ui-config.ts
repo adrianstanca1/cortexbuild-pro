@@ -101,7 +101,7 @@ export function getTaskStatusBg(status: string): string {
 
 // Helper function to get project status color classes
 export function getProjectStatusColor(status: string): string {
-  return projectStatusColors[status] || "bg-gray-100 text-gray-700";
+  return projectStatusColors[status] || "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300";
 }
 
 // Helper function to get health status color classes

@@ -293,7 +293,7 @@ export function broadcastEntityEvent(
       ...additionalData,
       entity: {
         id: entity.id,
-        name: entity.name || entity.title,
+        name: entity.name ?? entity.title,
         status: entity.status,
         ...entity,
       },

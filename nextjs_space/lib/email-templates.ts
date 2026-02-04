@@ -37,7 +37,7 @@ function emailWrapper(content: string, headerColor: string = '#7c3aed', headerTi
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 30px;">
-        <div style="background: linear-gradient(135deg, ${headerColor} 0%, ${headerColor} 100%); padding: 30px; border-radius: 12px 12px 0 0;">
+        <div style="background: ${headerColor}; padding: 30px; border-radius: 12px 12px 0 0;">
           <h1 style="color: white; margin: 0; font-size: 28px;">🏗️ ${headerTitle}</h1>
           <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Construction Management Platform</p>
         </div>
