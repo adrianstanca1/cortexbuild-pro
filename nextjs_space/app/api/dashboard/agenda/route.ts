@@ -15,7 +15,6 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
     const orgId = (session.user as any).organizationId;
 
     const today = new Date();

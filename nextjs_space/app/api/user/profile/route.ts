@@ -66,7 +66,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const { name, email, phone, title } = validation.data;
+    const { name, email, phone } = validation.data;
 
     // Fetch current user data to ensure we have the latest email
     const currentUser = await prisma.user.findUnique({

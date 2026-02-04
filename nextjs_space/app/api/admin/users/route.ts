@@ -20,7 +20,6 @@ export async function GET(req: NextRequest) {
     const organizationId = searchParams.get("organizationId");
     const role = searchParams.get("role");
     const search = searchParams.get("search");
-    const status = searchParams.get("status"); // active, suspended
 
     const where: any = {};
     
