@@ -23,7 +23,7 @@ interface Quota {
   currentStorage: number;
 }
 
-export function QuotasClient() {
+export function RateLimitsClient() {
   const [quotas, setQuotas] = useState<Quota[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
