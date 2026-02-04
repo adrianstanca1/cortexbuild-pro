@@ -29,6 +29,8 @@ out
 /deployment/PRODUCTION-CREDENTIALS.txt
 **/PRODUCTION-CREDENTIALS.txt
 **/*-CREDENTIALS.txt
+**/*-CREDENTIALS*.md
+**/ACTUAL-CREDENTIALS*.md
 **/.env.local
 **/.env.*.local
 
