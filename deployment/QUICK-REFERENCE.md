@@ -1,17 +1,17 @@
 # 🚀 CortexBuild Pro - Quick Deployment Reference
 
 ## VPS Server Details
-- **IP Address:** 72.62.132.43
+- **IP Address:** YOUR_VPS_IP
 - **SSH User:** root
-- **SSH Password:** Cumparavinde1@
-- **Domain:** cortexbuildpro.com
+- **SSH Authentication:** Configure SSH keys (recommended)
+- **Domain:** your-domain.com
 
 ---
 
 ## ⚡ One-Command Deployment
 
 ```bash
-ssh root@72.62.132.43
+ssh root@YOUR_VPS_IP
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-full-deploy.sh | sudo bash
 ```
 
@@ -21,11 +21,8 @@ curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/
 
 ```bash
 # Connect to VPS
-ssh root@72.62.132.43
-# Password: Cumparavinde1@
-
-# Or with password in command (less secure)
-sshpass -p 'Cumparavinde1@' ssh root@72.62.132.43
+ssh root@YOUR_VPS_IP
+# Enter your SSH password or use SSH key
 ```
 
 ---
@@ -67,9 +64,9 @@ curl -I http://localhost:3000/
 ## 🌐 Access URLs
 
 After deployment:
-- **Application:** http://72.62.132.43:3000
-- **With Domain:** http://cortexbuildpro.com:3000 (after DNS)
-- **With SSL:** https://cortexbuildpro.com (after SSL setup)
+- **Application:** http://YOUR_VPS_IP:3000
+- **With Domain:** http://your-domain.com:3000 (after DNS)
+- **With SSL:** https://your-domain.com (after SSL setup)
 
 ---
 
@@ -107,16 +104,16 @@ git pull && docker compose up -d --build
 
 ### Database
 - **User:** cortexbuild
-- **Password:** CortexSecure2026 (⚠️ CHANGE IN PRODUCTION!)
+- **Password:** (Set your own secure password - see .env.production)
 - **Database:** cortexbuild
 - **Port:** 5433 (external), 5432 (internal)
 
 ### API Keys
-- **AbacusAI:** aab7e27d61c14a81a2bcf4d395478e4c (✅ Real API key)
+- **AbacusAI:** Get from https://abacus.ai/ → Settings → API Keys
 
 ### Authentication
-- **NextAuth Secret:** MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK
-- **Encryption Key:** cortexbuild_encryption_key_2026_secure
+- **NextAuth Secret:** Generate with `openssl rand -base64 32`
+- **Encryption Key:** Generate with `openssl rand -hex 32`
 
 ---
 

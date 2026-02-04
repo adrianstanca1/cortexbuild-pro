@@ -18,11 +18,11 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-VPS_IP="72.62.132.43"
+VPS_IP="${VPS_IP:-YOUR_VPS_IP}"  # Can be set via environment variable
 REPO_URL="https://github.com/adrianstanca1/cortexbuild-pro.git"
 PROJECT_DIR="/root/cortexbuild-pro"
 DEPLOYMENT_DIR="$PROJECT_DIR/deployment"
-DOMAIN="cortexbuildpro.com"
+DOMAIN="${DOMAIN:-your-domain.com}"  # Can be set via environment variable
 
 # Print banner
 print_banner() {

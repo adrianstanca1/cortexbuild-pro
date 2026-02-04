@@ -18,9 +18,9 @@ This guide provides complete instructions for deploying CortexBuild Pro to your 
 - **Ports:** 80, 443, 3000 open
 
 ### Access Requirements
-- Root SSH access
-- SSH credentials: `root@72.62.132.43`
-- Password: `Cumparavinde1@`
+- Root SSH access to your VPS
+- SSH credentials or SSH key configured
+- VPS with Ubuntu 20.04+ or Debian 11+
 
 ---
 
@@ -32,8 +32,8 @@ The fastest way to deploy:
 
 ```bash
 # 1. SSH into your VPS
-ssh root@72.62.132.43
-# Password: Cumparavinde1@
+ssh root@YOUR_VPS_IP
+# Enter your SSH password or use SSH key
 
 # 2. Download and run the deployment script
 curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-full-deploy.sh -o vps-full-deploy.sh
@@ -65,8 +65,8 @@ If you prefer manual control, follow these steps:
 ### Step 1: Connect to VPS
 
 ```bash
-ssh root@72.62.132.43
-# Enter password: Cumparavinde1@
+ssh root@YOUR_VPS_IP
+# Enter password when prompted
 ```
 
 ### Step 2: Install Docker
@@ -125,12 +125,12 @@ chmod 600 .env
 
 **Environment variables in `.env.production`:**
 - ✅ `POSTGRES_USER=cortexbuild`
-- ✅ `POSTGRES_PASSWORD=CortexSecure2026` (change in production!)
+- ✅ `POSTGRES_PASSWORD` - Generate strong password with `openssl rand -base64 32`
 - ✅ `POSTGRES_DB=cortexbuild`
-- ✅ `NEXTAUTH_URL=https://cortexbuildpro.com`
-- ✅ `NEXTAUTH_SECRET=MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK`
-- ✅ `ENCRYPTION_KEY=cortexbuild_encryption_key_2026_secure`
-- ✅ `ABACUSAI_API_KEY=aab7e27d61c14a81a2bcf4d395478e4c`
+- ✅ `NEXTAUTH_URL` - Your production domain URL
+- ✅ `NEXTAUTH_SECRET` - Generate with `openssl rand -base64 32`
+- ✅ `ENCRYPTION_KEY` - Generate with `openssl rand -hex 32`
+- ✅ `ABACUSAI_API_KEY` - Get from https://abacus.ai/
 
 ### Step 6: Build Docker Image
 
@@ -230,8 +230,8 @@ docker compose exec db psql -U cortexbuild -d cortexbuild -c "SELECT current_dat
 ### Step 13: Access Application
 
 Open your browser and navigate to:
-- **Local:** http://72.62.132.43:3000
-- **Domain:** http://cortexbuildpro.com:3000 (after DNS setup)
+- **Local:** http://YOUR_VPS_IP:3000
+- **Domain:** http://your-domain.com:3000 (after DNS setup)
 
 ---
 
@@ -272,8 +272,8 @@ openssl rand -base64 24
 Point your domain to the VPS:
 
 ```
-A Record: @ -> 72.62.132.43
-A Record: www -> 72.62.132.43
+A Record: @ -> YOUR_VPS_IP
+A Record: www -> YOUR_VPS_IP
 ```
 
 ### Install and Configure SSL

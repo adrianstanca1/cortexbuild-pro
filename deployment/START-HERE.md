@@ -13,8 +13,8 @@ You have **TWO options** to deploy:
 Open your terminal and connect:
 
 ```bash
-ssh root@72.62.132.43
-# When prompted, enter password: Cumparavinde1@
+ssh root@YOUR_VPS_IP
+# Enter your SSH password when prompted
 ```
 
 ### Step 2: Run One-Command Deployment
@@ -60,8 +60,8 @@ If you prefer manual control, follow these steps:
 
 ### 1. Connect to VPS
 ```bash
-ssh root@72.62.132.43
-# Password: Cumparavinde1@
+ssh root@YOUR_VPS_IP
+# Enter your SSH password when prompted
 ```
 
 ### 2. Install Docker
@@ -192,8 +192,8 @@ After deployment completes:
 - **Host:** localhost (from VPS) or db (from Docker network)
 - **Port:** 5433 (external) or 5432 (internal)
 
-### API Keys (Already Configured)
-- **AbacusAI API Key:** aab7e27d61c14a81a2bcf4d395478e4c ✅
+### API Keys
+- **AbacusAI API Key:** Get from https://abacus.ai/ → Settings → API Keys
 
 ### Application Settings
 - **Domain:** cortexbuildpro.com

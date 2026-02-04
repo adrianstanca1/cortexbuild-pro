@@ -41,16 +41,16 @@ This repository is now **fully configured and ready** for production deployment 
 ## 🔑 Server & Access Information
 
 ### VPS Server
-- **IP Address:** 72.62.132.43
+- **IP Address:** YOUR_VPS_IP
 - **SSH User:** root
-- **SSH Password:** Cumparavinde1@
+- **SSH Authentication:** Use SSH keys (recommended) or password
 - **OS:** Ubuntu/Debian (assumed)
 
 ### Application
-- **Domain:** cortexbuildpro.com
+- **Domain:** your-domain.com
 - **Port:** 3000
 - **Protocol:** HTTP (HTTPS after SSL setup)
-- **Access URL:** http://72.62.132.43:3000
+- **Access URL:** http://YOUR_VPS_IP:3000
 
 ---
 
@@ -62,7 +62,7 @@ This repository is now **fully configured and ready** for production deployment 
 
 ```bash
 # 1. SSH into VPS
-ssh root@72.62.132.43
+ssh root@YOUR_VPS_IP
 
 # 2. Run deployment script
 bash <(curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-full-deploy.sh)
@@ -99,23 +99,23 @@ For full control, follow the manual steps in `VPS-DEPLOYMENT-GUIDE.md`:
 
 ✅ **Database Configuration**
 - User: cortexbuild
-- Password: CortexSecure2026 (⚠️ Change in production!)
+- Password: (Set your own secure password)
 - Database: cortexbuild
 - Port: 5432 (internal), 5433 (external)
 
 ✅ **Authentication**
-- NextAuth URL: https://cortexbuildpro.com
-- NextAuth Secret: MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK
-- Encryption Key: cortexbuild_encryption_key_2026_secure
+- NextAuth URL: https://your-domain.com
+- NextAuth Secret: (Generate with: openssl rand -base64 32)
+- Encryption Key: (Generate with: openssl rand -hex 32)
 
 ✅ **API Keys**
-- **AbacusAI API Key:** aab7e27d61c14a81a2bcf4d395478e4c (Real production key ✅)
+- **AbacusAI API Key:** Get from https://abacus.ai/ → Settings → API Keys
 
 ✅ **Application Settings**
 - Node Environment: production
 - Port: 3000
 - Telemetry: Disabled
-- WebSocket URL: https://cortexbuildpro.com
+- WebSocket URL: https://your-domain.com
 
 ### Docker Configuration
 
@@ -432,10 +432,10 @@ Everything is now **ready for deployment**!
 - ✅ Troubleshooting guides
 
 **To deploy, simply:**
-1. SSH to VPS: `ssh root@72.62.132.43`
+1. SSH to VPS: `ssh root@YOUR_VPS_IP`
 2. Run script: `bash <(curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/vps-full-deploy.sh)`
 3. Wait 10-15 minutes
-4. Access: http://72.62.132.43:3000
+4. Access: http://YOUR_VPS_IP:3000
 
 **All documentation is in the `deployment/` folder.**
 
