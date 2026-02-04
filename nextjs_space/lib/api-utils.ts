@@ -248,3 +248,69 @@ export async function logActivity(
 export function sanitizeInput(input: string): string {
   return input.trim().replace(/[<>]/g, '');
 }
+
+// Sanitize common entity fields
+export function sanitizeEntityFields<T extends Record<string, unknown>>(
+  fields: T
+): T {
+  const sanitized = { ...fields };
+  
+  // Common string fields to sanitize
+  const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
+  
+  for (const key of stringFields) {
+    if (key in sanitized && typeof sanitized[key] === 'string') {
+      sanitized[key] = (sanitized[key] as string).trim() || null;
+    }
+  }
+  
+  return sanitized;
+}
+
+// Broadcast entity event helper
+export function broadcastEntityEvent(
+  broadcast: (orgId: string, data: unknown) => void,
+  organizationId: string | undefined,
+  eventType: string,
+  entity: {
+    id: string;
+    name?: string;
+    title?: string;
+    status?: string;
+    [key: string]: unknown;
+  },
+  userId: string,
+  additionalData?: Record<string, unknown>
+): void {
+  if (!organizationId) return;
+  
+  broadcast(organizationId, {
+    type: eventType,
+    timestamp: new Date().toISOString(),
+    payload: {
+      ...additionalData,
+      entity: {
+        id: entity.id,
+        name: entity.name || entity.title,
+        status: entity.status,
+        ...entity,
+      },
+      userId,
+    },
+  });
+}
+
+// Wrapper for authenticated API handlers with error handling
+export function withAuthHandler<T = unknown>(
+  handler: (request: NextRequest, context: ApiContext, params?: T) => Promise<NextResponse>
+) {
+  return withErrorHandler(async (request: NextRequest, params?: T) => {
+    const { context, error } = await getApiContext();
+    
+    if (error) {
+      return error;
+    }
+    
+    return handler(request, context!, params);
+  });
+}
