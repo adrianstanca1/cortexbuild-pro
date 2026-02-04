@@ -657,7 +657,7 @@ export function CostCodesClient({ initialCostCodes }: Props) {
             <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={saving || (selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0))}
+              disabled={saving || !!(selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0))}
               className="bg-red-600 hover:bg-red-700"
             >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
