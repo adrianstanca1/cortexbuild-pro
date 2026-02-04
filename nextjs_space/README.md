@@ -61,7 +61,7 @@ cd cortex-abacus
 
 2. Install dependencies:
 ```bash
-yarn install
+npm install
 ```
 
 3. Set up environment variables:
@@ -72,18 +72,18 @@ cp .env.example .env
 
 4. Run database migrations:
 ```bash
-yarn prisma generate
-yarn prisma db push
+npm run prisma generate
+npm run prisma db push
 ```
 
 5. Seed the database (optional):
 ```bash
-yarn prisma db seed
+npm run prisma db seed
 ```
 
 6. Start the development server:
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -152,11 +152,11 @@ Key API routes include:
 
 ## Scripts
 
-- `yarn dev` - Start development server
-- `yarn build` - Build for production
-- `yarn start` - Start production server
-- `yarn prisma generate` - Generate Prisma client
-- `yarn prisma db push` - Push schema to database
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run prisma generate` - Generate Prisma client
+- `npm run prisma db push` - Push schema to database
 
 ## License
 

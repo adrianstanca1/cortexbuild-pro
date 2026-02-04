@@ -52,12 +52,8 @@ if [ "$NODE_VERSION" -lt 18 ]; then
 fi
 echo -e "${GREEN}✓ Node.js $(node -v)${NC}"
 
-# Check yarn
-if ! command -v yarn &> /dev/null; then
-    echo "  Installing yarn globally..."
-    npm install -g yarn
-fi
-echo -e "${GREEN}✓ Yarn $(yarn -v)${NC}"
+# Check npm (bundled with Node.js)
+echo -e "${GREEN}✓ npm $(npm -v)${NC}"
 
 # Setup .env file
 echo -e "${YELLOW}[3/8] Configuring environment...${NC}"
@@ -108,32 +104,32 @@ fi
 
 # Install dependencies
 echo -e "${YELLOW}[4/8] Installing dependencies...${NC}"
-yarn install --frozen-lockfile 2>/dev/null || yarn install
+npm ci 2>/dev/null || npm install
 echo -e "${GREEN}✓ Dependencies installed${NC}"
 
 # Generate Prisma client
 echo -e "${YELLOW}[5/8] Generating Prisma client...${NC}"
-yarn prisma generate
+npm run prisma generate
 echo -e "${GREEN}✓ Prisma client generated${NC}"
 
 # Run database migrations
 echo -e "${YELLOW}[6/8] Running database migrations...${NC}"
-yarn prisma migrate deploy || {
+npm run prisma migrate deploy || {
     echo -e "${YELLOW}  Attempting db push instead...${NC}"
-    yarn prisma db push --accept-data-loss
+    npm run prisma db push -- --accept-data-loss
 }
 echo -e "${GREEN}✓ Database schema synchronized${NC}"
 
 # Seed database
 echo -e "${YELLOW}[7/8] Seeding database...${NC}"
-yarn prisma db seed 2>/dev/null || {
+npm run prisma db seed 2>/dev/null || {
     echo -e "${YELLOW}  Database already seeded or seed failed (non-critical)${NC}"
 }
 echo -e "${GREEN}✓ Database seeding complete${NC}"
 
 # Build application
 echo -e "${YELLOW}[8/8] Building production application...${NC}"
-NODE_OPTIONS="--max-old-space-size=4096" yarn build
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
 echo -e "${GREEN}✓ Production build complete${NC}"
 
 # Success message
@@ -143,7 +139,7 @@ echo -e "${GREEN}║              🎉 DEPLOYMENT SUCCESSFUL! 🎉              
 echo -e "${GREEN}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}CloudPanel Configuration:${NC}"
-echo "  1. Set startup command: ${YELLOW}yarn start${NC}"
+echo "  1. Set startup command: ${YELLOW}npm start${NC}"
 echo "  2. Set Node.js version: ${YELLOW}20${NC}"
 echo "  3. Set PORT variable: ${YELLOW}3000${NC}"
 echo "  4. Enable SSL via Let's Encrypt"
@@ -156,6 +152,6 @@ echo "  │ Password:       Cumparavinde1                          │"
 echo "  └─────────────────────────────────────────────────────────┘"
 echo ""
 echo -e "${BLUE}To start the application manually:${NC}"
-echo "  cd $NEXTJS_DIR && yarn start"
+echo "  cd $NEXTJS_DIR && npm start"
 echo ""
 echo -e "${GREEN}Enjoy CortexBuild Pro! 🚀${NC}"
