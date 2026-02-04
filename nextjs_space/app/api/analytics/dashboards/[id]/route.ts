@@ -8,9 +8,10 @@ export const dynamic = 'force-dynamic';
 // Get single dashboard
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +24,7 @@ export async function GET(
 
     const dashboard = await prisma.analyticsDashboard.findFirst({
       where: {
-        id: params.id,
+        id,
         organizationId: user.organizationId,
       },
       include: {
@@ -48,9 +49,10 @@ export async function GET(
 // Update dashboard
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -70,7 +72,7 @@ export async function PATCH(
 
     const dashboard = await prisma.analyticsDashboard.updateMany({
       where: {
-        id: params.id,
+        id,
         organizationId: user.organizationId,
       },
       data: {
@@ -87,7 +89,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.analyticsDashboard.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { widgets: true },
     });
 
@@ -101,9 +103,10 @@ export async function PATCH(
 // Delete dashboard
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -120,7 +123,7 @@ export async function DELETE(
 
     const result = await prisma.analyticsDashboard.deleteMany({
       where: {
-        id: params.id,
+        id,
         organizationId: user.organizationId,
       },
     });
