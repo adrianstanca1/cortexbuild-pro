@@ -30,7 +30,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Generate 10 backup codes
-    const backupCodes = [];
+    const backupCodes: string[] = [];
     for (let i = 0; i < 10; i++) {
       const code = crypto.randomBytes(4).toString('hex').toUpperCase();
       backupCodes.push(code);
