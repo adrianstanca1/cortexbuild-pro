@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   Package, Plus, Search, Truck, CheckCircle, Clock, AlertTriangle,
-  Edit2, Trash2, Loader2, MapPin, Calendar, ArrowRight
+  Edit2, Trash2, Loader2, Calendar
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { 
   QrCode, 
   Users, 
@@ -9,8 +9,6 @@ import {
   UserCheck,
   Building2,
   Clock,
-  Phone,
-  Car,
   Download,
   RefreshCw,
   HardHat,
@@ -49,7 +47,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
   const [stats, setStats] = useState(initialStats);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+
 
   // Real-time updates
   useRealtime((event) => {

@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format, isPast, differenceInDays } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
-  Truck, Plus, Search, Wrench, MapPin, Calendar, PoundSterling,
+  Truck, Plus, Search, Wrench, MapPin,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
-  ChevronRight, Clock, Filter, LayoutGrid, List, AlertCircle, Eye
+  ChevronRight, LayoutGrid, List, AlertCircle, Eye
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
