@@ -8,24 +8,44 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 export const dynamic = 'force-dynamic';
 
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orgId = (session.user as { organizationId?: string })?.organizationId;
-    const documents = await prisma.document.findMany({
-      where: orgId ? { project: { organizationId: orgId } } : {},
-      include: {
-        project: { select: { id: true, name: true } },
-        uploadedBy: { select: { id: true, name: true } }
-      },
-      orderBy: { createdAt: "desc" }
-    });
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json({ documents });
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
+    const where = orgId ? { project: { organizationId: orgId } } : {};
+
+    const [documents, total] = await Promise.all([
+      prisma.document.findMany({
+        where,
+        include: {
+          project: { select: { id: true, name: true } },
+          uploadedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.document.count({ where })
+    ]);
+
+    return NextResponse.json({ 
+      documents,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error("Get documents error:", error);
     return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });

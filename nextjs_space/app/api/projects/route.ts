@@ -8,24 +8,44 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 export const dynamic = 'force-dynamic';
 
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100); // Max 100 per page
+    const skip = (page - 1) * limit;
+
     const orgId = (session.user as { organizationId?: string })?.organizationId;
+    const where = orgId ? { organizationId: orgId } : {};
+
+    // Get total count for pagination metadata
+    const total = await prisma.project.count({ where });
+
     const projects = await prisma.project.findMany({
-      where: orgId ? { organizationId: orgId } : {},
+      where,
       include: {
         manager: { select: { id: true, name: true } },
         _count: { select: { tasks: true, documents: true } }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit
     });
 
-    return NextResponse.json({ projects });
+    return NextResponse.json({ 
+      projects,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error("Get projects error:", error);
     return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });

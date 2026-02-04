@@ -19,36 +19,55 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    const skip = (page - 1) * limit;
 
     const organizationId = session.user.organizationId;
     if (!organizationId) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
 
-    const projects = await prisma.project.findMany({
-      where: { organizationId },
-      select: { id: true }
-    });
-    const projectIds = projects.map((p: { id: string }) => p.id);
-
+    // Build filter directly without separate project query (removes N+1 problem)
     const dateFilter: any = {};
     if (startDate) dateFilter.gte = new Date(startDate);
     if (endDate) dateFilter.lte = new Date(endDate);
 
-    const reports = await prisma.dailyReport.findMany({
-      where: {
-        projectId: projectId ? { equals: projectId } : { in: projectIds },
-        ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
-      },
-      include: {
-        project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } },
-        photos: true
-      },
-      orderBy: { reportDate: 'desc' }
-    });
+    const where: any = {
+      project: { organizationId }, // Filter by organization via project relation
+      ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
+    };
 
-    return NextResponse.json(reports);
+    // If specific project requested, override with exact projectId
+    if (projectId) {
+      where.projectId = projectId;
+      delete where.project;
+    }
+
+    const [reports, total] = await Promise.all([
+      prisma.dailyReport.findMany({
+        where,
+        include: {
+          project: { select: { id: true, name: true } },
+          createdBy: { select: { id: true, name: true } },
+          photos: true
+        },
+        orderBy: { reportDate: 'desc' },
+        skip,
+        take: limit
+      }),
+      prisma.dailyReport.count({ where })
+    ]);
+
+    return NextResponse.json({ 
+      reports,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Error fetching daily reports:', error);
     return NextResponse.json({ error: 'Failed to fetch reports' }, { status: 500 });

@@ -64,29 +64,39 @@ export async function POST(request: NextRequest) {
         const results: unknown[] = [];
 
         if (operation === 'create') {
-          for (const task of tasks) {
-            if (task.title && task.projectId) {
-              const created = await prisma.task.create({
-                data: {
-                  title: task.title,
-                  description: task.description || '',
-                  status: task.status || 'TODO',
-                  priority: task.priority || 'MEDIUM',
-                  projectId: task.projectId,
-                  assigneeId: task.assigneeId || null,
-                  dueDate: task.dueDate ? new Date(task.dueDate) : null,
-                  creatorId: user.id,
-                },
-              });
-              results.push(created);
-              processed++;
-            }
+          // Filter valid tasks with required fields
+          const validTasks = tasks.filter(task => task.title && task.projectId);
+          
+          if (validTasks.length > 0) {
+            // Use createMany for batch insert (much faster)
+            const tasksData = validTasks.map(task => ({
+              title: task.title!,
+              description: task.description || '',
+              status: task.status || 'TODO',
+              priority: task.priority || 'MEDIUM',
+              projectId: task.projectId!,
+              assigneeId: task.assigneeId || null,
+              dueDate: task.dueDate ? new Date(task.dueDate) : null,
+              creatorId: user.id,
+            }));
+
+            const createResult = await prisma.task.createMany({
+              data: tasksData,
+              skipDuplicates: true,
+            });
+            processed = createResult.count;
+
+            // Fetch created tasks for results (if needed)
+            // Note: createMany doesn't return created records, so we skip detailed results for performance
+            results.push({ created: processed });
           }
+
           broadcastToOrganization(user.organizationId, {
             type: 'task_created',
             payload: { count: processed, message: `${processed} tasks created` },
           });
         } else if (operation === 'update') {
+          // Update operations need individual handling due to different fields per task
           for (const task of tasks) {
             if (task.id) {
               const updated = await prisma.task.update({
