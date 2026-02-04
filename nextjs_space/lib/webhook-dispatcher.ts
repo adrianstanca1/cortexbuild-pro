@@ -35,8 +35,9 @@ export async function dispatchWebhook(
 
     // Fire-and-forget: Send to all webhooks without blocking
     // This improves API response time by not waiting for webhook deliveries
-    Promise.allSettled(
-      webhooks.map(async (webhook) => {
+    webhooks.forEach((webhook) => {
+      // Each webhook delivery runs independently in the background
+      (async () => {
         const startTime = Date.now();
         let success = false;
         let statusCode = 0;
@@ -87,46 +88,45 @@ export async function dispatchWebhook(
 
         const duration = Date.now() - startTime;
 
-        // Log delivery attempt
-        await prisma.webhookDelivery.create({
-          data: {
-            webhookId: webhook.id,
-            event,
-            payload: payload as object,
-            statusCode,
-            responseBody: responseBody.substring(0, 5000),
-            success,
-            errorMessage,
-            duration,
-          },
-        });
-
-        // Update webhook last triggered
-        await prisma.webhook.update({
-          where: { id: webhook.id },
-          data: {
-            lastTriggeredAt: new Date(),
-            ...(success ? { consecutiveFailures: 0 } : { consecutiveFailures: { increment: 1 } }),
-          },
-        });
-
-        // Disable webhook after 10 consecutive failures
-        if (!success) {
-          const updatedWebhook = await prisma.webhook.findUnique({
-            where: { id: webhook.id },
-            select: { consecutiveFailures: true },
+        try {
+          // Log delivery attempt
+          await prisma.webhookDelivery.create({
+            data: {
+              webhookId: webhook.id,
+              event,
+              payload: payload as object,
+              statusCode,
+              responseBody: responseBody.substring(0, 5000),
+              success,
+              errorMessage,
+              duration,
+            },
           });
-          if (updatedWebhook && updatedWebhook.consecutiveFailures >= 10) {
-            await prisma.webhook.update({
-              where: { id: webhook.id },
-              data: { isActive: false },
-            });
+
+          // Use atomic update to handle consecutive failures and disabling
+          // This prevents race conditions when multiple deliveries happen simultaneously
+          const updatedWebhook = await prisma.webhook.update({
+            where: { id: webhook.id },
+            data: {
+              lastTriggeredAt: new Date(),
+              ...(success ? { consecutiveFailures: 0 } : { consecutiveFailures: { increment: 1 } }),
+              // Disable webhook if it reaches 10 consecutive failures
+              ...((!success && webhook.consecutiveFailures + 1 >= 10) && { isActive: false }),
+            },
+            select: { consecutiveFailures: true, isActive: true },
+          });
+
+          // Log if webhook was disabled
+          if (!updatedWebhook.isActive && !webhook.isActive) {
+            console.warn(`Webhook ${webhook.id} disabled after ${updatedWebhook.consecutiveFailures} consecutive failures`);
           }
+        } catch (dbError) {
+          console.error('Webhook delivery logging error (non-blocking):', dbError);
         }
-      })
-    ).catch((error) => {
-      // Log errors but don't block - fire-and-forget pattern
-      console.error('Webhook delivery error (non-blocking):', error);
+      })().catch((error) => {
+        // Catch any unhandled errors from the async function
+        console.error('Webhook delivery error (non-blocking):', error);
+      });
     });
 
     // Return immediately without waiting for webhook deliveries

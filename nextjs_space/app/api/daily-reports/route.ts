@@ -19,8 +19,14 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    
+    // Validate and sanitize pagination parameters
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    
+    const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
+    const normalizedLimit = Number.isFinite(rawLimit) && rawLimit >= 1 ? rawLimit : 50;
+    const limit = Math.min(normalizedLimit, 100);
     const skip = (page - 1) * limit;
 
     const organizationId = session.user.organizationId;
@@ -30,19 +36,28 @@ export async function GET(request: NextRequest) {
 
     // Build filter directly without separate project query (removes N+1 problem)
     const dateFilter: any = {};
-    if (startDate) dateFilter.gte = new Date(startDate);
-    if (endDate) dateFilter.lte = new Date(endDate);
+    if (startDate) {
+      const parsedStartDate = new Date(startDate);
+      if (isNaN(parsedStartDate.getTime())) {
+        return NextResponse.json({ error: 'Invalid startDate format' }, { status: 400 });
+      }
+      dateFilter.gte = parsedStartDate;
+    }
+    if (endDate) {
+      const parsedEndDate = new Date(endDate);
+      if (isNaN(parsedEndDate.getTime())) {
+        return NextResponse.json({ error: 'Invalid endDate format' }, { status: 400 });
+      }
+      dateFilter.lte = parsedEndDate;
+    }
 
-    // Build where clause conditionally
-    const where: any = projectId
-      ? { 
-          projectId,
-          ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
-        }
-      : { 
-          project: { organizationId },
-          ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
-        };
+    // Always scope by organization to prevent unauthorized access
+    // If projectId is specified, verify it belongs to the user's organization
+    const where: any = {
+      project: { organizationId },
+      ...(projectId && { projectId }),
+      ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })
+    };
 
     const [reports, total] = await Promise.all([
       prisma.dailyReport.findMany({

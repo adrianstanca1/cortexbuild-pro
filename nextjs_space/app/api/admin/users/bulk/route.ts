@@ -253,25 +253,61 @@ export async function POST(req: NextRequest) {
         // Batch create all users at once
         if (usersToCreate.length > 0) {
           try {
+            const expectedCreates = usersToCreate.length;
             const createResult = await prisma.user.createMany({
               data: usersToCreate,
               skipDuplicates: true
             });
-            importResults.success = createResult.count;
+            const actualCreates = createResult.count;
+            importResults.success = actualCreates;
+            
+            // When skipDuplicates: true, Prisma silently skips duplicates
+            // Track skipped duplicates in the failed count
+            const skippedDueToDuplicates = expectedCreates - actualCreates;
+            if (skippedDueToDuplicates > 0) {
+              importResults.failed += skippedDueToDuplicates;
+              importResults.errors.push({
+                email: null,
+                error: `${skippedDueToDuplicates} user(s) were skipped because they already exist (duplicate unique fields)`,
+                code: "DUPLICATE_SKIPPED",
+                field: undefined
+              });
+            }
           } catch (error: any) {
-            // If batch create fails, fall back to individual creates
-            for (const userData of usersToCreate) {
+            // If the entire batch fails, use chunked batch creates to retain performance
+            const CHUNK_SIZE = 100;
+            
+            for (let i = 0; i < usersToCreate.length; i += CHUNK_SIZE) {
+              const chunk = usersToCreate.slice(i, i + CHUNK_SIZE);
+              
               try {
-                await prisma.user.create({ data: userData });
-                importResults.success++;
-              } catch (err: any) {
-                importResults.failed++;
-                importResults.errors.push({
-                  email: userData.email,
-                  error: err?.message || "Failed to create user",
-                  code: err?.code,
-                  field: err?.meta?.target
+                const chunkResult = await prisma.user.createMany({
+                  data: chunk,
+                  skipDuplicates: true
                 });
+                importResults.success += chunkResult.count;
+                
+                // Track skipped duplicates in chunk
+                const skippedInChunk = chunk.length - chunkResult.count;
+                if (skippedInChunk > 0) {
+                  importResults.failed += skippedInChunk;
+                }
+              } catch (chunkError: any) {
+                // If a chunk fails, fall back to individual creates only for that chunk
+                for (const userData of chunk) {
+                  try {
+                    await prisma.user.create({ data: userData });
+                    importResults.success++;
+                  } catch (err: any) {
+                    importResults.failed++;
+                    importResults.errors.push({
+                      email: userData.email,
+                      error: err?.message || "Failed to create user",
+                      code: err?.code,
+                      field: err?.meta?.target
+                    });
+                  }
+                }
               }
             }
           }

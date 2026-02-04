@@ -196,8 +196,43 @@ Before deploying to production:
 
 ## Migration Notes
 
-### Breaking Changes
-None - All changes are backward compatible.
+### Breaking Changes (API Response Format)
+
+The following endpoints now return paginated responses with metadata. This is a **breaking change** that requires frontend code updates.
+
+**Affected Endpoints:**
+- `GET /api/projects` 
+- `GET /api/documents`
+- `GET /api/tasks`
+- `GET /api/daily-reports`
+
+**Response Format:**
+All paginated endpoints return responses with the resource-specific key (not a generic "items" key):
+
+```json
+{
+  "projects": [...],  // or "tasks", "documents", "reports" 
+  "pagination": {
+    "total": 500,
+    "page": 1,
+    "limit": 50,
+    "totalPages": 10
+  }
+}
+```
+
+**Batch Operations:**
+Batch task creation now returns count instead of individual objects:
+
+```json
+{
+  "success": true,
+  "created": 100,
+  "message": "Successfully created 100 tasks",
+  "skipped": 5,
+  "errors": [...]
+}
+```
 
 ### API Response Changes
 API routes now return pagination metadata:

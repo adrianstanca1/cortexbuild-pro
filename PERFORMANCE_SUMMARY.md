@@ -125,11 +125,14 @@ Reduced initial load from 200 to 50 photos:
 
 ## API Changes
 
-### Response Format Changes
-All paginated endpoints now return:
+### Response Format Changes (BREAKING)
+
+**This PR introduces breaking changes to API response formats.**
+
+All paginated endpoints now return responses with resource-specific keys:
 ```json
 {
-  "items": [...],
+  "projects": [...],  // or "tasks", "documents", "reports"
   "pagination": {
     "total": 500,
     "page": 1,
@@ -139,24 +142,28 @@ All paginated endpoints now return:
 }
 ```
 
+Note: Each endpoint uses its own resource key (`projects`, `tasks`, `documents`, `reports`), not a generic `items` key.
+
 ### Batch Operations
 Batch task create returns count instead of individual records:
 ```json
 {
   "success": true,
   "created": 100,
-  "message": "Successfully created 100 tasks"
+  "message": "Successfully created 100 tasks",
+  "skipped": 5,
+  "errors": [...]
 }
 ```
 
 ## Migration Guide
 
 ### For Backend Developers
-No breaking changes - all modifications are backward compatible.
+**Breaking changes** - API response formats have changed. Ensure all API consumers are updated before deploying.
 
 ### For Frontend Developers
 Update API consumers to:
-1. Handle pagination metadata
+1. Handle pagination metadata in responses
 2. Add page/limit query parameters
 3. Implement pagination controls
 4. Handle batch operation response format

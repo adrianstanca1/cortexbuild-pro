@@ -63,7 +63,7 @@ export function NotificationsDropdown() {
   }, [fetchNotifications]);
 
   // Real-time updates with debouncing
-  const { lastEvent } = useRealtime((event) => {
+  useRealtime((event) => {
     if (event.type === 'activity_logged' || event.type === 'notification') {
       debouncedFetchNotifications();
     }
