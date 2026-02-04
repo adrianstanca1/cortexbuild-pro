@@ -2,13 +2,12 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
-  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
+  Search, FileText, Upload, Download, Trash2, Loader2,
   Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
+  FolderOpen, ChevronRight, LayoutGrid, List, HardDrive
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -343,6 +342,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/50">
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>

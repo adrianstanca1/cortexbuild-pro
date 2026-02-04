@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format, isToday, isTomorrow, isPast, isThisWeek } from 'date-fns';
+import { format, isToday, isPast, isThisWeek } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   FileText, Plus, Search, Calendar, Clock, Users, CheckSquare,
-  MapPin, Loader2, Video, ChevronRight, Filter, LayoutGrid, List,
-  AlertCircle, CalendarDays
+  MapPin, Loader2, ChevronRight, CalendarDays
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -141,13 +140,6 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
   // Group meetings by date
   const upcomingMeetings = filteredMeetings.filter(m => !isPast(new Date(m.meetingDate)));
   const pastMeetings = filteredMeetings.filter(m => isPast(new Date(m.meetingDate)));
-
-  const getMeetingDateLabel = (date: string) => {
-    const d = new Date(date);
-    if (isToday(d)) return 'Today';
-    if (isTomorrow(d)) return 'Tomorrow';
-    return format(d, 'EEEE, MMM d');
-  };
 
   return (
     <div className="space-y-6 pb-8">

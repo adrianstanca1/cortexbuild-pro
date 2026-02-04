@@ -78,7 +78,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
 
   useEffect(() => {
     fetchMaintenanceLogs();
-  }, [equipmentId]);
+  }, [equipmentId, fetchMaintenanceLogs]);
 
   const fetchMaintenanceLogs = async () => {
     try {

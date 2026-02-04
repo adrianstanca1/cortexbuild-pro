@@ -13,8 +13,6 @@ import {
   RefreshCw,
   Building2,
   User,
-  Phone,
-  Calendar,
   Settings2,
   Trash2,
   Eye,

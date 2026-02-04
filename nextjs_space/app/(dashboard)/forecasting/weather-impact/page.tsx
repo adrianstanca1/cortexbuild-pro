@@ -12,17 +12,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   Calendar,
-  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
-  ChevronRight,
-  Zap,
   CloudLightning,
   Cloudy,
   Umbrella,
-  Snowflake,
-  Clock,
   TrendingUp,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -117,7 +112,7 @@ export default function WeatherImpactPage() {
 
   useEffect(() => {
     fetchWeatherData();
-  }, [selectedProject]);
+  }, [selectedProject, fetchWeatherData]);
 
   const fetchProjects = async () => {
     try {

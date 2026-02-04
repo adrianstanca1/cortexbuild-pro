@@ -124,7 +124,6 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       onAnnotationComplete,
       onAnnotationSelect,
       onAnnotationMove,
-      onAnnotationResize,
       onColorPick,
       onCursorMove,
     },
@@ -204,10 +203,13 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       return () => {
         window.removeEventListener("resize", resizeCanvas);
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const frameId = animationFrameRef.current;
+        if (frameId) {
+          cancelAnimationFrame(frameId);
         }
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, selectedAnnotationId]);
 
     // Optimized render with requestAnimationFrame
@@ -267,6 +269,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       // Render overlay (selection handles, cursors)
       renderOverlay();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, isDrawing, currentPath, selectedAnnotationId, polygonPoints, color, strokeWidth, selectedTool, opacity]);
 
     useEffect(() => {
@@ -1646,7 +1649,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       if (e.ctrlKey) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -10 : 10;
-        const newZoom = Math.max(25, Math.min(400, zoom + delta));
+        const _newZoom = Math.max(25, Math.min(400, zoom + delta));
         // Zoom toward cursor position (not implemented yet)
       } else {
         setPanOffset(prev => ({
