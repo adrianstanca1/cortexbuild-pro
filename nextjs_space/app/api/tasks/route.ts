@@ -12,6 +12,9 @@ import {
 } from "@/lib/api-utils";
 
 export const GET = withAuthHandler(async (request: NextRequest, context) => {
+  // Maintain backward compatibility: allow querying without organizationId
+  // Original behavior returned all tasks when orgId was undefined
+  // Note: This should be reviewed for security - consider requiring organizationId in future
   const tasks = await prisma.task.findMany({
     where: context.organizationId ? { project: { organizationId: context.organizationId } } : {},
     include: {

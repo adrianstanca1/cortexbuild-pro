@@ -245,8 +245,8 @@ export function sanitizeInput(input: string): string {
 }
 
 // Sanitize common entity fields
-// Note: Preserves original behavior - only converts undefined/null to null after trim
-// Empty strings that become empty after trim are converted to null to match original logic
+// Note: Preserves original behavior - only converts empty strings to null after trim
+// Matches original logic: "field?.trim() || null"
 export function sanitizeEntityFields<T extends Record<string, unknown>>(
   fields: T
 ): T {
@@ -258,8 +258,8 @@ export function sanitizeEntityFields<T extends Record<string, unknown>>(
   for (const key of stringFields) {
     if (key in sanitized && typeof sanitized[key] === 'string') {
       const trimmed = (sanitized[key] as string).trim();
-      // Match original behavior: "field?.trim() || null"
-      sanitized[key] = (trimmed || null) as T[Extract<keyof T, string>];
+      // Explicitly convert empty strings to null, matching original behavior
+      sanitized[key] = (trimmed === '' ? null : trimmed) as T[Extract<keyof T, string>];
     }
   }
   

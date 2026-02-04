@@ -139,7 +139,7 @@ export function generateTeamInvitationEmail(
     // Old format - add default values for new required fields
     return generateTeamInvitationEmailNew({
       memberName: params.memberName,
-      memberEmail: '', // Default empty since old format didn't have this
+      memberEmail: 'noreply@example.com', // Placeholder for backward compatibility
       inviterName: params.inviterName,
       organizationName: params.organizationName,
       role: params.role,
