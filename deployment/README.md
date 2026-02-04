@@ -118,10 +118,12 @@ deployment/
 ├── docker-compose.yml    # Container orchestration
 ├── Dockerfile            # App build instructions
 ├── nginx.conf            # Reverse proxy config
-├── one-click-deploy.sh   # ⭐ One-click deployment (NEW)
-├── health-check.sh       # ⭐ Health monitoring (NEW)
-├── rollback.sh           # ⭐ Deployment rollback (NEW)
-├── QUICKSTART.md         # ⭐ Quick start guide (NEW)
+├── one-click-deploy.sh   # ⭐ One-click deployment
+├── production-deploy.sh  # ⭐ Complete production workflow (NEW)
+├── cleanup-repos.sh      # ⭐ Repository cleanup (NEW)
+├── health-check.sh       # ⭐ Health monitoring
+├── rollback.sh           # ⭐ Deployment rollback
+├── QUICKSTART.md         # ⭐ Quick start guide
 ├── deploy.sh             # Main deployment script
 ├── setup-ssl.sh          # SSL certificate setup
 ├── backup.sh             # Database backup
@@ -257,6 +259,7 @@ Add to crontab (`crontab -e`):
 
 ## 🔄 Updating the Application
 
+### Standard Update
 ```bash
 cd cortexbuild_pro/deployment
 
@@ -269,6 +272,49 @@ docker-compose up -d app
 
 # Run any new migrations
 docker-compose exec app npx prisma migrate deploy
+```
+
+### Production Deployment Workflow (Recommended)
+
+Complete production deployment with commit, rebuild, deploy, and cleanup:
+
+```bash
+cd cortexbuild_pro/deployment
+./production-deploy.sh
+```
+
+This script performs:
+1. ✅ Commits all pending changes
+2. ✅ Rebuilds application with fresh production build
+3. ✅ Deploys to VPS with database migrations
+4. ✅ Cleans up repositories and Docker artifacts
+5. ✅ Runs health checks to verify deployment
+
+**Features:**
+- Complete workflow automation
+- Comprehensive logging
+- Error handling and rollback support
+- Post-deployment verification
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Production Deployment
+  Version: 2.2.0
+=============================================================================
+
+[INFO] Step 1: Committing all changes...
+[INFO] No changes to commit - working tree is clean
+[INFO] Step 2: Rebuilding application for production...
+[INFO] Building fresh Docker images (this may take several minutes)...
+[SUCCESS] Production build completed successfully
+[INFO] Step 3: Deploying to VPS...
+[SUCCESS] Application deployed successfully
+[INFO] Step 4: Cleaning repositories and artifacts...
+[SUCCESS] Repository cleanup completed
+[SUCCESS] Health check completed
+
+Deployment completed successfully!
 ```
 
 ---
@@ -302,6 +348,73 @@ docker system df
 
 # Clean unused images/containers
 docker system prune -a
+```
+
+---
+
+## 🧹 Repository Cleanup
+
+### Standard Cleanup
+```bash
+cd cortexbuild_pro/deployment
+./cleanup-repos.sh
+```
+
+Performs standard cleanup:
+- Removes stopped Docker containers
+- Removes dangling Docker images
+- Cleans build cache
+- Optimizes Git repository
+- Cleans old logs (7+ days)
+- Removes temporary files
+
+### Aggressive Cleanup
+```bash
+./cleanup-repos.sh --aggressive
+```
+
+**⚠️ WARNING:** Aggressive mode also removes:
+- All unused Docker images (not just dangling)
+- Unused Docker volumes (may contain data)
+- Git untracked files
+
+**Use aggressive mode only when:**
+- Running low on disk space
+- After major version upgrades
+- During maintenance windows
+- You have verified backups exist
+
+**What gets cleaned:**
+```
+✓ Docker containers (stopped)
+✓ Docker images (dangling/unused)
+✓ Docker networks (unused)
+✓ Docker volumes (unused in aggressive mode)
+✓ Docker build cache
+✓ Git repository optimization
+✓ Next.js build cache
+✓ node_modules cache
+✓ Yarn cache
+✓ Old logs (7+ days)
+✓ Temporary files
+```
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Repository Cleanup
+=============================================================================
+
+[INFO] Disk usage before cleanup: 45G
+[INFO] Cleaning Docker artifacts...
+[SUCCESS] Docker cleanup completed
+[INFO] Cleaning Git repository...
+[SUCCESS] Git repository cleanup completed
+[INFO] Cleaning build artifacts...
+[SUCCESS] Build artifacts cleanup completed
+[SUCCESS] Disk usage after cleanup: 38G
+
+Cleanup completed successfully!
 ```
 
 ---
