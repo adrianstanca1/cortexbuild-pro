@@ -20,6 +20,7 @@ import { KanbanBoard } from "./kanban-board";
 import { TaskDetailDialog } from "@/components/ui/task-card";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { GanttChart } from "@/components/ui/gantt-chart";
+import { taskStatusColors, taskPriorityConfig } from "@/lib/ui-config";
 
 import { TaskWithRelations } from "@/lib/types";
 
@@ -39,20 +40,6 @@ interface TasksClientProps {
   projects: Project[];
   teamMembers: TeamMember[];
 }
-
-const statusColors = {
-  TODO: { bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-300", dot: "bg-slate-400" },
-  IN_PROGRESS: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300", dot: "bg-blue-500" },
-  REVIEW: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300", dot: "bg-amber-500" },
-  COMPLETE: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-300", dot: "bg-green-500" }
-} as const;
-
-const priorityConfig = {
-  LOW: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
-  MEDIUM: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
-  HIGH: { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
-  CRITICAL: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" }
-} as const;
 
 export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) {
   const router = useRouter();
@@ -444,8 +431,8 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
         <div className="space-y-3">
           {filteredTasks?.map((task: any) => {
             const isOverdue = task?.dueDate && isPast(new Date(task.dueDate)) && task?.status !== "COMPLETE";
-            const statusStyle = statusColors[task?.status as keyof typeof statusColors] || statusColors.TODO;
-            const priorityStyle = priorityConfig[task?.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
+            const statusStyle = taskStatusColors[task?.status as keyof typeof taskStatusColors] || taskStatusColors.TODO;
+            const priorityStyle = taskPriorityConfig[task?.priority as keyof typeof taskPriorityConfig] || taskPriorityConfig.MEDIUM;
 
             return (
               <Card

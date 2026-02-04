@@ -1,5 +1,12 @@
 // Email notification helper functions for CortexBuild Pro
 
+import { 
+  generateCompanyInvitationEmail,
+  generateTeamInvitationEmail,
+  type CompanyInvitationTemplateParams,
+  type TeamInvitationTemplateParams
+} from './email-templates';
+
 interface NotificationResult {
   success: boolean;
   message?: string;
@@ -11,90 +18,11 @@ interface NotificationResult {
 // =====================================================
 
 export async function sendCompanyInvitationNotification(
-  invitation: {
-    ownerName: string;
-    companyName: string;
-    ownerEmail: string;
-    acceptUrl: string;
-    expiresAt: Date;
-    enabledModules: string[];
-    storageGB: number;
-    maxUsers: number;
-  }
+  invitation: CompanyInvitationTemplateParams
 ): Promise<NotificationResult> {
   try {
-    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
-
-    const htmlBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <div style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); padding: 30px; border-radius: 12px 12px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">🏗️ CortexBuild Pro</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Construction Management Platform</p>
-          </div>
-        </div>
-        
-        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
-          <h2 style="color: #1f2937; margin-top: 0;">
-            Welcome, ${invitation.ownerName}! 🎉
-          </h2>
-          
-          <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-            You have been invited to join <strong>CortexBuild Pro</strong> as the owner of <strong>${invitation.companyName}</strong>.
-          </p>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #7c3aed;">
-            <h3 style="color: #374151; margin-top: 0;">📋 Your Company Details</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; width: 120px;">Company:</td>
-                <td style="padding: 8px 0; font-weight: 600;">${invitation.companyName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Your Name:</td>
-                <td style="padding: 8px 0; font-weight: 600;">${invitation.ownerName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Email:</td>
-                <td style="padding: 8px 0;">${invitation.ownerEmail}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Storage Limit:</td>
-                <td style="padding: 8px 0;">${invitation.storageGB} GB</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Max Users:</td>
-                <td style="padding: 8px 0;">${invitation.maxUsers}</td>
-              </tr>
-            </table>
-          </div>
-          
-          <div style="background: #ede9fe; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <h3 style="color: #5b21b6; margin-top: 0;">✨ Enabled Features</h3>
-            <ul style="color: #4b5563; padding-left: 20px; margin: 0;">
-              ${invitation.enabledModules.map(m => `<li style="margin: 5px 0;">${m}</li>`).join('')}
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${invitation.acceptUrl}" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);">
-              Accept Invitation & Set Password
-            </a>
-          </div>
-          
-          <p style="color: #9ca3af; font-size: 14px; text-align: center;">
-            ⏰ This invitation expires on ${invitation.expiresAt.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
-          
-          <p style="color: #9ca3af; font-size: 12px; text-align: center;">
-            If you did not expect this invitation, please ignore this email.
-          </p>
-        </div>
-      </div>
-    `;
+    const htmlBody = generateCompanyInvitationEmail(invitation);
 
     const response = await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
       method: 'POST',
@@ -124,90 +52,11 @@ export async function sendCompanyInvitationNotification(
 // =====================================================
 
 export async function sendTeamMemberInvitationNotification(
-  invitation: {
-    memberName: string;
-    memberEmail: string;
-    inviterName: string;
-    organizationName: string;
-    role: string;
-    jobTitle?: string;
-    department?: string;
-    acceptUrl: string;
-    expiresAt: Date;
-  }
+  invitation: TeamInvitationTemplateParams
 ): Promise<NotificationResult> {
   try {
-    const appUrl = process.env.NEXTAUTH_URL || '';
     const appName = 'CortexBuild Pro';
-
-    const roleLabels: Record<string, string> = {
-      ADMIN: 'Administrator',
-      PROJECT_MANAGER: 'Project Manager',
-      FIELD_WORKER: 'Field Worker',
-    };
-
-    const htmlBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">👋 Team Invitation</h1>
-          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">You've been invited to join a team</p>
-        </div>
-        <div style="padding: 30px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-          <p style="font-size: 18px; color: #1f2937;">Hello <strong>${invitation.memberName}</strong>,</p>
-          <p style="font-size: 16px; color: #4b5563; line-height: 1.6;">
-            <strong>${invitation.inviterName}</strong> has invited you to join 
-            <strong>${invitation.organizationName}</strong> on CortexBuild Pro.
-          </p>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #059669;">
-            <h3 style="color: #374151; margin-top: 0;">📋 Your Role Details</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280; width: 120px;">Organization:</td>
-                <td style="padding: 8px 0; font-weight: 600;">${invitation.organizationName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Role:</td>
-                <td style="padding: 8px 0;">
-                  <span style="background: #dcfce7; color: #059669; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 14px;">
-                    ${roleLabels[invitation.role] || invitation.role.replace('_', ' ')}
-                  </span>
-                </td>
-              </tr>
-              ${invitation.jobTitle ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Job Title:</td>
-                <td style="padding: 8px 0;">${invitation.jobTitle}</td>
-              </tr>
-              ` : ''}
-              ${invitation.department ? `
-              <tr>
-                <td style="padding: 8px 0; color: #6b7280;">Department:</td>
-                <td style="padding: 8px 0;">${invitation.department}</td>
-              </tr>
-              ` : ''}
-            </table>
-          </div>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${invitation.acceptUrl}" 
-               style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);">
-              Accept Invitation & Join Team
-            </a>
-          </div>
-          
-          <p style="color: #9ca3af; font-size: 14px; text-align: center;">
-            ⏰ This invitation will expire on ${invitation.expiresAt.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
-          
-          <p style="color: #9ca3af; font-size: 12px; text-align: center;">
-            If you didn't expect this invitation, you can safely ignore this email.
-          </p>
-        </div>
-      </div>
-    `;
+    const htmlBody = generateTeamInvitationEmail(invitation);
 
     const response = await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
       method: 'POST',
