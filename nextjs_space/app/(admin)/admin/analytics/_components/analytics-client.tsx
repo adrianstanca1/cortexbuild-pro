@@ -12,12 +12,7 @@ import {
   RefreshCw,
   Download,
   Share2,
-  TrendingUp,
-  Users,
-  FolderKanban,
-  DollarSign,
-  Activity,
-  Calendar
+  TrendingUp
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

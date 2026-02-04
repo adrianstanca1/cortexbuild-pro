@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import {
   Database,
   Plus,
-  Search,
   Play,
   Download,
   Upload,
@@ -16,8 +14,7 @@ import {
   Settings,
   History,
   Trash2,
-  Eye,
-  Calendar
+  Eye
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,7 +74,6 @@ export function BackupRestoreClient() {
   const [configs, setConfigs] = useState<BackupConfig[]>([]);
   const [records, setRecords] = useState<BackupRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<BackupRecord | null>(null);

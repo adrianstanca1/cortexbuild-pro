@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import {
   Mail,
   Plus,
@@ -14,7 +13,6 @@ import {
   Send,
   Code,
   Type,
-  AtSign,
   MessageSquare
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +42,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 interface EmailTemplate {
   id: string;
