@@ -256,11 +256,13 @@ export function sanitizeEntityFields<T extends Record<string, unknown>>(
   const sanitized = { ...fields };
   
   // Common string fields to sanitize
+  // Note: Empty strings (after trim) are intentionally converted to null
   const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
   
   for (const key of stringFields) {
     if (key in sanitized && typeof sanitized[key] === 'string') {
-      sanitized[key] = (sanitized[key] as string).trim() || null;
+      const trimmed = (sanitized[key] as string).trim();
+      sanitized[key] = (trimmed || null) as T[Extract<keyof T, string>];
     }
   }
   
@@ -301,10 +303,10 @@ export function broadcastEntityEvent(
 }
 
 // Wrapper for authenticated API handlers with error handling
-export function withAuthHandler<T = unknown>(
-  handler: (request: NextRequest, context: ApiContext, params?: T) => Promise<NextResponse>
+export function withAuthHandler(
+  handler: (request: NextRequest, context: ApiContext, params?: unknown) => Promise<NextResponse>
 ) {
-  return withErrorHandler(async (request: NextRequest, params?: T) => {
+  return withErrorHandler(async (request: NextRequest, params?: unknown) => {
     const { context, error } = await getApiContext();
     
     if (error) {

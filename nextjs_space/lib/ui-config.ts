@@ -94,16 +94,31 @@ export const roleColors: Record<string, string> = {
   FIELD_WORKER: "bg-slate-100 text-slate-700"
 };
 
-// Helper function to get status color class
+// Helper function to get task status background class
+export function getTaskStatusBg(status: string): string {
+  return taskStatusColors[status as keyof typeof taskStatusColors]?.bg || "bg-gray-100";
+}
+
+// Helper function to get project status color classes
+export function getProjectStatusColor(status: string): string {
+  return projectStatusColors[status] || "bg-gray-100 text-gray-700";
+}
+
+// Helper function to get health status color classes
+export function getHealthStatusColor(status: string): string {
+  return healthStatusColors[status as keyof typeof healthStatusColors] || healthStatusColors.unknown;
+}
+
+// Legacy helper - deprecated, use specific functions above
 export function getStatusColor(status: string, type: 'task' | 'project' | 'health' = 'task'): string {
   if (type === 'task') {
-    return taskStatusColors[status as keyof typeof taskStatusColors]?.bg || "bg-gray-100";
+    return getTaskStatusBg(status);
   }
   if (type === 'project') {
-    return projectStatusColors[status] || "bg-gray-100";
+    return getProjectStatusColor(status);
   }
   if (type === 'health') {
-    return healthStatusColors[status as keyof typeof healthStatusColors] || healthStatusColors.unknown;
+    return getHealthStatusColor(status);
   }
   return "bg-gray-100";
 }
