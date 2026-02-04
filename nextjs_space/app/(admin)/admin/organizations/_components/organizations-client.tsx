@@ -11,14 +11,12 @@ import {
   MoreVertical,
   Edit,
   Trash2,
-  PoundSterling,
   FileText,
   ListTodo,
   RefreshCw,
   Check,
   CheckCircle,
   Eye,
-  X,
   XCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

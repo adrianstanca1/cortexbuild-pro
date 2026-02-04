@@ -6,7 +6,6 @@ import {
   Plus,
   Search,
   Download,
-  Eye,
   Edit,
   Trash2,
   RefreshCw,

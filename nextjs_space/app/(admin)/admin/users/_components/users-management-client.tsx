@@ -7,28 +7,20 @@ import {
   Users,
   Plus,
   Search,
-  Filter,
   MoreVertical,
   Edit,
   Trash2,
   UserCog,
-  Shield,
-  Mail,
-  Phone,
   Building2,
-  Calendar,
   Clock,
   RefreshCw,
-  X,
   Check,
   Eye,
-  Key,
   Download,
-  Upload,
   UserCheck,
   CheckSquare
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -326,8 +318,8 @@ export function UsersManagementClient() {
 
     setSaving(true);
     try {
-      let endpoint = "/api/admin/users/bulk";
-      let body: any = { action: bulkAction, userIds: selectedUserIds };
+      const endpoint = "/api/admin/users/bulk";
+      const body: any = { action: bulkAction, userIds: selectedUserIds };
 
       if (bulkAction === "update_role") {
         if (!bulkRole) {
