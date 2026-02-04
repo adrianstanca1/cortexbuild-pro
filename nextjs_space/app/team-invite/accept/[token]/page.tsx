@@ -5,10 +5,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 
-export default function TeamInviteAcceptPage({
+export default async function TeamInviteAcceptPage({
   params,
 }: {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }) {
-  return <TeamInviteAcceptClient token={params.token} />;
+  const { token } = await params;
+  return <TeamInviteAcceptClient token={token} />;
 }
