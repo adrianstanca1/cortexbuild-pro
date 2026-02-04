@@ -43,7 +43,7 @@ export async function POST(
     await prisma.backupRecord.update({
       where: { id },
       data: {
-        status: 'RESTORING',
+        status: 'IN_PROGRESS',
       },
     });
 

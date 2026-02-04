@@ -46,8 +46,9 @@ export async function POST(request: NextRequest) {
     await prisma.userMFA.update({
       where: { id: methodId },
       data: {
-        isEnabled: true,
-        isPrimary: true,
+        status: 'ACTIVE',
+        isVerified: true,
+        verifiedAt: new Date(),
         lastUsedAt: new Date(),
       },
     });

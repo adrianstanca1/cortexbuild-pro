@@ -77,7 +77,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const existing = await prisma.rateLimit.findFirst({
+    const existing = await prisma.organizationRateLimit.findFirst({
       where: { id: id, organizationId: user.organizationId },
     });
 
@@ -85,7 +85,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Rate limit not found' }, { status: 404 });
     }
 
-    await prisma.rateLimit.delete({ where: { id: id } });
+    await prisma.organizationRateLimit.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -23,9 +23,9 @@ export async function GET(_request: NextRequest) {
       where: { userId: user.id },
       select: {
         id: true,
-        type: true,
-        isEnabled: true,
-        isPrimary: true,
+        mfaType: true,
+        status: true,
+        isVerified: true,
         createdAt: true,
         lastUsedAt: true,
       },
@@ -54,7 +54,7 @@ export async function DELETE(_request: NextRequest) {
     // Disable all MFA methods for the user
     await prisma.userMFA.updateMany({
       where: { userId: user.id },
-      data: { isEnabled: false },
+      data: { status: 'DISABLED' },
     });
 
     return NextResponse.json({ success: true });

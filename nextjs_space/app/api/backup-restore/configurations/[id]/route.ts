@@ -70,17 +70,17 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, schedule, retentionDays, isEnabled, includeFiles, includeDatabase } = body;
+    const { name, schedule, retention, includeDocuments, includeDatabase, includeMedia } = body;
 
     const configuration = await prisma.backupConfiguration.update({
       where: { id: id },
       data: {
         ...(name !== undefined && { name }),
         ...(schedule !== undefined && { schedule }),
-        ...(retentionDays !== undefined && { retentionDays }),
-        ...(isEnabled !== undefined && { isEnabled }),
-        ...(includeFiles !== undefined && { includeFiles }),
+        ...(retention !== undefined && { retention }),
+        ...(includeDocuments !== undefined && { includeDocuments }),
         ...(includeDatabase !== undefined && { includeDatabase }),
+        ...(includeMedia !== undefined && { includeMedia }),
       },
     });
 

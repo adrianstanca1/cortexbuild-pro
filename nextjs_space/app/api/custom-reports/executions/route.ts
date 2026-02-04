@@ -22,9 +22,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const reportId = searchParams.get('reportId');
 
-    const where: any = { organizationId: user.organizationId };
+    const where: any = {};
     if (reportId) {
       where.reportId = reportId;
+      // Verify report belongs to user's organization
+      const report = await prisma.customReport.findFirst({
+        where: { id: reportId, organizationId: user.organizationId },
+      });
+      if (!report) {
+        return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+      }
     }
 
     const executions = await prisma.reportExecution.findMany({
