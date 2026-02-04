@@ -89,10 +89,12 @@ function CommandCenter({
   constructionMetrics, 
   projectStatusCounts,
   tasks,
+  rfis,
 }: { 
   constructionMetrics?: ConstructionMetrics;
   projectStatusCounts: { PLANNING: number; IN_PROGRESS: number; ON_HOLD: number; COMPLETED: number };
   tasks: any[];
+  rfis?: any[];
 }) {
   const [hoveredFolder, setHoveredFolder] = useState<string | null>(null);
   
@@ -431,6 +433,7 @@ export function DashboardClient({
   projectStatusCounts,
   constructionMetrics,
   rfis = [],
+  upcomingMilestones = [],
 }: DashboardClientProps) {
   const router = useRouter();
 

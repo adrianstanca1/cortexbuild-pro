@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Cloud,
@@ -106,14 +106,6 @@ export default function WeatherImpactPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    fetchWeatherData();
-  }, [selectedProject, fetchWeatherData]);
-
   const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
@@ -126,7 +118,11 @@ export default function WeatherImpactPage() {
     }
   };
 
-  const fetchWeatherData = async () => {
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchWeatherData = useCallback(async () => {
     setLoading(true);
     try {
       const url = selectedProject
@@ -146,7 +142,11 @@ export default function WeatherImpactPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProject]);
+
+  useEffect(() => {
+    fetchWeatherData();
+  }, [selectedProject, fetchWeatherData]);
 
   const runAiAnalysis = async () => {
     setAnalyzing(true);

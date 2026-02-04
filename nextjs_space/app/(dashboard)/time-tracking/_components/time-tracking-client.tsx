@@ -75,8 +75,6 @@ export default function TimeTrackingClient({
   projects,
   tasks,
   initialEntries,
-  _teamMembers,
-  _currentUserId,
   userRole
 }: TimeTrackingClientProps) {
   const router = useRouter();
@@ -114,7 +112,6 @@ export default function TimeTrackingClient({
 
   const filteredEntries = entries.filter(e => {
     if (projectFilter !== "all" && e.projectId !== projectFilter) return false;
-    if (userFilter !== "all" && e.userId !== userFilter) return false;
     if (statusFilter !== "all" && e.status !== statusFilter) return false;
     return true;
   });

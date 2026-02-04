@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
@@ -87,14 +87,6 @@ export default function WasteTrackerPage() {
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
   const [analysisType, setAnalysisType] = useState('waste_reduction');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    fetchMaterialData();
-  }, [selectedProject, fetchMaterialData]);
-
   const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
@@ -107,7 +99,11 @@ export default function WasteTrackerPage() {
     }
   };
 
-  const fetchMaterialData = async () => {
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchMaterialData = useCallback(async () => {
     setLoading(true);
     try {
       const url = selectedProject
@@ -126,7 +122,11 @@ export default function WasteTrackerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProject]);
+
+  useEffect(() => {
+    fetchMaterialData();
+  }, [selectedProject, fetchMaterialData]);
 
   const runAiAnalysis = async (type: string) => {
     setAnalysisType(type);
