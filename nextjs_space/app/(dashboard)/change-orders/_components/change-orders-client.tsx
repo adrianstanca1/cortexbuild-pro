@@ -11,12 +11,10 @@ import {
   CheckCircle,
   XCircle,
   Send,
-  PoundSterling,
   Calendar,
   ArrowRight,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
   Play
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,17 +108,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
     handleChangeOrderEvent
   );
 
-  const fetchChangeOrders = async () => {
-    try {
-      const res = await fetch('/api/change-orders');
-      if (res.ok) {
-        const data = await res.json();
-        setChangeOrders(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch change orders:', error);
-    }
-  };
+
 
   const handleCreateCO = async () => {
     if (!newCO.title || !newCO.projectId) {

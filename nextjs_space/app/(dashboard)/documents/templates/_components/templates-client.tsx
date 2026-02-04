@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
 import {
-  FileText, Plus, Search, Copy, Edit, Trash2, Download, Filter, Upload,
+  FileText, Plus, Search, Copy, Edit, Trash2, Upload,
   Loader2, LayoutGrid, List, Eye, FileSignature, Shield, ClipboardList,
-  HardHat, CheckSquare, Settings, Sparkles, Lock, Globe, ChevronRight,
+  HardHat, Sparkles, Lock, Globe,
   Package, AlertTriangle, Calendar, Wrench, X, ChevronDown, ChevronUp,
   File, FileUp, Check, Info, Tag, FolderOpen
 } from 'lucide-react';

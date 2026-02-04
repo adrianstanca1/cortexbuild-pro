@@ -5,17 +5,14 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
   Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
-  Eraser, Save, Undo, Redo, Users, FileText, Eye, EyeOff, Trash2,
-  ChevronDown, MousePointer, Triangle, Cloud, MessageSquare,
-  Grid3X3, Move, PaintBucket, Pipette, Spline, Pen, Brush, Sparkles,
-  Star, Hexagon, ArrowUpRight, ArrowDownLeft, Hash, Stamp, Target,
-  RotateCcw, Crosshair, ScanLine, Maximize, Minimize2, Lock, Unlock,
-  Copy, Clipboard, FlipHorizontal, FlipVertical, AlignLeft, AlignCenter,
-  AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical,
-  Palette, Settings2, LayoutGrid, Shapes, MessageCircle, Tag, Bookmark,
-  CheckCircle, XCircle, AlertCircle, Clock, Info, ChevronLeft, ChevronRight,
-  ChevronsUpDown, MoreVertical, Search, Filter, SortAsc, Sliders,
-  PanelLeftClose, PanelLeft, ImagePlus
+  Eraser, Undo, Redo, Users, Eye, EyeOff, Trash2,
+  MousePointer, Triangle, Cloud, MessageSquare,
+  Move, Pipette, Pen, Brush, Sparkles,
+  Star, Hexagon, ArrowUpRight, Hash, Stamp, Target,
+  RotateCcw, ScanLine, Lock, Unlock,
+  LayoutGrid, MessageCircle, Tag,
+  CheckCircle, XCircle, AlertCircle, Clock, Info,
+  PanelLeftClose, PanelLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +24,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -313,6 +307,7 @@ export function DrawingViewerClient({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotationId, strokeWidth]);
 
   const getRandomColor = () => {
