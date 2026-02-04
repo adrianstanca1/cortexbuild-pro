@@ -91,8 +91,7 @@ export async function POST(
           scheduleChange: existingCO.scheduleChange,
           status: 'REJECTED',
           createdById: session.user.id,
-          rejectionReason: reason,
-          comments: comments || null
+          approvalComments: `${reason}${comments ? '\n' + comments : ''}`
         }
       });
 

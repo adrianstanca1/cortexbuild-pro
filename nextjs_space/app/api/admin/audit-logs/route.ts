@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       prisma.activityLog.groupBy({
         by: ["action"],
         _count: true,
-        orderBy: { count: { action: "desc" } },
+        orderBy: { _count: { action: "desc" } },
         take: 20
       }),
       prisma.activityLog.groupBy({

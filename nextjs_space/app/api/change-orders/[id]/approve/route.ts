@@ -96,7 +96,7 @@ export async function POST(
           createdById: session.user.id,
           approvedById: session.user.id,
           approvedAt: new Date(),
-          comments: comments || null
+          approvalComments: comments || null
         }
       });
 

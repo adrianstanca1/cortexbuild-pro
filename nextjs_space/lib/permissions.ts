@@ -14,23 +14,31 @@ export async function checkPermission(
   // Check for explicit permission grants
   const grants = await prisma.permissionGrant.findMany({
     where: {
-      OR: [
-        { userId },
-        { role: { in: await getUserRoles(userId) } }
-      ],
-      permission: {
-        OR: [
-          { resource, action },
-          { resource, action: 'ALL' },
-          { resource: 'ALL', action },
-          { resource: 'ALL', action: 'ALL' }
-        ]
-      },
-      ...(options?.organizationId && { organizationId: options.organizationId }),
-      ...(options?.projectId && { projectId: options.projectId }),
-      OR: [
-        { expiresAt: null },
-        { expiresAt: { gt: new Date() } }
+      AND: [
+        {
+          OR: [
+            { userId },
+            { role: { in: await getUserRoles(userId) } }
+          ]
+        },
+        {
+          permission: {
+            OR: [
+              { resource, action },
+              { resource, action: 'ALL' },
+              { resource: 'ALL', action },
+              { resource: 'ALL', action: 'ALL' }
+            ]
+          }
+        },
+        ...(options?.organizationId ? [{ organizationId: options.organizationId }] : []),
+        ...(options?.projectId ? [{ projectId: options.projectId }] : []),
+        {
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
+          ]
+        }
       ]
     },
     include: { permission: true }
@@ -62,13 +70,19 @@ export async function hasAnyPermission(
 export async function getUserPermissions(userId: string) {
   const grants = await prisma.permissionGrant.findMany({
     where: {
-      OR: [
-        { userId },
-        { role: { in: await getUserRoles(userId) } }
-      ],
-      OR: [
-        { expiresAt: null },
-        { expiresAt: { gt: new Date() } }
+      AND: [
+        {
+          OR: [
+            { userId },
+            { role: { in: await getUserRoles(userId) } }
+          ]
+        },
+        {
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
+          ]
+        }
       ]
     },
     include: {

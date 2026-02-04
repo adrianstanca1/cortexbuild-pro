@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       const [projects, tasks, milestones] = await Promise.all([
         prisma.project.findMany({
           where: { organizationId: orgId },
-          include: { count: { select: { tasks: true } } }
+          include: { _count: { select: { tasks: true } } }
         }),
         prisma.task.findMany({
           where: { project: { organizationId: orgId } }
