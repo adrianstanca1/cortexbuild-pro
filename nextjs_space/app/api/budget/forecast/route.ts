@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    const where: { projectId?: string; project: { organizationId: string | null | undefined } } = projectId 
+    const where: any = projectId 
       ? { projectId, project: { organizationId: session.user.organizationId } }
       : { project: { organizationId: session.user.organizationId } };
 
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
     const recentCosts = costItems.filter(item => 
       item.createdAt && new Date(item.createdAt) >= threeMonthsAgo
     );
-    const recentTotal = recentCosts.reduce((sum, item) => sum + item.actualAmount, 0);
+    const recentTotal = recentCosts.reduce((sum: number, item) => sum + item.actualAmount, 0);
     const monthlyBurnRate = recentTotal / 3;
 
     // Project at completion (EAC) forecast
@@ -99,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     // Risk assessment
     const overBudgetCategories = Object.entries(categoryBreakdown)
-      .filter(([, data]) => data.actual > data.estimated)
+      .filter(([_, data]) => data.actual > data.estimated)
       .map(([category, data]) => ({
         category,
         overBy: data.actual - data.estimated,

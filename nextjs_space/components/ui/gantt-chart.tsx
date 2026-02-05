@@ -45,25 +45,13 @@ const statusColors: Record<string, string> = {
 export function GanttChart({ items, onItemClick }: GanttChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<"day" | "week" | "month">("week");
-  
-  // Memoize initial view start calculation for better performance
-  const initialViewStart = useMemo(() => {
-    if (items.length === 0) return startOfMonth(new Date());
-    // Use the first item's date as initial value to ensure correct minimum
-    const firstDate = parseISO(items[0].startDate);
-    const minDate = items.slice(1).reduce((min, item) => {
+  const [viewStart, setViewStart] = useState(() => {
+    const minDate = items.reduce((min, item) => {
       const d = parseISO(item.startDate);
       return d < min ? d : min;
-    }, firstDate);
+    }, new Date());
     return startOfMonth(minDate);
-  }, [items]);
-
-  const [viewStart, setViewStart] = useState(initialViewStart);
-
-  // Update viewStart when items change
-  useEffect(() => {
-    setViewStart(initialViewStart);
-  }, [initialViewStart]);
+  });
 
   // Calculate date range
   const dateRange = useMemo(() => {
@@ -180,7 +168,7 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
           <div className="h-[60px] border-b bg-gray-50 dark:bg-gray-800 flex items-end p-2">
             <span className="text-sm font-medium text-gray-600">Tasks / Milestones</span>
           </div>
-          {items.map((item, index) => (
+          {items.map((item, _index) => (
             <div
               key={item.id}
               className="h-[40px] border-b flex items-center px-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"

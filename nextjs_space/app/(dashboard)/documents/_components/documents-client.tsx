@@ -2,27 +2,57 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import {
-  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
+  Search, FileText, Upload, Download, Trash2, Loader2,
   Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
+  FolderOpen, ChevronRight, LayoutGrid, List, HardDrive
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useEntitySubscription } from "@/hooks/use-entity-subscription";
+import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { DocumentViewer } from "@/components/ui/document-viewer";
-import { DOCUMENT_TYPE_CONFIG } from "@/lib/constants/status-configs";
+
+interface Document {
+  id: string;
+  name: string;
+  documentType: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedAt: Date;
+  project?: {
+    id: string;
+    name: string;
+  };
+  uploadedBy?: {
+    name: string;
+  };
+}
+
+interface Project {
+  id: string;
+  name: string;
+}
 
 interface DocumentsClientProps {
-  documents: any[];
-  projects: any[];
+  documents: Document[];
+  projects: Project[];
 }
+
+const typeConfig = {
+  PLANS: { label: "Plans", bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: FileText },
+  DRAWINGS: { label: "Drawings", bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: Ruler },
+  PERMITS: { label: "Permits", bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", icon: FileSignature },
+  PHOTOS: { label: "Photos", bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: Image },
+  REPORTS: { label: "Reports", bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", icon: FileSpreadsheet },
+  SPECIFICATIONS: { label: "Specs", bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400", icon: ScrollText },
+  CONTRACTS: { label: "Contracts", bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: File },
+  OTHER: { label: "Other", bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-400", icon: FileText }
+};
 
 export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const router = useRouter();
@@ -35,11 +65,14 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [uploadForm, setUploadForm] = useState({ projectId: "", documentType: "OTHER" });
 
-  // Use centralized realtime subscription hook
-  useEntitySubscription('document');
+  const handleDocumentEvent = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  useRealtimeSubscription(['document_uploaded'], handleDocumentEvent, []);
 
   const filteredDocs = (documents ?? [])?.filter((doc: any) => {
     const matchesSearch = (doc?.name ?? "")?.toLowerCase()?.includes(search?.toLowerCase() ?? "");
@@ -52,7 +85,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const stats = {
     total: documents?.length ?? 0,
     totalSize: documents?.reduce((sum, d) => sum + (d?.fileSize || 0), 0) ?? 0,
-    byType: Object.keys(DOCUMENT_TYPE_CONFIG).reduce((acc, type) => {
+    byType: Object.keys(typeConfig).reduce((acc, type) => {
       acc[type] = documents?.filter(d => d?.documentType === type)?.length ?? 0;
       return acc;
     }, {} as Record<string, number>)
@@ -220,7 +253,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <Select value={uploadForm.documentType} onValueChange={(v) => setUploadForm({ ...uploadForm, documentType: v })}>
                   <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(DOCUMENT_TYPE_CONFIG).map(([key, config]) => (
+                    {Object.entries(typeConfig).map(([key, config]) => (
                       <SelectItem key={key} value={key}>{config.label}</SelectItem>
                     ))}
                   </SelectContent>
@@ -309,6 +342,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/50">
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
@@ -351,7 +385,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  {Object.entries(DOCUMENT_TYPE_CONFIG).map(([key, config]) => (
+                  {Object.entries(typeConfig).map(([key, config]) => (
                     <SelectItem key={key} value={key}>{config.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -392,7 +426,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No documents found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Upload your first document to get started</p>
-            <Button onClick={() => setShowUploadModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={() => setShowUploadModal(true)} >
               <Upload className="h-4 w-4 mr-2" /> Upload Document
             </Button>
           </CardContent>
@@ -400,7 +434,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
       ) : viewMode === 'grid' ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredDocs?.map((doc: any) => {
-            const config = DOCUMENT_TYPE_CONFIG[doc?.documentType as keyof typeof DOCUMENT_TYPE_CONFIG] ?? DOCUMENT_TYPE_CONFIG.OTHER;
+            const config = typeConfig[doc?.documentType as keyof typeof typeConfig] ?? typeConfig.OTHER;
             const Icon = config.icon;
 
             return (
@@ -442,7 +476,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
       ) : (
         <div className="space-y-2">
           {filteredDocs?.map((doc: any) => {
-            const config = DOCUMENT_TYPE_CONFIG[doc?.documentType as keyof typeof DOCUMENT_TYPE_CONFIG] ?? DOCUMENT_TYPE_CONFIG.OTHER;
+            const config = typeConfig[doc?.documentType as keyof typeof typeConfig] ?? typeConfig.OTHER;
             const Icon = config.icon;
 
             return (

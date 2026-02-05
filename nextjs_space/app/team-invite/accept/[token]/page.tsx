@@ -1,9 +1,15 @@
 import { TeamInviteAcceptClient } from "./_components/accept-client";
 
-export default function TeamInviteAcceptPage({
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+
+export default async function TeamInviteAcceptPage({
   params,
 }: {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }) {
-  return <TeamInviteAcceptClient token={params.token} />;
+  const { token } = await params;
+  return <TeamInviteAcceptClient token={token} />;
 }

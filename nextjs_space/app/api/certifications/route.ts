@@ -1,9 +1,11 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
-import { Prisma } from '@prisma/client';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function GET(request: NextRequest) {
@@ -18,8 +20,8 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const expiringSoon = searchParams.get('expiringSoon');
 
-    const where: Prisma.WorkerCertificationWhereInput = {
-      organizationId: session.user.organizationId ?? undefined
+    const where: any = {
+      organizationId: session.user.organizationId
     };
     
     if (workerId) {
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
     
     if (type) {
-      where.certificationType = type as any;
+      where.certificationType = type;
     }
 
     // Get certs expiring in next 30 days

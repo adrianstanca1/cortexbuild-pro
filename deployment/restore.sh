@@ -32,7 +32,7 @@ fi
 echo "Restoring from: $BACKUP_FILE"
 
 # Decompress and restore
-gunzip -c "$BACKUP_FILE" | docker compose exec -T postgres psql \
+gunzip -c $BACKUP_FILE | docker-compose exec -T postgres psql \
     -U ${POSTGRES_USER:-cortexbuild} \
     -d ${POSTGRES_DB:-cortexbuild}
 

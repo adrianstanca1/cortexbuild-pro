@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -17,7 +20,7 @@ export async function GET(
     }
 
     const certification = await prisma.workerCertification.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         worker: { select: { id: true, name: true, email: true } },
         verifiedBy: { select: { id: true, name: true } }
@@ -49,20 +52,14 @@ export async function PATCH(
     const data = await request.json();
 
     const existing = await prisma.workerCertification.findUnique({
-      where: { id }
+      where: { id: id }
     });
 
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    const updateData: { 
-      [key: string]: unknown;
-      verifiedById?: string;
-      verifiedAt?: Date;
-      issueDate?: Date;
-      expiryDate?: Date;
-    } = { ...data };
+    const updateData: any = { ...data };
 
     // Handle verification
     if (data.isVerified && !existing.isVerified) {
@@ -74,7 +71,7 @@ export async function PATCH(
     if (data.expiryDate) updateData.expiryDate = new Date(data.expiryDate);
 
     const certification = await prisma.workerCertification.update({
-      where: { id },
+      where: { id: id },
       data: updateData,
       include: {
         worker: { select: { id: true, name: true, email: true } },
@@ -106,18 +103,18 @@ export async function DELETE(
     }
 
     const existing = await prisma.workerCertification.findUnique({
-      where: { id }
+      where: { id: id }
     });
 
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    await prisma.workerCertification.delete({ where: { id } });
+    await prisma.workerCertification.delete({ where: { id: id } });
 
     broadcastToOrganization(existing.organizationId, {
       type: 'certification_deleted',
-      data: { id }
+      data: { id: id }
     });
 
     return NextResponse.json({ success: true });

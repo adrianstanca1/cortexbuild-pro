@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCircle, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useRealtime } from '@/hooks/use-realtime';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -34,8 +34,9 @@ export function NotificationsDropdown() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/notifications?limit=10');
@@ -49,16 +50,35 @@ export function NotificationsDropdown() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Subscribe to real-time updates
-  useRealtimeSubscription(['activity_logged', 'task_created', 'task_updated', 'project_created', 'project_updated'], () => {
-    fetchNotifications();
+  // Debounced fetch to prevent excessive API calls on rapid real-time events
+  const debouncedFetchNotifications = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      fetchNotifications();
+    }, 500); // Wait 500ms after last event
+  }, [fetchNotifications]);
+
+  // Real-time updates with debouncing
+  useRealtime((event) => {
+    if (event.type === 'activity_logged' || event.type === 'notification') {
+      debouncedFetchNotifications();
+    }
   });
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+    
+    // Cleanup debounce timer on unmount
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [fetchNotifications]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

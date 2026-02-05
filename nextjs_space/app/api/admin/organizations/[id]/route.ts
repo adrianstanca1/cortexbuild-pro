@@ -1,5 +1,9 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -16,7 +20,7 @@ export async function GET(
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         users: {
           select: {
@@ -65,9 +69,9 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, slug, logoUrl } = body;
+    const { name, slug, logoUrl, isActive, entitlements } = body;
 
-    const existingOrg = await prisma.organization.findUnique({ where: { id } });
+    const existingOrg = await prisma.organization.findUnique({ where: { id: id } });
     if (!existingOrg) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
@@ -84,9 +88,14 @@ export async function PATCH(
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    
+    // Note: Entitlements structure validation could be added here in the future
+    // based on business requirements. Currently accepts any JSON object.
+    if (entitlements !== undefined) updateData.entitlements = entitlements;
 
     const organization = await prisma.organization.update({
-      where: { id },
+      where: { id: id },
       data: updateData
     });
 
@@ -121,7 +130,7 @@ export async function DELETE(
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id },
+      where: { id: id },
       include: { _count: { select: { users: true, projects: true } } }
     });
 
@@ -137,7 +146,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.organization.delete({ where: { id } });
+    await prisma.organization.delete({ where: { id: id } });
 
     // Log activity
     await prisma.activityLog.create({

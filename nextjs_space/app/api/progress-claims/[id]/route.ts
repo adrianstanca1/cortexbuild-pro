@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -17,7 +20,7 @@ export async function GET(
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { id: true, name: true } },
         lineItems: { orderBy: { sortOrder: "asc" } },
@@ -54,7 +57,7 @@ export async function PATCH(
     } = body;
 
     const existingClaim = await prisma.progressClaim.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -95,7 +98,7 @@ export async function PATCH(
     if (paidDate) updateData.paidDate = new Date(paidDate);
 
     const claim = await prisma.progressClaim.update({
-      where: { id },
+      where: { id: id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -130,7 +133,7 @@ export async function DELETE(
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -143,7 +146,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Can only delete draft claims" }, { status: 400 });
     }
 
-    await prisma.progressClaim.delete({ where: { id } });
+    await prisma.progressClaim.delete({ where: { id: id } });
 
     if (claim.project.organizationId) {
       broadcastToOrganization(claim.project.organizationId, {

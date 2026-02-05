@@ -1,5 +1,11 @@
 import AcceptInvitationClient from './accept-client';
 
-export default function AcceptInvitationPage({ params }: { params: { token: string } }) {
-  return <AcceptInvitationClient token={params.token} />;
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+
+export default async function AcceptInvitationPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  return <AcceptInvitationClient token={token} />;
 }

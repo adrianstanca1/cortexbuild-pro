@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -18,7 +21,7 @@ export async function GET(
 
     const milestone = await prisma.milestone.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -51,7 +54,7 @@ export async function PATCH(
 
     const existing = await prisma.milestone.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -68,7 +71,7 @@ export async function PATCH(
     } = body;
 
     const milestone = await prisma.milestone.update({
-      where: { id },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
@@ -124,7 +127,7 @@ export async function DELETE(
 
     const existing = await prisma.milestone.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -134,7 +137,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
     }
 
-    await prisma.milestone.delete({ where: { id } });
+    await prisma.milestone.delete({ where: { id: id } });
 
     await prisma.activityLog.create({
       data: {
@@ -150,7 +153,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "milestone_deleted",
-      data: { id, projectId: existing.projectId }
+      data: { id: id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });

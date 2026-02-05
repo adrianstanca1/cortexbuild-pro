@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -105,9 +108,9 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: process.env.NOTIF_ID_MILESTONE_DEADLINE_REMINDER,
+        deployment_token: process.env.ABACUSAI_APIKEY,
+        app_id: process.env.WEB_APPID,
+        notification_id: process.env.NOTIF_ID_MILESTONE_DEADLINEREMINDER,
         subject: `${isOverdue ? "[OVERDUE]" : "[Reminder]"} Milestone: ${milestone.name}`,
         body: htmlBody,
         is_html: true,
@@ -147,7 +150,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET endpoint to check upcoming/overdue milestones
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

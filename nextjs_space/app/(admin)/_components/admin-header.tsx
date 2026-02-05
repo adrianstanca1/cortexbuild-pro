@@ -6,10 +6,7 @@ import { LogOut, User, ChevronDown, Shield, HardHat } from "lucide-react";
 import Link from "next/link";
 
 interface AdminHeaderProps {
-  user: {
-    name?: string;
-    email?: string;
-  };
+  user: any;
 }
 
 export function AdminHeader({ user }: AdminHeaderProps) {

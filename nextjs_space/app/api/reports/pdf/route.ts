@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -13,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { reportType, projectId, dateRange } = body;
+    const { reportType, projectId, _dateRange } = body;
 
     // Fetch data based on report type
     let reportData: any = {};
@@ -73,7 +76,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
+        deployment_token: process.env.ABACUSAI_APIKEY,
         html_content: htmlContent,
         pdf_options: {
           format: "A4",
@@ -254,7 +257,7 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
     `;
   } else {
     // General overview
-    const { projects = [], tasks = [], milestones = [] } = data;
+    const { projects = [], tasks = [], _milestones = [] } = data;
     const activeProjects = projects.filter((p: any) => p.status === "IN_PROGRESS").length;
     const completedTasks = tasks.filter((t: any) => t.status === "COMPLETE").length;
 

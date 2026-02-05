@@ -1,25 +1,28 @@
-export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string; role?: string };
+    const user = session.user as any;
     const orgId = user.organizationId;
 
     if (!orgId) {
       return NextResponse.json({ error: "No organization" }, { status: 400 });
     }
 
-    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can access
-    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role || "")) {
+    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can access
+    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

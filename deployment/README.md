@@ -1,263 +1,546 @@
-# CortexBuild Pro - VPS Deployment Quick Reference
+# CortexBuild Pro - VPS Deployment Guide
 
-> 📖 **For complete deployment instructions, see [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)**
-> 🔧 **For VPS and connection configuration, see [VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md)**
+Complete guide to deploy CortexBuild Pro on your private VPS.
 
-This directory contains Docker configuration and scripts for deploying CortexBuild Pro on a VPS.
+## 📌 Version Management
+
+The current version is tracked in the `VERSION` file at the repository root. Version information is:
+- Displayed during deployment scripts
+- Available via API at `/api/version`
+- Shown in the application footer
+
+Current version: **2.1.0**
+
+## 📦 Prerequisites
+
+### Server Requirements
+- **OS**: Ubuntu 20.04+ / Debian 11+ / CentOS 8+
+- **RAM**: Minimum 2GB (4GB recommended)
+- **CPU**: 2+ cores
+- **Storage**: 20GB+ SSD
+- **Network**: Open ports 80, 443, 22
+
+### Required Software
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Verify installation
+docker --version
+docker-compose --version
+```
 
 ---
 
-## 🚀 Quick Deploy
+## 🚀 Quick Start
 
-### Option 1: Automated Quick Start (Recommended)
-```bash
-# Run the automated deployment script
-curl -fsSL https://raw.githubusercontent.com/adrianstanca1/cortexbuild-pro/main/deployment/quick-start.sh | bash
-```
+### Automated Deployment via GitHub Actions (⭐ Recommended)
 
-### Option 2: Manual Step-by-Step
+Deploy directly from GitHub with one click - no manual SSH required!
+
+**Benefits:**
+- ✅ One-click deployment from GitHub UI
+- ✅ Automated pre-deployment validation
+- ✅ Built-in health checks
+- ✅ No need to manually SSH to VPS
+- ✅ Deployment history tracking
+- ✅ Easy rollback capability
+
+**Quick Setup:**
+1. Configure GitHub secrets (VPS_SSH_KEY, VPS_HOST, VPS_USER)
+2. Navigate to Actions → Deploy to VPS
+3. Click "Run workflow" and watch the magic happen!
+
+**See [AUTOMATED-DEPLOYMENT.md](AUTOMATED-DEPLOYMENT.md) for detailed setup instructions.**
+
+---
+
+### One-Click Manual Deployment
+
+The easiest way to deploy manually on your VPS:
+
 ```bash
-# 1. Clone and navigate
+cd /root
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
 
-# 2. Run VPS setup (one-time)
-sudo bash vps-setup.sh
+This script handles everything: Docker installation, environment setup, deployment, migrations, and health checks.
 
-# 3. Configure environment
+For more options, see our [Quick Start Guide](QUICKSTART.md).
+
+---
+
+### Manual Deployment
+
+### 1. Upload Project to Server
+```bash
+# Option A: SCP from local machine
+scp -r cortexbuild_pro user@your-server:/home/user/
+
+# Option B: Git clone (if hosted)
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+```
+
+### 2. Configure Environment
+```bash
+cd cortexbuild_pro/deployment
 cp .env.example .env
 nano .env
-
-# 4. Validate configuration
-bash validate-config.sh
-
-# 5. Deploy application
-bash deploy-from-github.sh
 ```
 
-For detailed instructions, troubleshooting, and production best practices, see:
-- **[PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)** - Complete deployment guide
-- **[VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md)** - VPS, database, and WebSocket configuration
+**Required settings in `.env`:**
+```env
+# Database
+POSTGRES_PASSWORD=choose_a_strong_password_here
 
----
+# Auth (generate with: openssl rand -base64 32)
+NEXTAUTH_SECRET=your_generated_secret
+NEXTAUTH_URL=https://your-domain.com
 
-## 📁 Files in This Directory
+# Domain
+DOMAIN=your-domain.com
+SSL_EMAIL=admin@your-domain.com
+```
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | Container orchestration with optimized PostgreSQL and WebSocket support |
-| `Dockerfile` | Application container build instructions |
-| `nginx.conf` | Reverse proxy with WebSocket-specific configuration |
-| `.env.example` | Environment variables template |
-| `deploy-from-github.sh` | Automated deployment from GitHub |
-| `vps-setup.sh` | **Enhanced** VPS initial setup with security hardening |
-| `setup-ssl.sh` | SSL certificate setup (Let's Encrypt) |
-| `quick-start.sh` | **New** One-command automated deployment |
-| `validate-config.sh` | **New** Configuration validation script |
-| `backup.sh` | Database backup utility |
-| `restore.sh` | Database restore utility |
-| `seed-db.sh` | Initialize database with sample data |
-
----
-
-## 🛠️ Common Commands
-
-### View Logs
+### 3. Deploy
 ```bash
-docker-compose logs -f          # All services
-docker-compose logs -f app      # App only
+chmod +x *.sh
+./production-deploy.sh
 ```
 
-### Restart Services
-```bash
-docker-compose restart app      # Restart application
-docker-compose restart nginx    # Restart nginx
-```
-
-### Database Operations
-```bash
-docker-compose exec app npx prisma migrate deploy    # Run migrations
-docker-compose exec app npx prisma studio            # Database GUI
-./backup.sh                                           # Backup database
-```
-
-### Health Check
-```bash
-# Run system diagnostics
-docker-compose exec app npx tsx scripts/health-check.ts
-```
-
----
-
-## 📦 Scripts Directory
-
-The `scripts/` subdirectory contains utility scripts for:
-- Database seeding and management
-- System diagnostics and health checks
-- Data integrity checks
-- Backup and maintenance tasks
-
-See [scripts/README.md](scripts/README.md) for details.
-
----
-
-## 🔧 Configuration
-
-### Required Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `POSTGRES_PASSWORD` | ✅ Yes | Database password (auto-generated in quick-start) |
-| `NEXTAUTH_SECRET` | ✅ Yes | Auth encryption key (32+ chars, auto-generated) |
-| `NEXTAUTH_URL` | ✅ Yes | Full URL (https://your-domain.com) |
-| `DOMAIN` | ✅ Yes | Domain without protocol |
-| `NEXT_PUBLIC_WEBSOCKET_URL` | ✅ Yes | WebSocket URL (same as NEXTAUTH_URL) |
-
-### Optional Services
-
-| Service | Variables | Purpose |
-|---------|-----------|---------|
-| AWS S3 | `AWS_*` | File storage |
-| Google OAuth | `GOOGLE_*` | OAuth authentication |
-| SendGrid | `SENDGRID_*` | Email notifications |
-| AbacusAI | `ABACUS_*` | AI features |
-
-### WebSocket Configuration
-
-The application uses Socket.IO for real-time features:
-- **Path**: `/api/socketio`
-- **Transports**: WebSocket (preferred) and polling (fallback)
-- **Security**: JWT authentication with NextAuth tokens
-- **Connection pooling**: Optimized for production workloads
-
-See [../VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md) for detailed WebSocket and connection configuration.
-
----
-
-## 🌐 DNS Setup
-
-Point your domain's A records to your VPS IP:
-
-```
-A    @      YOUR_VPS_IP
-A    www    YOUR_VPS_IP
-```
-
-Wait for DNS propagation (5-30 minutes), then run SSL setup:
+### 4. Setup SSL (Optional but Recommended)
 ```bash
 ./setup-ssl.sh your-domain.com admin@your-domain.com
 ```
 
----
-
-## 🔒 Security Checklist
-
-- [x] Docker and Docker Compose installed
-- [ ] Strong database password set in `.env`
-- [ ] NEXTAUTH_SECRET generated (32+ random characters)
-- [ ] Firewall configured (ports 22, 80, 443)
-- [ ] Fail2ban enabled for SSH protection
-- [ ] System limits optimized for production
-- [ ] SSL certificate installed
-- [ ] Default admin password changed after first login
-- [ ] Regular backups scheduled
-- [ ] WebSocket connections encrypted (WSS)
-
-**Run validation before deployment:**
+### 5. Seed Database (First time only)
 ```bash
-bash validate-config.sh
+./seed-db.sh
 ```
 
 ---
 
-## 📊 Monitoring & Maintenance
+## 📁 Project Structure
 
-### Check Application Health
-```bash
-curl https://your-domain.com/api/health
+```
+deployment/
+├── .env.example          # Environment template
+├── docker-compose.yml    # Container orchestration
+├── Dockerfile            # App build instructions
+├── nginx.conf            # Reverse proxy config
+├── one-click-deploy.sh   # ⭐ One-click deployment
+├── production-deploy.sh  # ⭐ Complete production workflow
+├── vps-full-deploy.sh    # Remote deployment via curl
+├── cleanup-repos.sh      # ⭐ Repository cleanup
+├── health-check.sh       # ⭐ Health monitoring
+├── rollback.sh           # ⭐ Deployment rollback
+├── QUICKSTART.md         # ⭐ Quick start guide
+├── setup-ssl.sh          # SSL certificate setup
+├── backup.sh             # Database backup
+├── restore.sh            # Database restore
+└── seed-db.sh            # Seed initial data
 ```
 
-### View Resource Usage
-```bash
-docker stats                    # Container resource usage
-docker system df               # Disk usage
+---
+
+## 🔧 Configuration Options
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `POSTGRES_PASSWORD` | Yes | Database password |
+| `NEXTAUTH_SECRET` | Yes | Auth encryption key |
+| `NEXTAUTH_URL` | Yes | Full domain URL |
+| `DOMAIN` | Yes | Domain without https |
+| `AWS_*` | No | S3 for file uploads |
+
+### Using External Database
+
+To use an external PostgreSQL (AWS RDS, DigitalOcean, etc.):
+
+1. Comment out the `postgres` service in `docker-compose.yml`
+2. Set `DATABASE_URL` in `.env`:
+```env
+DATABASE_URL="postgresql://user:pass@host:5432/dbname?schema=public"
 ```
 
-### Regular Maintenance
+---
+
+## 🛠️ Management Commands
+
+### Health Check & Monitoring
+
 ```bash
-# Weekly: Check logs for errors
-docker-compose logs --tail=100
+# Check deployment health
+./health-check.sh
 
-# Monthly: Update Docker images
-docker-compose pull
-docker-compose up -d
+# Returns comprehensive status:
+# - Docker & container status
+# - Database connectivity
+# - Application health
+# - System resources
+# - Log analysis
+# - Backup status
+```
 
-# Monthly: Clean unused Docker resources
+### Deployment Rollback
+
+```bash
+# Interactive rollback (select backup)
+./rollback.sh
+
+# Quick rollback to most recent backup
+./rollback.sh --quick
+```
+
+### View Logs
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f app
+docker-compose logs -f nginx
+docker-compose logs -f postgres
+```
+
+### Container Management
+```bash
+# Status
+docker-compose ps
+
+# Restart app
+docker-compose restart app
+
+# Stop all
+docker-compose down
+
+# Stop and remove volumes (CAUTION: deletes data)
+docker-compose down -v
+```
+
+### Database Operations
+```bash
+# Run migrations
+docker-compose exec app npx prisma migrate deploy
+
+# Open Prisma Studio (database GUI)
+docker-compose exec app npx prisma studio
+
+# Direct database access
+docker-compose exec postgres psql -U cortexbuild -d cortexbuild
+```
+
+### Backup & Restore
+```bash
+# Create backup
+./backup.sh
+
+# List backups
+ls -la backups/
+
+# Restore
+./restore.sh backups/cortexbuild_backup_20240123.sql.gz
+```
+
+---
+
+## 🔒 SSL Certificate Management
+
+### Initial Setup
+```bash
+./setup-ssl.sh your-domain.com
+```
+
+### Manual Renewal
+```bash
+docker-compose run --rm certbot renew
+docker-compose restart nginx
+```
+
+### Auto-Renewal (Cron)
+Add to crontab (`crontab -e`):
+```cron
+0 3 * * * cd /home/user/cortexbuild_pro/deployment && docker-compose run --rm certbot renew && docker-compose restart nginx
+```
+
+---
+
+## 🔄 Updating the Application
+
+### Standard Update
+```bash
+cd cortexbuild_pro/deployment
+
+# Pull latest code (if using git)
+git pull origin main
+
+# Rebuild and deploy
+docker-compose build --no-cache app
+docker-compose up -d app
+
+# Run any new migrations
+docker-compose exec app npx prisma migrate deploy
+```
+
+### Production Deployment Workflow (Recommended)
+
+Complete production deployment with commit, rebuild, deploy, and cleanup:
+
+```bash
+cd cortexbuild_pro/deployment
+./production-deploy.sh
+```
+
+This script performs:
+1. ✅ Commits all pending changes
+2. ✅ Rebuilds application with fresh production build
+3. ✅ Deploys to VPS with database migrations
+4. ✅ Cleans up repositories and Docker artifacts
+5. ✅ Runs health checks to verify deployment
+
+**Features:**
+- Complete workflow automation
+- Comprehensive logging
+- Error handling and rollback support
+- Post-deployment verification
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Production Deployment
+  Version: 2.2.0
+=============================================================================
+
+[INFO] Step 1: Committing all changes...
+[INFO] No changes to commit - working tree is clean
+[INFO] Step 2: Rebuilding application for production...
+[INFO] Building fresh Docker images (this may take several minutes)...
+[SUCCESS] Production build completed successfully
+[INFO] Step 3: Deploying to VPS...
+[SUCCESS] Application deployed successfully
+[INFO] Step 4: Cleaning repositories and artifacts...
+[SUCCESS] Repository cleanup completed
+[SUCCESS] Health check completed
+
+Deployment completed successfully!
+```
+
+---
+
+## 🌐 DNS Configuration
+
+Point your domain to your server:
+
+| Type | Name | Value | TTL |
+|------|------|-------|-----|
+| A | @ | YOUR_SERVER_IP | 300 |
+| A | www | YOUR_SERVER_IP | 300 |
+
+---
+
+## 📊 Monitoring
+
+### Health Check
+```bash
+curl -I http://localhost:3000/api/auth/providers
+```
+
+### Resource Usage
+```bash
+docker stats
+```
+
+### Disk Usage
+```bash
+docker system df
+
+# Clean unused images/containers
 docker system prune -a
+```
+
+---
+
+## 🧹 Repository Cleanup
+
+### Standard Cleanup
+```bash
+cd cortexbuild_pro/deployment
+./cleanup-repos.sh
+```
+
+Performs standard cleanup:
+- Removes stopped Docker containers
+- Removes dangling Docker images
+- Cleans build cache
+- Optimizes Git repository
+- Cleans old logs (7+ days)
+- Removes temporary files
+
+### Aggressive Cleanup
+```bash
+./cleanup-repos.sh --aggressive
+```
+
+**⚠️ WARNING:** Aggressive mode also removes:
+- All unused Docker images (not just dangling)
+- Unused Docker volumes (may contain data)
+- Git untracked files
+
+**Use aggressive mode only when:**
+- Running low on disk space
+- After major version upgrades
+- During maintenance windows
+- You have verified backups exist
+
+**What gets cleaned:**
+```
+✓ Docker containers (stopped)
+✓ Docker images (dangling/unused)
+✓ Docker networks (unused)
+✓ Docker volumes (unused in aggressive mode)
+✓ Docker build cache
+✓ Git repository optimization
+✓ Next.js build cache
+✓ node_modules cache
+✓ Yarn cache
+✓ Old logs (7+ days)
+✓ Temporary files
+```
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Repository Cleanup
+=============================================================================
+
+[INFO] Disk usage before cleanup: 45G
+[INFO] Cleaning Docker artifacts...
+[SUCCESS] Docker cleanup completed
+[INFO] Cleaning Git repository...
+[SUCCESS] Git repository cleanup completed
+[INFO] Cleaning build artifacts...
+[SUCCESS] Build artifacts cleanup completed
+[SUCCESS] Disk usage after cleanup: 38G
+
+Cleanup completed successfully!
 ```
 
 ---
 
 ## ⚠️ Troubleshooting
 
-### Quick Diagnostics
+### App Won't Start
 ```bash
-# Check all containers are running
-docker-compose ps
+# Check logs
+docker-compose logs app
 
-# View recent logs
-docker-compose logs --tail=50
+# Check if database is running
+docker-compose ps postgres
 
 # Verify environment variables
-docker-compose config
-
-# Test database connection
-docker-compose exec app npx prisma db push
+docker-compose exec app env | grep -E 'DATABASE|NEXTAUTH'
 ```
 
-For detailed troubleshooting, see [../RUNBOOK.md](../RUNBOOK.md).
+### Database Connection Issues
+```bash
+# Test connection
+docker-compose exec app sh -c "npx prisma db pull"
+
+# Check PostgreSQL logs
+docker-compose logs postgres
+```
+
+### SSL Issues
+```bash
+# Verify certificates exist
+docker run --rm -v cortexbuild_certbot-etc:/etc/letsencrypt alpine ls -la /etc/letsencrypt/live/
+
+# Check nginx config
+docker-compose exec nginx nginx -t
+```
+
+### Port Already in Use
+```bash
+# Find process using port
+sudo lsof -i :80
+sudo lsof -i :443
+
+# Kill process or stop service
+sudo systemctl stop apache2
+```
 
 ---
 
-## 📚 Additional Resources
+## 📈 Performance Tuning
 
-- **[VPS_CONNECTION_CONFIG.md](../VPS_CONNECTION_CONFIG.md)** - ⭐ VPS, database, and WebSocket configuration
-- **[PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)** - Complete deployment guide
-- **[RUNBOOK.md](../RUNBOOK.md)** - Operations and troubleshooting
-- **[API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md)** - Configure external services
-- **[CONFIGURATION_CHECKLIST.md](../CONFIGURATION_CHECKLIST.md)** - Verify setup
-- **[SECURITY_COMPLIANCE.md](../SECURITY_COMPLIANCE.md)** - Security best practices
-- **[BACKEND_FRONTEND_CONNECTIVITY.md](../BACKEND_FRONTEND_CONNECTIVITY.md)** - Architecture overview
+### PostgreSQL
+Edit `docker-compose.yml` to add PostgreSQL config:
+```yaml
+postgres:
+  command: postgres -c shared_buffers=256MB -c max_connections=100
+```
 
----
-
-## 🆘 Getting Help
-
-1. **Validate configuration**: `bash validate-config.sh`
-2. **Check logs**: `docker-compose logs -f`
-3. **Run diagnostics**: `docker-compose exec app npx tsx scripts/system-diagnostics.ts`
-4. **Verify configuration**: Review `.env` file
-5. **Test WebSocket**: `curl https://your-domain.com/api/websocket-health`
-6. **Consult documentation**: See resources above
-
-### Common Issues
-
-**WebSocket connection fails:**
-- Verify `NEXT_PUBLIC_WEBSOCKET_URL` matches your domain
-- Check Nginx logs: `docker-compose logs nginx`
-- Test endpoint: `curl https://your-domain.com/api/websocket-health`
-
-**Database connection errors:**
-- Verify `DATABASE_URL` in `.env`
-- Check PostgreSQL logs: `docker-compose logs postgres`
-- Test connection: `docker-compose exec postgres psql -U cortexbuild`
-
-**SSL certificate issues:**
-- Ensure DNS is propagated: `dig your-domain.com`
-- Check certificate: `openssl s_client -connect your-domain.com:443`
-- Renew if needed: `docker-compose run --rm certbot renew`
+### Nginx
+Adjust worker connections in `nginx.conf`:
+```nginx
+worker_processes auto;
+events {
+    worker_connections 4096;
+}
+```
 
 ---
 
-**Last Updated:** January 26, 2026
-**Version:** 2.0.0 - Enhanced with WebSocket and connection optimization
+## 🔐 Security Checklist
+
+- [ ] Change default database password
+- [ ] Generate strong NEXTAUTH_SECRET
+- [ ] Enable firewall (UFW)
+- [ ] Disable root SSH login
+- [ ] Enable SSL/HTTPS
+- [ ] Regular backups scheduled
+- [ ] Keep Docker images updated
+
+### Firewall Setup (UFW)
+```bash
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+---
+
+## 📞 Support
+
+For issues:
+1. Check logs: `docker-compose logs -f`
+2. Verify `.env` configuration
+3. Ensure DNS is properly configured
+4. Check firewall rules
+
+---
+
+## 📄 Default Accounts
+
+After running `seed-db.sh`:
+
+| Email | Role | Organization |
+|-------|------|-------------|
+| adrian.stanca1@gmail.com | Super Admin | All |
+| adrian@ascladdingltd.co.uk | Company Owner | AS Cladding Ltd |
+
+**Note**: Check `scripts/seed.ts` for default passwords.

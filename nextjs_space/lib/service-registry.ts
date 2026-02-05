@@ -137,32 +137,6 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     testMethod: "GET"
   },
 
-  // GOOGLE GEMINI AI
-  {
-    id: "gemini",
-    name: "Google Gemini",
-    description: "Google's advanced AI model for document analysis, intelligent suggestions, and natural language processing",
-    category: "AI_PROCESSING",
-    icon: "Brain",
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
-    docsUrl: "https://ai.google.dev/docs",
-    credentialFields: [
-      { key: "apiKey", label: "API Key", type: "password", required: true, placeholder: "AIza...", helpText: "Get from https://makersuite.google.com/app/apikey" },
-      { key: "model", label: "Default Model", type: "text", required: false, placeholder: "gemini-1.5-flash", helpText: "Options: gemini-1.5-flash, gemini-1.5-pro" }
-    ],
-    isBuiltIn: true,
-    isPlatformCore: false,
-    defaultEnvironment: "PRODUCTION",
-    supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
-    dependencies: [
-      { moduleId: "ai-assistant", moduleName: "AI Assistant", usageDescription: "Intelligent project assistant and recommendations", isRequired: true },
-      { moduleId: "document-analysis", moduleName: "Document Analysis", usageDescription: "AI-powered document parsing and extraction", isRequired: false },
-      { moduleId: "project-intelligence", moduleName: "Project Intelligence", usageDescription: "Risk analysis and predictive insights", isRequired: false }
-    ],
-    testEndpoint: "/models",
-    testMethod: "GET"
-  },
-
   // PAYMENT SERVICES
   {
     id: "stripe",
@@ -304,7 +278,7 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     ]
   },
 
-  // REAL-TIME (SSE)
+  // REAL-TIME
   {
     id: "realtime-sse",
     name: "Real-time Events (SSE)",
@@ -321,26 +295,6 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
       { moduleId: "dashboard", moduleName: "Dashboard", usageDescription: "Live dashboard updates", isRequired: true },
       { moduleId: "tasks", moduleName: "Tasks", usageDescription: "Real-time task updates", isRequired: true },
       { moduleId: "notifications", moduleName: "Notifications", usageDescription: "Instant notification delivery", isRequired: true }
-    ]
-  },
-
-  // REAL-TIME (SOCKET.IO)
-  {
-    id: "socketio",
-    name: "Socket.IO Real-time",
-    description: "Bidirectional real-time communication with WebSocket and polling fallback",
-    category: "INTERNAL",
-    icon: "Radio",
-    baseUrl: "/api/socketio",
-    credentialFields: [],
-    isBuiltIn: true,
-    isPlatformCore: true,
-    defaultEnvironment: "PRODUCTION",
-    supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
-    dependencies: [
-      { moduleId: "project-collaboration", moduleName: "Project Collaboration", usageDescription: "Real-time project updates and collaboration", isRequired: true },
-      { moduleId: "live-chat", moduleName: "Live Chat", usageDescription: "Instant messaging within projects", isRequired: false },
-      { moduleId: "presence", moduleName: "User Presence", usageDescription: "Show who's currently active on projects", isRequired: false }
     ]
   },
 
@@ -487,7 +441,7 @@ export async function getServiceCredentials(
       connectionId: connection.id
     };
   } catch (error) {
-    console.error(`Error fetching credentials for service ${serviceId}:`, error);
+    // console.error(`Error fetching credentials for service ${serviceId}:`, error);
     return null;
   }
 }
@@ -614,6 +568,6 @@ export async function logServiceUsage(
       });
     }
   } catch (error) {
-    console.error("Error logging service usage:", error);
+    // console.error("Error logging service usage:", error);
   }
 }

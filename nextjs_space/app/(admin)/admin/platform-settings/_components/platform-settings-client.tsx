@@ -175,16 +175,16 @@ export function PlatformSettingsClient() {
     }
   };
 
-  const updateConfig = (path: string, value: string | number | boolean) => {
+  const updateConfig = (path: string, value: any) => {
     if (!config) return;
     
     const newConfig = JSON.parse(JSON.stringify(config));
     const keys = path.split(".");
-    let current: Record<string, unknown> = newConfig;
+    let current: any = newConfig;
     
     for (let i = 0; i < keys.length - 1; i++) {
       if (!current[keys[i]]) current[keys[i]] = {};
-      current = current[keys[i]] as Record<string, unknown>;
+      current = current[keys[i]];
     }
     current[keys[keys.length - 1]] = value;
     

@@ -6,30 +6,23 @@ import {
   FileQuestion,
   Plus,
   Search,
-  Filter,
   AlertCircle,
   CheckCircle,
   Clock,
   Send,
   Paperclip,
   Calendar,
-  ArrowRight,
-  X,
   PoundSterling,
   Timer,
   LayoutGrid,
   List,
-  TrendingUp,
   AlertTriangle,
   MessageSquare,
-  Eye,
   User,
   Building2,
-  ChevronRight,
-  MoreHorizontal,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -121,7 +114,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
   });
   const [answerInput, setAnswerInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [loadingAttachments, setLoadingAttachments] = useState(false);
+  const [_loadingAttachments, setLoadingAttachments] = useState(false);
 
   const handleRFIEvent = useCallback(() => {
     router.refresh();

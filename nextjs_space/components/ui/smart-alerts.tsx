@@ -90,7 +90,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
     // Analyze tasks for overdue items
     const allTasks = tasks.length > 0 ? tasks : projects.flatMap(p => p.tasks || []);
     const overdueTasks = allTasks.filter(t => {
-      if (!t.dueDate || t.status === 'COMPLETE') return false;
+      if (!t.dueDate || t.status === 'COMPLETED' || t.status === 'DONE') return false;
       return new Date(t.dueDate) < now;
     });
 
@@ -110,7 +110,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
 
     // Tasks due today
     const dueTodayTasks = allTasks.filter(t => {
-      if (!t.dueDate || t.status === 'COMPLETE') return false;
+      if (!t.dueDate || t.status === 'COMPLETED' || t.status === 'DONE') return false;
       const dueDate = new Date(t.dueDate);
       return dueDate.toDateString() === now.toDateString();
     });
@@ -185,7 +185,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
     });
 
     // Resource optimization opportunities
-    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS');
+    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE');
     if (activeProjects.length > 0 && teamMembers.length > 0) {
       const avgProjectsPerMember = activeProjects.length / teamMembers.length;
       if (avgProjectsPerMember > 2) {

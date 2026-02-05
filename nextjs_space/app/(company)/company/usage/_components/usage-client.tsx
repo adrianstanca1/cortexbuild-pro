@@ -54,7 +54,7 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
     return { color: "text-emerald-600", bgColor: "bg-emerald-500", status: "Healthy" };
   };
 
-  const documentTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  const documentTypeIcons: Record<string, any> = {
     PLANS: FileText,
     PERMITS: File,
     PHOTOS: Image,

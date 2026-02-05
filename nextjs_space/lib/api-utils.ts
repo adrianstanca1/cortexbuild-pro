@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { z, ZodSchema } from 'zod';
+import { PrismaClient } from '@prisma/client';
 
 // Helper to safely serialize data with BigInt values
 export function serializeData<T>(data: T): T {
@@ -12,7 +13,7 @@ export function serializeData<T>(data: T): T {
 
 export interface ApiContext {
   userId: string;
-  organizationId: string;
+  organizationId: string | undefined;
   userRole: string;
   userName: string;
   userEmail: string;
@@ -103,6 +104,7 @@ export async function validateBody<T>(
 }
 
 // Get authenticated user context
+// Note: organizationId is optional to maintain backward compatibility
 export async function getApiContext(): Promise<{
   context: ApiContext | null;
   error: NextResponse | null;
@@ -121,13 +123,7 @@ export async function getApiContext(): Promise<{
     email?: string;
   };
   
-  if (!user.organizationId) {
-    return {
-      context: null,
-      error: errorResponse('FORBIDDEN', 'No organization assigned'),
-    };
-  }
-  
+  // No longer require organizationId - allow undefined for backward compatibility
   return {
     context: {
       userId: user.id,
@@ -201,7 +197,10 @@ export function withErrorHandler<T>(
     try {
       return await handler(request, context);
     } catch (error) {
-      console.error('API Error:', error);
+      // Log to proper logging service in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API Error:', error);
+      }
       return errorResponse(
         'INTERNAL_ERROR',
         error instanceof Error ? error.message : 'Unknown error'
@@ -212,7 +211,7 @@ export function withErrorHandler<T>(
 
 // Log API activity
 export async function logActivity(
-  prisma: { activityLog: { create: (args: { data: Record<string, unknown> }) => Promise<unknown> } },
+  prisma: PrismaClient,
   context: ApiContext,
   action: string,
   entityType: string,
@@ -234,7 +233,10 @@ export async function logActivity(
       },
     });
   } catch (error) {
-    console.error('Failed to log activity:', error);
+    // Silently fail activity logging to prevent disrupting the main operation
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to log activity:', error);
+    }
   }
 }
 
@@ -243,64 +245,146 @@ export function sanitizeInput(input: string): string {
   return input.trim().replace(/[<>]/g, '');
 }
 
-/**
- * Helper to build organization-scoped Prisma where clause
- * Consolidates the duplicated org filtering pattern
- * 
- * @param organizationId - The organization ID to filter by
- * @param directScope - If true, filter directly on organizationId. If false, filter on project.organizationId
- * @returns Prisma where clause object
- * 
- * @example
- * // Direct scope (e.g., Project model has organizationId field)
- * const projects = await prisma.project.findMany({
- *   where: buildOrgFilter(orgId, true)
- * });
- * 
- * @example
- * // Indirect scope (e.g., Task model has project.organizationId)
- * const tasks = await prisma.task.findMany({
- *   where: buildOrgFilter(orgId, false)
- * });
- */
-export function buildOrgFilter(
-  organizationId: string | undefined,
-  directScope: boolean = true
-) {
-  if (!organizationId) return {};
+// Sanitize common entity fields
+// Note: Preserves original behavior - only converts empty strings to null after trim
+// Matches original logic: "field?.trim() || null"
+export function sanitizeEntityFields<T extends Record<string, unknown>>(
+  fields: T
+): T {
+  const sanitized = { ...fields } as Record<string, unknown>;
   
-  return directScope 
-    ? { organizationId } 
-    : { project: { organizationId } };
-}
-
-/**
- * Helper to extract user info from session
- * Consolidates the duplicated session user extraction pattern
- */
-export function extractUserFromSession(session: { user?: any } | null) {
-  if (!session?.user) {
-    return { userId: '', organizationId: undefined };
+  // Common string fields to sanitize
+  const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
+  
+  for (const key of stringFields) {
+    if (key in sanitized && typeof sanitized[key] === 'string') {
+      const trimmed = (sanitized[key] as string).trim();
+      // Explicitly convert empty strings to null, matching original behavior
+      sanitized[key] = (trimmed === '' ? null : trimmed);
+    }
   }
   
-  const user = session.user as { id?: string; organizationId?: string };
-  return {
-    userId: user.id || '',
-    organizationId: user.organizationId
-  };
+  return sanitized as T;
+}
+
+// Broadcast entity event helper
+export function broadcastEntityEvent(
+  broadcast: (organizationId: string, data: object) => void,
+  organizationId: string | undefined,
+  eventType: string,
+  entity: {
+    id: string;
+    name?: string;
+    title?: string;
+    status?: string;
+    [key: string]: unknown;
+  },
+  userId: string,
+  additionalData?: Record<string, unknown>
+): void {
+  if (!organizationId) return;
+  
+  broadcast(organizationId, {
+    type: eventType,
+    timestamp: new Date().toISOString(),
+    payload: {
+      ...additionalData,
+      entity: {
+        ...entity,
+        id: entity.id,
+        name: entity.name ?? entity.title,
+        status: entity.status,
+      },
+      userId,
+    },
+  });
+}
+
+// Wrapper for authenticated API handlers with error handling
+export function withAuthHandler(
+  handler: (request: NextRequest, context: ApiContext, params?: unknown) => Promise<NextResponse>
+) {
+  return withErrorHandler(async (request: NextRequest, params?: unknown) => {
+    const { context, error } = await getApiContext();
+    
+    if (error) {
+      return error;
+    }
+    
+    return handler(request, context!, params);
+  });
+}
+
+// =====================================================
+// ADDITIONAL UTILITIES FOR COMMON PATTERNS
+// =====================================================
+
+/**
+ * Get organization context with validation.
+ * Returns error if user doesn't have an organization.
+ */
+export async function getOrganizationContext(): Promise<{
+  context: ApiContext | null;
+  error: NextResponse | null;
+}> {
+  const { context, error } = await getApiContext();
+  
+  if (error) {
+    return { context: null, error };
+  }
+  
+  if (!context!.organizationId) {
+    return {
+      context: null,
+      error: errorResponse('FORBIDDEN', 'User must belong to an organization'),
+    };
+  }
+  
+  return { context, error: null };
 }
 
 /**
- * Standard error handler for API routes
- * Consolidates the duplicated try-catch error handling pattern
+ * Build common Prisma where clause for organization-scoped queries.
+ * Handles projectId filtering with organization fallback.
  */
-export function handleApiError(error: unknown, action: string): NextResponse {
-  console.error(`${action} error:`, error);
-  return NextResponse.json(
-    { 
-      error: `Failed to ${action}`,
-      message: error instanceof Error ? error.message : 'Unknown error'
-    },
-    { status: 500 }
-  );
+export function buildOrgScopedWhere(
+  organizationId: string,
+  projectId?: string | null,
+  additionalFilters?: Record<string, unknown>
+): Record<string, unknown> {
+  const where: Record<string, unknown> = {
+    ...additionalFilters,
+  };
+  
+  if (projectId) {
+    where.projectId = projectId;
+  } else {
+    where.project = { organizationId };
+  }
+  
+  return where;
+}
+
+/**
+ * Parse common query parameters from URL searchParams
+ * Returns all common parameters plus the searchParams object for custom parsing
+ */
+export function parseQueryParams(request: NextRequest): {
+  projectId?: string;
+  status?: string;
+  type?: string;
+  priority?: string;
+  trade?: string;
+  searchParams: URLSearchParams;
+} {
+  const { searchParams } = new URL(request.url);
+  
+  return {
+    projectId: searchParams.get('projectId') || undefined,
+    status: searchParams.get('status') || undefined,
+    type: searchParams.get('type') || undefined,
+    priority: searchParams.get('priority') || undefined,
+    trade: searchParams.get('trade') || undefined,
+    searchParams,
+  };
 }

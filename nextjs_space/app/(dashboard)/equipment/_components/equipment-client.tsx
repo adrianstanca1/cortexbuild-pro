@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { format, isPast, differenceInDays } from 'date-fns';
+import { useState, useCallback } from 'react';
+import { format, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { useEntitySubscription } from '@/hooks/use-entity-subscription';
-import { EQUIPMENT_STATUS_CONFIG } from '@/lib/constants/status-configs';
+import Link from 'next/link';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
-  Truck, Plus, Search, Wrench, MapPin, Calendar, PoundSterling,
+  Truck, Plus, Search, Wrench, MapPin,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
-  ChevronRight, Clock, Filter, LayoutGrid, List, AlertCircle
+  ChevronRight, LayoutGrid, List, AlertCircle, Eye
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,37 @@ interface EquipmentClientProps {
   projects: { id: string; name: string }[];
 }
 
+const statusConfig = {
+  AVAILABLE: { 
+    label: 'Available', 
+    bg: 'bg-green-100 dark:bg-green-900/30', 
+    text: 'text-green-700 dark:text-green-400', 
+    icon: CheckCircle2,
+    dot: 'bg-green-500'
+  },
+  IN_USE: { 
+    label: 'In Use', 
+    bg: 'bg-blue-100 dark:bg-blue-900/30', 
+    text: 'text-blue-700 dark:text-blue-400', 
+    icon: Truck,
+    dot: 'bg-blue-500'
+  },
+  MAINTENANCE: { 
+    label: 'Maintenance', 
+    bg: 'bg-amber-100 dark:bg-amber-900/30', 
+    text: 'text-amber-700 dark:text-amber-400', 
+    icon: Wrench,
+    dot: 'bg-amber-500'
+  },
+  OUT_OF_SERVICE: { 
+    label: 'Out of Service', 
+    bg: 'bg-red-100 dark:bg-red-900/30', 
+    text: 'text-red-700 dark:text-red-400', 
+    icon: XCircle,
+    dot: 'bg-red-500'
+  }
+};
+
 export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -48,14 +79,19 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showNewModal, setShowNewModal] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Use centralized realtime subscription hook
-  useEntitySubscription('equipment');
-  
   const [newEquipment, setNewEquipment] = useState({
     name: '', equipmentNumber: '', category: '', manufacturer: '', model: '',
     serialNumber: '', purchaseCost: '', notes: '', nextServiceDate: ''
   });
+
+  const handleEquipmentEvent = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  useRealtimeSubscription(
+    ['equipment_added', 'equipment_updated', 'equipment_deleted'],
+    handleEquipmentEvent
+  );
 
   const filteredEquipment = equipment.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -268,7 +304,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No equipment found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Add your first equipment to get started</p>
-            <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={() => setShowNewModal(true)} >
               <Plus className="h-4 w-4 mr-2" /> Add Equipment
             </Button>
           </CardContent>
@@ -276,7 +312,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       ) : viewMode === 'grid' ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEquipment.map((item) => {
-            const status = EQUIPMENT_STATUS_CONFIG[item.status];
+            const status = statusConfig[item.status];
             const StatusIcon = status.icon;
             const serviceDueSoon = item.nextServiceDate && differenceInDays(new Date(item.nextServiceDate), new Date()) <= 7;
 
@@ -330,6 +366,12 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Link href={`/equipment/${item.id}`} className="flex-shrink-0">
+                      <Button size="sm" variant="outline" className="h-9">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </Link>
                     {item.status === 'AVAILABLE' && (
                       <Select onValueChange={(projectId) => handleStatusUpdate(item.id, 'IN_USE', projectId)}>
                         <SelectTrigger className="flex-1 h-9 text-sm">
@@ -366,7 +408,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       ) : (
         <div className="space-y-3">
           {filteredEquipment.map((item) => {
-            const status = EQUIPMENT_STATUS_CONFIG[item.status];
+            const status = statusConfig[item.status];
             const StatusIcon = status.icon;
 
             return (
@@ -506,7 +548,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={loading} className="bg-gradient-to-r from-primary to-purple-600">
+              <Button onClick={handleCreate} disabled={loading} >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Add Equipment
               </Button>

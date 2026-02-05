@@ -241,7 +241,7 @@ export default function SignupPage() {
             {/* Testimonial */}
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <p className="text-white/90 mb-4">
-                &quot;CortexBuild has transformed how we manage our construction projects. The time savings alone have been incredible.&quot;
+                "CortexBuild has transformed how we manage our construction projects. The time savings alone have been incredible."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">

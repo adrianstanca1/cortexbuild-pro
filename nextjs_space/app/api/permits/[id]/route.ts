@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +21,7 @@ export async function GET(
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
         documents: true,
@@ -54,7 +58,7 @@ export async function PATCH(
     } = body;
 
     const existingPermit = await prisma.permit.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -63,7 +67,7 @@ export async function PATCH(
     }
 
     const permit = await prisma.permit.update({
-      where: { id },
+      where: { id: id },
       data: {
         ...(type && { type }),
         ...(title && { title }),
@@ -112,7 +116,7 @@ export async function DELETE(
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -120,7 +124,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Permit not found" }, { status: 404 });
     }
 
-    await prisma.permit.delete({ where: { id } });
+    await prisma.permit.delete({ where: { id: id } });
 
     if (permit.project.organizationId) {
       broadcastToOrganization(permit.project.organizationId, {

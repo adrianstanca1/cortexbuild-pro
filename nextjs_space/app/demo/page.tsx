@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   Play,
-  Pause,
   ChevronRight,
   ChevronLeft,
   CheckCircle2,
@@ -15,11 +14,7 @@ import {
   BarChart3,
   Shield,
   Clock,
-  Zap,
   Building2,
-  ClipboardCheck,
-  Calendar,
-  TrendingUp,
   ArrowRight,
   Star,
   Quote,
@@ -141,7 +136,6 @@ const testimonial = {
 
 export default function DemoPage() {
   const [activeFeature, setActiveFeature] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const currentFeature = demoFeatures[activeFeature];
   const IconComponent = currentFeature.icon;
@@ -221,66 +215,46 @@ export default function DemoPage() {
             </p>
           </div>
 
-          {/* Video Player Placeholder */}
+          {/* Video Player */}
           <div className="max-w-5xl mx-auto mb-16">
             <div className="relative aspect-video bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl overflow-hidden shadow-2xl shadow-slate-900/20">
-              {/* Animated Background */}
-              <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-              </div>
-              
-              {/* Content Overlay */}
-              <div className="relative h-full flex flex-col items-center justify-center text-white p-8">
-                <div className="mb-8">
-                  <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 mb-4 mx-auto cursor-pointer hover:bg-white/20 transition-colors"
-                       onClick={() => setIsPlaying(!isPlaying)}>
-                    {isPlaying ? (
-                      <Pause className="h-8 w-8 text-white" />
-                    ) : (
-                      <Play className="h-8 w-8 text-white ml-1" />
-                    )}
-                  </div>
-                  <p className="text-white/60 text-sm">Click to play demo</p>
-                </div>
-                
-                <div className="text-center max-w-2xl">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                    Construction Management,<br />Reimagined
-                  </h3>
-                  <p className="text-white/70 mb-6">
-                    Watch how CortexBuild Pro helps construction teams manage projects, 
-                    ensure safety compliance, and deliver on time.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-4">
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <Clock className="h-4 w-4 text-indigo-400" />
-                      <span className="text-sm">5 min overview</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <Globe className="h-4 w-4 text-green-400" />
-                      <span className="text-sm">UK Focused</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-                      <Shield className="h-4 w-4 text-amber-400" />
-                      <span className="text-sm">CDM Compliant</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <video
+                className="w-full h-full object-cover"
+                controls
+                poster="/og-image.png"
+                preload="metadata"
+              >
+                <source src="/cortexbuild-demo.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
               
               {/* Corner Decorations */}
-              <div className="absolute top-4 left-4 flex items-center gap-2">
+              <div className="absolute top-4 left-4 flex items-center gap-2 pointer-events-none">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
               </div>
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 pointer-events-none">
                 <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse mr-1.5" />
-                  LIVE DEMO
+                  PRODUCT DEMO
                 </Badge>
+              </div>
+            </div>
+            
+            {/* Video Info */}
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
+              <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                <Clock className="h-4 w-4 text-indigo-600" />
+                <span className="text-sm text-slate-700">45 second overview</span>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                <Globe className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-slate-700">UK Focused</span>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                <Shield className="h-4 w-4 text-amber-600" />
+                <span className="text-sm text-slate-700">CDM 2015 Compliant</span>
               </div>
             </div>
           </div>

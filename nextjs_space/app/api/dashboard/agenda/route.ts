@@ -4,16 +4,17 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { startOfDay, endOfDay, addDays, subDays } from "date-fns";
 
-export const dynamic = "force-dynamic";
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
     const orgId = (session.user as any).organizationId;
 
     const today = new Date();

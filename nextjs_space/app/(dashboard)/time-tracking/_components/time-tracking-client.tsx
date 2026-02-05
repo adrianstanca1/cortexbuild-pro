@@ -2,12 +2,11 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO } from "date-fns";
 import {
-  Clock, Plus, Search, Filter, Calendar, CheckCircle2, XCircle,
+  Clock, Plus, CheckCircle2, XCircle,
   MoreVertical, Edit, Trash2, ChevronLeft, ChevronRight, Timer,
-  FolderKanban, Loader2, User, TrendingUp, PoundSterling, FileSpreadsheet
+  Loader2, TrendingUp, PoundSterling
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,14 +75,11 @@ export default function TimeTrackingClient({
   projects,
   tasks,
   initialEntries,
-  teamMembers,
-  currentUserId,
   userRole
 }: TimeTrackingClientProps) {
   const router = useRouter();
-  const [entries, setEntries] = useState<TimeEntry[]>(initialEntries);
+  const [entries, _setEntries] = useState<TimeEntry[]>(initialEntries);
   const [projectFilter, setProjectFilter] = useState<string>("all");
-  const [userFilter, setUserFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [showNewModal, setShowNewModal] = useState(false);
@@ -116,7 +112,6 @@ export default function TimeTrackingClient({
 
   const filteredEntries = entries.filter(e => {
     if (projectFilter !== "all" && e.projectId !== projectFilter) return false;
-    if (userFilter !== "all" && e.userId !== userFilter) return false;
     if (statusFilter !== "all" && e.status !== statusFilter) return false;
     return true;
   });

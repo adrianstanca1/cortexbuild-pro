@@ -1,45 +1,76 @@
-export const dynamic = "force-dynamic";
-
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
-import { 
-  getApiContext, 
-  buildOrgFilter, 
-  handleApiError,
-  successResponse,
-  errorResponse
-} from "@/lib/api-utils";
 
-export async function GET() {
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
+export async function GET(request: Request) {
   try {
-    const { context, error } = await getApiContext();
-    if (error) return error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const documents = await prisma.document.findMany({
-      where: buildOrgFilter(context!.organizationId, false),
-      include: {
-        project: { select: { id: true, name: true } },
-        uploadedBy: { select: { id: true, name: true } }
-      },
-      orderBy: { createdAt: "desc" }
+    const { searchParams } = new URL(request.url);
+    
+    // Validate and sanitize pagination parameters
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    
+    const parsedLimit = parseInt(searchParams.get('limit') || '50', 10);
+    const limit = Math.min(Math.max(parsedLimit, 1), 100);
+    const skip = (page - 1) * limit;
+
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
+    const where = orgId ? { project: { organizationId: orgId } } : {};
+
+    const [documents, total] = await Promise.all([
+      prisma.document.findMany({
+        where,
+        include: {
+          project: { select: { id: true, name: true } },
+          uploadedBy: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.document.count({ where })
+    ]);
+
+    return NextResponse.json({ 
+      documents,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
     });
-
-    return successResponse({ documents });
   } catch (error) {
-    return handleApiError(error, "fetch documents");
+    console.error("Get documents error:", error);
+    return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { context, error } = await getApiContext();
-    if (error) return error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const userId = (session.user as { id?: string })?.id || '';
+    const organizationId = (session.user as { organizationId?: string })?.organizationId;
     const body = await request.json();
     const { name, cloudStoragePath, isPublic, fileSize, mimeType, projectId, documentType } = body;
 
     if (!name || !cloudStoragePath || !projectId) {
-      return errorResponse("BAD_REQUEST", "Missing required fields");
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const document = await prisma.document.create({
@@ -51,7 +82,7 @@ export async function POST(request: Request) {
         mimeType: mimeType ?? null,
         projectId,
         documentType: documentType || "OTHER",
-        uploadedById: context!.userId
+        uploadedById: userId
       },
       include: {
         project: { select: { id: true, name: true } },
@@ -65,30 +96,33 @@ export async function POST(request: Request) {
         entityType: "Document",
         entityId: document.id,
         entityName: document.name,
-        userId: context!.userId,
+        userId,
         projectId
       }
     });
 
     // Broadcast real-time event to organization
-    broadcastToOrganization(context!.organizationId, {
-      type: 'document_uploaded',
-      timestamp: new Date().toISOString(),
-      payload: {
-        document: {
-          id: document.id,
-          name: document.name,
-          documentType: document.documentType,
-          projectId: document.projectId,
-          projectName: document.project?.name,
-          uploadedBy: document.uploadedBy?.name
-        },
-        userId: context!.userId
-      }
-    });
+    if (organizationId) {
+      broadcastToOrganization(organizationId, {
+        type: 'document_uploaded',
+        timestamp: new Date().toISOString(),
+        payload: {
+          document: {
+            id: document.id,
+            name: document.name,
+            documentType: document.documentType,
+            projectId: document.projectId,
+            projectName: document.project?.name,
+            uploadedBy: document.uploadedBy?.name
+          },
+          userId
+        }
+      });
+    }
 
-    return successResponse({ document }, "Document uploaded successfully");
+    return NextResponse.json({ document });
   } catch (error) {
-    return handleApiError(error, "save document");
+    console.error("Create document error:", error);
+    return NextResponse.json({ error: "Failed to save document" }, { status: 500 });
   }
 }

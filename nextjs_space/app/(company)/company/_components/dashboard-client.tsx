@@ -74,11 +74,7 @@ interface CompanyStats {
 }
 
 interface CompanyDashboardClientProps {
-  organization: {
-    id?: string;
-    name?: string;
-    storageUsedBytes?: number;
-  } | null;
+  organization: any;
   entitlements: Entitlements;
   stats: {
     totalMembers: number;
@@ -89,35 +85,9 @@ interface CompanyDashboardClientProps {
     storageGB: number;
     pendingInvitations: number;
   };
-  teamMembers: Array<{
-    id: string;
-    jobTitle?: string | null;
-    department?: string | null;
-    invitedAt: string;
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-      lastLogin?: string | null;
-    };
-  }>;
-  projects: Array<{
-    id: string;
-    name: string;
-    status: string;
-    budget?: number | null;
-    _count?: { tasks: number };
-    manager?: { name: string } | null;
-  }>;
-  recentActivity: Array<{
-    id: string;
-    action: string;
-    entityType?: string | null;
-    entityName?: string | null;
-    createdAt: string;
-    user?: { name: string } | null;
-  }>;
+  teamMembers: any[];
+  projects: any[];
+  recentActivity: any[];
 }
 
 export function CompanyDashboardClient({
@@ -129,8 +99,8 @@ export function CompanyDashboardClient({
   recentActivity
 }: CompanyDashboardClientProps) {
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
+  const [_loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-  const [_loading, setLoading] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -403,7 +373,7 @@ export function CompanyDashboardClient({
                           </div>
                         </div>
                         <Badge variant="outline" className="text-xs">
-                          {member.user.role.replace(/_/g, " ")}
+                          {member.user.role.replace("_", " ")}
                         </Badge>
                       </div>
                     ))
@@ -427,7 +397,7 @@ export function CompanyDashboardClient({
                   {(companyStats?.topProjects || projects).length === 0 ? (
                     <p className="text-gray-500 text-sm text-center py-4">No projects yet</p>
                   ) : (
-                    (companyStats?.topProjects || projects).slice(0, 5).map((project: { id: string; name: string; status: string; budget?: number | null; _count?: { tasks: number }; taskCount?: number; teamSize?: number }) => (
+                    (companyStats?.topProjects || projects).slice(0, 5).map((project: any) => (
                       <Link key={project.id} href={`/projects/${project.id}`} className="block">
                         <div className="flex items-center justify-between py-2 border-b last:border-0 hover:bg-gray-50 -mx-2 px-2 rounded">
                           <div>

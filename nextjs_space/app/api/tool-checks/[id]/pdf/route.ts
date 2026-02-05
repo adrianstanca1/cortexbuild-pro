@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { format } from "date-fns";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +21,7 @@ export async function GET(
     }
 
     const toolCheck = await prisma.toolCheck.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { name: true, organizationId: true } },
         inspector: { select: { name: true, email: true } }
@@ -40,7 +44,7 @@ export async function GET(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
+        deployment_token: process.env.ABACUSAI_APIKEY,
         html_content: htmlContent,
         pdf_options: { format: 'A4', print_background: true },
         base_url: process.env.NEXTAUTH_URL || '',
@@ -106,7 +110,7 @@ function generateToolCheckPDF(check: any) {
   };
 
   const getCheckItems = () => {
-    const items = [];
+    const items: { name: string; value: string }[] = [];
     
     // Common items
     if (check.visualCondition !== undefined) items.push({ name: 'Visual Condition', value: check.visualCondition });

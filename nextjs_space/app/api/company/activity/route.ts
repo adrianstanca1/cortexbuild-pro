@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -11,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string };
+    const user = session.user as any;
     const orgId = user.organizationId;
 
     if (!orgId) {
@@ -25,11 +28,7 @@ export async function GET(request: NextRequest) {
     const entityType = searchParams.get("entityType");
     const userId = searchParams.get("userId");
 
-    const where: { 
-      user: { organizationId: string };
-      entityType?: string;
-      userId?: string;
-    } = {
+    const where: any = {
       user: { organizationId: orgId }
     };
 

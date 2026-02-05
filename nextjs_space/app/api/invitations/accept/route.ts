@@ -1,9 +1,12 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateSlug } from '@/lib/entitlements';
 import bcrypt from 'bcryptjs';
-import { Prisma } from '@prisma/client';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 // POST /api/invitations/accept - Accept invitation and create company/owner
 export async function POST(request: NextRequest) {
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
         data: {
           name: invitation.companyName,
           slug,
-          entitlements: invitation.entitlements as Prisma.InputJsonValue,
+          entitlements: invitation.entitlements ?? {},
           isActive: true,
         },
       });
@@ -206,7 +209,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
+          deployment_token: process.env.ABACUSAI_APIKEY,
           subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
@@ -233,7 +236,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
+          deployment_token: process.env.ABACUSAI_APIKEY,
           subject: `[Admin] New Company: ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
