@@ -57,10 +57,10 @@ print_success "Remote branches fetched"
 echo ""
 
 # Check if target branch exists
-if ! git show-ref --verify --quiet refs/heads/$TARGET_BRANCH; then
+if ! git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
     print_info "Target branch '$TARGET_BRANCH' doesn't exist locally. Fetching from remote..."
-    if git show-ref --verify --quiet refs/remotes/origin/$TARGET_BRANCH; then
-        git checkout -b $TARGET_BRANCH origin/$TARGET_BRANCH
+    if git show-ref --verify --quiet "refs/remotes/origin/$TARGET_BRANCH"; then
+        git checkout -b "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
         print_success "Target branch '$TARGET_BRANCH' created and checked out"
     else
         print_error "Target branch '$TARGET_BRANCH' doesn't exist on remote either"
@@ -70,14 +70,14 @@ else
     # Switch to target branch
     if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
         print_info "Switching to target branch '$TARGET_BRANCH'..."
-        git checkout $TARGET_BRANCH
+        git checkout "$TARGET_BRANCH"
         print_success "Switched to $TARGET_BRANCH"
     fi
 fi
 
 # Pull latest changes from target branch
 print_info "Updating target branch with latest changes..."
-git pull origin $TARGET_BRANCH || print_warning "Could not pull from origin/$TARGET_BRANCH (might not exist on remote yet)"
+git pull origin "$TARGET_BRANCH" || print_warning "Could not pull from origin/$TARGET_BRANCH (might not exist on remote yet)"
 echo ""
 
 # Get list of remote branches (excluding HEAD and target branch)
@@ -93,7 +93,7 @@ fi
 BRANCH_COUNT=$(echo "$REMOTE_BRANCHES" | wc -l)
 echo ""
 print_info "Found $BRANCH_COUNT remote branch(es) to process:"
-echo "$REMOTE_BRANCHES" | while read branch; do
+echo "$REMOTE_BRANCHES" | while read -r branch; do
     echo "  - $branch"
 done
 echo ""
@@ -103,7 +103,7 @@ if [ "$DRY_RUN" = "true" ]; then
     print_warning "DRY RUN MODE - No changes will be made"
     echo ""
 else
-    read -p "Do you want to proceed with merging and deleting these branches? (yes/no): " CONFIRM
+    read -r -p "Do you want to proceed with merging and deleting these branches? (yes/no): " CONFIRM
     if [ "$CONFIRM" != "yes" ]; then
         print_warning "Operation cancelled by user"
         exit 0
@@ -128,7 +128,7 @@ echo -e "${BLUE}========================================${NC}"
 echo ""
 
 # Process each branch
-echo "$REMOTE_BRANCHES" | while read branch; do
+echo "$REMOTE_BRANCHES" | while read -r branch; do
     if [ -z "$branch" ]; then
         continue
     fi
@@ -137,15 +137,15 @@ echo "$REMOTE_BRANCHES" | while read branch; do
     echo "----------------------------------------"
     
     # Check if branch exists on remote
-    if ! git show-ref --verify --quiet refs/remotes/origin/$branch; then
+    if ! git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
         print_warning "Branch origin/$branch doesn't exist, skipping"
         echo ""
         continue
     fi
     
     # Check if already merged
-    MERGE_BASE=$(git merge-base $TARGET_BRANCH origin/$branch 2>/dev/null || echo "")
-    BRANCH_HEAD=$(git rev-parse origin/$branch 2>/dev/null || echo "")
+    MERGE_BASE=$(git merge-base "$TARGET_BRANCH" "origin/$branch" 2>/dev/null || echo "")
+    BRANCH_HEAD=$(git rev-parse "origin/$branch" 2>/dev/null || echo "")
     
     if [ -n "$MERGE_BASE" ] && [ -n "$BRANCH_HEAD" ] && [ "$MERGE_BASE" = "$BRANCH_HEAD" ]; then
         print_info "Branch '$branch' is already merged into $TARGET_BRANCH"
@@ -161,7 +161,7 @@ echo "$REMOTE_BRANCHES" | while read branch; do
     else
         print_info "Merging origin/$branch into $TARGET_BRANCH..."
         
-        if git merge origin/$branch --no-edit -m "Merge branch '$branch' into $TARGET_BRANCH"; then
+        if git merge "origin/$branch" --no-edit -m "Merge branch '$branch' into $TARGET_BRANCH"; then
             print_success "Successfully merged $branch"
             echo "$branch" >> /tmp/successfully_merged.txt
             
@@ -180,7 +180,7 @@ echo "$REMOTE_BRANCHES" | while read branch; do
             git merge --abort 2>/dev/null || true
             
             # Ask user if they want to continue with other branches
-            read -p "Continue with remaining branches? (yes/no): " CONTINUE
+            read -r -p "Continue with remaining branches? (yes/no): " CONTINUE
             if [ "$CONTINUE" != "yes" ]; then
                 print_warning "Operation stopped by user"
                 exit 1
@@ -211,14 +211,14 @@ if [ -f /tmp/failed_merge.txt ]; then
 fi
 
 # Push merged changes to remote
-if [ "$DRY_RUN" != "true" ] && [ $MERGED_COUNT -gt 0 ]; then
+if [ "$DRY_RUN" != "true" ] && [ "$MERGED_COUNT" -gt 0 ]; then
     echo -e "${BLUE}========================================${NC}"
     echo -e "${BLUE}Pushing Merged Changes${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo ""
     
     print_info "Pushing merged changes to origin/$TARGET_BRANCH..."
-    if git push origin $TARGET_BRANCH; then
+    if git push origin "$TARGET_BRANCH"; then
         print_success "Successfully pushed merged changes"
     else
         print_error "Failed to push changes to remote"
@@ -243,7 +243,7 @@ if [ ${#SUCCESSFULLY_MERGED[@]} -gt 0 ]; then
     if [ "$DRY_RUN" = "true" ]; then
         print_warning "DRY RUN MODE - Would delete ${#SUCCESSFULLY_MERGED[@]} remote branch(es)"
     else
-        read -p "Proceed with deleting ${#SUCCESSFULLY_MERGED[@]} remote branch(es)? (yes/no): " DELETE_CONFIRM
+        read -r -p "Proceed with deleting ${#SUCCESSFULLY_MERGED[@]} remote branch(es)? (yes/no): " DELETE_CONFIRM
         
         if [ "$DELETE_CONFIRM" = "yes" ]; then
             for branch in "${SUCCESSFULLY_MERGED[@]}"; do
