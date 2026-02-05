@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // Check if phase gates are met (if phaseGatesData provided)
     let canTransition = true;
-    let gateErrors: string[] = [];
+    const gateErrors: string[] = [];
 
     if (phaseGatesData) {
       // Parse phase gates requirements
