@@ -32,7 +32,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { phase } = body;
+    const { phase, phaseGatesData } = body;
 
     if (!phase) {
       return NextResponse.json({ error: "Phase is required" }, { status: 400 });
