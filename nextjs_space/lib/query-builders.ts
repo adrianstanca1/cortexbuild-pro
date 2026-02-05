@@ -80,12 +80,12 @@ export async function logAndBroadcast(
       entity.name as string,
       projectId
     ),
-    broadcastEntityChange(
+    ...(context.organizationId ? [broadcastEntityChange(
       context.organizationId,
       broadcastAction,
       entityType,
       entity,
       context.userId
-    ),
+    )] : []),
   ]);
 }

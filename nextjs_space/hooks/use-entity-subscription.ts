@@ -6,7 +6,7 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
-import { RealtimeEvent } from '@/lib/realtime';
+import { RealtimeEvent, RealtimeEventType } from '@/lib/realtime';
 
 /**
  * Hook to subscribe to entity creation/update events and refresh the router
@@ -47,7 +47,7 @@ export function useEntitySubscription(
     `${entityType}_created`,
     `${entityType}_updated`,
     ...(includeDeleted ? [`${entityType}_deleted`] : [])
-  ];
+  ] as RealtimeEventType[];
 
   useRealtimeSubscription(events, handleEvent, []);
 }
@@ -82,7 +82,7 @@ export function useMultiEntitySubscription(
     `${entityType}_created`,
     `${entityType}_updated`,
     ...(includeDeleted ? [`${entityType}_deleted`] : [])
-  ]);
+  ]) as RealtimeEventType[];
 
   useRealtimeSubscription(events, handleEvent, []);
 }

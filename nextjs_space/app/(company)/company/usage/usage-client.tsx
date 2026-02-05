@@ -379,7 +379,7 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                         return (
                           <div className="bg-white p-3 border rounded-lg shadow-sm">
                             <p className="font-semibold">{label}</p>
-                            {payload.map((item: { dataKey: string; value: number; color?: string }) => (
+                            {payload.map((item) => (
                               <p key={item.dataKey} className="text-sm">
                                 <span className={`mr-2 ${item.dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>●</span>
                                 {item.dataKey}: {item.value}

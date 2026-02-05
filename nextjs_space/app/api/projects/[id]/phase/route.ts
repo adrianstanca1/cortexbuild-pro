@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // Check if phase gates are met (if phaseGatesData provided)
     let canTransition = true;
-    let gateErrors: string[] = [];
+    const gateErrors: string[] = [];
 
     if (phaseGatesData) {
       // Parse phase gates requirements
@@ -79,9 +79,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {
-        phase,
-        phaseStartedAt: new Date(),
-        phaseGatesData: phaseGatesData || project.phaseGatesData
+        phase
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }
@@ -135,8 +133,6 @@ export async function GET(request: Request, { params }: RouteParams) {
         id: true,
         name: true,
         phase: true,
-        phaseStartedAt: true,
-        phaseGatesData: true,
         status: true
       }
     });
@@ -146,7 +142,8 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Calculate phase completion metrics
-    const gatesData = project.phaseGatesData as any || {};
+    // Note: phaseGatesData field doesn't exist in the schema
+    const gatesData = {};
     
     return NextResponse.json({
       project: {
