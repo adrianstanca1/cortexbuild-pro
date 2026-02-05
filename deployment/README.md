@@ -43,9 +43,30 @@ docker-compose --version
 
 ## 🚀 Quick Start
 
-### One-Click Deployment (Recommended)
+### Automated Deployment via GitHub Actions (⭐ Recommended)
 
-The easiest way to deploy:
+Deploy directly from GitHub with one click - no manual SSH required!
+
+**Benefits:**
+- ✅ One-click deployment from GitHub UI
+- ✅ Automated pre-deployment validation
+- ✅ Built-in health checks
+- ✅ No need to manually SSH to VPS
+- ✅ Deployment history tracking
+- ✅ Easy rollback capability
+
+**Quick Setup:**
+1. Configure GitHub secrets (VPS_SSH_KEY, VPS_HOST, VPS_USER)
+2. Navigate to Actions → Deploy to VPS
+3. Click "Run workflow" and watch the magic happen!
+
+**See [AUTOMATED-DEPLOYMENT.md](AUTOMATED-DEPLOYMENT.md) for detailed setup instructions.**
+
+---
+
+### One-Click Manual Deployment
+
+The easiest way to deploy manually on your VPS:
 
 ```bash
 cd /root
