@@ -236,7 +236,7 @@ export async function POST(req: NextRequest) {
                 organizationId: userData.organizationId || null,
                 phone: userData.phone || null
               };
-            } catch {
+            } catch (error) {
               importResults.failed++;
               importResults.errors.push({
                 email: userData.email,
@@ -369,7 +369,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
     console.error("Error in bulk user operation:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

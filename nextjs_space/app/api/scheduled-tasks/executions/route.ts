@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(executions);
-  } catch {
+  } catch (error) {
     console.error('Get task executions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

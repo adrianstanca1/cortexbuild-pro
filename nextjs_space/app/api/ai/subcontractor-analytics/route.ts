@@ -28,7 +28,7 @@ interface SubcontractorMetrics {
   trend: 'up' | 'down' | 'stable';
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const subcontractorMetrics: SubcontractorMetrics[] = subcontractors.map((sub, index) => {
+    const subcontractorMetrics: SubcontractorMetrics[] = subcontractors.map((sub, _index) => {
       const contracts = sub.contracts || [];
       const activeContracts = contracts.filter(c => c.status === 'ACTIVE').length;
       const completedContracts = contracts.filter(c => c.status === 'COMPLETED').length;

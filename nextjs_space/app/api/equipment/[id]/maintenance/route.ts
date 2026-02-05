@@ -44,7 +44,7 @@ export async function GET(
     });
 
     return NextResponse.json(maintenanceLogs);
-  } catch {
+  } catch (error) {
     console.error('Error fetching maintenance logs:', error);
     return NextResponse.json({ error: 'Failed to fetch maintenance logs' }, { status: 500 });
   }
@@ -135,7 +135,7 @@ export async function POST(
     });
 
     return NextResponse.json(maintenanceLog, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating maintenance log:', error);
     return NextResponse.json({ error: 'Failed to create maintenance log' }, { status: 500 });
   }

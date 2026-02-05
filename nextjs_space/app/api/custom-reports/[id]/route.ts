@@ -31,7 +31,7 @@ export async function GET(
     }
 
     return NextResponse.json(report);
-  } catch {
+  } catch (error) {
     console.error('Get custom report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -82,7 +82,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(report);
-  } catch {
+  } catch (error) {
     console.error('Update custom report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function DELETE(
     await prisma.customReport.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Delete custom report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

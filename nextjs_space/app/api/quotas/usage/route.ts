@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest) {
     }));
 
     return NextResponse.json(usage);
-  } catch {
+  } catch (error) {
     console.error('Get quota usage error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

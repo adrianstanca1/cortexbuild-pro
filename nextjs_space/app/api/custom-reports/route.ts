@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(reports);
-  } catch {
+  } catch (error) {
     console.error('Get custom reports error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(report, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Create custom report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

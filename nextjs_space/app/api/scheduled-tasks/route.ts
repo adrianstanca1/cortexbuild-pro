@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(tasks);
-  } catch {
+  } catch (error) {
     console.error('Get scheduled tasks error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(task, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Create scheduled task error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

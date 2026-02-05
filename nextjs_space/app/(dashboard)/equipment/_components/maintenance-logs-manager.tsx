@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { 
-  Wrench, Plus, Pencil, Trash2, Calendar, DollarSign, FileText 
+  Wrench, Plus, Pencil, Trash2, Calendar, DollarSign, User, FileText 
 } from 'lucide-react';
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -83,7 +83,7 @@ export function MaintenanceLogsManager({ equipmentId, equipmentName }: Maintenan
       if (!response.ok) throw new Error('Failed to fetch maintenance logs');
       const data = await response.json();
       setLogs(data);
-    } catch {
+    } catch (error) {
       console.error('Error fetching maintenance logs:', error);
       toast.error('Failed to load maintenance logs');
     } finally {

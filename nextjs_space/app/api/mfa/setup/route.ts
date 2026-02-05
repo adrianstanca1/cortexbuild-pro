@@ -43,7 +43,7 @@ export async function POST(_request: NextRequest) {
       qrCodeUri: otpauthUri,
       message: 'Scan the QR code with your authenticator app, then verify with a code',
     }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Setup MFA error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

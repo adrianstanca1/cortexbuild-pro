@@ -60,7 +60,7 @@ export async function GET(_req: NextRequest) {
     });
 
     return NextResponse.json({ announcements: parsedAnnouncements });
-  } catch {
+  } catch (error) {
     console.error("Error fetching announcements:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
         createdAt: announcement.createdAt
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Error creating announcement:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -195,7 +195,7 @@ export async function DELETE(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting announcement:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

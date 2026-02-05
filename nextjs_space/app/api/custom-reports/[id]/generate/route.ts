@@ -43,7 +43,7 @@ export async function POST(
     // Update execution status and result when complete
 
     return NextResponse.json(execution, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Generate report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

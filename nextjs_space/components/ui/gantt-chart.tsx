@@ -168,7 +168,7 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
           <div className="h-[60px] border-b bg-gray-50 dark:bg-gray-800 flex items-end p-2">
             <span className="text-sm font-medium text-gray-600">Tasks / Milestones</span>
           </div>
-          {items.map((item, index) => (
+          {items.map((item, _index) => (
             <div
               key={item.id}
               className="h-[40px] border-b flex items-center px-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"

@@ -2,6 +2,15 @@
 
 Complete guide to deploy CortexBuild Pro on your private VPS.
 
+## 📌 Version Management
+
+The current version is tracked in the `VERSION` file at the repository root. Version information is:
+- Displayed during deployment scripts
+- Available via API at `/api/version`
+- Shown in the application footer
+
+Current version: **2.1.0**
+
 ## 📦 Prerequisites
 
 ### Server Requirements
@@ -34,13 +43,53 @@ docker-compose --version
 
 ## 🚀 Quick Start
 
+### Automated Deployment via GitHub Actions (⭐ Recommended)
+
+Deploy directly from GitHub with one click - no manual SSH required!
+
+**Benefits:**
+- ✅ One-click deployment from GitHub UI
+- ✅ Automated pre-deployment validation
+- ✅ Built-in health checks
+- ✅ No need to manually SSH to VPS
+- ✅ Deployment history tracking
+- ✅ Easy rollback capability
+
+**Quick Setup:**
+1. Configure GitHub secrets (VPS_SSH_KEY, VPS_HOST, VPS_USER)
+2. Navigate to Actions → Deploy to VPS
+3. Click "Run workflow" and watch the magic happen!
+
+**See [AUTOMATED-DEPLOYMENT.md](AUTOMATED-DEPLOYMENT.md) for detailed setup instructions.**
+
+---
+
+### One-Click Manual Deployment
+
+The easiest way to deploy manually on your VPS:
+
+```bash
+cd /root
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
+
+This script handles everything: Docker installation, environment setup, deployment, migrations, and health checks.
+
+For more options, see our [Quick Start Guide](QUICKSTART.md).
+
+---
+
+### Manual Deployment
+
 ### 1. Upload Project to Server
 ```bash
 # Option A: SCP from local machine
 scp -r cortexbuild_pro user@your-server:/home/user/
 
 # Option B: Git clone (if hosted)
-git clone https://github.com/your-repo/cortexbuild_pro.git
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 ```
 
 ### 2. Configure Environment
@@ -67,7 +116,7 @@ SSL_EMAIL=admin@your-domain.com
 ### 3. Deploy
 ```bash
 chmod +x *.sh
-./deploy.sh
+./production-deploy.sh
 ```
 
 ### 4. Setup SSL (Optional but Recommended)
@@ -86,15 +135,21 @@ chmod +x *.sh
 
 ```
 deployment/
-├── .env.example      # Environment template
-├── docker-compose.yml # Container orchestration
-├── Dockerfile        # App build instructions
-├── nginx.conf        # Reverse proxy config
-├── deploy.sh         # Main deployment script
-├── setup-ssl.sh      # SSL certificate setup
-├── backup.sh         # Database backup
-├── restore.sh        # Database restore
-└── seed-db.sh        # Seed initial data
+├── .env.example          # Environment template
+├── docker-compose.yml    # Container orchestration
+├── Dockerfile            # App build instructions
+├── nginx.conf            # Reverse proxy config
+├── one-click-deploy.sh   # ⭐ One-click deployment
+├── production-deploy.sh  # ⭐ Complete production workflow
+├── vps-full-deploy.sh    # Remote deployment via curl
+├── cleanup-repos.sh      # ⭐ Repository cleanup
+├── health-check.sh       # ⭐ Health monitoring
+├── rollback.sh           # ⭐ Deployment rollback
+├── QUICKSTART.md         # ⭐ Quick start guide
+├── setup-ssl.sh          # SSL certificate setup
+├── backup.sh             # Database backup
+├── restore.sh            # Database restore
+└── seed-db.sh            # Seed initial data
 ```
 
 ---
@@ -124,6 +179,31 @@ DATABASE_URL="postgresql://user:pass@host:5432/dbname?schema=public"
 ---
 
 ## 🛠️ Management Commands
+
+### Health Check & Monitoring
+
+```bash
+# Check deployment health
+./health-check.sh
+
+# Returns comprehensive status:
+# - Docker & container status
+# - Database connectivity
+# - Application health
+# - System resources
+# - Log analysis
+# - Backup status
+```
+
+### Deployment Rollback
+
+```bash
+# Interactive rollback (select backup)
+./rollback.sh
+
+# Quick rollback to most recent backup
+./rollback.sh --quick
+```
 
 ### View Logs
 ```bash
@@ -200,6 +280,7 @@ Add to crontab (`crontab -e`):
 
 ## 🔄 Updating the Application
 
+### Standard Update
 ```bash
 cd cortexbuild_pro/deployment
 
@@ -212,6 +293,49 @@ docker-compose up -d app
 
 # Run any new migrations
 docker-compose exec app npx prisma migrate deploy
+```
+
+### Production Deployment Workflow (Recommended)
+
+Complete production deployment with commit, rebuild, deploy, and cleanup:
+
+```bash
+cd cortexbuild_pro/deployment
+./production-deploy.sh
+```
+
+This script performs:
+1. ✅ Commits all pending changes
+2. ✅ Rebuilds application with fresh production build
+3. ✅ Deploys to VPS with database migrations
+4. ✅ Cleans up repositories and Docker artifacts
+5. ✅ Runs health checks to verify deployment
+
+**Features:**
+- Complete workflow automation
+- Comprehensive logging
+- Error handling and rollback support
+- Post-deployment verification
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Production Deployment
+  Version: 2.2.0
+=============================================================================
+
+[INFO] Step 1: Committing all changes...
+[INFO] No changes to commit - working tree is clean
+[INFO] Step 2: Rebuilding application for production...
+[INFO] Building fresh Docker images (this may take several minutes)...
+[SUCCESS] Production build completed successfully
+[INFO] Step 3: Deploying to VPS...
+[SUCCESS] Application deployed successfully
+[INFO] Step 4: Cleaning repositories and artifacts...
+[SUCCESS] Repository cleanup completed
+[SUCCESS] Health check completed
+
+Deployment completed successfully!
 ```
 
 ---
@@ -245,6 +369,73 @@ docker system df
 
 # Clean unused images/containers
 docker system prune -a
+```
+
+---
+
+## 🧹 Repository Cleanup
+
+### Standard Cleanup
+```bash
+cd cortexbuild_pro/deployment
+./cleanup-repos.sh
+```
+
+Performs standard cleanup:
+- Removes stopped Docker containers
+- Removes dangling Docker images
+- Cleans build cache
+- Optimizes Git repository
+- Cleans old logs (7+ days)
+- Removes temporary files
+
+### Aggressive Cleanup
+```bash
+./cleanup-repos.sh --aggressive
+```
+
+**⚠️ WARNING:** Aggressive mode also removes:
+- All unused Docker images (not just dangling)
+- Unused Docker volumes (may contain data)
+- Git untracked files
+
+**Use aggressive mode only when:**
+- Running low on disk space
+- After major version upgrades
+- During maintenance windows
+- You have verified backups exist
+
+**What gets cleaned:**
+```
+✓ Docker containers (stopped)
+✓ Docker images (dangling/unused)
+✓ Docker networks (unused)
+✓ Docker volumes (unused in aggressive mode)
+✓ Docker build cache
+✓ Git repository optimization
+✓ Next.js build cache
+✓ node_modules cache
+✓ Yarn cache
+✓ Old logs (7+ days)
+✓ Temporary files
+```
+
+**Example output:**
+```
+=============================================================================
+  CortexBuild Pro - Repository Cleanup
+=============================================================================
+
+[INFO] Disk usage before cleanup: 45G
+[INFO] Cleaning Docker artifacts...
+[SUCCESS] Docker cleanup completed
+[INFO] Cleaning Git repository...
+[SUCCESS] Git repository cleanup completed
+[INFO] Cleaning build artifacts...
+[SUCCESS] Build artifacts cleanup completed
+[SUCCESS] Disk usage after cleanup: 38G
+
+Cleanup completed successfully!
 ```
 
 ---

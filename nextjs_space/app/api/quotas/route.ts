@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(quotas);
-  } catch {
+  } catch (error) {
     console.error('Get quotas error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   FileText,
   AlertTriangle,
@@ -14,8 +14,6 @@ import {
   Sparkles,
   Download,
   Copy,
-  RefreshCw,
-  ChevronRight,
   Building2,
   MapPin,
   Calendar,
@@ -66,7 +64,7 @@ export default function DocumentGeneratorPage() {
   const [selectedDocType, setSelectedDocType] = useState<DocumentType | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   // Form fields
   const [workDescription, setWorkDescription] = useState('');

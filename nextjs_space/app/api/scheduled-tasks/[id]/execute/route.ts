@@ -47,7 +47,7 @@ export async function POST(
     // Update execution status when complete
 
     return NextResponse.json(execution, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Execute scheduled task error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

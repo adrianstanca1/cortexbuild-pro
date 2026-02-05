@@ -130,7 +130,7 @@ export async function POST(
     });
 
     return NextResponse.json(updatedCO);
-  } catch {
+  } catch (error) {
     console.error('Error rejecting change order:', error);
     return NextResponse.json({ 
       error: 'Failed to reject change order' 

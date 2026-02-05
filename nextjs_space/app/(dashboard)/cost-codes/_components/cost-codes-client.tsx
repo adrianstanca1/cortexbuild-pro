@@ -24,8 +24,24 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Coins, Plus, Search, ChevronRight, ChevronDown, FolderTree,
-  Loader2, Package, PoundSterling
+  Loader2, Package, PoundSterling, Pencil, Trash2, MoreVertical
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -64,6 +80,9 @@ const categoryColors: Record<string, string> = {
 export function CostCodesClient({ initialCostCodes }: Props) {
   const [costCodes, setCostCodes] = useState<CostCode[]>(initialCostCodes);
   const [showNewDialog, setShowNewDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedCode, setSelectedCode] = useState<CostCode | null>(null);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
@@ -75,6 +94,15 @@ export function CostCodesClient({ initialCostCodes }: Props) {
     parentId: '',
     category: 'OTHER',
     budgetAmount: ''
+  });
+
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    budgetAmount: '',
+    varianceThreshold: '',
+    isActive: true
   });
 
   const topLevelCodes = costCodes.filter(cc => !cc.parent);
@@ -114,6 +142,89 @@ export function CostCodesClient({ initialCostCodes }: Props) {
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to create cost code');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (cc: CostCode) => {
+    setSelectedCode(cc);
+    setEditForm({
+      name: cc.name,
+      description: cc.description || '',
+      category: cc.category,
+      budgetAmount: cc.budgetAmount.toString(),
+      varianceThreshold: '10',
+      isActive: cc.isActive
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedCode || !editForm.name) {
+      toast.error('Name is required');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/cost-codes/${selectedCode.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name,
+          description: editForm.description,
+          category: editForm.category,
+          budgetAmount: parseFloat(editForm.budgetAmount) || 0,
+          varianceThreshold: parseFloat(editForm.varianceThreshold) || 10,
+          isActive: editForm.isActive
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update');
+      }
+
+      const updated = await response.json();
+      setCostCodes(costCodes.map(cc => cc.id === updated.id ? updated : cc));
+      toast.success('Cost code updated successfully');
+      setShowEditDialog(false);
+      setSelectedCode(null);
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error.message || 'Failed to update cost code');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = (cc: CostCode) => {
+    setSelectedCode(cc);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedCode) return;
+
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/cost-codes/${selectedCode.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete');
+      }
+
+      setCostCodes(costCodes.filter(cc => cc.id !== selectedCode.id));
+      toast.success('Cost code deleted successfully');
+      setShowDeleteDialog(false);
+      setSelectedCode(null);
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast.error(error.message || 'Failed to delete cost code');
     } finally {
       setSaving(false);
     }
@@ -203,6 +314,27 @@ export function CostCodesClient({ initialCostCodes }: Props) {
               <p>{cc._count.workPackages} WPs</p>
               <p>{cc._count.costItems} Items</p>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleEdit(cc)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleDeleteConfirm(cc)}
+                  className="text-red-600"
+                  disabled={cc._count.workPackages > 0 || cc._count.costItems > 0 || cc._count.budgetLines > 0}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
@@ -424,6 +556,116 @@ export function CostCodesClient({ initialCostCodes }: Props) {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Cost Code</DialogTitle>
+            <DialogDescription>
+              Update cost code details. Code cannot be changed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {selectedCode && (
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                <p className="text-sm text-slate-500">Code</p>
+                <p className="font-mono font-semibold">{selectedCode.code}</p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label>Name *</Label>
+              <Input 
+                value={editForm.name}
+                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                placeholder="Cost code name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea 
+                value={editForm.description}
+                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                placeholder="Optional description..."
+                rows={2}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select value={editForm.category} onValueChange={(v) => setEditForm({...editForm, category: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(categoryColors).map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Budget Amount</Label>
+                <Input 
+                  type="number"
+                  value={editForm.budgetAmount}
+                  onChange={(e) => setEditForm({...editForm, budgetAmount: e.target.value})}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={editForm.isActive}
+                onChange={(e) => setEditForm({...editForm, isActive: e.target.checked})}
+                className="rounded border-slate-300"
+              />
+              <Label htmlFor="isActive">Active</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={saving}>
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Cost Code</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{selectedCode?.code} - {selectedCode?.name}&quot;? 
+              This action cannot be undone.
+              {selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0) && (
+                <p className="mt-2 text-red-600 font-semibold">
+                  This cost code has associated work packages, cost items, or budget lines and cannot be deleted.
+                </p>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={saving || !!(selectedCode && (selectedCode._count.workPackages > 0 || selectedCode._count.costItems > 0 || selectedCode._count.budgetLines > 0))}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

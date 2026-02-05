@@ -40,7 +40,7 @@ export async function GET(
     }
 
     return NextResponse.json(dashboard);
-  } catch {
+  } catch (error) {
     console.error('Get analytics dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -94,7 +94,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(updated);
-  } catch {
+  } catch (error) {
     console.error('Update analytics dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -133,7 +133,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Delete analytics dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

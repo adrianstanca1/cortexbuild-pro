@@ -45,16 +45,16 @@ interface TaskComment {
 interface Task {
   id: string;
   title: string;
-  description?: string;
+  description?: string | null;
   status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE';
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  dueDate?: string;
+  dueDate?: string | Date | null;
   assignee?: {
     id: string;
     name: string;
-    email: string;
-    avatarUrl?: string;
-  };
+    email?: string;
+    avatarUrl?: string | null;
+  } | null;
   project?: {
     id: string;
     name: string;

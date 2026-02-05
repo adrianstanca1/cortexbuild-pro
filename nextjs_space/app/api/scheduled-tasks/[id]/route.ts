@@ -35,7 +35,7 @@ export async function GET(
     }
 
     return NextResponse.json(task);
-  } catch {
+  } catch (error) {
     console.error('Get scheduled task error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(task);
-  } catch {
+  } catch (error) {
     console.error('Update scheduled task error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -120,7 +120,7 @@ export async function DELETE(
     await prisma.scheduledTask.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Delete scheduled task error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

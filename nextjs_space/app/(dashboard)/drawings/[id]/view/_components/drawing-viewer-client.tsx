@@ -5,17 +5,14 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
   Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
-  Eraser, Save, Undo, Redo, Users, FileText, Eye, EyeOff, Trash2,
-  ChevronDown, MousePointer, Triangle, Cloud, MessageSquare,
-  Grid3X3, Move, PaintBucket, Pipette, Spline, Pen, Brush, Sparkles,
-  Star, Hexagon, ArrowUpRight, ArrowDownLeft, Hash, Stamp, Target,
-  RotateCcw, Crosshair, ScanLine, Maximize, Minimize2, Lock, Unlock,
-  Copy, Clipboard, FlipHorizontal, FlipVertical, AlignLeft, AlignCenter,
-  AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical,
-  Palette, Settings2, LayoutGrid, Shapes, MessageCircle, Tag, Bookmark,
-  CheckCircle, XCircle, AlertCircle, Clock, Info, ChevronLeft, ChevronRight,
-  ChevronsUpDown, MoreVertical, Search, Filter, SortAsc, Sliders,
-  PanelLeftClose, PanelLeft, ImagePlus
+  Eraser, Undo, Redo, Users, Eye, EyeOff, Trash2,
+  MousePointer, Triangle, Cloud, MessageSquare,
+  Move, Pipette, Pen, Brush, Sparkles,
+  Star, Hexagon, ArrowUpRight, Hash, Stamp, Target,
+  RotateCcw, ScanLine, Lock, Unlock,
+  LayoutGrid, MessageCircle, Tag,
+  CheckCircle, XCircle, AlertCircle, Clock, Info,
+  PanelLeftClose, PanelLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +24,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -160,10 +154,10 @@ export function DrawingViewerClient({
   const [annotations, setAnnotations] = useState<Annotation[]>(initialAnnotations);
   const [selectedTool, setSelectedTool] = useState<ToolType>("select");
   const [color, setColor] = useState("#FF0000");
-  const [fillColor, setFillColor] = useState("#FF0000");
+  const [fillColor, _setFillColor] = useState("#FF0000");
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [opacity, setOpacity] = useState(1);
-  const [brushSettings, setBrushSettings] = useState<BrushSettings>({
+  const [brushSettings, _setBrushSettings] = useState<BrushSettings>({
     size: 20,
     hardness: 100,
     opacity: 100,
@@ -172,7 +166,7 @@ export function DrawingViewerClient({
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
-  const [gridSize, setGridSize] = useState(20);
+  const [gridSize, _setGridSize] = useState(20);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [selectedRevision, setSelectedRevision] = useState(
@@ -191,7 +185,7 @@ export function DrawingViewerClient({
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
   const [showLayersPanel, setShowLayersPanel] = useState(false);
-  const [showToolSettings, setShowToolSettings] = useState(true);
+  const [showToolSettings, _setShowToolSettings] = useState(true);
   const [stampType, setStampType] = useState('approved');
   const [showStampDialog, setShowStampDialog] = useState(false);
   const [stampPosition, setStampPosition] = useState<Point | null>(null);
@@ -313,6 +307,7 @@ export function DrawingViewerClient({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotationId, strokeWidth]);
 
   const getRandomColor = () => {
@@ -517,7 +512,7 @@ export function DrawingViewerClient({
     }).catch(() => {});
   }, [drawing.id, currentUser.id, currentUser.name]);
 
-  const handleAnnotationMove = (id: string, delta: Point) => {
+  const handleAnnotationMove = (id: string, _delta: Point) => {
     // Update annotation position locally
     setAnnotations(prev => prev.map(a => {
       if (a.id !== id) return a;
@@ -526,7 +521,7 @@ export function DrawingViewerClient({
     }));
   };
 
-  const handleAnnotationResize = (id: string, bounds: any) => {
+  const handleAnnotationResize = (_id: string, _bounds: any) => {
     // Update annotation bounds locally
   };
 
