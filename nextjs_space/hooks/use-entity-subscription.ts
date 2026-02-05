@@ -9,7 +9,7 @@ import { useRealtimeSubscription } from '@/components/realtime-provider';
 import { REALTIME_EVENT_TYPES, RealtimeEvent, RealtimeEventType } from '@/lib/realtime';
 
 const isRealtimeEventType = (eventType: string): eventType is RealtimeEventType =>
-  REALTIME_EVENT_TYPES.includes(eventType as RealtimeEventType);
+  (REALTIME_EVENT_TYPES as readonly string[]).includes(eventType);
 
 /**
  * Hook to subscribe to entity creation/update events and refresh the router
