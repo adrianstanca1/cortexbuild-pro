@@ -188,13 +188,13 @@ Automate branch merging and cleanup:
 
 ```bash
 # Merge all remote branches and delete after sync
-./merge-and-delete-branches.sh
+./scripts/merge-and-delete-branches.sh
 
 # Test without making changes (dry run)
-./merge-and-delete-branches.sh cortexbuildpro true
+./scripts/merge-and-delete-branches.sh cortexbuildpro true
 
 # Merge into a specific branch
-./merge-and-delete-branches.sh main
+./scripts/merge-and-delete-branches.sh main
 ```
 
 Features:
@@ -211,7 +211,7 @@ If branches are already merged, use the simple cleanup script:
 
 ```bash
 # Delete specific pre-merged branches
-./cleanup-branches.sh
+./scripts/cleanup-branches.sh
 ```
 
 ## 📊 Monitoring
