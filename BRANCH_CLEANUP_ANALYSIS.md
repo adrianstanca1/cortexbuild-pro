@@ -36,12 +36,17 @@ After comprehensive analysis, all copilot branches have been compared with the m
 2. Find each copilot branch
 3. Click the trash icon to delete
 
-### Option 2: Use the Cleanup Script
+### Option 2: Use the Copilot Branch Deletion Script
+```bash
+./delete-copilot-branches.sh
+```
+
+### Option 3: Use the General Cleanup Script
 ```bash
 ./cleanup-remote-branches.sh
 ```
 
-### Option 3: Manual Git Commands
+### Option 4: Manual Git Commands
 ```bash
 # Delete individual branches
 git push origin --delete copilot/commit-all-changes
@@ -65,4 +70,4 @@ git fetch --prune
 - [x] Documented cleanup recommendations
 
 ---
-*Analysis completed on $(date -u '+%Y-%m-%d %H:%M:%S UTC')*
+*Analysis completed on 2026-02-05 22:07 UTC*
