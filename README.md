@@ -199,8 +199,6 @@ Features:
 - Handles conflicts with interactive prompts
 - Provides dry run mode for testing
 
-For detailed usage, see [MERGE_AND_DELETE_BRANCHES_GUIDE.md](MERGE_AND_DELETE_BRANCHES_GUIDE.md)
-
 ### Simple Branch Deletion
 
 If branches are already merged, use the simple cleanup script:
