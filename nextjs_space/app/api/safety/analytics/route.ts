@@ -7,6 +7,16 @@ import { startOfMonth, endOfMonth, subMonths, format, startOfWeek, endOfWeek } f
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+// Helper function to group items by projectId for O(1) lookups
+function groupByProjectId<T extends { projectId: string }>(items: T[]): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  items.forEach(item => {
+    if (!map.has(item.projectId)) map.set(item.projectId, []);
+    map.get(item.projectId)!.push(item);
+  });
+  return map;
+}
+
 
 
 export async function GET(request: NextRequest) {
@@ -118,7 +128,7 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    // Calculate summary stats
+    // Calculate summary stats with single-pass reduce operations
     const summary = {
       toolboxTalks: {
         total: toolboxTalks.length,
@@ -129,51 +139,92 @@ export async function GET(request: NextRequest) {
           return talkDate >= startOfWeek(now) && talkDate <= endOfWeek(now);
         }).length
       },
-      mewpChecks: {
-        total: mewpChecks.length,
-        passed: mewpChecks.filter(c => c.overallStatus === 'PASS').length,
-        failed: mewpChecks.filter(c => c.overallStatus === 'FAIL').length,
-        needsAttention: mewpChecks.filter(c => c.overallStatus === 'NEEDS_ATTENTION').length,
-        safeToUse: mewpChecks.filter(c => c.isSafeToUse).length,
-        passRate: mewpChecks.length > 0 
-          ? Math.round((mewpChecks.filter(c => c.overallStatus === 'PASS').length / mewpChecks.length) * 100) 
-          : 0
-      },
-      toolChecks: {
-        total: toolChecks.length,
-        passed: toolChecks.filter(c => c.overallStatus === 'PASS').length,
-        failed: toolChecks.filter(c => c.overallStatus === 'FAIL').length,
-        needsAttention: toolChecks.filter(c => c.overallStatus === 'NEEDS_ATTENTION').length,
-        safeToUse: toolChecks.filter(c => c.isSafeToUse).length,
-        passRate: toolChecks.length > 0 
-          ? Math.round((toolChecks.filter(c => c.overallStatus === 'PASS').length / toolChecks.length) * 100) 
-          : 0,
-        byType: {
-          POWER_TOOL: toolChecks.filter(c => c.toolType === 'POWER_TOOL').length,
-          HAND_TOOL: toolChecks.filter(c => c.toolType === 'HAND_TOOL').length,
-          LADDER: toolChecks.filter(c => c.toolType === 'LADDER').length,
-          SCAFFOLD: toolChecks.filter(c => c.toolType === 'SCAFFOLD').length,
-          OTHER: toolChecks.filter(c => c.toolType === 'OTHER').length
-        }
-      },
-      safetyIncidents: {
-        total: safetyIncidents.length,
-        critical: safetyIncidents.filter(i => i.severity === 'CRITICAL').length,
-        high: safetyIncidents.filter(i => i.severity === 'HIGH').length,
-        medium: safetyIncidents.filter(i => i.severity === 'MEDIUM').length,
-        low: safetyIncidents.filter(i => i.severity === 'LOW').length,
-        resolved: safetyIncidents.filter(i => i.status === 'RESOLVED' || i.status === 'CLOSED').length
-      },
-      inspections: {
-        total: inspections.length,
-        passed: inspections.filter(i => i.status === 'PASSED').length,
-        failed: inspections.filter(i => i.status === 'FAILED').length,
-        pending: inspections.filter(i => i.status === 'SCHEDULED' || i.status === 'IN_PROGRESS').length,
-        passRate: inspections.filter(i => i.status === 'PASSED' || i.status === 'FAILED').length > 0
-          ? Math.round((inspections.filter(i => i.status === 'PASSED').length / 
-              inspections.filter(i => i.status === 'PASSED' || i.status === 'FAILED').length) * 100)
-          : 0
-      },
+      mewpChecks: (() => {
+        const stats = mewpChecks.reduce((acc, c) => {
+          if (c.overallStatus === 'PASS') acc.passed++;
+          else if (c.overallStatus === 'FAIL') acc.failed++;
+          else if (c.overallStatus === 'NEEDS_ATTENTION') acc.needsAttention++;
+          if (c.isSafeToUse) acc.safeToUse++;
+          return acc;
+        }, { passed: 0, failed: 0, needsAttention: 0, safeToUse: 0 });
+        
+        return {
+          total: mewpChecks.length,
+          passed: stats.passed,
+          failed: stats.failed,
+          needsAttention: stats.needsAttention,
+          safeToUse: stats.safeToUse,
+          passRate: mewpChecks.length > 0 ? Math.round((stats.passed / mewpChecks.length) * 100) : 0
+        };
+      })(),
+      toolChecks: (() => {
+        const stats = toolChecks.reduce((acc, c) => {
+          if (c.overallStatus === 'PASS') acc.passed++;
+          else if (c.overallStatus === 'FAIL') acc.failed++;
+          else if (c.overallStatus === 'NEEDS_ATTENTION') acc.needsAttention++;
+          if (c.isSafeToUse) acc.safeToUse++;
+          
+          // Track by type
+          if (c.toolType === 'POWER_TOOL') acc.byType.POWER_TOOL++;
+          else if (c.toolType === 'HAND_TOOL') acc.byType.HAND_TOOL++;
+          else if (c.toolType === 'LADDER') acc.byType.LADDER++;
+          else if (c.toolType === 'SCAFFOLD') acc.byType.SCAFFOLD++;
+          else if (c.toolType === 'OTHER') acc.byType.OTHER++;
+          
+          return acc;
+        }, { 
+          passed: 0, 
+          failed: 0, 
+          needsAttention: 0, 
+          safeToUse: 0,
+          byType: { POWER_TOOL: 0, HAND_TOOL: 0, LADDER: 0, SCAFFOLD: 0, OTHER: 0 }
+        });
+        
+        return {
+          total: toolChecks.length,
+          passed: stats.passed,
+          failed: stats.failed,
+          needsAttention: stats.needsAttention,
+          safeToUse: stats.safeToUse,
+          passRate: toolChecks.length > 0 ? Math.round((stats.passed / toolChecks.length) * 100) : 0,
+          byType: stats.byType
+        };
+      })(),
+      safetyIncidents: (() => {
+        const stats = safetyIncidents.reduce((acc, i) => {
+          if (i.severity === 'CRITICAL') acc.critical++;
+          else if (i.severity === 'HIGH') acc.high++;
+          else if (i.severity === 'MEDIUM') acc.medium++;
+          else if (i.severity === 'LOW') acc.low++;
+          if (i.status === 'RESOLVED' || i.status === 'CLOSED') acc.resolved++;
+          return acc;
+        }, { critical: 0, high: 0, medium: 0, low: 0, resolved: 0 });
+        
+        return {
+          total: safetyIncidents.length,
+          critical: stats.critical,
+          high: stats.high,
+          medium: stats.medium,
+          low: stats.low,
+          resolved: stats.resolved
+        };
+      })(),
+      inspections: (() => {
+        const stats = inspections.reduce((acc, i) => {
+          if (i.status === 'PASSED') { acc.passed++; acc.completed++; }
+          else if (i.status === 'FAILED') { acc.failed++; acc.completed++; }
+          else if (i.status === 'SCHEDULED' || i.status === 'IN_PROGRESS') acc.pending++;
+          return acc;
+        }, { passed: 0, failed: 0, pending: 0, completed: 0 });
+        
+        return {
+          total: inspections.length,
+          passed: stats.passed,
+          failed: stats.failed,
+          pending: stats.pending,
+          passRate: stats.completed > 0 ? Math.round((stats.passed / stats.completed) * 100) : 0
+        };
+      })(),
       complianceScore: 0
     };
 
@@ -236,28 +287,45 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Project breakdown
+    // Project breakdown - use Map for O(1) lookups instead of O(n) filters
+    // Create index maps for each data type by projectId
+    type ToolboxTalk = typeof toolboxTalks[number];
+    type MewpCheck = typeof mewpChecks[number];
+    type ToolCheck = typeof toolChecks[number];
+    type SafetyIncident = typeof safetyIncidents[number];
+    
+    const toolboxByProject = groupByProjectId(toolboxTalks);
+    const mewpByProject = groupByProjectId(mewpChecks);
+    const toolByProject = groupByProjectId(toolChecks);
+    const incidentsByProject = groupByProjectId(safetyIncidents);
+
     const projectBreakdown = projects.map(p => {
-      const pToolbox = toolboxTalks.filter(t => t.projectId === p.id);
-      const pMewp = mewpChecks.filter(c => c.projectId === p.id);
-      const pTool = toolChecks.filter(c => c.projectId === p.id);
-      const pIncidents = safetyIncidents.filter(i => i.projectId === p.id);
+      const pToolbox = toolboxByProject.get(p.id) || [];
+      const pMewp = mewpByProject.get(p.id) || [];
+      const pTool = toolByProject.get(p.id) || [];
+      const pIncidents = incidentsByProject.get(p.id) || [];
+
+      // Calculate stats with single-pass reduce instead of multiple filters
+      const toolboxCompleted = pToolbox.reduce((sum, t) => sum + (t.status === 'COMPLETED' ? 1 : 0), 0);
+      const mewpPassed = pMewp.reduce((sum, c) => sum + (c.overallStatus === 'PASS' ? 1 : 0), 0);
+      const toolPassed = pTool.reduce((sum, c) => sum + (c.overallStatus === 'PASS' ? 1 : 0), 0);
+      const criticalIncidents = pIncidents.reduce((sum, i) => sum + (i.severity === 'CRITICAL' || i.severity === 'HIGH' ? 1 : 0), 0);
 
       return {
         id: p.id,
         name: p.name,
         toolboxTalks: pToolbox.length,
-        toolboxCompleted: pToolbox.filter(t => t.status === 'COMPLETED').length,
+        toolboxCompleted,
         mewpChecks: pMewp.length,
         mewpPassRate: pMewp.length > 0 
-          ? Math.round((pMewp.filter(c => c.overallStatus === 'PASS').length / pMewp.length) * 100) 
+          ? Math.round((mewpPassed / pMewp.length) * 100) 
           : 0,
         toolChecks: pTool.length,
         toolPassRate: pTool.length > 0 
-          ? Math.round((pTool.filter(c => c.overallStatus === 'PASS').length / pTool.length) * 100) 
+          ? Math.round((toolPassed / pTool.length) * 100) 
           : 0,
         incidents: pIncidents.length,
-        criticalIncidents: pIncidents.filter(i => i.severity === 'CRITICAL' || i.severity === 'HIGH').length
+        criticalIncidents
       };
     }).filter(p => p.toolboxTalks > 0 || p.mewpChecks > 0 || p.toolChecks > 0 || p.incidents > 0);
 
