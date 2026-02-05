@@ -71,6 +71,23 @@ export async function logAndBroadcast(
     broadcastAction = 'deleted';
   }
 
+  const broadcastPromise = context.organizationId
+    ? broadcastEntityChange(
+        context.organizationId,
+        broadcastAction,
+        entityType,
+        entity,
+        context.userId
+      )
+    : (console.warn('logAndBroadcast: Missing organizationId; activity logged without broadcast.', {
+        userId: context.userId,
+        action,
+        entityType,
+        entityId: entity.id,
+        projectId: projectId ?? null,
+      }),
+      Promise.resolve());
+
   await Promise.all([
     logActivity(
       context,
@@ -80,22 +97,6 @@ export async function logAndBroadcast(
       entity.name as string,
       projectId
     ),
-    context.organizationId
-      ? broadcastEntityChange(
-          context.organizationId,
-          broadcastAction,
-          entityType,
-          entity,
-          context.userId
-        )
-      : (async () => {
-          console.warn('logAndBroadcast: Missing organizationId; activity logged without broadcast.', {
-            userId: context.userId,
-            action,
-            entityType,
-            entityId: entity.id,
-            projectId: projectId ?? null,
-          });
-        })(),
+    broadcastPromise,
   ]);
 }
