@@ -461,10 +461,9 @@ After deployment, monitor:
 
 ## Related Documentation
 
-- **Detailed Testing Plan:** `test-performance-optimizations.md`
 - **Historical Reference:** `PERFORMANCE_IMPROVEMENTS_2026.md`
-- **Build Status:** `BUILD_STATUS.md`
-- **Deployment Guide:** `DEPLOYMENT_GUIDE.md`
+- **Deployment Guide:** `PRODUCTION_DEPLOYMENT.md`
+- **Operations Guide:** `RUNBOOK.md`
 
 ---
 
