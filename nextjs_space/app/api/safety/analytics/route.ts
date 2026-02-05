@@ -7,6 +7,16 @@ import { startOfMonth, endOfMonth, subMonths, format, startOfWeek, endOfWeek } f
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+// Helper function to group items by projectId for O(1) lookups
+function groupByProjectId<T extends { projectId: string }>(items: T[]): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  items.forEach(item => {
+    if (!map.has(item.projectId)) map.set(item.projectId, []);
+    map.get(item.projectId)!.push(item);
+  });
+  return map;
+}
+
 
 
 export async function GET(request: NextRequest) {
@@ -284,27 +294,10 @@ export async function GET(request: NextRequest) {
     type ToolCheck = typeof toolChecks[number];
     type SafetyIncident = typeof safetyIncidents[number];
     
-    const toolboxByProject = new Map<string, ToolboxTalk[]>();
-    const mewpByProject = new Map<string, MewpCheck[]>();
-    const toolByProject = new Map<string, ToolCheck[]>();
-    const incidentsByProject = new Map<string, SafetyIncident[]>();
-
-    toolboxTalks.forEach(t => {
-      if (!toolboxByProject.has(t.projectId)) toolboxByProject.set(t.projectId, []);
-      toolboxByProject.get(t.projectId)!.push(t);
-    });
-    mewpChecks.forEach(c => {
-      if (!mewpByProject.has(c.projectId)) mewpByProject.set(c.projectId, []);
-      mewpByProject.get(c.projectId)!.push(c);
-    });
-    toolChecks.forEach(c => {
-      if (!toolByProject.has(c.projectId)) toolByProject.set(c.projectId, []);
-      toolByProject.get(c.projectId)!.push(c);
-    });
-    safetyIncidents.forEach(i => {
-      if (!incidentsByProject.has(i.projectId)) incidentsByProject.set(i.projectId, []);
-      incidentsByProject.get(i.projectId)!.push(i);
-    });
+    const toolboxByProject = groupByProjectId(toolboxTalks);
+    const mewpByProject = groupByProjectId(mewpChecks);
+    const toolByProject = groupByProjectId(toolChecks);
+    const incidentsByProject = groupByProjectId(safetyIncidents);
 
     const projectBreakdown = projects.map(p => {
       const pToolbox = toolboxByProject.get(p.id) || [];
