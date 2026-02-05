@@ -141,6 +141,9 @@ check_typescript() {
     
     cd "$NEXTJS_DIR"
     
+    # Set a dummy DATABASE_URL for Prisma generation
+    export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}"
+    
     log_info "Running TypeScript compiler..."
     
     # Generate Prisma client first
@@ -183,6 +186,9 @@ check_prisma_schema() {
     log_section "5. Prisma Schema Validation"
     
     cd "$NEXTJS_DIR"
+    
+    # Set a dummy DATABASE_URL for validation
+    export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}"
     
     log_info "Validating Prisma schema..."
     
