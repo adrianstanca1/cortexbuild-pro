@@ -143,7 +143,7 @@ All deployment scripts are located in the `deployment/` directory:
 **Main Deployment:**
 - `production-deploy.sh` - ⭐ Complete production workflow (recommended)
 - `one-click-deploy.sh` - Fresh VPS setup with prerequisites
-- `deploy.sh` - Basic deployment without extras
+- `vps-full-deploy.sh` - Remote deployment via curl
 - `cloudpanel-deploy.sh` - CloudPanel-specific deployment
 
 **Maintenance:**

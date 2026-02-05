@@ -95,7 +95,7 @@ SSL_EMAIL=admin@your-domain.com
 ### 3. Deploy
 ```bash
 chmod +x *.sh
-./deploy.sh
+./production-deploy.sh
 ```
 
 ### 4. Setup SSL (Optional but Recommended)
@@ -119,12 +119,12 @@ deployment/
 ├── Dockerfile            # App build instructions
 ├── nginx.conf            # Reverse proxy config
 ├── one-click-deploy.sh   # ⭐ One-click deployment
-├── production-deploy.sh  # ⭐ Complete production workflow (NEW)
-├── cleanup-repos.sh      # ⭐ Repository cleanup (NEW)
+├── production-deploy.sh  # ⭐ Complete production workflow
+├── vps-full-deploy.sh    # Remote deployment via curl
+├── cleanup-repos.sh      # ⭐ Repository cleanup
 ├── health-check.sh       # ⭐ Health monitoring
 ├── rollback.sh           # ⭐ Deployment rollback
 ├── QUICKSTART.md         # ⭐ Quick start guide
-├── deploy.sh             # Main deployment script
 ├── setup-ssl.sh          # SSL certificate setup
 ├── backup.sh             # Database backup
 ├── restore.sh            # Database restore
