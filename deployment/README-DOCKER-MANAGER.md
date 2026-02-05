@@ -2,6 +2,40 @@
 
 Complete guide to deploy CortexBuild Pro using Docker Manager (Portainer) and Windmill workflow automation on your VPS.
 
+## 🚀 Quick Start - One Command Deployment
+
+The fastest way to deploy CortexBuild Pro to your VPS:
+
+```bash
+# Clone the repository on your VPS
+git clone https://github.com/yourusername/cortexbuild-pro.git /root/cortexbuild_pro
+cd /root/cortexbuild_pro/deployment
+
+# Run the deployment script (installs Docker, Portainer, Windmill, and deploys the app)
+sudo ./vps-public-deploy.sh
+```
+
+### With Custom Domain and SSL:
+
+```bash
+sudo ./vps-public-deploy.sh --domain app.yourdomain.com --email admin@yourdomain.com --ssl
+```
+
+### Options:
+
+| Option | Description |
+|--------|-------------|
+| `--domain DOMAIN` | Set public domain for the application |
+| `--email EMAIL` | Email for SSL certificate notifications |
+| `--ssl` | Enable SSL/HTTPS with Let's Encrypt |
+| `--no-portainer` | Skip Portainer installation |
+| `--no-windmill` | Skip Windmill installation |
+| `--seed-db` | Seed database with sample data |
+| `--skip-clean` | Skip clean dependency rebuild |
+| `-y, --yes` | Skip all confirmation prompts |
+
+---
+
 ## 📋 Overview
 
 This guide covers:

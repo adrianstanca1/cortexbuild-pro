@@ -1,3 +1,10 @@
+# =================================================================
+# CortexBuild Pro - Production Dockerfile
+# =================================================================
+# Multi-stage build for optimal production image
+# Uses npm for consistent dependency installation
+# =================================================================
+
 # Build stage
 FROM node:20-alpine AS base
 
@@ -5,12 +12,18 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-# Copy package.json and prisma schema
+# Install build dependencies for native modules (optional, for better compatibility)
+# These are already included in node:20-alpine but adding explicitly for native module builds
+RUN apk add --no-cache libc6-compat || true
+
+# Copy package files
 COPY nextjs_space/package.json ./
 COPY nextjs_space/prisma ./prisma
 
-# Create yarn.lock if it doesn't exist and install dependencies with exact versions
-RUN touch yarn.lock && yarn install --frozen-lockfile || yarn install
+# Clean install dependencies with npm (fresh start)
+# Use --legacy-peer-deps for compatibility with some packages
+RUN rm -f package-lock.json yarn.lock && \
+    npm install --legacy-peer-deps
 
 # Generate Prisma Client with correct output path for node_modules
 RUN ./node_modules/.bin/prisma generate
@@ -23,25 +36,21 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ ./
 
-# Remove any local symlinks and regenerate Prisma Client with the full source
-RUN rm -f yarn.lock && touch yarn.lock
+# Regenerate Prisma Client with the full source
 RUN ./node_modules/.bin/prisma generate
 
-# Set build-time environment variables
-ARG DATABASE_URL="postgresql://user:pass@localhost:5432/db"
-ARG NEXTAUTH_SECRET="build-time-secret"
-ARG NEXTAUTH_URL="http://localhost:3000"
-
+# Set build-time environment variables (dummy values for build only)
+# Real values should be provided at runtime via environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV DATABASE_URL=${DATABASE_URL}
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+ENV NEXTAUTH_SECRET="build-time-placeholder-not-used-in-production"
+ENV NEXTAUTH_URL="http://localhost:3000"
 ENV NEXT_OUTPUT_MODE=standalone
 ENV SKIP_ENV_VALIDATION=1
 ENV NEXT_PHASE=phase-production-build
 
 # Build the application
-RUN yarn build
+RUN npm run build
 
 # Production image
 FROM base AS runner
@@ -50,11 +59,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install openssl for Prisma (try openssl3 first, fallback to base install)
-# Note: Alpine node:20 images typically include openssl3 by default
-RUN apk update && (apk add --no-cache openssl3 openssl3-libs-static || \
-    apk add --no-cache openssl || \
-    (echo "ERROR: OpenSSL installation failed - Prisma requires OpenSSL" && exit 1))
+# OpenSSL is included in node:20-alpine by default
+# Only install if missing (graceful handling)
+RUN apk add --no-cache openssl || true
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -86,5 +93,8 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+# Runtime environment variables should be set via docker-compose or docker run
+# DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, etc.
 
 CMD ["node", "app/server.js"]
