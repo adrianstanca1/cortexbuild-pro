@@ -95,7 +95,7 @@ export async function POST(request: Request) {
 
     if (!projectId || !workPackageId || !unit) {
       return NextResponse.json(
-        { error: "Project ID (used to verify the work package), work package ID, and unit are required" },
+        { error: "Project ID, work package ID, and unit are required" },
         { status: 400 }
       );
     }
