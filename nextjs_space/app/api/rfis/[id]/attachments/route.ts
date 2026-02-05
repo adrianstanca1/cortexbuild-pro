@@ -27,7 +27,7 @@ export async function GET(
     });
 
     return NextResponse.json(attachments);
-  } catch (error) {
+  } catch {
     console.error('Error fetching RFI attachments:', error);
     return NextResponse.json({ error: 'Failed to fetch attachments' }, { status: 500 });
   }
@@ -73,7 +73,7 @@ export async function POST(
     });
 
     return NextResponse.json(attachment, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating RFI attachment:', error);
     return NextResponse.json({ error: 'Failed to create attachment' }, { status: 500 });
   }
@@ -114,14 +114,14 @@ export async function DELETE(
     // Delete from S3
     try {
       await deleteFile(attachment.cloudStoragePath);
-    } catch (e) {
+    } catch {
       console.warn('Failed to delete file from S3:', e);
     }
 
     await prisma.rFIAttachment.delete({ where: { id: attachmentId } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting RFI attachment:', error);
     return NextResponse.json({ error: 'Failed to delete attachment' }, { status: 500 });
   }

@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
           sender_alias: 'CortexBuild Pro Admin',
         }),
       });
-    } catch (e) {
+    } catch {
       console.error('Failed to notify admin:', e);
     }
 
@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
         slug: result.organization.slug,
       },
     });
-  } catch (error) {
+  } catch {
     console.error('Error accepting invitation:', error);
     return NextResponse.json(
       { error: 'Failed to accept invitation' },

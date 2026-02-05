@@ -210,7 +210,7 @@ export function withApiMiddleware(
           }
           
           body = validation.data;
-        } catch (error) {
+        } catch {
           const response = NextResponse.json(
             { error: 'Invalid JSON', message: 'Request body must be valid JSON' },
             { status: 400 }
@@ -280,7 +280,7 @@ export function withApiMiddleware(
       // Apply security headers
       return applySecurityHeaders(response);
       
-    } catch (error) {
+    } catch {
       // Log error
       if (enableLogging) {
         requestLogger.error('Unhandled error in API route', error);

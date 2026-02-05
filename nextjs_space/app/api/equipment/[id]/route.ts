@@ -50,7 +50,7 @@ export async function GET(
     }
 
     return NextResponse.json(equipment);
-  } catch (error) {
+  } catch {
     console.error('Error fetching equipment:', error);
     return NextResponse.json({ error: 'Failed to fetch equipment' }, { status: 500 });
   }
@@ -102,7 +102,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(equipment);
-  } catch (error) {
+  } catch {
     console.error('Error updating equipment:', error);
     return NextResponse.json({ error: 'Failed to update equipment' }, { status: 500 });
   }
@@ -139,7 +139,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting equipment:', error);
     return NextResponse.json({ error: 'Failed to delete equipment' }, { status: 500 });
   }

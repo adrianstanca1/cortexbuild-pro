@@ -38,7 +38,7 @@ export async function GET(
     }
 
     return NextResponse.json(report);
-  } catch (error) {
+  } catch {
     console.error('Error fetching daily report:', error);
     return NextResponse.json({ error: 'Failed to fetch report' }, { status: 500 });
   }
@@ -114,7 +114,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(report);
-  } catch (error) {
+  } catch {
     console.error('Error updating daily report:', error);
     return NextResponse.json({ error: 'Failed to update report' }, { status: 500 });
   }
@@ -157,7 +157,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting daily report:', error);
     return NextResponse.json({ error: 'Failed to delete report' }, { status: 500 });
   }

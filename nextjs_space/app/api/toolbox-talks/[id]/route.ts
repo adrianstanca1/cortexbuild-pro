@@ -42,7 +42,7 @@ export async function GET(
     }
 
     return NextResponse.json({ toolboxTalk });
-  } catch (error) {
+  } catch {
     console.error("Error fetching toolbox talk:", error);
     return NextResponse.json({ error: "Failed to fetch toolbox talk" }, { status: 500 });
   }
@@ -134,7 +134,7 @@ export async function PATCH(
     }
 
     return NextResponse.json({ toolboxTalk });
-  } catch (error) {
+  } catch {
     console.error("Error updating toolbox talk:", error);
     return NextResponse.json({ error: "Failed to update toolbox talk" }, { status: 500 });
   }
@@ -183,7 +183,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting toolbox talk:", error);
     return NextResponse.json({ error: "Failed to delete toolbox talk" }, { status: 500 });
   }

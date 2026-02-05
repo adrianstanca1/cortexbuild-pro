@@ -95,7 +95,7 @@ async function loadConfigFromDb(): Promise<void> {
       platformConfig = deepMerge(DEFAULT_CONFIG, parsed);
     }
     lastLoadedAt = new Date();
-  } catch (e) {
+  } catch {
     console.error("Error loading platform config from DB:", e);
   }
 }
@@ -175,7 +175,7 @@ export async function GET(_request: NextRequest) {
       environment: process.env.NODE_ENV || "development",
       serverTime: new Date().toISOString()
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -232,7 +232,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, config: platformConfig });
-  } catch (error) {
+  } catch {
     console.error("Error updating platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -291,7 +291,7 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch (error) {
+  } catch {
     console.error("Error in platform config action:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

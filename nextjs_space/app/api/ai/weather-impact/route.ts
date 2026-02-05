@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
           'Generally favourable conditions. Minor adjustments may be needed.',
       },
     });
-  } catch (error) {
+  } catch {
     console.error('Error fetching weather impact:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -322,7 +322,7 @@ Use UK construction terminology. Be specific about dates and activities.`;
       analysis,
       analyzedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     console.error('Weather impact analysis error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

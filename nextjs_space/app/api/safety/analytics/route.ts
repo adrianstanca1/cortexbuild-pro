@@ -323,7 +323,7 @@ export async function GET(request: NextRequest) {
       equipmentWithIssues,
       projects
     });
-  } catch (error) {
+  } catch {
     console.error('Error fetching safety analytics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -32,7 +32,7 @@ export async function GET(
     }
 
     return NextResponse.json(certification);
-  } catch (error) {
+  } catch {
     console.error('Error fetching certification:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -85,7 +85,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(certification);
-  } catch (error) {
+  } catch {
     console.error('Error updating certification:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -118,7 +118,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting certification:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

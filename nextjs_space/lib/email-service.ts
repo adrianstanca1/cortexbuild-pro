@@ -87,7 +87,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         provider: "abacus",
         error: `Abacus API error: ${response.status}`
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         provider: "abacus",

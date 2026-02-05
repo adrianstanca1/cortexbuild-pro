@@ -33,7 +33,7 @@ export async function GET(
     }
 
     return NextResponse.json(claim);
-  } catch (error) {
+  } catch {
     console.error("Error fetching progress claim:", error);
     return NextResponse.json({ error: "Failed to fetch progress claim" }, { status: 500 });
   }
@@ -115,7 +115,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(claim);
-  } catch (error) {
+  } catch {
     console.error("Error updating progress claim:", error);
     return NextResponse.json({ error: "Failed to update progress claim" }, { status: 500 });
   }
@@ -156,7 +156,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting progress claim:", error);
     return NextResponse.json({ error: "Failed to delete progress claim" }, { status: 500 });
   }

@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
       count: exportData.length,
       connections: exportData
     });
-  } catch (error) {
+  } catch {
     console.error("Error exporting API connections:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

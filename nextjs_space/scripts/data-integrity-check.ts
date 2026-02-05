@@ -229,7 +229,7 @@ async function runIntegrityCheck(): Promise<void> {
     
     console.log('\n✅ Integrity check completed.');
     
-  } catch (error) {
+  } catch {
     console.error('Error during integrity check:', error);
     throw error;
   } finally {

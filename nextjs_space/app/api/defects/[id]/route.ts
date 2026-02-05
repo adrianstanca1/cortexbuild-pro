@@ -32,7 +32,7 @@ export async function GET(
     }
 
     return NextResponse.json(defect);
-  } catch (error) {
+  } catch {
     console.error("Error fetching defect:", error);
     return NextResponse.json({ error: "Failed to fetch defect" }, { status: 500 });
   }
@@ -108,7 +108,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(defect);
-  } catch (error) {
+  } catch {
     console.error("Error updating defect:", error);
     return NextResponse.json({ error: "Failed to update defect" }, { status: 500 });
   }
@@ -144,7 +144,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting defect:", error);
     return NextResponse.json({ error: "Failed to delete defect" }, { status: 500 });
   }

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(usageRecords);
-  } catch (error) {
+  } catch {
     console.error('Get rate limit usage error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

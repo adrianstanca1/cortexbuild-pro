@@ -119,7 +119,7 @@ export async function GET(_request: NextRequest) {
       aggregateStats,
       performanceDistribution,
     });
-  } catch (error) {
+  } catch {
     console.error('Error fetching subcontractor analytics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
       analysis,
       analyzedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     console.error('Subcontractor analysis error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -37,7 +37,7 @@ export async function GET(
     }
 
     return NextResponse.json({ check });
-  } catch (error) {
+  } catch {
     console.error("Error fetching MEWP check:", error);
     return NextResponse.json({ error: "Failed to fetch MEWP check" }, { status: 500 });
   }
@@ -90,7 +90,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ check });
-  } catch (error) {
+  } catch {
     console.error("Error updating MEWP check:", error);
     return NextResponse.json({ error: "Failed to update MEWP check" }, { status: 500 });
   }

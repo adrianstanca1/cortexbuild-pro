@@ -50,7 +50,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(rateLimit);
-  } catch (error) {
+  } catch {
     console.error('Update rate limit error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -88,7 +88,7 @@ export async function DELETE(
     await prisma.organizationRateLimit.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Delete rate limit error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

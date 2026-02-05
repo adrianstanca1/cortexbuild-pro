@@ -91,7 +91,7 @@ export function LiftingOperationsTab({ project, teamMembers, liftingOperations: 
       setShowCreateModal(false);
       toast.success('Lift plan created');
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Failed to create lift plan');
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export function LiftingOperationsTab({ project, teamMembers, liftingOperations: 
       if (!response.ok) throw new Error('Failed');
       toast.success('Status updated');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to update status');
     }
   };

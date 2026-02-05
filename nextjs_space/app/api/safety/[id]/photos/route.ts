@@ -27,7 +27,7 @@ export async function GET(
     });
 
     return NextResponse.json(photos);
-  } catch (error) {
+  } catch {
     console.error('Error fetching safety incident photos:', error);
     return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });
   }
@@ -73,7 +73,7 @@ export async function POST(
     });
 
     return NextResponse.json(photo, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating safety incident photo:', error);
     return NextResponse.json({ error: 'Failed to create photo' }, { status: 500 });
   }
@@ -113,14 +113,14 @@ export async function DELETE(
 
     try {
       await deleteFile(photo.cloudStoragePath);
-    } catch (e) {
+    } catch {
       console.warn('Failed to delete file from S3:', e);
     }
 
     await prisma.safetyIncidentPhoto.delete({ where: { id: photoId } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting safety incident photo:', error);
     return NextResponse.json({ error: 'Failed to delete photo' }, { status: 500 });
   }

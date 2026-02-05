@@ -52,7 +52,7 @@ export async function GET(
         credentials: maskCredentials(decrypted)
       }
     })));
-  } catch (error) {
+  } catch {
     console.error("Error fetching API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -211,7 +211,7 @@ export async function PATCH(
         credentials: maskCredentials(decrypted)
       }
     })));
-  } catch (error) {
+  } catch {
     console.error("Error updating API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -259,7 +259,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

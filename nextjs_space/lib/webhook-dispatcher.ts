@@ -82,7 +82,7 @@ export async function dispatchWebhook(
           if (!success) {
             errorMessage = `HTTP ${statusCode}: ${responseBody.substring(0, 500)}`;
           }
-        } catch (error) {
+        } catch {
           errorMessage = error instanceof Error ? error.message : 'Unknown error';
         }
 
@@ -130,7 +130,7 @@ export async function dispatchWebhook(
     });
 
     // Return immediately without waiting for webhook deliveries
-  } catch (error) {
+  } catch {
     // console.error('Webhook dispatch error:', error);
   }
 }
@@ -180,7 +180,7 @@ export async function testWebhook(webhookId: string): Promise<{
       statusCode: response.status,
       message: response.ok ? 'Webhook test successful' : `Failed: HTTP ${response.status}`,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       statusCode: 0,

@@ -120,7 +120,7 @@ export function UsersManagementClient() {
         const data = await res.json();
         setUsers(data.users);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching users:", error);
       toast.error("Failed to fetch users");
     } finally {
@@ -135,7 +135,7 @@ export function UsersManagementClient() {
         const data = await res.json();
         setOrganizations(data.organizations);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching organizations:", error);
     }
   };
@@ -178,7 +178,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create user");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create user");
     } finally {
       setSaving(false);
@@ -212,7 +212,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update user");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update user");
     } finally {
       setSaving(false);
@@ -236,7 +236,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to delete user");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete user");
     }
   };
@@ -284,7 +284,7 @@ export function UsersManagementClient() {
       } else {
         toast.error(data.error || "Failed to start impersonation");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to start impersonation");
     }
   };
@@ -356,7 +356,7 @@ export function UsersManagementClient() {
       } else {
         toast.error(data.error || "Bulk action failed");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to perform bulk action");
     } finally {
       setSaving(false);
@@ -422,7 +422,7 @@ export function UsersManagementClient() {
       } else {
         toast.error(data.error || "Export failed");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to export users");
     }
   };

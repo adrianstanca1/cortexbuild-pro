@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
 
     // Use custom serializer to handle any remaining BigInt values
     return NextResponse.json(serializeData({ organizations: orgsWithStats }));
-  } catch (error) {
+  } catch {
     console.error("Error fetching organizations:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ organization }, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error creating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

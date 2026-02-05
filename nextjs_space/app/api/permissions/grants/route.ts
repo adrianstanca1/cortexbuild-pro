@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(grants);
-  } catch (error) {
+  } catch {
     console.error('Get permission grants error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(grant, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Grant permission error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

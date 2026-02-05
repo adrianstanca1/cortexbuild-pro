@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Search, MapPin, UserCheck, Plus, LogOut } from 'lucide-react';
+import { Search, MapPin, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SiteAccessLogTableProps {

@@ -62,7 +62,7 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
       }
 
       toast.success("Profile updated successfully!");
-    } catch (error) {
+    } catch {
       toast.error(error instanceof Error ? error.message : "Failed to update profile");
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
 
       toast.success("Password changed successfully!");
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error) {
+    } catch {
       toast.error(error instanceof Error ? error.message : "Failed to change password");
     } finally {
       setLoading(false);

@@ -80,7 +80,7 @@ async function testBroadcastSetup() {
     console.log('   3. Look for /api/realtime SSE connection');
     console.log('   4. Create/update entities and observe real-time events');
 
-  } catch (error) {
+  } catch {
     console.error('\n❌ Test failed:', error);
   } finally {
     await prisma.$disconnect();

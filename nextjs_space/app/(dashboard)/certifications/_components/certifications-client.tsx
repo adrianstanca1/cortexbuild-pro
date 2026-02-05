@@ -21,7 +21,7 @@ import {
   HardHat,
   Loader2
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -195,7 +195,7 @@ export default function CertificationsClient({
         notes: ''
       });
       toast.success('Certification added successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to add certification');
     } finally {
       setLoading(false);
@@ -215,7 +215,7 @@ export default function CertificationsClient({
       const updated = await res.json();
       setCertifications(certifications.map(c => c.id === certId ? updated : c));
       toast.success('Certification verified');
-    } catch (error) {
+    } catch {
       toast.error('Failed to verify certification');
     }
   };
@@ -229,7 +229,7 @@ export default function CertificationsClient({
       
       setCertifications(certifications.filter(c => c.id !== certId));
       toast.success('Certification deleted');
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete certification');
     }
   };
@@ -268,7 +268,7 @@ export default function CertificationsClient({
       setShowEditModal(false);
       setSelectedCert(null);
       toast.success('Certification updated successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to update certification');
     } finally {
       setLoading(false);

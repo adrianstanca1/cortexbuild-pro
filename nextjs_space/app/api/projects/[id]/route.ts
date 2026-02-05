@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     return NextResponse.json({ project });
-  } catch (error) {
+  } catch {
     console.error("Get project error:", error);
     return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
   }
@@ -97,7 +97,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     return NextResponse.json({ project });
-  } catch (error) {
+  } catch {
     console.error("Update project error:", error);
     return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
   }
@@ -137,7 +137,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ message: "Project deleted" });
-  } catch (error) {
+  } catch {
     console.error("Delete project error:", error);
     return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
   }

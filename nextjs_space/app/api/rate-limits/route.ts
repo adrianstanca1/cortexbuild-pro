@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(rateLimits);
-  } catch (error) {
+  } catch {
     console.error('Get rate limits error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(rateLimit, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Create rate limit error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

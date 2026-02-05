@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(incident);
-  } catch (error) {
+  } catch {
     console.error('Error fetching incident:', error);
     return NextResponse.json({ error: 'Failed to fetch incident' }, { status: 500 });
   }
@@ -135,7 +135,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(incident);
-  } catch (error) {
+  } catch {
     console.error('Error updating incident:', error);
     return NextResponse.json({ error: 'Failed to update incident' }, { status: 500 });
   }
@@ -179,7 +179,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting incident:', error);
     return NextResponse.json({ error: 'Failed to delete incident' }, { status: 500 });
   }

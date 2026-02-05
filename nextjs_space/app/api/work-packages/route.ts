@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(workPackages);
-  } catch (error) {
+  } catch {
     console.error('Error fetching work packages:', error);
     return NextResponse.json({ error: 'Failed to fetch work packages' }, { status: 500 });
   }
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(workPackage, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating work package:', error);
     return NextResponse.json({ error: 'Failed to create work package' }, { status: 500 });
   }

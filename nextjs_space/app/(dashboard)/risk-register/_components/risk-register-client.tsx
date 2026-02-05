@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,7 +125,7 @@ export function RiskRegisterClient({ projects, teamMembers }: Props) {
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setRisks(data);
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to load risks');
     } finally {
@@ -176,7 +176,7 @@ export function RiskRegisterClient({ projects, teamMembers }: Props) {
         ownerId: ''
       });
       fetchRisks();
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to create risk');
     } finally {

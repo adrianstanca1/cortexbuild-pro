@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       updated: updateResult.count,
       entries: updatedEntries
     });
-  } catch (error) {
+  } catch {
     console.error("Error bulk approving time entries:", error);
     return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({ entries: pendingEntries, summary, grouped: groupedByUser });
-  } catch (error) {
+  } catch {
     console.error("Error fetching pending time entries:", error);
     return NextResponse.json({ error: "Failed to fetch pending entries" }, { status: 500 });
   }

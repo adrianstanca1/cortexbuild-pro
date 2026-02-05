@@ -32,7 +32,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(webhooks);
-  } catch (error) {
+  } catch {
     console.error('Get webhooks error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(webhook, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Create webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

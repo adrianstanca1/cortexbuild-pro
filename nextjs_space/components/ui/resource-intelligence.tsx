@@ -16,8 +16,6 @@ import {
   Clock,
   Target,
   Zap,
-  BarChart3,
-  ArrowRight,
   Sparkles,
   Brain,
   Scale,

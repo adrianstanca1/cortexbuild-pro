@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     }
 
     throw new Error("PDF generation timed out");
-  } catch (error) {
+  } catch {
     console.error("Error generating PDF:", error);
     return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }

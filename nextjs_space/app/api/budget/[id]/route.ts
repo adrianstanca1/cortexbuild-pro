@@ -36,7 +36,7 @@ export async function GET(
     }
 
     return NextResponse.json(costItem);
-  } catch (error) {
+  } catch {
     console.error("Error fetching cost item:", error);
     return NextResponse.json({ error: "Failed to fetch cost item" }, { status: 500 });
   }
@@ -110,7 +110,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(costItem);
-  } catch (error) {
+  } catch {
     console.error("Error updating cost item:", error);
     return NextResponse.json({ error: "Failed to update cost item" }, { status: 500 });
   }
@@ -159,7 +159,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting cost item:", error);
     return NextResponse.json({ error: "Failed to delete cost item" }, { status: 500 });
   }

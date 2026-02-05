@@ -30,7 +30,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(dashboards);
-  } catch (error) {
+  } catch {
     console.error('Get analytics dashboards error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(dashboard, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Create analytics dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

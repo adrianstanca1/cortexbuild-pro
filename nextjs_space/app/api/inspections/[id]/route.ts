@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(inspection);
-  } catch (error) {
+  } catch {
     console.error('Error fetching inspection:', error);
     return NextResponse.json({ error: 'Failed to fetch inspection' }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(inspection);
-  } catch (error) {
+  } catch {
     console.error('Error updating inspection:', error);
     return NextResponse.json({ error: 'Failed to update inspection' }, { status: 500 });
   }
@@ -159,7 +159,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting inspection:', error);
     return NextResponse.json({ error: 'Failed to delete inspection' }, { status: 500 });
   }

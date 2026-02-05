@@ -90,7 +90,7 @@ export async function POST(
       },
       message: "Credentials rotated successfully"
     })));
-  } catch (error) {
+  } catch {
     console.error("Error rotating API credentials:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

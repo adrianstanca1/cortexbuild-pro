@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(punchLists);
-  } catch (error) {
+  } catch {
     console.error('Error fetching punch lists:', error);
     return NextResponse.json({ error: 'Failed to fetch punch lists' }, { status: 500 });
   }
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(punchList, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating punch list:', error);
     return NextResponse.json({ error: 'Failed to create punch list' }, { status: 500 });
   }

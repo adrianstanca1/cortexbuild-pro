@@ -3,10 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import {
-  MessageSquare, Plus, Users, MapPin, Check,
-  Loader2, PenTool, AlertTriangle, CheckCircle2, Download
-} from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, Download, Loader2, MapPin, MessageSquare, PenTool, Plus, User, Users } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +88,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         setTalks(data.toolboxTalks || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching toolbox talks:", error);
     }
   }, [projectId]);
@@ -139,7 +136,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         toast.error(data.error || "Failed to create toolbox talk");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create toolbox talk");
     } finally {
       setLoading(false);
@@ -171,7 +168,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         toast.error(data.error || "Failed to record signature");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to record signature");
     } finally {
       setLoading(false);
@@ -189,7 +186,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         toast.success("Toolbox talk started");
         fetchTalks();
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to start toolbox talk");
     }
   };
@@ -205,7 +202,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         toast.success("Toolbox talk completed");
         fetchTalks();
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to complete toolbox talk");
     }
   };

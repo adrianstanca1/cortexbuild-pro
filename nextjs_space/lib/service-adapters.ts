@@ -128,7 +128,7 @@ export class SendGridAdapter {
         statusCode: response.status,
         responseTime
       };
-    } catch (error) {
+    } catch {
       const responseTime = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
@@ -181,7 +181,7 @@ export class SendGridAdapter {
         responseTime,
         error: success ? undefined : `HTTP ${response.status}`
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
@@ -285,7 +285,7 @@ export class AIAdapter {
         data: content,
         responseTime
       };
-    } catch (error) {
+    } catch {
       const responseTime = Date.now() - startTime;
       return {
         success: false,
@@ -318,7 +318,7 @@ export class AIAdapter {
         statusCode: response.status,
         responseTime: Date.now() - startTime
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
@@ -392,7 +392,7 @@ export class TwilioAdapter {
         statusCode: response.status,
         responseTime
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
@@ -429,7 +429,7 @@ export class TwilioAdapter {
         statusCode: response.status,
         responseTime: Date.now() - startTime
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
@@ -473,7 +473,7 @@ export class StripeAdapter {
         statusCode: response.status,
         responseTime: Date.now() - startTime
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
@@ -568,7 +568,7 @@ export class GenericApiAdapter {
         statusCode: response.status,
         responseTime
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",

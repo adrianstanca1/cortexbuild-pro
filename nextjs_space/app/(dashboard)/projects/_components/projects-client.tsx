@@ -3,18 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  FolderKanban, TrendingUp,
-  AlertTriangle, PoundSterling, ChevronRight, Building2, Users,
-  FolderOpen, FolderClosed, FileText, CheckCircle2, Clock,
-  MoreVertical, Archive, Edit, Copy,
-  MapPin, Activity, Target,
-  FolderPlus, FolderSearch, SortAsc, SortDesc, Grid3X3,
-  LayoutList, Boxes, FolderTree,
-  ArrowRight, Eye, Shield, FileCheck, BarChart3,
-  Home, ChevronDown, ExternalLink,
-  Network, Gauge
-} from "lucide-react";
+import { Activity, AlertTriangle, Archive, ArrowRight, BarChart3, Boxes, Building2, CheckCircle2, ChevronDown, ChevronRight, Clock, Copy, Edit, ExternalLink, Eye, FileCheck, FileText, FolderClosed, FolderKanban, FolderOpen, FolderPlus, FolderSearch, FolderTree, Gauge, Grid3X3, Home, LayoutList, MapPin, MoreVertical, Network, PoundSterling, Shield, SortAsc, SortDesc, Target, TrendingUp, User, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";

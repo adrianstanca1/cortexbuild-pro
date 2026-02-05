@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle, useCallback } from "react";
+import React, { useRef, useState, forwardRef, useImperativeHandle, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 
 export interface Point {

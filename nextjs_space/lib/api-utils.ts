@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { z, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 import { PrismaClient } from '@prisma/client';
 
 // Helper to safely serialize data with BigInt values
@@ -196,7 +196,7 @@ export function withErrorHandler<T>(
   return async (request: NextRequest, context?: T): Promise<NextResponse> => {
     try {
       return await handler(request, context);
-    } catch (error) {
+    } catch {
       // Log to proper logging service in production
       if (process.env.NODE_ENV === 'development') {
         console.error('API Error:', error);
@@ -232,7 +232,7 @@ export async function logActivity(
         projectId: projectId || null,
       },
     });
-  } catch (error) {
+  } catch {
     // Silently fail activity logging to prevent disrupting the main operation
     if (process.env.NODE_ENV === 'development') {
       console.error('Failed to log activity:', error);

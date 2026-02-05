@@ -42,7 +42,7 @@ export async function GET(
     }
 
     return NextResponse.json({ invitation });
-  } catch (error) {
+  } catch {
     console.error("Error fetching invitation:", error);
     return NextResponse.json({ error: "Failed to fetch invitation" }, { status: 500 });
   }
@@ -149,7 +149,7 @@ export async function PATCH(
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (error) {
+  } catch {
     console.error("Error updating invitation:", error);
     return NextResponse.json({ error: "Failed to update invitation" }, { status: 500 });
   }
@@ -189,7 +189,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ message: "Invitation deleted" });
-  } catch (error) {
+  } catch {
     console.error("Error deleting invitation:", error);
     return NextResponse.json({ error: "Failed to delete invitation" }, { status: 500 });
   }

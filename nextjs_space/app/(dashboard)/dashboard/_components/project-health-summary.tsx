@@ -8,7 +8,7 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 

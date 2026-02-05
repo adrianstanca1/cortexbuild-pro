@@ -13,7 +13,7 @@ import {
   Calendar,
   Printer
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -116,7 +116,7 @@ export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
       const data = await response.json();
       setReportData(data.report);
       toast.success("Report generated successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to generate report");
     } finally {
       setGenerating(false);

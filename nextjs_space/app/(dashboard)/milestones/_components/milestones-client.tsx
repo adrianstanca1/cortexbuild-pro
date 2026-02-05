@@ -4,11 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
-import {
-  Flag, Plus, Search, Calendar, CheckCircle2, Clock,
-  AlertTriangle, Target, MoreVertical, Edit, Trash2,
-  FolderKanban, Loader2, AlertCircle, TrendingUp
-} from "lucide-react";
+import { AlertCircle, AlertTriangle, Calendar, CheckCircle2, Clock, Edit, Flag, FolderKanban, Loader2, MoreVertical, Plus, Search, Target, Trash2, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -169,7 +165,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       setShowNewModal(false);
       resetForm();
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save milestone");
     } finally {
       setLoading(false);
@@ -184,7 +180,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       if (!res.ok) throw new Error("Failed to delete");
       toast.success("Milestone deleted");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete milestone");
     }
   };

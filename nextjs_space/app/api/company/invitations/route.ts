@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     };
 
     return NextResponse.json({ invitations, counts: statusCounts });
-  } catch (error) {
+  } catch {
     console.error("Error fetching team invitations:", error);
     return NextResponse.json({ error: "Failed to fetch invitations" }, { status: 500 });
   }
@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ invitation }, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error creating team invitation:", error);
     return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });
   }

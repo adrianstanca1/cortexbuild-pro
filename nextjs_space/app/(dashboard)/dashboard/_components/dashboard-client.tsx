@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
-  FolderKanban, ListTodo, Users, Clock, Plus, Activity,
+  FolderKanban, ListTodo, Clock, Plus, Activity,
   FileQuestion, Shield, ClipboardCheck, PoundSterling,
   AlertCircle, ChevronRight, BarChart3, Building2, Briefcase, Sparkles,
-  Zap, HardHat, Flame,
+  Zap, Flame,
   Folder, FolderOpen, FolderCog,
   Flag, CircleDot, CheckCircle,
   FileStack, Wallet
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { KPICard, QuickAction, AlertBanner, ProgressRing } from "@/components/ui/kpi-dashboard";

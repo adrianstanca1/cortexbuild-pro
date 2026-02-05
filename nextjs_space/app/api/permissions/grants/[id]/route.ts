@@ -38,7 +38,7 @@ export async function DELETE(
     await prisma.permissionGrant.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Revoke permission error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

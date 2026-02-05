@@ -51,7 +51,7 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit)
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Get documents error:", error);
     return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });
   }
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ document });
-  } catch (error) {
+  } catch {
     console.error("Create document error:", error);
     return NextResponse.json({ error: "Failed to save document" }, { status: 500 });
   }

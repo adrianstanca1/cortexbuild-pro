@@ -110,7 +110,7 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
         issuingAuthority: "", applicationDate: "", fee: "", conditions: "", notes: "",
       });
       toast.success("Permit created successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create permit");
     } finally {
       setLoading(false);
@@ -136,7 +136,7 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
       setShowSubmitDialog(false);
       setSubmitData({ applicationDate: '', issuingAuthority: '', fee: '' });
       toast.success("Permit submitted successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit permit");
     } finally {
       setLoading(false);
@@ -159,7 +159,7 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
       setShowApproveDialog(false);
       setApproveData({ approvalDate: '', permitNumber: '', expirationDate: '', inspectionDate: '', conditions: '' });
       toast.success("Permit approved successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to approve permit");
     } finally {
       setLoading(false);
@@ -180,7 +180,7 @@ export function PermitsClient({ permits: initialPermits, projects }: PermitsClie
       setPermits(permits.map(p => p.id === updated.id ? updated : p));
       setSelectedPermit(updated);
       toast.success(`Permit status updated to ${newStatus.replace('_', ' ').toLowerCase()}`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update status");
     } finally {
       setLoading(false);

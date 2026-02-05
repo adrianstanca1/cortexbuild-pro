@@ -103,7 +103,7 @@ export function DefectsClient({ defects: initialDefects, projects }: DefectsClie
         trade: "GENERAL", priority: "MEDIUM", dueDate: "", responsibleParty: "", assignedToId: "",
       });
       toast.success("Defect logged successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create defect");
     } finally {
       setLoading(false);

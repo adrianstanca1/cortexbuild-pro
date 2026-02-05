@@ -66,7 +66,7 @@ export async function rateLimit(
     await incrementUsage(config.id, endpoint, userId);
 
     return { allowed: true };
-  } catch (error) {
+  } catch {
     console.error('Rate limit check error:', error);
     return { allowed: true }; // Fail open
   }
@@ -111,7 +111,7 @@ async function incrementUsage(rateLimitId: string, endpoint: string, userId?: st
   }
 }
 
-export function rateLimitMiddleware(handler: Function) {
+export function rateLimitMiddleware(handler: (req: NextRequest, context?: any) => Promise<NextResponse>) {
   return async (req: NextRequest, context?: any) => {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

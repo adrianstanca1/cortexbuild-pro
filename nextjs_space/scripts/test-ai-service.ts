@@ -64,7 +64,7 @@ async function main() {
       console.log(`❌ Error: ${result.error}`);
       process.exit(1);
     }
-  } catch (error) {
+  } catch {
     console.log(`❌ Test Failed with exception!`);
     console.log(`❌ Error: ${error instanceof Error ? error.message : error}`);
     process.exit(1);
@@ -100,7 +100,7 @@ async function main() {
           console.log(`   Chunk ${chunkCount}: ${chunk.substring(0, 50)}...`);
         }
         reader.cancel();
-      } catch (e) {
+      } catch {
         // Stream reading might fail in test environment, that's ok
         console.log(`   ⚠️  Stream reading skipped (normal in test env)`);
       }
@@ -108,7 +108,7 @@ async function main() {
       console.log(`❌ Streaming Test Failed!`);
       console.log(`❌ Error: ${streamResult.error}`);
     }
-  } catch (error) {
+  } catch {
     console.log(`❌ Streaming Test Failed with exception!`);
     console.log(`❌ Error: ${error instanceof Error ? error.message : error}`);
   }

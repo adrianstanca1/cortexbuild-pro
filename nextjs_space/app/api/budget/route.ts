@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     }, { totalEstimated: 0, totalCommitted: 0, totalActual: 0 });
 
     return NextResponse.json({ costItems, summary });
-  } catch (error) {
+  } catch {
     console.error("Error fetching cost items:", error);
     return NextResponse.json({ error: "Failed to fetch cost items" }, { status: 500 });
   }
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(costItem);
-  } catch (error) {
+  } catch {
     console.error("Error creating cost item:", error);
     return NextResponse.json({ error: "Failed to create cost item" }, { status: 500 });
   }

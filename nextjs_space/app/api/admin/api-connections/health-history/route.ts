@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
       uptimeStats,
       incidents
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching health history:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, healthCheck });
-  } catch (error) {
+  } catch {
     console.error("Error recording health check:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

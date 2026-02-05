@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
         role: result.role,
       }
     }, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error accepting invitation:", error);
     return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
   }

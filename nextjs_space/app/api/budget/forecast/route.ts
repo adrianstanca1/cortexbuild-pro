@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
       })),
       monthlyTrend
     });
-  } catch (error) {
+  } catch {
     console.error("Error generating budget forecast:", error);
     return NextResponse.json({ error: "Failed to generate forecast" }, { status: 500 });
   }

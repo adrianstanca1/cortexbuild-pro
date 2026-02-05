@@ -4,11 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import {
-  Building2, Plus, Search, Star, Phone, Mail, FileText,
-  Edit2, Trash2, Loader2, Wrench, Zap, Droplet, Wind, AlertTriangle,
-  Shield
-} from "lucide-react";
+import { AlertTriangle, Building2, Droplet, Edit2, FileText, Loader2, Mail, Phone, Plus, Search, Shield, Star, Trash2, Wrench, Zap } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,7 +150,7 @@ export function SubcontractorsClient({
         trade: "GENERAL", licenseNumber: "", insuranceExpiry: "", rating: "", notes: ""
       });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to create subcontractor");
     } finally {
       setLoading(false);
@@ -174,7 +170,7 @@ export function SubcontractorsClient({
       toast.success("Subcontractor updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update subcontractor");
     } finally {
       setLoading(false);
@@ -188,7 +184,7 @@ export function SubcontractorsClient({
       if (!res.ok) throw new Error("Failed to delete subcontractor");
       toast.success("Subcontractor deleted");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete subcontractor");
     }
   };

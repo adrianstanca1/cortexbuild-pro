@@ -59,7 +59,7 @@ export async function POST(
     });
 
     return NextResponse.json(acknowledgement);
-  } catch (error) {
+  } catch {
     console.error('Error acknowledging RAMS:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -104,7 +104,7 @@ export async function PUT(
     });
 
     return NextResponse.json(acknowledgement);
-  } catch (error) {
+  } catch {
     console.error('Error adding guest acknowledgement:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

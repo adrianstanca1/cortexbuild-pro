@@ -53,7 +53,7 @@ export async function POST(_request: NextRequest) {
       backupCodes,
       message: 'Save these backup codes in a secure location. Each code can only be used once.',
     }, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Generate backup codes error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

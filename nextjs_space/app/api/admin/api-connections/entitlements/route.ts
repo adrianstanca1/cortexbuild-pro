@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     // Get full platform entitlements
     const entitlements = await getPlatformEntitlements(environment);
     return NextResponse.json(entitlements);
-  } catch (error) {
+  } catch {
     console.error("Entitlements error:", error);
     return NextResponse.json(
       { error: "Failed to check entitlements" },
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       enabled,
       entitlement
     });
-  } catch (error) {
+  } catch {
     console.error("Entitlements check error:", error);
     return NextResponse.json(
       { error: "Failed to check module entitlement" },

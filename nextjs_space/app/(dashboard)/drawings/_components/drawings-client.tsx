@@ -96,7 +96,7 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
         discipline: "ARCHITECTURAL", scale: "", sheetSize: "",
       });
       toast.success("Drawing created successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create drawing");
     } finally {
       setLoading(false);

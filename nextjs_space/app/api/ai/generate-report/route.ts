@@ -277,7 +277,7 @@ Data:\n${reportDataSummary}`;
         generatedBy: session.user.name || session.user.email
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Report generation error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

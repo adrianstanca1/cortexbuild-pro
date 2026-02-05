@@ -31,7 +31,7 @@ export async function GET(
     }
 
     return NextResponse.json(widget);
-  } catch (error) {
+  } catch {
     console.error('Get analytics widget error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -82,7 +82,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(widget);
-  } catch (error) {
+  } catch {
     console.error('Update analytics widget error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function DELETE(
     await prisma.analyticsWidget.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Delete analytics widget error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, Loader2, Shield, Clock } from 'lucide-react';
+import { AlertTriangle, Award, Calendar, Check, Clock, Loader2, Plus, Search, Shield, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -123,7 +123,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
       setShowCreateModal(false);
       toast.success('Certification added');
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Failed to add certification');
     } finally {
       setLoading(false);
@@ -140,7 +140,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
       if (!response.ok) throw new Error('Failed');
       toast.success('Certification verified');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to verify');
     }
   };

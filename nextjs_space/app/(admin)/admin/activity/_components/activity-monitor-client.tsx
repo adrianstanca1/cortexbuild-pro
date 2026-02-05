@@ -16,7 +16,7 @@ import {
   Clock,
   Building2
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -96,7 +96,7 @@ export function ActivityMonitorClient() {
         setActivities(data.activities);
         setPagination(data.pagination);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching activities:", error);
     } finally {
       setLoading(false);

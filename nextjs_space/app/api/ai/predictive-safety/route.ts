@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         projectName: i.project.name,
       })),
     });
-  } catch (error) {
+  } catch {
     console.error('Error fetching safety data:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
       analysis,
       analyzedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     console.error('Safety prediction error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

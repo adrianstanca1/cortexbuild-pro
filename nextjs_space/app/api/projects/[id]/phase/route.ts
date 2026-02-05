@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // Check if phase gates are met (if phaseGatesData provided)
     let canTransition = true;
-    let gateErrors: string[] = [];
+    const gateErrors: string[] = [];
 
     if (phaseGatesData) {
       // Parse phase gates requirements
@@ -112,7 +112,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     return NextResponse.json({ project: updatedProject });
-  } catch (error) {
+  } catch {
     console.error("Update project phase error:", error);
     return NextResponse.json({ error: "Failed to update project phase" }, { status: 500 });
   }
@@ -154,7 +154,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         phaseGates: gatesData
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Get project phase error:", error);
     return NextResponse.json({ error: "Failed to fetch project phase" }, { status: 500 });
   }

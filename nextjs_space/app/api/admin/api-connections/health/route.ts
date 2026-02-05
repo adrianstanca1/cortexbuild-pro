@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(systemHealth);
-  } catch (error) {
+  } catch {
     console.error("Health check error:", error);
     return NextResponse.json(
       { error: "Failed to check service health" },
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     const health = await checkServiceHealth(serviceId);
     return NextResponse.json(health);
-  } catch (error) {
+  } catch {
     console.error("Health check error:", error);
     return NextResponse.json(
       { error: "Failed to run health check" },

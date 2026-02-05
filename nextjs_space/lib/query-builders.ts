@@ -25,7 +25,7 @@ export async function logActivity(
         details: `${action} ${entityType}`,
       },
     });
-  } catch (error) {
+  } catch {
     console.error('Failed to log activity:', error);
   }
 }
@@ -46,7 +46,7 @@ export async function broadcastEntityChange(
       timestamp: new Date().toISOString(),
       payload: { [entityType]: entity, userId },
     });
-  } catch (error) {
+  } catch {
     console.error('Failed to broadcast change:', error);
   }
 }

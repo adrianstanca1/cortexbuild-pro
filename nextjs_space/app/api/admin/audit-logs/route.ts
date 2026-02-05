@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         entityTypes: entityTypes.filter(e => e.entityType).map(e => ({ type: e.entityType, count: e._count }))
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching audit logs:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

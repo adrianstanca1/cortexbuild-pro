@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
         expiresAt: invitation.expiresAt,
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error validating invitation:", error);
     return NextResponse.json({ error: "Failed to validate invitation" }, { status: 500 });
   }

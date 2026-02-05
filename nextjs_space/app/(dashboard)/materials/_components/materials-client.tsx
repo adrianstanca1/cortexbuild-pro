@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
-  Package, Plus, Search, Truck, CheckCircle, Clock, AlertTriangle,
+  Package, Plus, Search, Truck, CheckCircle, Clock,
   Edit2, Trash2, Loader2, Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -149,7 +149,7 @@ export function MaterialsClient({
         supplier: "", leadTime: "", expectedDate: "", location: "", notes: ""
       });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to create material");
     } finally {
       setLoading(false);
@@ -169,7 +169,7 @@ export function MaterialsClient({
       toast.success("Material updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update material");
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export function MaterialsClient({
       if (!res.ok) throw new Error("Failed to delete material");
       toast.success("Material deleted");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete material");
     }
   };

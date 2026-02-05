@@ -4,7 +4,7 @@
 // =====================================================
 
 import { prisma } from "@/lib/db";
-import { serviceRegistry, getAllServiceInstances, ServiceInstance, ServiceStatus } from "./service-registry";
+import { serviceRegistry, getAllServiceInstances, ServiceStatus } from "./service-registry";
 import { SendGridAdapter, AIAdapter, TwilioAdapter, StripeAdapter } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
 
@@ -91,7 +91,7 @@ const healthCheckers: Record<string, () => Promise<HealthCheckResult>> = {
         responseTime: Date.now() - startTime,
         lastChecked: new Date()
       };
-    } catch (error) {
+    } catch {
       return {
         serviceId: "postgresql",
         serviceName: "PostgreSQL Database",
@@ -138,7 +138,7 @@ export async function checkServiceHealth(serviceId: string): Promise<HealthCheck
       await updateServiceStatus(serviceId, result.status, result.errorMessage);
       
       return result;
-    } catch (error) {
+    } catch {
       return {
         serviceId,
         serviceName: serviceRegistry.getService(serviceId)?.name || serviceId,
@@ -234,7 +234,7 @@ async function updateServiceStatus(
         }
       });
     }
-  } catch (error) {
+  } catch {
     // console.error(`Failed to update service status for ${serviceId}:`, error);
   }
 }
@@ -257,7 +257,7 @@ export function broadcastServiceStatusChange(
         ...details
       }
     });
-  } catch (error) {
+  } catch {
     // console.error("Failed to broadcast service status change:", error);
   }
 }

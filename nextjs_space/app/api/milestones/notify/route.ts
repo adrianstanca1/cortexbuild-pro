@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, message: "Notification sent" });
-  } catch (error) {
+  } catch {
     console.error("Error sending milestone notification:", error);
     return NextResponse.json({ error: "Failed to send notification" }, { status: 500 });
   }
@@ -185,7 +185,7 @@ export async function GET(_request: NextRequest) {
     };
 
     return NextResponse.json(categorized);
-  } catch (error) {
+  } catch {
     console.error("Error fetching milestone status:", error);
     return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
   }

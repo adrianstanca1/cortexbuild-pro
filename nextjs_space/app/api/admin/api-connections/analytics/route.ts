@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
       serviceBreakdown,
       timeline
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching analytics:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error recording usage:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

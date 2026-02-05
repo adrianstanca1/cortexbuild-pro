@@ -85,7 +85,7 @@ export function CustomReportsClient() {
       } else {
         toast.error("Failed to fetch reports");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch reports");
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export function CustomReportsClient() {
       } else {
         toast.error("Failed to create report");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create report");
     } finally {
       setSaving(false);
@@ -155,7 +155,7 @@ export function CustomReportsClient() {
       } else {
         toast.error("Failed to update report");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update report");
     } finally {
       setSaving(false);
@@ -178,7 +178,7 @@ export function CustomReportsClient() {
       } else {
         toast.error("Failed to delete report");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete report");
     }
   };
@@ -205,7 +205,7 @@ export function CustomReportsClient() {
       } else {
         toast.error("Failed to generate report");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to generate report");
     } finally {
       setGenerating(false);

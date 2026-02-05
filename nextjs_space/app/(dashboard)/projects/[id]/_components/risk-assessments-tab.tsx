@@ -125,7 +125,7 @@ export function RiskAssessmentsTab({ project, riskAssessments: initialAssessment
         hazards: [{ hazardDescription: '', personsAtRisk: [], initialSeverity: 3, initialLikelihood: 3, controlMeasures: [''], residualSeverity: 1, residualLikelihood: 1 }]
       });
       toast.success('Risk Assessment created');
-    } catch (error) {
+    } catch {
       toast.error('Failed to create risk assessment');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export function RiskAssessmentsTab({ project, riskAssessments: initialAssessment
       const updated = await response.json();
       setAssessments(prev => prev.map(a => a.id === id ? updated : a));
       toast.success(`Status updated to ${status}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to update status');
     }
   };
@@ -161,7 +161,7 @@ export function RiskAssessmentsTab({ project, riskAssessments: initialAssessment
       setShowAcknowledgeModal(false);
       toast.success('RAMS acknowledged');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to acknowledge');
     } finally {
       setLoading(false);

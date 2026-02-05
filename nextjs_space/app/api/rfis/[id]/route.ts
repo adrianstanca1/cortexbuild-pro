@@ -41,7 +41,7 @@ export async function GET(
     }
 
     return NextResponse.json(rfi);
-  } catch (error) {
+  } catch {
     console.error('Error fetching RFI:', error);
     return NextResponse.json({ error: 'Failed to fetch RFI' }, { status: 500 });
   }
@@ -125,7 +125,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(rfi);
-  } catch (error) {
+  } catch {
     console.error('Error updating RFI:', error);
     return NextResponse.json({ error: 'Failed to update RFI' }, { status: 500 });
   }
@@ -166,7 +166,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting RFI:', error);
     return NextResponse.json({ error: 'Failed to delete RFI' }, { status: 500 });
   }

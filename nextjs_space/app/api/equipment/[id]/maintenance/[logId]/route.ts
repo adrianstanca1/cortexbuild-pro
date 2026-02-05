@@ -87,7 +87,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(maintenanceLog);
-  } catch (error) {
+  } catch {
     console.error('Error updating maintenance log:', error);
     return NextResponse.json({ error: 'Failed to update maintenance log' }, { status: 500 });
   }
@@ -157,7 +157,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting maintenance log:', error);
     return NextResponse.json({ error: 'Failed to delete maintenance log' }, { status: 500 });
   }

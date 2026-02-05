@@ -6,10 +6,10 @@ import {
   FileText, Plus, Search, Copy, Edit, Trash2, Upload,
   Loader2, LayoutGrid, List, Eye, FileSignature, Shield, ClipboardList,
   HardHat, Sparkles, Lock, Globe,
-  Package, AlertTriangle, Calendar, Wrench, X, ChevronDown, ChevronUp,
+  Package, Calendar, Wrench, X, ChevronDown, ChevronUp,
   File, FileUp, Check, Info, Tag, FolderOpen
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -170,7 +170,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to duplicate template');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -197,7 +197,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
       } else {
         toast.error('Failed to delete template');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -240,7 +240,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to create template');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -278,7 +278,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to update template');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -314,7 +314,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to upload template');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred during upload');
     } finally {
       setUploading(false);
@@ -337,7 +337,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
       } else {
         toast.error('Failed to load system templates');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setLoading(false);

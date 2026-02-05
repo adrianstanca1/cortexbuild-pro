@@ -47,7 +47,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(quota);
-  } catch (error) {
+  } catch {
     console.error('Update quota error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Flame, AlertOctagon, Check, AlertTriangle, Eye, Loader2, Clock } from 'lucide-react';
+import { Plus, Flame, Check, Eye, Loader2, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -114,7 +114,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       setShowHotWorkModal(false);
       toast.success('Hot Work Permit requested');
       resetHotWorkForm();
-    } catch (error) {
+    } catch {
       toast.error('Failed to create permit');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       setShowCSModal(false);
       toast.success('Confined Space Permit requested');
       resetCSForm();
-    } catch (error) {
+    } catch {
       toast.error('Failed to create permit');
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       if (!response.ok) throw new Error('Failed');
       toast.success('Permit approved');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to approve');
     }
   };
@@ -177,7 +177,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       if (!response.ok) throw new Error('Failed');
       toast.success('Permit completed');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to complete');
     }
   };

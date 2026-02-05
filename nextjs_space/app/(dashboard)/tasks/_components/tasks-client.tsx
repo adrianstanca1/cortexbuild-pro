@@ -117,7 +117,7 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
       } else {
         toast.error("Failed to create task");
       }
-    } catch (e) {
+    } catch {
       toast.error("An error occurred");
     } finally {
       setLoading(false);
@@ -133,7 +133,7 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
       });
       toast.success("Task updated!");
       router.refresh();
-    } catch (e) {
+    } catch {
       toast.error("Failed to update task");
     }
   };

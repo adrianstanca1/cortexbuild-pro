@@ -53,7 +53,7 @@ export async function POST(
       restoreFiles: restoreFiles !== undefined ? restoreFiles : true,
       restoreDatabase: restoreDatabase !== undefined ? restoreDatabase : true,
     }, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Restore backup error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

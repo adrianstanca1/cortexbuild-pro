@@ -74,7 +74,7 @@ export async function POST(
     });
 
     return NextResponse.json(assignment);
-  } catch (error) {
+  } catch {
     console.error('Error assigning to project:', error);
     return NextResponse.json({ error: 'Failed to assign to project' }, { status: 500 });
   }
@@ -108,7 +108,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error removing from project:', error);
     return NextResponse.json({ error: 'Failed to remove from project' }, { status: 500 });
   }

@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(total / limit),
       },
     });
-  } catch (error) {
+  } catch {
     console.error('Error fetching invitations:', error);
     return NextResponse.json({ error: 'Failed to fetch invitations' }, { status: 500 });
   }
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ invitation, message: 'Invitation created and email sent' });
-  } catch (error) {
+  } catch {
     console.error('Error creating invitation:', error);
     return NextResponse.json({ error: 'Failed to create invitation' }, { status: 500 });
   }

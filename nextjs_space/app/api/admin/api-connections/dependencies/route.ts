@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
         ).length
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching dependencies:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

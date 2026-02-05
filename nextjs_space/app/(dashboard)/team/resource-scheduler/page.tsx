@@ -98,7 +98,7 @@ export default function ResourceSchedulerPage() {
         setByTrade(data.byTrade || {});
         setProjects(data.projects || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching resource data:', error);
       toast.error('Failed to load resource data');
     } finally {
@@ -130,7 +130,7 @@ export default function ResourceSchedulerPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch (error) {
+    } catch {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

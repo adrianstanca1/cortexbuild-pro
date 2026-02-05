@@ -9,18 +9,6 @@ import { format, differenceInDays } from 'date-fns';
 
 const prisma = new PrismaClient();
 
-interface ProjectReport {
-  projectInfo: any;
-  taskSummary: any;
-  budgetSummary: any;
-  rfiSummary: any;
-  submittalSummary: any;
-  safetySummary: any;
-  teamSummary: any;
-  timeline: any;
-  recommendations: string[];
-}
-
 async function generateProjectReport(projectId?: string): Promise<void> {
   console.log('\n========================================');
   console.log('    CortexBuild Pro - Project Report');
@@ -63,7 +51,7 @@ async function generateProjectReport(projectId?: string): Promise<void> {
       await generateSingleProjectReport(project);
     }
 
-  } catch (error) {
+  } catch {
     console.error('Error generating report:', error);
     throw error;
   } finally {

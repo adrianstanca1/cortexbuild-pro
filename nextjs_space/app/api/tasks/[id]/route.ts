@@ -79,7 +79,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     return NextResponse.json({ task });
-  } catch (error) {
+  } catch {
     console.error("Update task error:", error);
     return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
   }
@@ -120,7 +120,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ message: "Task deleted" });
-  } catch (error) {
+  } catch {
     console.error("Delete task error:", error);
     return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
   }

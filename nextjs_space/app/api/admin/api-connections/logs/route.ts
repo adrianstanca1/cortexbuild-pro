@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(total / limit)
       }
     })));
-  } catch (error) {
+  } catch {
     console.error("Error fetching API connection logs:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

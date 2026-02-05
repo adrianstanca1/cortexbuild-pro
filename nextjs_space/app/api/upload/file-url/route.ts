@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const url = await getFileUrl(cloud_storage_path, isPublic);
 
     return NextResponse.json({ url });
-  } catch (error) {
+  } catch {
     console.error('File URL error:', error);
     return NextResponse.json({ error: 'Failed to get file URL' }, { status: 500 });
   }

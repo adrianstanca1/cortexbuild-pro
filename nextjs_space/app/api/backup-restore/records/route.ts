@@ -32,7 +32,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(records);
-  } catch (error) {
+  } catch {
     console.error('Get backup records error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // TODO: Trigger actual backup process asynchronously
 
     return NextResponse.json(record, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Trigger backup error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

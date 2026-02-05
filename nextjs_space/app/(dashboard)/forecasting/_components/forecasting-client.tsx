@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,7 @@ export function ForecastingClient({ projects }: Props) {
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setForecasts(data);
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to load forecasts');
     } finally {
@@ -139,7 +139,7 @@ export function ForecastingClient({ projects }: Props) {
       if (newForecast.projectId === selectedProject) {
         fetchForecasts();
       }
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to create forecast');
     } finally {

@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(forecasts);
-  } catch (error) {
+  } catch {
     console.error('Error fetching forecasts:', error);
     return NextResponse.json({ error: 'Failed to fetch forecasts' }, { status: 500 });
   }
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(forecast, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating forecast:', error);
     return NextResponse.json({ error: 'Failed to create forecast' }, { status: 500 });
   }

@@ -40,7 +40,7 @@ export async function GET(
     }
 
     return NextResponse.json(submittal);
-  } catch (error) {
+  } catch {
     console.error('Error fetching submittal:', error);
     return NextResponse.json({ error: 'Failed to fetch submittal' }, { status: 500 });
   }
@@ -128,7 +128,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(submittal);
-  } catch (error) {
+  } catch {
     console.error('Error updating submittal:', error);
     return NextResponse.json({ error: 'Failed to update submittal' }, { status: 500 });
   }
@@ -169,7 +169,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting submittal:', error);
     return NextResponse.json({ error: 'Failed to delete submittal' }, { status: 500 });
   }
