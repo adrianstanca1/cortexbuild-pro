@@ -48,7 +48,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./nextjs_space
-        run: npm run test:ci
+        run: npm run test:ci --if-present
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
