@@ -20,7 +20,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const { projectId, status, priority, trade } = parseQueryParams(request);
 
   const where = buildOrgScopedWhere(
-    context!.organizationId,
+    context!.organizationId!,
     projectId,
     {
       ...(status && { status }),

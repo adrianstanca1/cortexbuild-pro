@@ -36,7 +36,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   if (endDate) dateFilter.lte = endDate;
 
   const where = buildOrgScopedWhere(
-    context!.organizationId,
+    context!.organizationId!,
     projectId,
     {
       ...(Object.keys(dateFilter).length > 0 && { reportDate: dateFilter })

@@ -22,7 +22,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const { projectId, status, type } = parseQueryParams(request);
 
   const where = buildOrgScopedWhere(
-    context!.organizationId,
+    context!.organizationId!,
     projectId,
     {
       ...(status && { status }),

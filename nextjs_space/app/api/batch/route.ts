@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
         if (operation === 'create') {
           // Validate tasks and track which ones are invalid
-          const validTasks = [];
+          const validTasks: Array<typeof tasks[number] & { index: number }> = [];
           
           for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
           
           if (validTasks.length > 0) {
             // Verify all projectIds belong to user's organization
-            const projectIds = [...new Set(validTasks.map(t => t.projectId))];
+            const projectIds = [...new Set(validTasks.map(t => t.projectId).filter((id): id is string => id !== undefined))];
             const authorizedProjects = await prisma.project.findMany({
               where: {
                 id: { in: projectIds },
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
             const authorizedProjectIds = new Set(authorizedProjects.map(p => p.id));
             
             // Separate authorized and unauthorized tasks
-            const authorizedTasks = [];
+            const authorizedTasks: Array<typeof validTasks[number]> = [];
             for (const task of validTasks) {
               if (!authorizedProjectIds.has(task.projectId!)) {
                 validationErrors.push({
