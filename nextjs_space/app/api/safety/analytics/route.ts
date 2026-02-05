@@ -279,10 +279,15 @@ export async function GET(request: NextRequest) {
 
     // Project breakdown - use Map for O(1) lookups instead of O(n) filters
     // Create index maps for each data type by projectId
-    const toolboxByProject = new Map<string, typeof toolboxTalks>();
-    const mewpByProject = new Map<string, typeof mewpChecks>();
-    const toolByProject = new Map<string, typeof toolChecks>();
-    const incidentsByProject = new Map<string, typeof safetyIncidents>();
+    type ToolboxTalk = typeof toolboxTalks[number];
+    type MewpCheck = typeof mewpChecks[number];
+    type ToolCheck = typeof toolChecks[number];
+    type SafetyIncident = typeof safetyIncidents[number];
+    
+    const toolboxByProject = new Map<string, ToolboxTalk[]>();
+    const mewpByProject = new Map<string, MewpCheck[]>();
+    const toolByProject = new Map<string, ToolCheck[]>();
+    const incidentsByProject = new Map<string, SafetyIncident[]>();
 
     toolboxTalks.forEach(t => {
       if (!toolboxByProject.has(t.projectId)) toolboxByProject.set(t.projectId, []);
