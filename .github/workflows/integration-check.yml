@@ -1,0 +1,136 @@
+name: Integration Check
+
+on:
+  push:
+    branches:
+      - main
+      - cortexbuildpro
+      - 'copilot/**'
+  pull_request:
+    branches:
+      - main
+      - cortexbuildpro
+
+# Set minimal permissions for security
+permissions:
+  contents: read
+
+jobs:
+  lint-and-typecheck:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: nextjs_space/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./nextjs_space
+        run: npm ci
+      
+      - name: Run ESLint
+        working-directory: ./nextjs_space
+        run: npm run lint
+      
+      - name: Generate Prisma Client
+        working-directory: ./nextjs_space
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+      
+      - name: Type check with TypeScript
+        working-directory: ./nextjs_space
+        run: npx tsc --noEmit
+
+  build-check:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: nextjs_space/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./nextjs_space
+        run: npm ci
+      
+      - name: Generate Prisma Client
+        working-directory: ./nextjs_space
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+      
+      - name: Build Next.js application
+        working-directory: ./nextjs_space
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
+  docker-build-check:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        working-directory: ./deployment
+        run: docker compose build app
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
+  prisma-validation:
+    name: Database Schema Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: nextjs_space/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./nextjs_space
+        run: npm ci
+      
+      - name: Validate Prisma schema
+        working-directory: ./nextjs_space
+        run: npx prisma validate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+      
+      - name: Generate Prisma Client
+        working-directory: ./nextjs_space
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+      
+      - name: Check for schema drift
+        working-directory: ./nextjs_space
+        run: npx prisma format --check
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test

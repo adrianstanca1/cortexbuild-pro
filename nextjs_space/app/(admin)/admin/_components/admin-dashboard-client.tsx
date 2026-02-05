@@ -20,7 +20,6 @@ import {
   PackageCheck,
   FileEdit,
   ShieldAlert,
-  ClipboardList,
   Zap,
   AlertTriangle,
   CheckCircle2,
@@ -28,14 +27,10 @@ import {
   Radio,
   Server,
   Gauge,
-  Bell,
   Globe,
   BarChart3,
-  PieChart,
-  TrendingDown,
-  Eye,
-  Settings,
-  Terminal
+  Terminal,
+  Eye
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -63,7 +63,7 @@ const DEFAULT_TEMPLATES = [
   }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate project dates based on template phases
     const projectStartDate = startDate ? new Date(startDate) : new Date();
-    let totalDuration = template.phases.reduce((sum, p) => sum + p.duration, 0);
+    const totalDuration = template.phases.reduce((sum, p) => sum + p.duration, 0);
     const projectEndDate = new Date(projectStartDate);
     projectEndDate.setDate(projectEndDate.getDate() + totalDuration);
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create tasks from template phases
-    let currentDate = new Date(projectStartDate);
+    const currentDate = new Date(projectStartDate);
     const createdTasks: { id: string; title: string }[] = [];
 
     for (const phase of template.phases) {

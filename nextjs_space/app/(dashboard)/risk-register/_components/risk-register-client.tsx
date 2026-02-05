@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -25,12 +24,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  AlertTriangle, Plus, Search, Filter, PoundSterling,
-  Calendar, Users, ChevronRight, Loader2, Target,
+  AlertTriangle, Plus, Search, PoundSterling,
+  ChevronRight, Loader2,
   TrendingUp, TrendingDown, Shield, Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
 
 interface Project {
   id: string;

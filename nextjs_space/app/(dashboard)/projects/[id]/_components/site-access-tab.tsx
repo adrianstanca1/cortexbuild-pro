@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, LogIn, LogOut, Users, Search, Car, Phone, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
+import { LogIn, LogOut, Users, Search, Car, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ interface SiteAccessTabProps {
 
 const roleTypes = ['Worker', 'Visitor', 'Delivery', 'Inspector', 'Client', 'Contractor', 'Consultant'];
 
-export function SiteAccessTab({ project, teamMembers, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
+export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
   const router = useRouter();
   const [logs, setLogs] = useState(initialLogs || []);
   const [showSignInModal, setShowSignInModal] = useState(false);

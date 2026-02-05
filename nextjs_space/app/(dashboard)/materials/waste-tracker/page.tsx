@@ -1,30 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
-  Trash2,
   TrendingDown,
-  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   PoundSterling,
   Leaf,
   Recycle,
-  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
   BarChart3,
   Target,
-  Zap,
   Search,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import {
@@ -38,9 +34,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
-  Legend,
 } from 'recharts';
 
 interface MaterialUsage {
@@ -74,7 +67,7 @@ interface Project {
   name: string;
 }
 
-const COLORS = ['#22c55e', '#3b82f6', '#eab308', '#f97316', '#ef4444', '#8b5cf6'];
+
 
 const formatCurrency = (value: number) => {
   if (value >= 1000000) return `\u00a3${(value / 1000000).toFixed(1)}M`;
@@ -94,14 +87,6 @@ export default function WasteTrackerPage() {
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
   const [analysisType, setAnalysisType] = useState('waste_reduction');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    fetchMaterialData();
-  }, [selectedProject]);
-
   const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
@@ -114,7 +99,11 @@ export default function WasteTrackerPage() {
     }
   };
 
-  const fetchMaterialData = async () => {
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchMaterialData = useCallback(async () => {
     setLoading(true);
     try {
       const url = selectedProject
@@ -133,7 +122,11 @@ export default function WasteTrackerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProject]);
+
+  useEffect(() => {
+    fetchMaterialData();
+  }, [selectedProject, fetchMaterialData]);
 
   const runAiAnalysis = async (type: string) => {
     setAnalysisType(type);
@@ -183,19 +176,6 @@ export default function WasteTrackerPage() {
     { name: 'On Track', value: metrics?.materialsOnTrack || 0, color: '#22c55e' },
     { name: 'At Risk', value: metrics?.materialsAtRisk || 0, color: '#ef4444' },
   ].filter((d) => d.value > 0);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'on_track':
-        return 'bg-green-500';
-      case 'warning':
-        return 'bg-amber-500';
-      case 'critical':
-        return 'bg-red-500';
-      default:
-        return 'bg-slate-500';
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {

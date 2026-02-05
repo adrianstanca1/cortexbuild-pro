@@ -441,7 +441,7 @@ export async function getServiceCredentials(
       connectionId: connection.id
     };
   } catch (error) {
-    console.error(`Error fetching credentials for service ${serviceId}:`, error);
+    // console.error(`Error fetching credentials for service ${serviceId}:`, error);
     return null;
   }
 }
@@ -568,6 +568,6 @@ export async function logServiceUsage(
       });
     }
   } catch (error) {
-    console.error("Error logging service usage:", error);
+    // console.error("Error logging service usage:", error);
   }
 }

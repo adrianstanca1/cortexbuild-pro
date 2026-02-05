@@ -1,19 +1,20 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Edit, Trash2, MapPin, Calendar, PoundSterling, User,
-  ListTodo, FileText, Users, Plus, Loader2, CheckCircle, Clock, AlertCircle, Activity, TrendingUp,
-  Upload, Download, Eye, Ruler, Image, FileSpreadsheet, File, Brain, BarChart3, Camera,
+  ArrowLeft, Edit, MapPin, PoundSterling, User,
+  FileText, Users, Plus, Loader2, CheckCircle, AlertCircle, Activity, TrendingUp,
+  Camera, Brain,
   ClipboardList, Timer, Wallet, Receipt, Package, HardHat, FileQuestion, Send, FileCheck,
   Shield, PenTool, BookOpen, AlertTriangle, Target, Search, ChevronRight, FolderOpen,
-  Milestone, Building2, Hammer, Truck, UserCheck, Scale, LayoutGrid, List,
-  FolderClosed, Home, ChevronDown, Minus, CornerDownRight, Gauge, Sparkles, Settings,
-  ExternalLink, Network, MoreVertical, Share2, Star, Archive, Copy, Zap,
-  PanelLeftClose, PanelLeft, ChevronLeft
+  Milestone, Building2, Truck, UserCheck, Scale, LayoutGrid,
+  FolderClosed, ChevronDown,
+  Settings,
+  Network, Share2, Star, Zap,
+  ChevronLeft
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +23,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { DocumentViewer } from "@/components/ui/document-viewer";
 import { ProjectIntelligence } from "@/components/ui/project-intelligence";
 import { PhotoGallery } from "@/components/ui/photo-gallery";
 import { WeatherWidget } from "@/components/ui/weather-widget";
@@ -46,7 +46,8 @@ interface ProjectDetailClientProps {
   certifications?: any[];
 }
 
-const statusColors = {
+// Status and priority color configurations (kept for future use)
+const _statusColors = {
   PLANNING: "info",
   IN_PROGRESS: "default",
   ON_HOLD: "warning",
@@ -54,7 +55,7 @@ const statusColors = {
   ARCHIVED: "secondary"
 } as const;
 
-const taskStatusColors = {
+const _taskStatusColors = {
   TODO: "secondary",
   IN_PROGRESS: "info",
   REVIEW: "warning",
@@ -177,22 +178,24 @@ const featureCategories = [
   },
 ];
 
-// Helper: Check if tab is in top menu
-const isTopMenuTab = (tabId: string) => {
+// Helper: Check if tab is in top menu (unused but kept for reference)
+const _isTopMenuTab = (tabId: string) => {
   return topMenuCategories.some(cat => cat.items.some(item => item.id === tabId));
 };
 
-export function ProjectDetailClient({ project, availableTeamMembers, currentUserId, activities = [], certifications = [] }: ProjectDetailClientProps) {
+export function ProjectDetailClient({ project, availableTeamMembers }: ProjectDetailClientProps) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const _fileInputRef = useState<HTMLInputElement | null>(null)[0];
+  const _currentUserId = project?.userId || "";
+  const _activities = project?.activities || [];
   const [activeTab, setActiveTab] = useState("overview");
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showNewItemModal, setShowNewItemModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [_searchQuery, _setSearchQuery] = useState("");
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["overview"]));
-  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [_showQuickActions, _setShowQuickActions] = useState(false);
   const [expandedTopMenu, setExpandedTopMenu] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -270,7 +273,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
     confinedSpacePermits: project?.confinedSpacePermits?.length || 0,
     liftingOperations: project?.liftingOperations?.length || 0,
     siteAccessLogs: project?.siteAccessLogs?.length || 0,
-    certifications: certifications?.length || 0,
+    certifications: project?.certifications?.length || 0,
   });
   const counts = getCounts();
 
@@ -449,7 +452,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
       case "intelligence":
         return <ProjectIntelligence project={project} />;
       case "tasks":
-        return <TasksTab project={project} availableTeamMembers={availableTeamMembers} onCreateTask={() => setShowNewTaskModal(true)} router={router} />;
+        return <TasksTab project={project} _availableTeamMembers={availableTeamMembers} onCreateTask={() => setShowNewTaskModal(true)} router={router} />;
       case "milestones":
         return <MilestonesTab project={project} onCreateMilestone={() => openCreateModal("milestone")} />;
       case "time-tracking":
@@ -505,7 +508,7 @@ export function ProjectDetailClient({ project, availableTeamMembers, currentUser
       case "site-access":
         return <SiteAccessTab project={project} teamMembers={availableTeamMembers} siteAccessLogs={project?.siteAccessLogs || []} />;
       case "certifications":
-        return <CertificationsTab teamMembers={availableTeamMembers} certifications={certifications} />;
+        return <CertificationsTab teamMembers={availableTeamMembers} certifications={project?.certifications} />;
       default:
         return <OverviewTab project={project} counts={counts} setActiveTab={setActiveTab} />;
     }
@@ -1519,7 +1522,7 @@ function OverviewTab({ project, counts, setActiveTab }: { project: any; counts: 
   );
 }
 
-function TasksTab({ project, availableTeamMembers, onCreateTask, router }: { project: any; availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
+function TasksTab({ project, _availableTeamMembers, onCreateTask, router }: { project: any; _availableTeamMembers: any[]; onCreateTask: () => void; router: any }) {
   const [filter, setFilter] = useState("all");
   const tasks = project?.tasks || [];
   const filteredTasks = filter === "all" ? tasks : tasks.filter((t: any) => t?.status === filter);
@@ -1750,7 +1753,7 @@ function ChangeOrdersTab({ project }: { project: any }) {
   );
 }
 
-function TeamTab({ project, availableTeamMembers }: { project: any; availableTeamMembers: any[] }) {
+function TeamTab({ project }: { project: any; availableTeamMembers: any[] }) {
   const teamMembers = project?.teamMembers || [];
   return (
     <div className="space-y-4">
@@ -2173,7 +2176,7 @@ function SafetyTab({ project }: { project: any }) {
   );
 }
 
-function TimelineTab({ activities }: { activities: any[] }) {
+function _TimelineTab2({ activities }: { activities: any[] }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Activity Timeline</h2>

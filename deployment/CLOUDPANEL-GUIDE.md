@@ -100,7 +100,7 @@ chmod +x ../deployment/cloudpanel-deploy.sh
 
 1. **In CloudPanel** → Sites → Your Site → Node.js Settings
 2. **Set**:
-   - Start Command: `yarn start`
+   - Start Command: `npm start`
    - Node.js Version: `20`
    - Port: `3000`
 3. **Environment Variables** → Add:
@@ -147,7 +147,7 @@ clpctl site:restart cortexbuild.yourdomain.com
 
 # Manual start for debugging
 cd ~/htdocs/cortexbuild.yourdomain.com/nextjs_space
-yarn start
+npm start
 ```
 
 ### Database Connection Issues?
@@ -165,12 +165,12 @@ cat .env | grep DATABASE_URL
 ```bash
 # Increase memory for build
 export NODE_OPTIONS="--max-old-space-size=4096"
-yarn build
+npm run build
 
 # Clear cache and rebuild
 rm -rf .next node_modules
-yarn install
-yarn build
+npm install
+npm run build
 ```
 
 ---
@@ -186,13 +186,13 @@ cd ~/htdocs/cortexbuild.yourdomain.com/nextjs_space
 git pull origin main
 
 # Reinstall dependencies
-yarn install
+npm install
 
 # Run migrations
-yarn prisma migrate deploy
+npm run prisma:migrate:deploy
 
 # Rebuild
-yarn build
+npm run build
 
 # Restart app
 clpctl site:restart cortexbuild.yourdomain.com

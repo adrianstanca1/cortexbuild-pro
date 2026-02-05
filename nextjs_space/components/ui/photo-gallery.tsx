@@ -70,7 +70,9 @@ export function PhotoGallery({ projectId, initialPhotos, onPhotoClick }: PhotoGa
     try {
       setLoading(true);
       const source = sourceFilter !== 'all' ? `&source=${sourceFilter}` : '';
-      const res = await fetch(`/api/projects/${projectId}/gallery?limit=200${source}`);
+      // Reduced limit from 200 to 50 for better performance
+      // Consider implementing pagination or infinite scroll for larger galleries
+      const res = await fetch(`/api/projects/${projectId}/gallery?limit=50${source}`);
       if (!res.ok) throw new Error('Failed to fetch photos');
       const data = await res.json();
       setPhotos(data.photos || []);
