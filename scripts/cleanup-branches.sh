@@ -9,35 +9,43 @@ echo "🗑️  Branch Cleanup Script"
 echo "=========================="
 echo ""
 
-# List of branches to delete
-BRANCHES=(
-  "copilot/merge-and-clean-cortexbuild"
-  "copilot/fix-api-connections-and-dependencies"
-  "copilot/merge-and-integrate-changes"
-  "copilot/merge-changes-into-main"
-  "copilot/continue-task-implementation"
-  "copilot/continue-existing-feature"
-  "copilot/fix-all-errors-and-conflicts"
-  "copilot/fix-conflicts-and-commit-changes"
-  "copilot/continue-build-and-debug-session"
-  "copilot/commit-all-changes"
-  "copilot/merge-branches-and-cleanup"
-  "copilot/improve-slow-code-efficiency"
-  "copilot/refactor-duplicated-code"
-)
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||')
+DEFAULT_BRANCH=${DEFAULT_BRANCH:-cortexbuildpro}
 
-echo "📋 Branches marked for deletion (13 total):"
+if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
+  DEFAULT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
+  DEFAULT_BRANCH=$(git branch -r | sed 's|^[[:space:]]*origin/||' | head -n 1)
+fi
+
+if [ -z "$DEFAULT_BRANCH" ]; then
+  echo "✅ No remote branches found to evaluate."
+  exit 0
+fi
+
+MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
+
+if [ -z "$MERGED_BRANCHES" ]; then
+  echo "✅ No merged branches found to delete."
+  exit 0
+fi
+
+mapfile -t BRANCHES <<< "$MERGED_BRANCHES"
+
+echo "📋 Branches marked for deletion (${#BRANCHES[@]} total):"
 echo ""
 for branch in "${BRANCHES[@]}"; do
   echo "  - $branch"
 done
 echo ""
 
-echo "ℹ️  These branches have been synchronized into cortexbuildpro."
+echo "ℹ️  These branches have been synchronized into ${DEFAULT_BRANCH}."
 echo "   Their changes are preserved in the git history."
 echo ""
 
-read -p "Continue with deletion? (yes/no): " confirm
+read -r -p "Continue with deletion? (yes/no): " confirm
 
 if [ "$confirm" != "yes" ]; then
   echo "❌ Cleanup cancelled."
