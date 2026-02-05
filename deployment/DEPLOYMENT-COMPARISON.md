@@ -403,7 +403,7 @@ docker compose up -d
 | `windmill-deploy-flow.yaml` | Windmill workflow definition |
 | `docker-manager-deploy.sh` | Automated setup script |
 | `windmill-setup.sh` | Windmill installation script |
-| `.env.docker-manager` | Environment template |
+| `.env.example` | Environment template |
 | `README-DOCKER-MANAGER.md` | Full documentation and quick start guide |
 
 ---
