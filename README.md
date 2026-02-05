@@ -51,10 +51,13 @@ sudo bash one-click-deploy.sh
 - [CloudPanel Guide](deployment/CLOUDPANEL-GUIDE.md) - Deploy with CloudPanel
 
 ### Feature Documentation
-- [Admin UI Pages](ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
-- [Advanced Features](ADVANCED_FEATURES_SUMMARY.md) - Advanced functionality
-- [Super Admin Features](SUPER_ADMIN_FEATURES.md) - Super admin capabilities
-- [UI Visual Guide](UI_VISUAL_GUIDE.md) - Visual interface guide
+- [Admin UI Pages](docs/ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
+- [Advanced Features](docs/ADVANCED_FEATURES_SUMMARY.md) - Advanced functionality
+- [Super Admin Features](docs/SUPER_ADMIN_FEATURES.md) - Super admin capabilities
+- [UI Visual Guide](docs/UI_VISUAL_GUIDE.md) - Visual interface guide
+- [Performance Optimizations](docs/PERFORMANCE_OPTIMIZATIONS.md) - Performance improvements
+- [Security Notes](docs/SECURITY_NOTES.md) - Security considerations
+- [Version Tracking](docs/VERSION_TRACKING_IMPLEMENTATION.md) - Version management
 
 ## 🛠️ Development
 
