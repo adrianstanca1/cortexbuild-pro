@@ -79,9 +79,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {
-        phase,
-        phaseStartedAt: new Date(),
-        phaseGatesData: phaseGatesData || project.phaseGatesData
+        phase
       },
       include: {
         manager: { select: { id: true, name: true, email: true } }
@@ -135,8 +133,6 @@ export async function GET(request: Request, { params }: RouteParams) {
         id: true,
         name: true,
         phase: true,
-        phaseStartedAt: true,
-        phaseGatesData: true,
         status: true
       }
     });
@@ -146,12 +142,10 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Calculate phase completion metrics
-    const gatesData = project.phaseGatesData as any || {};
-    
     return NextResponse.json({
       project: {
         ...project,
-        phaseGates: gatesData
+        phaseGates: {}
       }
     });
   } catch (error) {

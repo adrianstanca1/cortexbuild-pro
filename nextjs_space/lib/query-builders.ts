@@ -80,12 +80,14 @@ export async function logAndBroadcast(
       entity.name as string,
       projectId
     ),
-    broadcastEntityChange(
-      context.organizationId,
-      broadcastAction,
-      entityType,
-      entity,
-      context.userId
-    ),
+    context.organizationId
+      ? broadcastEntityChange(
+          context.organizationId,
+          broadcastAction,
+          entityType,
+          entity,
+          context.userId
+        )
+      : Promise.resolve(),
   ]);
 }

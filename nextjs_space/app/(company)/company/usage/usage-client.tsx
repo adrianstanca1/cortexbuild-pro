@@ -379,12 +379,20 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                         return (
                           <div className="bg-white p-3 border rounded-lg shadow-sm">
                             <p className="font-semibold">{label}</p>
-                            {payload.map((item: { dataKey: string; value: number; color?: string }) => (
-                              <p key={item.dataKey} className="text-sm">
-                                <span className={`mr-2 ${item.dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>●</span>
-                                {item.dataKey}: {item.value}
-                              </p>
-                            ))}
+                            {payload.map((item, index) => {
+                              const dataKey =
+                                typeof item.dataKey === 'string' ? item.dataKey : String(item.dataKey ?? item.name ?? index);
+                              const displayValue = Array.isArray(item.value) ? item.value.join(', ') : item.value;
+
+                              return (
+                                <p key={dataKey} className="text-sm">
+                                  <span className={`mr-2 ${dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>
+                                    ●
+                                  </span>
+                                  {dataKey}: {displayValue}
+                                </p>
+                              );
+                            })}
                           </div>
                         );
                       }

@@ -34,7 +34,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const where: any = { projectId };
+    const where: any = {
+      workPackage: { projectId }
+    };
     
     if (workPackageId) {
       where.workPackageId = workPackageId;
@@ -46,12 +48,11 @@ export async function GET(request: Request) {
       if (endDate) where.date.lte = new Date(endDate);
     }
 
-    const metrics = await prisma.productionMetric.findMany({
+    const metrics = await prisma.productionLog.findMany({
       where,
       include: {
-        workPackage: { select: { id: true, name: true, code: true } },
-        dailyReport: { select: { id: true, reportDate: true } },
-        createdBy: { select: { id: true, name: true } }
+        workPackage: { select: { id: true, name: true, number: true } },
+        recordedBy: { select: { id: true, name: true } }
       },
       orderBy: { date: "desc" }
     });
@@ -78,47 +79,62 @@ export async function POST(request: Request) {
     const {
       projectId,
       workPackageId,
-      dailyReportId,
-      name,
+      shift,
       unit,
       plannedQuantity,
       actualQuantity,
+      cumulativeQuantity,
+      plannedProductivity,
+      actualProductivity,
+      crewSize,
+      crewHours,
+      weatherCondition,
+      weatherImpact,
       date,
       notes
     } = body;
 
-    if (!projectId || !name || !unit) {
+    if (!projectId || !workPackageId || !unit) {
       return NextResponse.json(
-        { error: "Project ID, name, and unit are required" },
+        { error: "Project ID, work package ID, and unit are required" },
         { status: 400 }
       );
     }
 
-    // Verify project belongs to user's organization
-    const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: orgId }
+    // Verify work package belongs to user's organization and project
+    const workPackage = await prisma.workPackage.findFirst({
+      where: {
+        id: workPackageId,
+        projectId,
+        project: { organizationId: orgId }
+      }
     });
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    if (!workPackage) {
+      return NextResponse.json({ error: "Work package not found" }, { status: 404 });
     }
 
-    const metric = await prisma.productionMetric.create({
+    const metric = await prisma.productionLog.create({
       data: {
-        projectId,
-        workPackageId: workPackageId || null,
-        dailyReportId: dailyReportId || null,
-        name,
+        workPackageId,
+        shift: shift || null,
         unit,
         plannedQuantity: plannedQuantity || 0,
         actualQuantity: actualQuantity || 0,
+        cumulativeQuantity: cumulativeQuantity || 0,
+        plannedProductivity: plannedProductivity ?? null,
+        actualProductivity: actualProductivity ?? null,
+        crewSize: crewSize || 0,
+        crewHours: crewHours || 0,
+        weatherCondition: weatherCondition || null,
+        weatherImpact: weatherImpact || null,
         date: date ? new Date(date) : new Date(),
         notes,
-        createdById: userId
+        recordedById: userId
       },
       include: {
-        workPackage: { select: { id: true, name: true, code: true } },
-        createdBy: { select: { id: true, name: true } }
+        workPackage: { select: { id: true, name: true, number: true } },
+        recordedBy: { select: { id: true, name: true } }
       }
     });
 

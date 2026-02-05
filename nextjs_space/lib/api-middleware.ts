@@ -99,8 +99,8 @@ export function withApiMiddleware(
     try {
       // Get session first (for logging context)
       const session = await getServerSession(authOptions);
-      const userId = session?.user?.id;
-      const organizationId = session?.user?.organizationId;
+      const userId = session?.user?.id ?? undefined;
+      const organizationId = session?.user?.organizationId ?? undefined;
       
       // Create request logger
       if (enableLogging) {

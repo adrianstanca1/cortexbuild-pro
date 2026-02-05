@@ -138,6 +138,7 @@ model User {
   createdTasks                Task[]                    @relation("TaskCreator")
   uploadedDocs                Document[]                @relation("DocumentUploader")
   activities                  ActivityLog[]
+  notifications               Notification[]
   taskComments                TaskComment[]
   teamMemberships             TeamMember[]
   // Construction management relations
@@ -244,6 +245,7 @@ model Project {
   documents            Document[]
   teamMembers          ProjectTeamMember[]
   activities           ActivityLog[]
+  notifications        Notification[]
   // Construction management relations
   rfis                 RFI[]
   submittals           Submittal[]
@@ -404,6 +406,42 @@ model ActivityLog {
   projectId  String?
   project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   createdAt  DateTime @default(now())
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMPLETED
+  PROJECT_MESSAGE
+  RFI_RESPONSE
+  SUBMITTAL_APPROVED
+  SUBMITTAL_REJECTED
+  DEADLINE_REMINDER
+  SAFETY_INCIDENT
+  SYSTEM_ALERT
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  data      Json?
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([read])
 }
 
 // =====================
