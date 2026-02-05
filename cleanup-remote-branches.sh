@@ -56,12 +56,24 @@ done
 if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     if [ -n "$CURRENT_BRANCH" ] && git show-ref --verify --quiet "refs/remotes/origin/$CURRENT_BRANCH"; then
+        if [ "$CURRENT_BRANCH" != "cortexbuildpro" ] && [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+            echo -e "${YELLOW}Warning:${NC} '${CURRENT_BRANCH}' is not a standard default branch."
+            read -r -p "Use '${CURRENT_BRANCH}' as the default branch? (yes/no): " USE_CURRENT
+            if [ "$USE_CURRENT" != "yes" ]; then
+                echo -e "${RED}Unable to determine a safe default remote branch.${NC}"
+                exit 1
+            fi
+        else
+            echo -e "${YELLOW}Using current branch '${CURRENT_BRANCH}' as default.${NC}"
+        fi
         DEFAULT_BRANCH=$CURRENT_BRANCH
     else
         echo -e "${RED}Unable to determine a default remote branch.${NC}"
         exit 1
     fi
 fi
+
+echo -e "${GREEN}Using default branch:${NC} ${YELLOW}${DEFAULT_BRANCH}${NC}"
 
 MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
 
@@ -70,7 +82,11 @@ if [ -z "$MERGED_BRANCHES" ]; then
     exit 0
 fi
 
-mapfile -t BRANCHES_TO_DELETE <<< "$MERGED_BRANCHES"
+mapfile -t BRANCHES_TO_DELETE < <(printf '%s\n' "$MERGED_BRANCHES" | sed '/^[[:space:]]*$/d')
+if [ ${#BRANCHES_TO_DELETE[@]} -eq 0 ]; then
+    echo -e "${GREEN}No merged branches found to delete.${NC}"
+    exit 0
+fi
 
 # List branches to be deleted
 echo "The following ${#BRANCHES_TO_DELETE[@]} branches will be deleted:"
