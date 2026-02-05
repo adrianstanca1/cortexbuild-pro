@@ -9,9 +9,6 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: { unoptimized: true },
-  eslint: {
-    dirs: ['.'], // Lint the current directory only and do not append 'lint'
-  },
 };
 
 module.exports = nextConfig;
