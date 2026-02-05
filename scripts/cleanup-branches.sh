@@ -12,17 +12,21 @@ echo ""
 DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||')
 DEFAULT_BRANCH=${DEFAULT_BRANCH:-cortexbuildpro}
 
-if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
-  DEFAULT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-fi
+for candidate in "$DEFAULT_BRANCH" cortexbuildpro main master; do
+  if [ -n "$candidate" ] && git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
+    DEFAULT_BRANCH=$candidate
+    break
+  fi
+done
 
 if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
-  DEFAULT_BRANCH=$(git branch -r | sed 's|^[[:space:]]*origin/||' | head -n 1)
-fi
-
-if [ -z "$DEFAULT_BRANCH" ]; then
-  echo "✅ No remote branches found to evaluate."
-  exit 0
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  if [ -n "$CURRENT_BRANCH" ] && git show-ref --verify --quiet "refs/remotes/origin/$CURRENT_BRANCH"; then
+    DEFAULT_BRANCH=$CURRENT_BRANCH
+  else
+    echo "❌ Unable to determine a default remote branch."
+    exit 1
+  fi
 fi
 
 MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
