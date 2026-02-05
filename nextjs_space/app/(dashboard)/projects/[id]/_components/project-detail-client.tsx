@@ -5,19 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Edit, MapPin, PoundSterling, User,
-  FileText, Users, Plus, Loader2, CheckCircle, AlertCircle, Activity, TrendingUp,
+  ArrowLeft, Edit, MapPin, PoundSterling,
+  FileText, Plus, Loader2, CheckCircle, AlertCircle, Activity, TrendingUp,
   Camera, Brain,
-  ClipboardList, Timer, Wallet, Receipt, Package, HardHat, FileQuestion, Send, FileCheck,
-  Shield, PenTool, BookOpen, AlertTriangle, Target, Search, ChevronRight, FolderOpen,
-  Milestone, Building2, Truck, UserCheck, Scale, LayoutGrid,
+  ClipboardList, Timer, Wallet, Receipt, Package, FileQuestion, Send, FileCheck,
+  Shield, PenTool, BookOpen, Target, Search, ChevronRight, FolderOpen,
+  Milestone, Building2, Truck, Scale, LayoutGrid,
   FolderClosed, ChevronDown,
   Settings,
   Network, Share2, Star, Zap,
   ChevronLeft
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

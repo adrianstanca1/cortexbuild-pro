@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(teamMember);
-  } catch (error) {
+  } catch {
     console.error('Error fetching team member:', error);
     return NextResponse.json({ error: 'Failed to fetch team member' }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(teamMember);
-  } catch (error) {
+  } catch {
     console.error('Error updating team member:', error);
     return NextResponse.json({ error: 'Failed to update team member' }, { status: 500 });
   }
@@ -115,7 +115,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error removing team member:', error);
     return NextResponse.json({ error: 'Failed to remove team member' }, { status: 500 });
   }

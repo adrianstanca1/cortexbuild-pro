@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
-  Shield, HardHat, Wrench, AlertTriangle, CheckCircle,
-  TrendingUp, Users, RefreshCw, Loader2,
+  Shield, Wrench, CheckCircle,
+  TrendingUp, RefreshCw, Loader2,
   BarChart3, Target, Calendar
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -124,7 +124,7 @@ export function SafetyComplianceDashboard() {
         const result = await res.json();
         setData(result);
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to fetch safety analytics:', error);
     } finally {
       setLoading(false);

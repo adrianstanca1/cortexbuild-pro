@@ -43,7 +43,7 @@ export async function GET(
       name: document.name,
       mimeType: document.mimeType
     });
-  } catch (error) {
+  } catch {
     console.error("Document download error:", error);
     return NextResponse.json({ error: "Failed to get download URL" }, { status: 500 });
   }

@@ -14,7 +14,7 @@ import {
   Share2,
   TrendingUp
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -109,7 +109,7 @@ export function AnalyticsClient() {
       } else {
         toast.error("Failed to fetch dashboards");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch dashboards");
     } finally {
       setLoading(false);
@@ -123,7 +123,7 @@ export function AnalyticsClient() {
         const data = await res.json();
         setChartData(data.data || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Failed to fetch chart data:", error);
       // Generate mock data for demonstration
       setChartData([
@@ -174,7 +174,7 @@ export function AnalyticsClient() {
       } else {
         toast.error("Failed to create dashboard");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create dashboard");
     } finally {
       setSaving(false);
@@ -200,7 +200,7 @@ export function AnalyticsClient() {
       } else {
         toast.error("Failed to update dashboard");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update dashboard");
     } finally {
       setSaving(false);
@@ -223,7 +223,7 @@ export function AnalyticsClient() {
       } else {
         toast.error("Failed to delete dashboard");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete dashboard");
     }
   };

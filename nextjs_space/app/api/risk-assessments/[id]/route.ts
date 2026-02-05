@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(riskAssessment);
-  } catch (error) {
+  } catch {
     console.error('Error fetching risk assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -124,7 +124,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(riskAssessment);
-  } catch (error) {
+  } catch {
     console.error('Error updating risk assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -158,7 +158,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting risk assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

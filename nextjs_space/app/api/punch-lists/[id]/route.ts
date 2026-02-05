@@ -40,7 +40,7 @@ export async function GET(
     }
 
     return NextResponse.json(punchList);
-  } catch (error) {
+  } catch {
     console.error('Error fetching punch list:', error);
     return NextResponse.json({ error: 'Failed to fetch punch list' }, { status: 500 });
   }
@@ -113,7 +113,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(punchList);
-  } catch (error) {
+  } catch {
     console.error('Error updating punch list:', error);
     return NextResponse.json({ error: 'Failed to update punch list' }, { status: 500 });
   }
@@ -153,7 +153,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting punch list:', error);
     return NextResponse.json({ error: 'Failed to delete punch list' }, { status: 500 });
   }

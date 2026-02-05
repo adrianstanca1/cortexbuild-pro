@@ -36,7 +36,7 @@ export async function GET(
     }
 
     return NextResponse.json(log);
-  } catch (error) {
+  } catch {
     console.error('Error fetching site access log:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -118,7 +118,7 @@ export async function POST(
     });
 
     return NextResponse.json(exitLog);
-  } catch (error) {
+  } catch {
     console.error('Error signing out:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

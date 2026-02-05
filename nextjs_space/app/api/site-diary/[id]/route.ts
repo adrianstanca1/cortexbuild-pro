@@ -33,7 +33,7 @@ export async function GET(
     }
 
     return NextResponse.json(diary);
-  } catch (error) {
+  } catch {
     console.error("Error fetching site diary:", error);
     return NextResponse.json({ error: "Failed to fetch site diary" }, { status: 500 });
   }
@@ -114,7 +114,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(diary);
-  } catch (error) {
+  } catch {
     console.error("Error updating site diary:", error);
     return NextResponse.json({ error: "Failed to update site diary" }, { status: 500 });
   }
@@ -150,7 +150,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting site diary:", error);
     return NextResponse.json({ error: "Failed to delete site diary" }, { status: 500 });
   }

@@ -121,7 +121,7 @@ export function WorkPackagesClient({ projects, teamMembers, costCodes }: Props) 
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setWorkPackages(data);
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to load work packages');
     } finally {
@@ -169,7 +169,7 @@ export function WorkPackagesClient({ projects, teamMembers, costCodes }: Props) 
         isCriticalPath: false
       });
       fetchWorkPackages();
-    } catch (error) {
+    } catch {
       console.error('Error:', error);
       toast.error('Failed to create work package');
     } finally {

@@ -37,7 +37,7 @@ export async function GET(
     }
 
     return NextResponse.json({ check });
-  } catch (error) {
+  } catch {
     console.error("Error fetching tool check:", error);
     return NextResponse.json({ error: "Failed to fetch tool check" }, { status: 500 });
   }
@@ -80,7 +80,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ check });
-  } catch (error) {
+  } catch {
     console.error("Error updating tool check:", error);
     return NextResponse.json({ error: "Failed to update tool check" }, { status: 500 });
   }

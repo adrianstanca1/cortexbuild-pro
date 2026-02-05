@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
   Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
-  Eraser, Undo, Redo, Users, Eye, EyeOff, Trash2,
+  Eraser, Undo, Redo, Eye, EyeOff, Trash2,
   MousePointer, Triangle, Cloud, MessageSquare,
   Move, Pipette, Pen, Brush, Sparkles,
   Star, Hexagon, ArrowUpRight, Hash, Stamp, Target,
@@ -236,7 +236,7 @@ export function DrawingViewerClient({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: currentUser.id, userName: currentUser.name }),
         });
-      } catch (error) {
+      } catch {
         console.error("Failed to announce presence:", error);
       }
     };
@@ -369,7 +369,7 @@ export function DrawingViewerClient({
       setAnnotations((prev) => [newAnnotation, ...prev]);
       addToHistory({ type: "add", annotation: newAnnotation });
       toast.success("Annotation saved");
-    } catch (error) {
+    } catch {
       toast.error("Failed to save annotation");
     } finally {
       setSaving(false);
@@ -421,7 +421,7 @@ export function DrawingViewerClient({
       setAnnotations((prev) => [newAnnotation, ...prev]);
       addToHistory({ type: "add", annotation: newAnnotation });
       toast.success("Stamp added");
-    } catch (error) {
+    } catch {
       toast.error("Failed to add stamp");
     } finally {
       setSaving(false);
@@ -441,7 +441,7 @@ export function DrawingViewerClient({
       addToHistory({ type: "delete", annotation: deleted });
       setSelectedAnnotationId(null);
       toast.success("Annotation deleted");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete annotation");
     }
   };
@@ -494,7 +494,7 @@ export function DrawingViewerClient({
       link.href = dataUrl;
       link.click();
       toast.success(`Drawing exported as ${format.toUpperCase()}`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to export drawing");
     }
   };

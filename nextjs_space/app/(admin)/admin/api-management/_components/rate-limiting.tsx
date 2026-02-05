@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Gauge,
@@ -14,7 +14,7 @@ import {
   Zap,
   Loader2
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -97,7 +97,7 @@ export function RateLimiting() {
         const data = await res.json();
         setRateLimits(data.rateLimits || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching rate limits:", error);
       toast.error("Failed to fetch rate limits");
     } finally {
@@ -112,7 +112,7 @@ export function RateLimiting() {
         const data = await res.json();
         setConnections(data.connections || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching connections:", error);
     }
   }, []);
@@ -150,7 +150,7 @@ export function RateLimiting() {
         const error = await res.json();
         toast.error(error.error || "Failed to save configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to save configuration");
     } finally {
       setSaving(false);
@@ -173,7 +173,7 @@ export function RateLimiting() {
       } else {
         toast.error("Failed to remove configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove configuration");
     }
   };

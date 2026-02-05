@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Mail,
@@ -19,7 +19,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -85,7 +85,7 @@ export default function InvitationsClient() {
       if (res.ok) {
         setInvitations(data.invitations || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching invitations:', error);
     } finally {
       setLoading(false);
@@ -123,7 +123,7 @@ export default function InvitationsClient() {
       } else {
         toast.error(data.error || 'Failed to create invitation');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create invitation');
     } finally {
       setCreating(false);
@@ -146,7 +146,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || 'Failed to resend');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to resend invitation');
     } finally {
       setActionLoading(null);
@@ -171,7 +171,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || 'Failed to revoke');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to revoke invitation');
     } finally {
       setActionLoading(null);
@@ -193,7 +193,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || 'Failed to delete');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete invitation');
     } finally {
       setActionLoading(null);

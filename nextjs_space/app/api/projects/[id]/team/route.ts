@@ -57,7 +57,7 @@ export async function GET(
     }));
 
     return NextResponse.json(formattedTeam);
-  } catch (error) {
+  } catch {
     console.error('Get project team error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -145,7 +145,7 @@ export async function POST(
     });
 
     return NextResponse.json(projectTeamMember, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Add project team member error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Remove project team member error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

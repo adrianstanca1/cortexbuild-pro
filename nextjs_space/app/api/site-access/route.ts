@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
         onSite: Math.max(0, entries - exits)
       }
     });
-  } catch (error) {
+  } catch {
     console.error('Site access fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch site access data' },

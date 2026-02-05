@@ -51,7 +51,7 @@ export async function GET(
     }
 
     return NextResponse.json({ organization });
-  } catch (error) {
+  } catch {
     console.error("Error fetching organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -112,7 +112,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ organization });
-  } catch (error) {
+  } catch {
     console.error("Error updating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -160,7 +160,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

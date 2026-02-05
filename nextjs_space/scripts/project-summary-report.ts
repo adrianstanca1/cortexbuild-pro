@@ -51,7 +51,7 @@ async function generateProjectReport(projectId?: string): Promise<void> {
       await generateSingleProjectReport(project);
     }
 
-  } catch (error) {
+  } catch {
     console.error('Error generating report:', error);
     throw error;
   } finally {

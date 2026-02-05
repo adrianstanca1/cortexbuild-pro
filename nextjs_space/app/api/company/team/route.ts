@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit)
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching team members:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(member, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error creating team member:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

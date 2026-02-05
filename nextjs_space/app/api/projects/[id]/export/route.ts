@@ -174,7 +174,7 @@ export async function GET(
     }
 
     return NextResponse.json(exportData);
-  } catch (error) {
+  } catch {
     console.error('Project export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

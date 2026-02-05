@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       },
       message: "Impersonation session created. Redirect to dashboard."
     });
-  } catch (error) {
+  } catch {
     console.error("Error in user impersonation:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -139,7 +139,7 @@ export async function DELETE(req: NextRequest) {
       success: true,
       message: "Impersonation ended"
     });
-  } catch (error) {
+  } catch {
     console.error("Error ending impersonation:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

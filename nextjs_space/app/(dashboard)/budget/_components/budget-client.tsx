@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import {
   PoundSterling, Plus, Search, TrendingUp, TrendingDown,
   FileText, Edit2, Trash2, Loader2, Building2, CheckCircle,
-  AlertCircle, Clock, Package, Users, Wrench, Shield, Zap,
+  AlertCircle, Clock, Package, Wrench, Shield, Zap,
   LayoutGrid, List, BarChart3, Target, Wallet, Receipt, ArrowUpRight, ArrowDownRight
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -163,7 +163,7 @@ export function BudgetClient({
         vendor: "", notes: "", subcontractorId: ""
       });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to create cost item");
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export function BudgetClient({
       toast.success("Cost item updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update cost item");
     } finally {
       setLoading(false);
@@ -197,7 +197,7 @@ export function BudgetClient({
       if (!res.ok) throw new Error("Failed to delete cost item");
       toast.success("Cost item deleted");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete cost item");
     }
   };

@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(riskAssessments);
-  } catch (error) {
+  } catch {
     console.error('Error fetching risk assessments:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(riskAssessment, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating risk assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

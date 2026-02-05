@@ -41,7 +41,7 @@ export async function POST(
     const result = await testWebhook(id);
     
     return NextResponse.json(result);
-  } catch (error) {
+  } catch {
     console.error('Test webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

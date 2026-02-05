@@ -37,7 +37,7 @@ export async function GET(
     }
 
     return NextResponse.json(timeEntry);
-  } catch (error) {
+  } catch {
     console.error("Error fetching time entry:", error);
     return NextResponse.json({ error: "Failed to fetch time entry" }, { status: 500 });
   }
@@ -103,7 +103,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(timeEntry);
-  } catch (error) {
+  } catch {
     console.error("Error updating time entry:", error);
     return NextResponse.json({ error: "Failed to update time entry" }, { status: 500 });
   }
@@ -146,7 +146,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting time entry:", error);
     return NextResponse.json({ error: "Failed to delete time entry" }, { status: 500 });
   }

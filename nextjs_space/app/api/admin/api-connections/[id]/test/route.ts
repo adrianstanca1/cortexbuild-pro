@@ -187,7 +187,7 @@ export async function POST(
       error: errorMessage,
       newStatus
     });
-  } catch (error) {
+  } catch {
     console.error("Error testing API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

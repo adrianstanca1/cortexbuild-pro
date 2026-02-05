@@ -16,7 +16,7 @@ import {
   Type,
   MessageSquare
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -100,7 +100,7 @@ export function EmailTemplatesClient() {
       } else {
         toast.error("Failed to fetch templates");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch templates");
     } finally {
       setLoading(false);
@@ -144,7 +144,7 @@ export function EmailTemplatesClient() {
       } else {
         toast.error("Failed to create template");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create template");
     } finally {
       setSaving(false);
@@ -170,7 +170,7 @@ export function EmailTemplatesClient() {
       } else {
         toast.error("Failed to update template");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update template");
     } finally {
       setSaving(false);
@@ -193,7 +193,7 @@ export function EmailTemplatesClient() {
       } else {
         toast.error("Failed to delete template");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete template");
     }
   };
@@ -210,7 +210,7 @@ export function EmailTemplatesClient() {
       } else {
         toast.error("Failed to duplicate template");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to duplicate template");
     }
   };

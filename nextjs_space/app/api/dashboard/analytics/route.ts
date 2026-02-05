@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
       openSafetyIncidents: safetyCount
     });
 
-  } catch (error) {
+  } catch {
     console.error('Dashboard analytics error:', error);
     return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
   }

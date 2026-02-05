@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Gauge, RefreshCw, Edit, Save, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +38,7 @@ export function RateLimitsClient() {
       } else {
         toast.error("Failed to fetch quotas");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch quotas");
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export function RateLimitsClient() {
       } else {
         toast.error("Failed to update quota");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update quota");
     }
   };

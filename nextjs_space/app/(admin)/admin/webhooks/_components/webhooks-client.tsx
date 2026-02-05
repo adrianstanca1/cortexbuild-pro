@@ -80,7 +80,7 @@ export function WebhooksClient() {
         const data = await deliveriesRes.json();
         setDeliveries(data.deliveries || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch webhooks");
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export function WebhooksClient() {
       } else {
         toast.error("Failed to create webhook");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create webhook");
     } finally {
       setSaving(false);
@@ -139,7 +139,7 @@ export function WebhooksClient() {
       } else {
         toast.error("Failed to update webhook");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update webhook");
     } finally {
       setSaving(false);
@@ -162,7 +162,7 @@ export function WebhooksClient() {
       } else {
         toast.error("Failed to delete webhook");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete webhook");
     }
   };
@@ -179,7 +179,7 @@ export function WebhooksClient() {
       } else {
         toast.error("Failed to send test webhook");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to send test webhook");
     }
   };

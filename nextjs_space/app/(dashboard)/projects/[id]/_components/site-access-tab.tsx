@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, LogOut, Users, Search, Car, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
+import { LogIn, LogOut, Search, Car, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -86,7 +86,7 @@ export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAcce
       setShowSignInModal(false);
       toast.success(`${signInForm.personName} signed in`);
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign in');
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAcce
       setSelectedEntry(null);
       toast.success(`${selectedEntry.personName} signed out`);
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to sign out');
     } finally {
       setLoading(false);

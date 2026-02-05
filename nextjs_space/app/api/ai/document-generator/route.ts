@@ -294,7 +294,7 @@ export async function POST(request: NextRequest) {
       generatedAt: new Date().toISOString(),
       projectName: enhancedContext.projectName,
     });
-  } catch (error) {
+  } catch {
     console.error('Document generation error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

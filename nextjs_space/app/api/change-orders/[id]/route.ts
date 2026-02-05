@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(changeOrder);
-  } catch (error) {
+  } catch {
     console.error('Error fetching change order:', error);
     return NextResponse.json({ error: 'Failed to fetch change order' }, { status: 500 });
   }
@@ -132,7 +132,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(changeOrder);
-  } catch (error) {
+  } catch {
     console.error('Error updating change order:', error);
     return NextResponse.json({ error: 'Failed to update change order' }, { status: 500 });
   }
@@ -178,7 +178,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting change order:', error);
     return NextResponse.json({ error: 'Failed to delete change order' }, { status: 500 });
   }

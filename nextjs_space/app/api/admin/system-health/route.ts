@@ -135,7 +135,7 @@ export async function GET(_request: NextRequest) {
         responseTime: "<50ms"
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching system health:", error);
     return NextResponse.json(
       { error: "Internal server error", status: "critical", healthScore: 0 },

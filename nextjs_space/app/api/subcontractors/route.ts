@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         activeContracts
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching subcontractors:", error);
     return NextResponse.json({ error: "Failed to fetch subcontractors" }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(subcontractor);
-  } catch (error) {
+  } catch {
     console.error("Error creating subcontractor:", error);
     return NextResponse.json({ error: "Failed to create subcontractor" }, { status: 500 });
   }

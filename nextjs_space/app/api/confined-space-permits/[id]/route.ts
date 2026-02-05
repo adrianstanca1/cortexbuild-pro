@@ -34,7 +34,7 @@ export async function GET(
     }
 
     return NextResponse.json(permit);
-  } catch (error) {
+  } catch {
     console.error('Error fetching confined space permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -104,7 +104,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(permit);
-  } catch (error) {
+  } catch {
     console.error('Error updating confined space permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

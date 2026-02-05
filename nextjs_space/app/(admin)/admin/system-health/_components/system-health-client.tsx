@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Server,
@@ -20,7 +20,7 @@ import {
   TrendingUp,
   ArrowLeft
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -52,7 +52,7 @@ export function SystemHealthClient() {
         setHealth(data);
         setLastUpdated(new Date());
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching health:", error);
     } finally {
       setLoading(false);

@@ -35,7 +35,7 @@ export async function GET(
     }
 
     return NextResponse.json(operation);
-  } catch (error) {
+  } catch {
     console.error('Error fetching lifting operation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -111,7 +111,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(operation);
-  } catch (error) {
+  } catch {
     console.error('Error updating lifting operation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

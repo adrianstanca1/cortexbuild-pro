@@ -19,7 +19,7 @@ import {
   XCircle,
   Loader2
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -131,7 +131,7 @@ export function PunchListsClient({ punchLists, projects, teamMembers }: PunchLis
       setShowNewModal(false);
       setNewItem({ projectId: '', title: '', description: '', location: '', priority: 'MEDIUM', category: '', dueDate: '', assignedToId: '' });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to create punch list item');
     } finally {
       setLoading(false);
@@ -150,7 +150,7 @@ export function PunchListsClient({ punchLists, projects, teamMembers }: PunchLis
 
       toast.success('Status updated');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to update status');
     }
   };

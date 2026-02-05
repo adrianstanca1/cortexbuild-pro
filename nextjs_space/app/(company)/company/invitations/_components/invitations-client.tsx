@@ -18,7 +18,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -80,7 +80,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
         setInvitations(data.invitations);
         setCounts(data.counts);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching invitations:", error);
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
       } else {
         toast.error(data.error || "Failed to create invitation");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create invitation");
     } finally {
       setCreating(false);
@@ -148,7 +148,7 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
           fetchInvitations();
         }
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} invitation`);
     }
   };

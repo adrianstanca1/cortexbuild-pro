@@ -14,7 +14,7 @@ import {
   HardHat,
   Printer
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
@@ -65,7 +65,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
         setAccessLogs(data.logs || []);
         setStats(data.stats || stats);
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to refresh data:', error);
     }
   };
@@ -84,7 +84,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
       } else {
         toast.error('Failed to generate QR code');
       }
-    } catch (error) {
+    } catch {
       console.error('QR code error:', error);
       toast.error('Failed to generate QR code');
     } finally {

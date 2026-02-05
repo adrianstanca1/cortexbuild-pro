@@ -17,7 +17,7 @@ export async function GET() {
       name: 'CortexBuild Pro',
       environment: process.env.NODE_ENV || 'development',
     });
-  } catch (error) {
+  } catch {
     console.error('Error reading version:', error);
     return NextResponse.json(
       { 

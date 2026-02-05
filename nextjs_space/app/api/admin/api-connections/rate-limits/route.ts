@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ rateLimits: formattedLimits })));
-  } catch (error) {
+  } catch {
     console.error("Error fetching rate limits:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ rateLimitConfig })));
-  } catch (error) {
+  } catch {
     console.error("Error updating rate limit:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

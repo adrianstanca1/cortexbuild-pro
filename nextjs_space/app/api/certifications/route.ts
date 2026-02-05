@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(certifications);
-  } catch (error) {
+  } catch {
     console.error('Error fetching certifications:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(certification, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating certification:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

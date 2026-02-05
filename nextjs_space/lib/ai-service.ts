@@ -102,7 +102,7 @@ async function callAbacusAPI(options: AIOptions): Promise<AIResult> {
       provider: "abacus",
       response: data.choices?.[0]?.message?.content || ""
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       provider: "abacus",
@@ -167,7 +167,7 @@ async function callGeminiAPI(options: AIOptions): Promise<AIResult> {
       provider: "gemini",
       response: text
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       provider: "gemini",
@@ -271,7 +271,7 @@ function transformGeminiStream(sourceStream: ReadableStream): ReadableStream {
             console.error("Error parsing Gemini stream chunk:", parseError);
           }
         }
-      } catch (error) {
+      } catch {
         console.error("Stream error:", error);
         controller.error(error);
       } finally {

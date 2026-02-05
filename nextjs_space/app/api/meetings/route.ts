@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(meetings);
-  } catch (error) {
+  } catch {
     console.error('Error fetching meetings:', error);
     return NextResponse.json({ error: 'Failed to fetch meetings' }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(meeting, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating meeting:', error);
     return NextResponse.json({ error: 'Failed to create meeting' }, { status: 500 });
   }

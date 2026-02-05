@@ -80,7 +80,7 @@ export async function POST(
     });
 
     return NextResponse.json({ attendee });
-  } catch (error) {
+  } catch {
     console.error("Error signing toolbox talk:", error);
     return NextResponse.json({ error: "Failed to sign toolbox talk" }, { status: 500 });
   }
@@ -144,7 +144,7 @@ export async function PUT(
     });
 
     return NextResponse.json({ attendee });
-  } catch (error) {
+  } catch {
     console.error("Error adding guest signature:", error);
     return NextResponse.json({ error: "Failed to add guest signature" }, { status: 500 });
   }

@@ -28,7 +28,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(permissions);
-  } catch (error) {
+  } catch {
     console.error('Get permissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

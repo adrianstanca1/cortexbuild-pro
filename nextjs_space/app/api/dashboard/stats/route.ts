@@ -253,7 +253,7 @@ export async function GET(_request: NextRequest) {
     };
 
     return NextResponse.json(stats);
-  } catch (error) {
+  } catch {
     console.error('Dashboard stats error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -23,7 +23,7 @@ import {
   FileWarning,
   Zap,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -88,7 +88,7 @@ export default function DocumentGeneratorPage() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ export default function DocumentGeneratorPage() {
       const data = await response.json();
       setGeneratedContent(data.content);
       toast.success('Document generated successfully!');
-    } catch (error) {
+    } catch {
       console.error('Generation error:', error);
       toast.error('Failed to generate document');
     } finally {

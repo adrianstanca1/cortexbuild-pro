@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(diaries);
-  } catch (error) {
+  } catch {
     console.error("Error fetching site diaries:", error);
     return NextResponse.json({ error: "Failed to fetch site diaries" }, { status: 500 });
   }
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(diary, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error creating site diary:", error);
     return NextResponse.json({ error: "Failed to create site diary" }, { status: 500 });
   }

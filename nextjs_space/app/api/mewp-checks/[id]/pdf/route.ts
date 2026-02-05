@@ -95,7 +95,7 @@ export async function GET(
     }
 
     return NextResponse.json({ error: 'PDF generation timed out' }, { status: 500 });
-  } catch (error) {
+  } catch {
     console.error('Error generating PDF:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

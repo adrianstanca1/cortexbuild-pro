@@ -3,10 +3,10 @@
 import { useState, useMemo } from "react";
 import { format, differenceInDays, isBefore, startOfDay } from "date-fns";
 import {
-  Calendar, Target, CheckCircle2, Clock, AlertTriangle, ChevronRight,
+  Calendar, Target, CheckCircle2, Clock, ChevronRight,
   Play, Flag, CircleDot, Milestone as MilestoneIcon
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";

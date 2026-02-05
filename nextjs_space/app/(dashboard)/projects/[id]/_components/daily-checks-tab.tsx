@@ -4,8 +4,8 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-  HardHat, Wrench, Plus, Check, AlertTriangle, ChevronRight,
-  Calendar, User, CheckCircle2, XCircle, Download
+  HardHat, Wrench, Plus, Check, ChevronRight,
+  Calendar, CheckCircle2, XCircle, Download
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -147,7 +147,7 @@ export function DailyChecksTab({
         const data = await toolRes.json();
         setToolChecks(data.checks || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching checks:", error);
     }
   }, [projectId]);
@@ -210,7 +210,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create MEWP check");
     } finally {
       setLoading(false);
@@ -246,7 +246,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create tool check");
     } finally {
       setLoading(false);

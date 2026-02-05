@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   Truck, Plus, Search, Wrench, MapPin,
-  CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
+  CheckCircle2, XCircle, Settings, Loader2, Package,
   ChevronRight, LayoutGrid, List, AlertCircle, Eye
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -140,7 +140,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       if (!res.ok) throw new Error('Failed to update status');
       toast.success('Status updated');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to update status');
     }
   };

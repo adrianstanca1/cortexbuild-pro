@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(claims);
-  } catch (error) {
+  } catch {
     console.error("Error fetching progress claims:", error);
     return NextResponse.json({ error: "Failed to fetch progress claims" }, { status: 500 });
   }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(claim, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error("Error creating progress claim:", error);
     return NextResponse.json({ error: "Failed to create progress claim" }, { status: 500 });
   }

@@ -64,7 +64,7 @@ async function main() {
       console.log(`❌ Error: ${result.error}`);
       process.exit(1);
     }
-  } catch (error) {
+  } catch {
     console.log(`❌ Test Failed with exception!`);
     console.log(`❌ Error: ${error instanceof Error ? error.message : error}`);
     process.exit(1);
@@ -108,7 +108,7 @@ async function main() {
       console.log(`❌ Streaming Test Failed!`);
       console.log(`❌ Error: ${streamResult.error}`);
     }
-  } catch (error) {
+  } catch {
     console.log(`❌ Streaming Test Failed with exception!`);
     console.log(`❌ Error: ${error instanceof Error ? error.message : error}`);
   }

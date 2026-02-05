@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -32,7 +32,7 @@ import {
   Terminal,
   Eye
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -109,7 +109,7 @@ export function AdminDashboardClient() {
         const feedData = await feedRes.json();
         setLiveFeed(feedData.activities || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);

@@ -98,7 +98,7 @@ export async function POST(
     });
 
     return NextResponse.json(updatedPermit);
-  } catch (error) {
+  } catch {
     console.error('Error approving permit:', error);
     return NextResponse.json({
       error: 'Failed to approve permit'

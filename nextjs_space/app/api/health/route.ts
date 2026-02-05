@@ -32,7 +32,7 @@ export async function GET() {
         'Cache-Control': 'no-store, must-revalidate',
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Health check failed:", error);
     
     return NextResponse.json({

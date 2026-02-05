@@ -11,7 +11,7 @@ import {
   RefreshCw,
   Eye
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -102,7 +102,7 @@ export function PermissionsClient() {
         const data = await roleRes.json();
         setRoles(data.roles || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch permissions");
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export function PermissionsClient() {
       } else {
         toast.error("Failed to create permission");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create permission");
     } finally {
       setSaving(false);
@@ -150,7 +150,7 @@ export function PermissionsClient() {
       } else {
         toast.error("Failed to update permission");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update permission");
     }
   };

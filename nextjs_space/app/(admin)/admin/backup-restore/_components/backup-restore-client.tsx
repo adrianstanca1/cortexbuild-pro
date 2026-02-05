@@ -16,7 +16,7 @@ import {
   Trash2,
   Eye
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -105,7 +105,7 @@ export function BackupRestoreClient() {
         const data = await recordsRes.json();
         setRecords(data.records || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch backup data");
     } finally {
       setLoading(false);
@@ -138,7 +138,7 @@ export function BackupRestoreClient() {
       } else {
         toast.error("Failed to create backup configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create backup configuration");
     } finally {
       setSaving(false);
@@ -162,7 +162,7 @@ export function BackupRestoreClient() {
       } else {
         toast.error("Failed to trigger backup");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to trigger backup");
     } finally {
       setProcessing(false);
@@ -189,7 +189,7 @@ export function BackupRestoreClient() {
       } else {
         toast.error("Failed to initiate restore");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to initiate restore");
     } finally {
       setProcessing(false);
@@ -212,7 +212,7 @@ export function BackupRestoreClient() {
       } else {
         toast.error("Failed to delete configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete configuration");
     }
   };
@@ -231,7 +231,7 @@ export function BackupRestoreClient() {
       } else {
         toast.error("Failed to update configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update configuration");
     }
   };

@@ -54,7 +54,7 @@ export async function GET(
     }
 
     return NextResponse.json(workPackage);
-  } catch (error) {
+  } catch {
     console.error('Error fetching work package:', error);
     return NextResponse.json({ error: 'Failed to fetch work package' }, { status: 500 });
   }
@@ -138,7 +138,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(workPackage);
-  } catch (error) {
+  } catch {
     console.error('Error updating work package:', error);
     return NextResponse.json({ error: 'Failed to update work package' }, { status: 500 });
   }
@@ -189,7 +189,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting work package:', error);
     return NextResponse.json({ error: 'Failed to delete work package' }, { status: 500 });
   }

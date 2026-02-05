@@ -139,7 +139,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
           mimeType: a.mimeType
         })));
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to fetch attachments:', error);
     } finally {
       setLoadingAttachments(false);
@@ -165,7 +165,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
           a.name === file.name && !a.id ? { ...a, id: saved.id } : a
         ));
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to save attachment:', error);
     }
   };
@@ -176,7 +176,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
       await fetch(`/api/rfis/${selectedRFI.id}/attachments?attachmentId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch (error) {
+    } catch {
       console.error('Failed to delete attachment:', error);
     }
   };
@@ -222,7 +222,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
         const err = await res.json();
         toast.error(err.error || 'Failed to create RFI');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create RFI');
     } finally {
       setLoading(false);
@@ -252,7 +252,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
       } else {
         toast.error('Failed to answer RFI');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to answer RFI');
     } finally {
       setLoading(false);
@@ -276,7 +276,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
         setSelectedRFI({ ...selectedRFI, ...updated });
         toast.success('RFI closed');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to close RFI');
     } finally {
       setLoading(false);

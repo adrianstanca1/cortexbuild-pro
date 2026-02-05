@@ -91,7 +91,7 @@ const healthCheckers: Record<string, () => Promise<HealthCheckResult>> = {
         responseTime: Date.now() - startTime,
         lastChecked: new Date()
       };
-    } catch (error) {
+    } catch {
       return {
         serviceId: "postgresql",
         serviceName: "PostgreSQL Database",
@@ -138,7 +138,7 @@ export async function checkServiceHealth(serviceId: string): Promise<HealthCheck
       await updateServiceStatus(serviceId, result.status, result.errorMessage);
       
       return result;
-    } catch (error) {
+    } catch {
       return {
         serviceId,
         serviceName: serviceRegistry.getService(serviceId)?.name || serviceId,

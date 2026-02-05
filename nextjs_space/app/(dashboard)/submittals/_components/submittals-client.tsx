@@ -134,7 +134,7 @@ export function SubmittalsClient({ initialSubmittals, projects }: SubmittalsClie
         const err = await res.json();
         toast.error(err.error || 'Failed to create submittal');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create submittal');
     } finally {
       setLoading(false);
@@ -164,7 +164,7 @@ export function SubmittalsClient({ initialSubmittals, projects }: SubmittalsClie
       } else {
         toast.error('Failed to update submittal');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update submittal');
     } finally {
       setLoading(false);

@@ -21,7 +21,7 @@ import {
   Eye,
   FileWarning,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -96,7 +96,7 @@ export default function PredictiveSafetyDashboardPage() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching projects:', error);
     }
   };
@@ -113,7 +113,7 @@ export default function PredictiveSafetyDashboardPage() {
         setMetrics(data.metrics);
         setPatterns(data.patterns);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching safety data:', error);
       toast.error('Failed to load safety data');
     } finally {
@@ -143,7 +143,7 @@ export default function PredictiveSafetyDashboardPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch (error) {
+    } catch {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

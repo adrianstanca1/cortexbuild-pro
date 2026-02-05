@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, addDays } from 'date-fns';
-import { Search, ShieldCheck, AlertTriangle, Plus, FileText } from 'lucide-react';
+import { Search, Plus, FileText } from 'lucide-react';
 
 interface WorkerCertsTableProps {
     data: any[];

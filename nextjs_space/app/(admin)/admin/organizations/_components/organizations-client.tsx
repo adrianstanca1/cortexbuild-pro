@@ -19,7 +19,7 @@ import {
   Eye,
   XCircle
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -89,7 +89,7 @@ export function OrganizationsClient() {
         toast.error(data.error || "Failed to fetch organizations");
         setOrganizations([]);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching organizations:", error);
       toast.error("Failed to fetch organizations");
       setOrganizations([]);
@@ -137,7 +137,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create organization");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create organization");
     } finally {
       setSaving(false);
@@ -164,7 +164,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update organization");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update organization");
     } finally {
       setSaving(false);
@@ -193,7 +193,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to delete organization");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete organization");
     }
   };
@@ -218,7 +218,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || `Failed to ${action} organization`);
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} organization`);
     }
   };

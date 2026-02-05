@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(permits);
-  } catch (error) {
+  } catch {
     console.error('Error fetching hot work permits:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(permit, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating hot work permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

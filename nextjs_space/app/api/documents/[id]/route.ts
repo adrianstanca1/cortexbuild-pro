@@ -27,7 +27,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Delete from S3
     try {
       await deleteFile(document.cloudStoragePath);
-    } catch (e) {
+    } catch {
       console.error("S3 delete error:", e);
     }
 
@@ -37,7 +37,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     });
 
     return NextResponse.json({ message: "Document deleted" });
-  } catch (error) {
+  } catch {
     console.error("Delete document error:", error);
     return NextResponse.json({ error: "Failed to delete document" }, { status: 500 });
   }

@@ -151,7 +151,7 @@ export function createRealtimeConnection(
     try {
       const data = JSON.parse(event.data);
       onMessage(data);
-    } catch (e) {
+    } catch {
       console.error('Failed to parse SSE message:', e);
     }
   };

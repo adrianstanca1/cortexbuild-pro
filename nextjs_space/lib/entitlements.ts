@@ -100,7 +100,7 @@ export function parseEntitlements(entitlementsJson: any): Entitlements {
         ...(parsed.limits || {})
       }
     };
-  } catch (error) {
+  } catch {
     console.error('Error parsing entitlements:', error);
     return DEFAULT_ENTITLEMENTS;
   }

@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Search, Construction, FileCheck, AlertOctagon, Plus, Eye } from 'lucide-react';
+import { Search, Construction, FileCheck, Plus, Eye } from 'lucide-react';
 
 interface LiftingOpsTableProps {
     data: any[];

@@ -49,7 +49,7 @@ export async function GET(
     }
 
     return NextResponse.json(subcontractor);
-  } catch (error) {
+  } catch {
     console.error("Error fetching subcontractor:", error);
     return NextResponse.json({ error: "Failed to fetch subcontractor" }, { status: 500 });
   }
@@ -126,7 +126,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(subcontractor);
-  } catch (error) {
+  } catch {
     console.error("Error updating subcontractor:", error);
     return NextResponse.json({ error: "Failed to update subcontractor" }, { status: 500 });
   }
@@ -173,7 +173,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting subcontractor:", error);
     return NextResponse.json({ error: "Failed to delete subcontractor" }, { status: 500 });
   }

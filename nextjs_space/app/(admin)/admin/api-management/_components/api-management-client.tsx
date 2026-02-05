@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Server,
@@ -47,7 +47,7 @@ import {
   Save,
   Loader2
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -282,7 +282,7 @@ export function ApiManagementClient() {
         setStats(data.stats || {});
         setCategories(data.categories || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching services:", error);
       toast.error("Failed to fetch platform services");
     }
@@ -300,7 +300,7 @@ export function ApiManagementClient() {
         const data = await res.json();
         setConnections(data.connections || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching connections:", error);
     }
   }, [filterEnv, filterStatus]);
@@ -313,7 +313,7 @@ export function ApiManagementClient() {
         const data = await res.json();
         setLogs(data.logs || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching logs:", error);
     }
   }, []);
@@ -326,7 +326,7 @@ export function ApiManagementClient() {
         const data = await res.json();
         setDependencies(data.dependencyMap || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching dependencies:", error);
     }
   }, []);
@@ -356,7 +356,7 @@ export function ApiManagementClient() {
       }
       toast.error("Failed to fetch credentials");
       return null;
-    } catch (error) {
+    } catch {
       console.error("Error fetching credentials:", error);
       toast.error("Failed to fetch credentials");
       return null;
@@ -387,7 +387,7 @@ export function ApiManagementClient() {
 
       fetchServices();
       fetchLogs();
-    } catch (error) {
+    } catch {
       toast.error("Failed to test connection");
     } finally {
       setTesting(null);
@@ -411,7 +411,7 @@ export function ApiManagementClient() {
 
       fetchConnections();
       fetchLogs();
-    } catch (error) {
+    } catch {
       toast.error("Failed to test connection");
     } finally {
       setTesting(null);
@@ -453,7 +453,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to configure service");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to configure service");
     } finally {
       setSaving(false);
@@ -569,7 +569,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update configuration");
     } finally {
       setSaving(false);
@@ -616,7 +616,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to rotate credentials");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to rotate credentials");
     } finally {
       setSaving(false);
@@ -648,7 +648,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to update service status");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update service");
     }
   };
@@ -673,7 +673,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to update connection status");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update connection");
     }
   };
@@ -698,7 +698,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to remove configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove configuration");
     }
   };
@@ -721,7 +721,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to delete connection");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete connection");
     }
   };
@@ -768,7 +768,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create custom API");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create custom API");
     } finally {
       setSaving(false);

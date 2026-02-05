@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(milestones);
-  } catch (error) {
+  } catch {
     console.error("Error fetching milestones:", error);
     return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
   }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(milestone);
-  } catch (error) {
+  } catch {
     console.error("Error creating milestone:", error);
     return NextResponse.json({ error: "Failed to create milestone" }, { status: 500 });
   }

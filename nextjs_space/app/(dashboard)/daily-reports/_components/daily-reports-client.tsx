@@ -156,7 +156,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         ));
         toast.success('Photo added');
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to save photo:', error);
     }
   };
@@ -167,7 +167,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
       await fetch(`/api/daily-reports/${selectedReport.id}/photos?photoId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch (error) {
+    } catch {
       console.error('Failed to delete photo:', error);
     }
   };
@@ -212,7 +212,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         const err = await res.json();
         toast.error(err.error || 'Failed to create report');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create report');
     } finally {
       setLoading(false);

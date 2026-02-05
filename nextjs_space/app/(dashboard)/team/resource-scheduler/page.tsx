@@ -17,7 +17,7 @@ import {
   Search,
   HardHat,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -98,7 +98,7 @@ export default function ResourceSchedulerPage() {
         setByTrade(data.byTrade || {});
         setProjects(data.projects || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching resource data:', error);
       toast.error('Failed to load resource data');
     } finally {
@@ -130,7 +130,7 @@ export default function ResourceSchedulerPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch (error) {
+    } catch {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

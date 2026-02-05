@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(inspections);
-  } catch (error) {
+  } catch {
     console.error('Error fetching inspections:', error);
     return NextResponse.json({ error: 'Failed to fetch inspections' }, { status: 500 });
   }
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(inspection, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating inspection:', error);
     return NextResponse.json({ error: 'Failed to create inspection' }, { status: 500 });
   }

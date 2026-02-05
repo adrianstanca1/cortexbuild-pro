@@ -162,7 +162,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
           mimeType: p.mimeType
         })));
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to fetch photos:', error);
     }
   };
@@ -187,7 +187,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
         ));
         toast.success('Photo added');
       }
-    } catch (error) {
+    } catch {
       console.error('Failed to save photo:', error);
     }
   };
@@ -198,7 +198,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
       await fetch(`/api/safety/${selectedIncident.id}/photos?photoId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch (error) {
+    } catch {
       console.error('Failed to delete photo:', error);
     }
   };
@@ -236,7 +236,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
         const err = await res.json();
         toast.error(err.error || 'Failed to report incident');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to report incident');
     } finally {
       setLoading(false);
@@ -262,7 +262,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
       } else {
         toast.error('Failed to update incident');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update incident');
     } finally {
       setLoading(false);

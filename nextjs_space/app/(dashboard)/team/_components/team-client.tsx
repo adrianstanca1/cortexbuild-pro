@@ -4,11 +4,11 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, User,
-  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, HardHat,
+  Plus, Search, Mail, Briefcase, Loader2, BarChart3,
+  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown,
   ChevronDown
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -281,7 +281,7 @@ export function TeamClient({ teamMembers, userRole, organizationId }: TeamClient
         const data = await res.json();
         toast.error(data?.error ?? "Failed to add team member");
       }
-    } catch (e) {
+    } catch {
       toast.error("An error occurred");
     } finally {
       setLoading(false);

@@ -53,7 +53,7 @@ export async function GET(
     // Don't return password
     const { password, ...userWithoutPassword } = user;
     return NextResponse.json({ user: userWithoutPassword });
-  } catch (error) {
+  } catch {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -146,7 +146,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ user });
-  } catch (error) {
+  } catch {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -191,7 +191,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

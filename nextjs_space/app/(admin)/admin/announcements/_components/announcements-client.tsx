@@ -14,7 +14,7 @@ import {
   Calendar,
   User
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -75,7 +75,7 @@ export function AnnouncementsClient() {
         const data = await res.json();
         setAnnouncements(data.announcements);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching announcements:", error);
       toast.error("Failed to fetch announcements");
     } finally {
@@ -119,7 +119,7 @@ export function AnnouncementsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create announcement");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create announcement");
     } finally {
       setCreating(false);
@@ -142,7 +142,7 @@ export function AnnouncementsClient() {
       } else {
         toast.error("Failed to delete announcement");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete announcement");
     }
   };

@@ -161,7 +161,7 @@ export async function GET(_request: NextRequest) {
         teamSize: Number(p._count.teamMembers)
       }))
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching company stats:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

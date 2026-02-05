@@ -42,7 +42,7 @@ export async function GET(
     }
 
     return NextResponse.json(material);
-  } catch (error) {
+  } catch {
     console.error("Error fetching material:", error);
     return NextResponse.json({ error: "Failed to fetch material" }, { status: 500 });
   }
@@ -128,7 +128,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(material);
-  } catch (error) {
+  } catch {
     console.error("Error updating material:", error);
     return NextResponse.json({ error: "Failed to update material" }, { status: 500 });
   }
@@ -177,7 +177,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting material:", error);
     return NextResponse.json({ error: "Failed to delete material" }, { status: 500 });
   }

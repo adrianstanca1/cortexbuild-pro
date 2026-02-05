@@ -35,7 +35,7 @@ export async function GET(
     }
 
     return NextResponse.json(milestone);
-  } catch (error) {
+  } catch {
     console.error("Error fetching milestone:", error);
     return NextResponse.json({ error: "Failed to fetch milestone" }, { status: 500 });
   }
@@ -108,7 +108,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(milestone);
-  } catch (error) {
+  } catch {
     console.error("Error updating milestone:", error);
     return NextResponse.json({ error: "Failed to update milestone" }, { status: 500 });
   }
@@ -157,7 +157,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting milestone:", error);
     return NextResponse.json({ error: "Failed to delete milestone" }, { status: 500 });
   }

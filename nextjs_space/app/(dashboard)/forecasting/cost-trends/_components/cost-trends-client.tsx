@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   Loader2
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -184,7 +184,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
       } else {
         toast.error(data.error || 'Analysis failed');
       }
-    } catch (error) {
+    } catch {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

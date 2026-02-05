@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Database } from 'lucide-react';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 // Define TypeScript interfaces for props

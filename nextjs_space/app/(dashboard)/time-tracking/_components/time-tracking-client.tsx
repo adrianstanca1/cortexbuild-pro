@@ -8,7 +8,7 @@ import {
   MoreVertical, Edit, Trash2, ChevronLeft, ChevronRight, Timer,
   Loader2, TrendingUp, PoundSterling
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -184,7 +184,7 @@ export default function TimeTrackingClient({
       setShowNewModal(false);
       resetForm();
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save time entry");
     } finally {
       setLoading(false);
@@ -202,7 +202,7 @@ export default function TimeTrackingClient({
       if (!res.ok) throw new Error("Failed to update");
       toast.success(status === "APPROVED" ? "Time entry approved" : "Time entry rejected");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
@@ -214,7 +214,7 @@ export default function TimeTrackingClient({
       if (!res.ok) throw new Error("Failed");
       toast.success("Time entry deleted");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete");
     }
   };

@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit)
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching company activity:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { HardHat, Mail, Lock, User, Loader2, ArrowRight, Zap, Clock, Award } from "lucide-react";
+import { HardHat, Mail, Lock, Loader2, ArrowRight, Zap, Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -71,7 +71,7 @@ export default function SignupPage() {
         toast.success("Account created successfully!");
         router.replace("/dashboard");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);

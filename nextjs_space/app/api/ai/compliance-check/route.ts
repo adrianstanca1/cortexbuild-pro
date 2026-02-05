@@ -268,7 +268,7 @@ export async function POST(req: NextRequest) {
       })),
       checkedAt: new Date().toISOString()
     });
-  } catch (error) {
+  } catch {
     console.error("Compliance check error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

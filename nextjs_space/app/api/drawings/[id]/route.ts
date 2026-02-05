@@ -32,7 +32,7 @@ export async function GET(
     }
 
     return NextResponse.json(drawing);
-  } catch (error) {
+  } catch {
     console.error("Error fetching drawing:", error);
     return NextResponse.json({ error: "Failed to fetch drawing" }, { status: 500 });
   }
@@ -102,7 +102,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(drawing);
-  } catch (error) {
+  } catch {
     console.error("Error updating drawing:", error);
     return NextResponse.json({ error: "Failed to update drawing" }, { status: 500 });
   }
@@ -138,7 +138,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting drawing:", error);
     return NextResponse.json({ error: "Failed to delete drawing" }, { status: 500 });
   }

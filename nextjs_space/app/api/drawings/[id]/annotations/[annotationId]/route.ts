@@ -74,7 +74,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(annotation);
-  } catch (error) {
+  } catch {
     console.error("Error updating annotation:", error);
     return NextResponse.json(
       { error: "Failed to update annotation" },
@@ -131,7 +131,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting annotation:", error);
     return NextResponse.json(
       { error: "Failed to delete annotation" },

@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(results);
-  } catch (error) {
+  } catch {
     console.error("Error importing API connections:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

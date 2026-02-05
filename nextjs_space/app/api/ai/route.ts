@@ -117,7 +117,7 @@ Provide helpful, accurate answers based on this data. If asked about something n
             const chunk = decoder.decode(value);
             controller.enqueue(encoder.encode(chunk));
           }
-        } catch (error) {
+        } catch {
           if (process.env.NODE_ENV === 'development') {
             console.error('Stream error:', error);
           }
@@ -135,7 +135,7 @@ Provide helpful, accurate answers based on this data. If asked about something n
         'Connection': 'keep-alive'
       }
     });
-  } catch (error) {
+  } catch {
     if (process.env.NODE_ENV === 'development') {
       console.error('AI API Error:', error);
     }

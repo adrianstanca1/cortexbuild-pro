@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -25,7 +25,7 @@ import {
   Shield
 } from "lucide-react";
 import { SafetyComplianceDashboard } from "./safety-compliance-dashboard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -108,7 +108,7 @@ export function CompanyDashboardClient({
       if (res.ok) {
         setCompanyStats(await res.json());
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);

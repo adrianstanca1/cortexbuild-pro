@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -11,7 +11,7 @@ import {
   Heart,
   Server
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -73,7 +73,7 @@ export function HealthMonitoring() {
         setUptimeStats(data.uptimeStats || []);
         setIncidents(data.incidents || []);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching health data:", error);
       toast.error("Failed to fetch health data");
     } finally {

@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
             const chunk = decoder.decode(value);
             controller.enqueue(encoder.encode(chunk));
           }
-        } catch (error) {
+        } catch {
           console.error('Stream error:', error);
           controller.error(error);
         } finally {
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         'Connection': 'keep-alive'
       }
     });
-  } catch (error) {
+  } catch {
     console.error('Document analysis error:', error);
     return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });
   }

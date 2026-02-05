@@ -27,7 +27,7 @@ import {
   Clock,
   Wrench
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -167,7 +167,7 @@ export function PlatformSettingsClient() {
           serverTime: data.serverTime
         });
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching config:", error);
       toast.error("Failed to load platform configuration");
     } finally {
@@ -210,7 +210,7 @@ export function PlatformSettingsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to save configuration");
       }
-    } catch (error) {
+    } catch {
       console.error("Error saving config:", error);
       toast.error("Failed to save configuration");
     } finally {
@@ -233,7 +233,7 @@ export function PlatformSettingsClient() {
         setHasChanges(false);
         toast.success("Configuration reset to defaults");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to reset configuration");
     } finally {
       setSaving(false);
@@ -260,7 +260,7 @@ export function PlatformSettingsClient() {
         URL.revokeObjectURL(url);
         toast.success("Configuration exported");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to export configuration");
     }
     setShowExportModal(false);
@@ -283,7 +283,7 @@ export function PlatformSettingsClient() {
         setHasChanges(false);
         toast.success("Configuration imported successfully");
       }
-    } catch (error) {
+    } catch {
       toast.error("Invalid configuration format");
     }
     setShowImportModal(false);

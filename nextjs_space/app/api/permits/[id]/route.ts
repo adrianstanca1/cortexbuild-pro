@@ -33,7 +33,7 @@ export async function GET(
     }
 
     return NextResponse.json(permit);
-  } catch (error) {
+  } catch {
     console.error("Error fetching permit:", error);
     return NextResponse.json({ error: "Failed to fetch permit" }, { status: 500 });
   }
@@ -98,7 +98,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(permit);
-  } catch (error) {
+  } catch {
     console.error("Error updating permit:", error);
     return NextResponse.json({ error: "Failed to update permit" }, { status: 500 });
   }
@@ -134,7 +134,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error("Error deleting permit:", error);
     return NextResponse.json({ error: "Failed to delete permit" }, { status: 500 });
   }

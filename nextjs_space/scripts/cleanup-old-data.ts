@@ -127,7 +127,7 @@ async function main() {
     await cleanupOrphanedAttachments(options);
 
     console.log('\n✅ Cleanup completed successfully');
-  } catch (error) {
+  } catch {
     console.error('\n❌ Cleanup failed:', error);
     process.exit(1);
   } finally {

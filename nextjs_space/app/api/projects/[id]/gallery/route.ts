@@ -260,7 +260,7 @@ export async function GET(
       }
     });
 
-  } catch (error) {
+  } catch {
     console.error('Gallery fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch gallery photos' },

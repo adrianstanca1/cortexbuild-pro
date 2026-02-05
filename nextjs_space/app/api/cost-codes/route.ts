@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(costCodes);
-  } catch (error) {
+  } catch {
     console.error('Error fetching cost codes:', error);
     return NextResponse.json({ error: 'Failed to fetch cost codes' }, { status: 500 });
   }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(costCode, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating cost code:', error);
     return NextResponse.json({ error: 'Failed to create cost code' }, { status: 500 });
   }

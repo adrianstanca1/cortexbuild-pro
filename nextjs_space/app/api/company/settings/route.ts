@@ -55,7 +55,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     return NextResponse.json({ organization: updated });
-  } catch (error) {
+  } catch {
     console.error("Error updating organization settings:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
   }
@@ -84,7 +84,7 @@ export async function GET(_req: NextRequest) {
     }
 
     return NextResponse.json({ organization });
-  } catch (error) {
+  } catch {
     console.error("Error fetching organization settings:", error);
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
   }

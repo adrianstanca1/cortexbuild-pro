@@ -40,7 +40,7 @@ export async function GET(
     }
 
     return NextResponse.json(meeting);
-  } catch (error) {
+  } catch {
     console.error('Error fetching meeting:', error);
     return NextResponse.json({ error: 'Failed to fetch meeting' }, { status: 500 });
   }
@@ -122,7 +122,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(meeting);
-  } catch (error) {
+  } catch {
     console.error('Error updating meeting:', error);
     return NextResponse.json({ error: 'Failed to update meeting' }, { status: 500 });
   }
@@ -162,7 +162,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Error deleting meeting:', error);
     return NextResponse.json({ error: 'Failed to delete meeting' }, { status: 500 });
   }

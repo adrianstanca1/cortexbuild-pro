@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FolderKanban, TrendingUp,
-  AlertTriangle, PoundSterling, ChevronRight, Building2, Users,
-  FolderOpen, FolderClosed, FileText, CheckCircle2, Clock,
+  AlertTriangle, PoundSterling, ChevronRight, Building2,
+  FolderOpen, FolderClosed, CheckCircle2, Clock,
   MoreVertical, Archive, Edit, Copy,
   MapPin, Activity, Target,
   FolderPlus, FolderSearch, SortAsc, SortDesc, Grid3X3,

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(rules);
-  } catch (error) {
+  } catch {
     console.error('Error fetching automation rules:', error);
     return NextResponse.json({ error: 'Failed to fetch automation rules' }, { status: 500 });
   }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(rule, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating automation rule:', error);
     return NextResponse.json({ error: 'Failed to create automation rule' }, { status: 500 });
   }

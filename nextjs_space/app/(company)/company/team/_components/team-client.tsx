@@ -14,7 +14,7 @@ import {
   Clock,
   FolderKanban,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -113,7 +113,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       } else {
         toast.error("Failed to update team member");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update team member");
     }
   };
@@ -134,7 +134,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       } else {
         toast.error("Failed to remove team member");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove team member");
     }
   };

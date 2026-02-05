@@ -54,7 +54,7 @@ export async function GET(
     });
 
     return NextResponse.json({ credentials });
-  } catch (error) {
+  } catch {
     console.error("Error fetching credentials:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

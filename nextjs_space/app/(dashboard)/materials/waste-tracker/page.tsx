@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Package,
@@ -17,7 +17,7 @@ import {
   Target,
   Search,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -94,7 +94,7 @@ export default function WasteTrackerPage() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching projects:', error);
     }
   };
@@ -116,7 +116,7 @@ export default function WasteTrackerPage() {
         setMetrics(data.metrics);
         setWasteByCategory(data.wasteByCategory || {});
       }
-    } catch (error) {
+    } catch {
       console.error('Error fetching material data:', error);
       toast.error('Failed to load material data');
     } finally {
@@ -152,7 +152,7 @@ export default function WasteTrackerPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch (error) {
+    } catch {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

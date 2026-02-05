@@ -5,7 +5,7 @@ import { format, isToday, isPast, isThisWeek } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
-  FileText, Plus, Search, Calendar, Clock, Users, CheckSquare,
+  FileText, Plus, Search, Calendar, Clock, CheckSquare,
   MapPin, Loader2, ChevronRight, CalendarDays
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -122,7 +122,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
       setShowNewModal(false);
       setNewMeeting({ projectId: '', title: '', meetingType: 'PROGRESS', meetingDate: '', location: '', duration: '', summary: '' });
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Failed to record meeting');
     } finally {
       setLoading(false);

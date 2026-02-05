@@ -38,9 +38,6 @@ export function createRateLimiter(config: RateLimitConfig) {
   const {
     windowMs,
     maxRequests,
-    message = 'Too many requests, please try again later.',
-    skipSuccessfulRequests = false,
-    skipFailedRequests = false,
   } = config;
 
   return async (identifier: string): Promise<{ allowed: boolean; remaining: number; resetTime: number }> => {

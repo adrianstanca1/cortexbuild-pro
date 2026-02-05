@@ -178,7 +178,7 @@ Provide practical insights useful for construction management.`;
       riskLevel,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch {
     console.error('Photo analysis error:', error);
     return NextResponse.json(
       { error: 'Failed to analyze photo' },

@@ -265,7 +265,7 @@ export async function GET(
     };
 
     return NextResponse.json(analytics);
-  } catch (error) {
+  } catch {
     console.error('Project analytics error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

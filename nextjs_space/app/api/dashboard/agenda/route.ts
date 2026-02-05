@@ -417,7 +417,7 @@ export async function GET(_request: NextRequest) {
         tools: toolChecks
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching agenda:", error);
     return NextResponse.json({ error: "Failed to fetch agenda" }, { status: 500 });
   }

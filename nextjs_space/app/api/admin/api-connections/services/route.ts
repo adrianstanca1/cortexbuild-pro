@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       stats,
       categories
     });
-  } catch (error) {
+  } catch {
     console.error("Error fetching services:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
       })),
       { status: 201 }
     );
-  } catch (error) {
+  } catch {
     console.error("Error configuring service:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

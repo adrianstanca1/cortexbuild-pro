@@ -14,7 +14,7 @@ import {
   History,
   Eye
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -118,7 +118,7 @@ export function ScheduledTasksClient() {
         const data = await executionsRes.json();
         setExecutions(data.executions || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch tasks");
     } finally {
       setLoading(false);
@@ -151,7 +151,7 @@ export function ScheduledTasksClient() {
       } else {
         toast.error("Failed to create task");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create task");
     } finally {
       setSaving(false);
@@ -177,7 +177,7 @@ export function ScheduledTasksClient() {
       } else {
         toast.error("Failed to update task");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update task");
     } finally {
       setSaving(false);
@@ -200,7 +200,7 @@ export function ScheduledTasksClient() {
       } else {
         toast.error("Failed to delete task");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete task");
     }
   };
@@ -219,7 +219,7 @@ export function ScheduledTasksClient() {
       } else {
         toast.error("Failed to update task");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update task");
     }
   };
@@ -241,7 +241,7 @@ export function ScheduledTasksClient() {
       } else {
         toast.error("Failed to execute task");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to execute task");
     } finally {
       setExecuting(false);

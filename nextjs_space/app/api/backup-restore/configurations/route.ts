@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
     });
 
     return NextResponse.json(configurations);
-  } catch (error) {
+  } catch {
     console.error('Get backup configurations error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(configuration, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Create backup configuration error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

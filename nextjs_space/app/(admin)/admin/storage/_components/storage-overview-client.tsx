@@ -17,7 +17,7 @@ import {
   Cloud,
   Shield
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -61,7 +61,7 @@ export function StorageOverviewClient() {
         const data = await res.json();
         setStats(data);
       }
-    } catch (error) {
+    } catch {
       console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);

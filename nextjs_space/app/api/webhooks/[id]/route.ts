@@ -39,7 +39,7 @@ export async function GET(
     }
 
     return NextResponse.json(webhook);
-  } catch (error) {
+  } catch {
     console.error('Get webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -89,7 +89,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(webhook);
-  } catch (error) {
+  } catch {
     console.error('Update webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -126,7 +126,7 @@ export async function DELETE(
     await prisma.webhook.delete({ where: { id: id } });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     console.error('Delete webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -134,7 +134,7 @@ export async function POST(
     });
 
     return NextResponse.json(updatedCO);
-  } catch (error) {
+  } catch {
     console.error('Error approving change order:', error);
     return NextResponse.json({ 
       error: 'Failed to approve change order' 

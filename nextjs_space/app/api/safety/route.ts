@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(incidents);
-  } catch (error) {
+  } catch {
     console.error('Error fetching safety incidents:', error);
     return NextResponse.json({ error: 'Failed to fetch incidents' }, { status: 500 });
   }
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(incident, { status: 201 });
-  } catch (error) {
+  } catch {
     console.error('Error creating safety incident:', error);
     return NextResponse.json({ error: 'Failed to create incident' }, { status: 500 });
   }

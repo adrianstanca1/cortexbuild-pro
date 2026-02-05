@@ -73,7 +73,7 @@ export async function GET(_request: NextRequest) {
     // Return predefined templates and any custom templates from the organization
     // For now, just return predefined templates
     return NextResponse.json({ templates: DEFAULT_TEMPLATES });
-  } catch (error) {
+  } catch {
     console.error('Error fetching templates:', error);
     return NextResponse.json({ error: 'Failed to fetch templates' }, { status: 500 });
   }
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
       tasksCreated: createdTasks.length,
       message: `Project created successfully with ${createdTasks.length} tasks from ${template.name} template`
     });
-  } catch (error) {
+  } catch {
     console.error('Error creating project from template:', error);
     return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
   }

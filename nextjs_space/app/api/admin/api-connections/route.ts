@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ connections: maskedConnections })));
-  } catch (error) {
+  } catch {
     console.error("Error fetching API connections:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
       })),
       { status: 201 }
     );
-  } catch (error) {
+  } catch {
     console.error("Error creating API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

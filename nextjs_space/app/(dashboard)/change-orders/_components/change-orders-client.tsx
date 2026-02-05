@@ -138,7 +138,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
         const err = await res.json();
         toast.error(err.error || 'Failed to create change order');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to create change order');
     } finally {
       setLoading(false);
@@ -164,7 +164,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
       } else {
         toast.error('Failed to update change order');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update change order');
     } finally {
       setLoading(false);
@@ -192,7 +192,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
         const err = await res.json();
         toast.error(err.error || 'Failed to approve change order');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to approve change order');
     } finally {
       setLoading(false);
@@ -228,7 +228,7 @@ export function ChangeOrdersClient({ initialChangeOrders, projects, userRole }: 
         const err = await res.json();
         toast.error(err.error || 'Failed to reject change order');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to reject change order');
     } finally {
       setLoading(false);

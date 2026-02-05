@@ -135,7 +135,7 @@ Format as JSON with these exact keys: summary, keyDates, budgetInfo, parties, ri
         confidence: 0.85
       }
     });
-  } catch (error) {
+  } catch {
     console.error("Document intelligence error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

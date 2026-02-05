@@ -66,7 +66,7 @@ export async function rateLimit(
     await incrementUsage(config.id, endpoint, userId);
 
     return { allowed: true };
-  } catch (error) {
+  } catch {
     console.error('Rate limit check error:', error);
     return { allowed: true }; // Fail open
   }
