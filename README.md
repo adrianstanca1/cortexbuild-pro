@@ -176,6 +176,40 @@ Cleanup removes:
 - Temporary files
 - Optimizes Git repository
 
+## 🔀 Branch Management
+
+Automate branch merging and cleanup:
+
+```bash
+# Merge all remote branches and delete after sync
+./merge-and-delete-branches.sh
+
+# Test without making changes (dry run)
+./merge-and-delete-branches.sh cortexbuildpro true
+
+# Merge into a specific branch
+./merge-and-delete-branches.sh main
+```
+
+Features:
+- Automatically merges all remote branches into target branch
+- Commits changes after each successful merge
+- Pushes merged changes to remote
+- Deletes remote branches after successful sync
+- Handles conflicts with interactive prompts
+- Provides dry run mode for testing
+
+For detailed usage, see [MERGE_AND_DELETE_BRANCHES_GUIDE.md](MERGE_AND_DELETE_BRANCHES_GUIDE.md)
+
+### Simple Branch Deletion
+
+If branches are already merged, use the simple cleanup script:
+
+```bash
+# Delete specific pre-merged branches
+./cleanup-branches.sh
+```
+
 ## 📊 Monitoring
 
 ### Health Check
