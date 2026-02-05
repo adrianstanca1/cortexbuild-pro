@@ -50,6 +50,12 @@ interface CompanyUsageClientProps {
   error?: string;
 }
 
+type TooltipPayloadItem = {
+  dataKey?: string | number;
+  name?: string | number;
+  value?: number | string | Array<number | string>;
+};
+
 /**
  * Render the company usage dashboard with overview, usage history, and billing views.
  *
@@ -379,12 +385,24 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                         return (
                           <div className="bg-white p-3 border rounded-lg shadow-sm">
                             <p className="font-semibold">{label}</p>
-                            {payload.map((item) => (
-                              <p key={item.dataKey} className="text-sm">
-                                <span className={`mr-2 ${item.dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>●</span>
-                                {item.dataKey}: {item.value}
-                              </p>
-                            ))}
+                            {payload.map((item: TooltipPayloadItem) => {
+                              const dataKeyText = String(item.dataKey ?? item.name ?? '');
+                              if (!dataKeyText) {
+                                return null;
+                              }
+                              const rawValue = Array.isArray(item.value) ? item.value.join(', ') : item.value ?? '';
+                              const displayValue = typeof rawValue === 'number' ? rawValue.toLocaleString() : String(rawValue);
+                              const isApiCalls = dataKeyText === 'API Calls';
+
+                              return (
+                                <p key={dataKeyText} className="text-sm">
+                                  <span className={`mr-2 ${isApiCalls ? 'text-blue-500' : 'text-emerald-500'}`}>
+                                    ●
+                                  </span>
+                                  {dataKeyText}: {displayValue}
+                                </p>
+                              );
+                            })}
                           </div>
                         );
                       }

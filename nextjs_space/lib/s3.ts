@@ -12,6 +12,17 @@ import { createS3Client, getBucketConfig } from "./aws-config";
 
 const s3Client = createS3Client();
 
+type S3Error = {
+  $metadata?: { httpStatusCode?: number };
+  name?: string;
+  Code?: string;
+};
+
+const isS3Error = (error: unknown): error is S3Error =>
+  typeof error === "object" &&
+  error !== null &&
+  ("$metadata" in error || "name" in error || "Code" in error);
+
 export async function generatePresignedUploadUrl(
   fileName: string,
   contentType: string,
@@ -115,15 +126,20 @@ export async function deleteFile(cloud_storage_path: string): Promise<void> {
 }
 
 export async function fileExists(cloud_storage_path: string): Promise<boolean> {
+  const { bucketName } = getBucketConfig();
+  const command = new HeadObjectCommand({
+    Bucket: bucketName,
+    Key: cloud_storage_path
+  });
+
   try {
-    const { bucketName } = getBucketConfig();
-    const command = new HeadObjectCommand({
-      Bucket: bucketName,
-      Key: cloud_storage_path
-    });
     await s3Client.send(command);
     return true;
-  } catch {
-    return false;
+  } catch (error: unknown) {
+    const statusCode = isS3Error(error) ? error.$metadata?.httpStatusCode : undefined;
+    if (isS3Error(error) && (statusCode === 404 || error.name === "NotFound" || error.Code === "NotFound")) {
+      return false;
+    }
+    throw error;
   }
 }

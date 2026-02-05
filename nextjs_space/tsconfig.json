@@ -43,6 +43,8 @@
     "scripts",
     "__tests__",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "jest.config.ts",
+    "jest.setup.ts"
   ]
 }

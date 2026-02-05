@@ -32,7 +32,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { phase, phaseGatesData } = body;
+    const { phase } = body;
 
     if (!phase) {
       return NextResponse.json({ error: "Phase is required" }, { status: 400 });
@@ -142,13 +142,12 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Calculate phase completion metrics
-    // Note: phaseGatesData field doesn't exist in the schema
-    const gatesData = {};
-    
     return NextResponse.json({
       project: {
         ...project,
-        phaseGates: gatesData
+        // Legacy field kept for backward compatibility with older clients.
+        // Phase gate data storage was removed from the schema, so this is always null.
+        phaseGates: null
       }
     });
   } catch (error) {
