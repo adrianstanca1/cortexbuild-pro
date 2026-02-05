@@ -4,10 +4,7 @@ import { useState, useCallback } from 'react';
 import { format, isToday, isPast, isThisWeek } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
-import {
-  FileText, Plus, Search, Calendar, Clock, CheckSquare,
-  MapPin, Loader2, ChevronRight, CalendarDays
-} from 'lucide-react';
+import { Calendar, CalendarDays, CheckSquare, ChevronRight, Clock, FileText, Loader2, MapPin, Plus, Search, User, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

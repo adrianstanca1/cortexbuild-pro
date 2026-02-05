@@ -4,11 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
-import {
-  Flag, Plus, Search, Calendar, CheckCircle2, Clock,
-  AlertTriangle, Target, Edit, Trash2,
-  FolderKanban, Loader2, AlertCircle, TrendingUp
-} from "lucide-react";
+import { AlertCircle, AlertTriangle, Calendar, CheckCircle2, Clock, Edit, Flag, FolderKanban, Loader2, MoreVertical, Plus, Search, Target, Trash2, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import { LogOut, ChevronDown, Shield, HardHat } from "lucide-react";
+import { ChevronDown, HardHat, LogOut, Shield, User } from 'lucide-react';
 import Link from "next/link";
 
 interface AdminHeaderProps {

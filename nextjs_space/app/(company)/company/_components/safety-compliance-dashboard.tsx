@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import {
-  Shield, Wrench, CheckCircle,
-  TrendingUp, RefreshCw, Loader2,
-  BarChart3, Target, Calendar
-} from "lucide-react";
+import { AlertTriangle, BarChart3, Calendar, CheckCircle, HardHat, Loader2, RefreshCw, Shield, Target, TrendingUp, User, Users, Wrench } from 'lucide-react';
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

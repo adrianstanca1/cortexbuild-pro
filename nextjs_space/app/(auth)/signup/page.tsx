@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { HardHat, Mail, Lock, Loader2, ArrowRight, Zap, Clock, Award } from "lucide-react";
+import { ArrowRight, Award, Clock, HardHat, Loader2, Lock, Mail, User, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";

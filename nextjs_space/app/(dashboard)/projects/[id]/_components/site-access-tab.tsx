@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, LogOut, Search, Car, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
+import { Badge as BadgeIcon, Car, Check, Clock, Loader2, LogIn, LogOut, Search, User, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

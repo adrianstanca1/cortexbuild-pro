@@ -4,18 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft, Edit, MapPin, PoundSterling,
-  FileText, Plus, Loader2, CheckCircle, AlertCircle, Activity, TrendingUp,
-  Camera, Brain,
-  ClipboardList, Timer, Wallet, Receipt, Package, FileQuestion, Send, FileCheck,
-  Shield, PenTool, BookOpen, Target, Search, ChevronRight, FolderOpen,
-  Milestone, Building2, Truck, Scale, LayoutGrid,
-  FolderClosed, ChevronDown,
-  Settings,
-  Network, Share2, Star, Zap,
-  ChevronLeft
-} from "lucide-react";
+import { Activity, AlertCircle, ArrowLeft, BookOpen, Brain, Building2, Camera, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Edit, FileCheck, FileQuestion, FileText, FolderClosed, FolderOpen, LayoutGrid, Loader2, MapPin, Milestone, Network, Package, PenTool, Plus, PoundSterling, Receipt, Scale, Search, Send, Settings, Share2, Shield, Star, Target, Timer, TrendingUp, Truck, User, Users, Wallet, Zap } from 'lucide-react';
 import { formatDistanceToNow, format } from "date-fns";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

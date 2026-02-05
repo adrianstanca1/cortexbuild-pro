@@ -2,11 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Search, Upload, Download, Trash2, Loader2,
-  Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, HardDrive
-} from "lucide-react";
+import { ChevronRight, Download, Eye, File, FileSignature, FileSpreadsheet, FileText, FolderOpen, HardDrive, Image, LayoutGrid, List, Loader2, Ruler, ScrollText, Search, Trash2, Upload } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

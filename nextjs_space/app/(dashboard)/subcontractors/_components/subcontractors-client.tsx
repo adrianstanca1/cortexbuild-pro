@@ -4,11 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import {
-  Building2, Plus, Search, Star, Phone, Mail,
-  Edit2, Trash2, Loader2, Wrench, Zap, Droplet,
-  Shield
-} from "lucide-react";
+import { AlertTriangle, Building2, Droplet, Edit2, FileText, Loader2, Mail, Phone, Plus, Search, Shield, Star, Trash2, Wrench, Zap } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

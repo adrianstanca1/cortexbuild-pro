@@ -2,18 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
-  Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
-  Eraser, Undo, Redo, Eye, EyeOff, Trash2,
-  MousePointer, Triangle, Cloud, MessageSquare,
-  Move, Pipette, Pen, Brush, Sparkles,
-  Star, Hexagon, ArrowUpRight, Hash, Stamp, Target,
-  RotateCcw, ScanLine, Lock, Unlock,
-  LayoutGrid, MessageCircle, Tag,
-  CheckCircle, XCircle, AlertCircle, Clock, Info,
-  PanelLeftClose, PanelLeft
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, ArrowUpRight, Brush, CheckCircle, Circle, Clock, Cloud, Download, Eraser, Eye, EyeOff, Hash, Hexagon, Highlighter, Info, Layers, LayoutGrid, Lock, Maximize2, MessageCircle, MessageSquare, Minus, MousePointer, Move, PanelLeft, PanelLeftClose, Pen, Pencil, Pipette, Redo, RotateCcw, RotateCw, Ruler, ScanLine, Sparkles, Square, Stamp, Star, Tag, Target, Trash2, Triangle, Type, Undo, Unlock, User, Users, XCircle, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";

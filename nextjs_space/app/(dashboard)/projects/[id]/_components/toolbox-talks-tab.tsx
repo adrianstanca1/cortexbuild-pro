@@ -3,10 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import {
-  MessageSquare, Plus, MapPin, Check,
-  Loader2, PenTool, CheckCircle2, Download
-} from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, Download, Loader2, MapPin, MessageSquare, PenTool, Plus, User, Users } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
