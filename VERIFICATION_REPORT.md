@@ -46,17 +46,15 @@ This comprehensive verification process has been completed successfully. All Typ
 - **Fix**: Added non-null assertion
 
 #### app/api/projects/route.ts
-- **Issue**: Type mismatch in logActivity and broadcastEntityEvent calls
-- **Fix**: Updated function signatures in api-utils.ts
 - **Issue**: organizationId type in create data
-- **Fix**: Added non-null assertion
+- **Fix**: Added explicit organizationId validation in route handlers since withAuthHandler doesn't validate organizationId exists
 
 #### lib/api-utils.ts
 - **Issue**: Overly strict type signatures causing compatibility issues
 - **Fixes**:
-  - `logActivity`: Changed prisma parameter to `any` for flexibility
-  - `broadcastEntityEvent`: Changed broadcast parameter to `any`
-  - `sanitizeEntityFields`: Changed type assertion to use `any` for dynamic keys
+  - `logActivity`: Changed prisma parameter from overly strict interface to `PrismaClient` type for proper type safety
+  - `broadcastEntityEvent`: Changed broadcast parameter to proper function signature `(organizationId: string, data: unknown) => void`
+  - `sanitizeEntityFields`: Improved type safety by using `Record<string, unknown>` intermediate type with proper casting
 
 **Result**: `npx tsc --noEmit` completes with 0 errors
 

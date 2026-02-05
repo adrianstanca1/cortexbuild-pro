@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { z, ZodSchema } from 'zod';
+import { PrismaClient } from '@prisma/client';
 
 // Helper to safely serialize data with BigInt values
 export function serializeData<T>(data: T): T {
@@ -210,7 +211,7 @@ export function withErrorHandler<T>(
 
 // Log API activity
 export async function logActivity(
-  prisma: any,
+  prisma: PrismaClient,
   context: ApiContext,
   action: string,
   entityType: string,
@@ -250,7 +251,7 @@ export function sanitizeInput(input: string): string {
 export function sanitizeEntityFields<T extends Record<string, unknown>>(
   fields: T
 ): T {
-  const sanitized = { ...fields };
+  const sanitized = { ...fields } as Record<string, unknown>;
   
   // Common string fields to sanitize
   const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
@@ -259,16 +260,16 @@ export function sanitizeEntityFields<T extends Record<string, unknown>>(
     if (key in sanitized && typeof sanitized[key] === 'string') {
       const trimmed = (sanitized[key] as string).trim();
       // Explicitly convert empty strings to null, matching original behavior
-      (sanitized as any)[key] = (trimmed === '' ? null : trimmed);
+      sanitized[key] = (trimmed === '' ? null : trimmed);
     }
   }
   
-  return sanitized;
+  return sanitized as T;
 }
 
 // Broadcast entity event helper
 export function broadcastEntityEvent(
-  broadcast: any,
+  broadcast: (organizationId: string, data: object) => void,
   organizationId: string | undefined,
   eventType: string,
   entity: {

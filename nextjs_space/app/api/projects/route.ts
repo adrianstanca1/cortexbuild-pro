@@ -13,6 +13,10 @@ import {
 export const dynamic = 'force-dynamic';
 
 export const GET = withAuthHandler(async (request: NextRequest, context) => {
+  if (!context.organizationId) {
+    return errorResponse("FORBIDDEN", "User must belong to an organization");
+  }
+
   const projects = await prisma.project.findMany({
     where: { organizationId: context.organizationId },
     include: {
@@ -26,6 +30,10 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {
+  if (!context.organizationId) {
+    return errorResponse("FORBIDDEN", "User must belong to an organization");
+  }
+
   const body = await request.json();
   const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
 
@@ -49,7 +57,7 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
       startDate: startDate ? new Date(startDate) : null,
       endDate: endDate ? new Date(endDate) : null,
       status: status || "PLANNING",
-      organizationId: context.organizationId!,
+      organizationId: context.organizationId,
       managerId: context.userId || null
     },
     include: {
