@@ -48,7 +48,7 @@ async function sendNotificationEmail(params: {
 
     const result = await response.json();
     return result;
-  } catch (error) {
+  } catch {
     // console.error('Error sending notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }

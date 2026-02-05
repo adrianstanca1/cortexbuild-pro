@@ -440,7 +440,7 @@ export async function getServiceCredentials(
       isActive: connection.status === "ACTIVE",
       connectionId: connection.id
     };
-  } catch (error) {
+  } catch {
     // console.error(`Error fetching credentials for service ${serviceId}:`, error);
     return null;
   }
@@ -567,7 +567,7 @@ export async function logServiceUsage(
         }
       });
     }
-  } catch (error) {
+  } catch {
     // console.error("Error logging service usage:", error);
   }
 }

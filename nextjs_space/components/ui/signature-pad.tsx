@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
-import { Eraser, Check, Undo } from "lucide-react";
+import { Eraser, Check } from "lucide-react";
 
 interface SignaturePadProps {
   onSignature?: (signatureData: string) => void;

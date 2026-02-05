@@ -11,11 +11,6 @@ const isSuperAdmin = (role: string | undefined) => {
   return role === "SUPER_ADMIN";
 };
 
-// Helper to check company owner access
-const isCompanyOwner = (role: string | undefined) => {
-  return role === "COMPANY_OWNER";
-};
-
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;

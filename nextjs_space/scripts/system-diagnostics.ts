@@ -81,7 +81,7 @@ async function checkDatabaseSchema(): Promise<DiagnosticResult> {
   for (const model of expectedModels) {
     try {
       const modelKey = model.charAt(0).toLowerCase() + model.slice(1);
-      // @ts-ignore - Dynamic model access
+      // @ts-expect-error - Dynamic model access
       const count = await prisma[modelKey]?.count?.();
       
       checks.push({

@@ -22,7 +22,7 @@ export function hashBackupCode(code: string): string {
   return crypto.createHash('sha256').update(code.replace('-', '')).digest('hex');
 }
 
-export function verifyTOTP(secret: string, token: string, window: number = 1): boolean {
+export function verifyTOTP(secret: string, token: string, _window: number = 1): boolean {
   // This is a placeholder - in production, use a library like 'otplib' or 'speakeasy'
   // For now, just verify the token format
   return /^\d{6}$/.test(token);

@@ -130,7 +130,7 @@ export async function dispatchWebhook(
     });
 
     // Return immediately without waiting for webhook deliveries
-  } catch (error) {
+  } catch {
     // console.error('Webhook dispatch error:', error);
   }
 }
