@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 
 export function MFAClient() {
   return (

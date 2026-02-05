@@ -16,7 +16,7 @@ import {
   Trash2,
   Eye
 } from "lucide-react";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

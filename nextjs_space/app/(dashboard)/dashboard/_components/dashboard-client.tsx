@@ -13,7 +13,7 @@ import {
   Flag, CircleDot, CheckCircle,
   FileStack, Wallet
 } from "lucide-react";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { KPICard, QuickAction, AlertBanner, ProgressRing } from "@/components/ui/kpi-dashboard";

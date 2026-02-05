@@ -8,7 +8,7 @@ import {
   Wrench, MessageSquare,
   CheckCircle2, Flame, Clock4, Send
 } from "lucide-react";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
