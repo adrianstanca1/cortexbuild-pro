@@ -214,9 +214,9 @@ bash setup-ssl.sh
 
 ## 📚 Documentation
 
-- **Full Guide:** [VPS-DEPLOYMENT-GUIDE.md](VPS-DEPLOYMENT-GUIDE.md)
-- **Docker Manager:** [README-DOCKER-MANAGER.md](README-DOCKER-MANAGER.md)
 - **Quick Start:** [QUICKSTART.md](QUICKSTART.md)
+- **Full Guide:** [README.md](README.md)
+- **Docker Manager:** [README-DOCKER-MANAGER.md](README-DOCKER-MANAGER.md)
 - **Main README:** [../README.md](../README.md)
 
 ---
@@ -268,4 +268,4 @@ bash restore.sh /root/cortexbuild_backups/latest_backup.sql.gz
 
 ---
 
-For detailed instructions, see [VPS-DEPLOYMENT-GUIDE.md](VPS-DEPLOYMENT-GUIDE.md)
+For detailed instructions, see [QUICKSTART.md](QUICKSTART.md) or [README.md](README.md)

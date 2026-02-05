@@ -404,8 +404,7 @@ docker compose up -d
 | `docker-manager-deploy.sh` | Automated setup script |
 | `windmill-setup.sh` | Windmill installation script |
 | `.env.docker-manager` | Environment template |
-| `README-DOCKER-MANAGER.md` | Full documentation |
-| `QUICKSTART-DOCKER-MANAGER.md` | Quick start guide |
+| `README-DOCKER-MANAGER.md` | Full documentation and quick start guide |
 
 ---
 

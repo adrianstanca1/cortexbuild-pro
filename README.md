@@ -46,15 +46,21 @@ sudo bash one-click-deploy.sh
 
 ### Deployment Guides
 - [Quick Start Guide](deployment/QUICKSTART.md) - Get up and running in minutes
-- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) ⭐ **NEW** - Complete production workflow
 - [Complete Deployment Guide](deployment/README.md) - Full deployment documentation
+- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production workflow and updates
+- [Docker Manager Guide](deployment/README-DOCKER-MANAGER.md) - Visual Docker management with Portainer
 - [CloudPanel Guide](deployment/CLOUDPANEL-GUIDE.md) - Deploy with CloudPanel
+- [Deployment Comparison](deployment/DEPLOYMENT-COMPARISON.md) - Compare deployment methods
+- [Quick Reference](deployment/QUICK-REFERENCE.md) - Command reference
 
 ### Feature Documentation
-- [Admin UI Pages](ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
-- [Advanced Features](ADVANCED_FEATURES_SUMMARY.md) - Advanced functionality
-- [Super Admin Features](SUPER_ADMIN_FEATURES.md) - Super admin capabilities
-- [UI Visual Guide](UI_VISUAL_GUIDE.md) - Visual interface guide
+- [Admin UI Pages](docs/ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
+- [Advanced Features](docs/ADVANCED_FEATURES_SUMMARY.md) - Advanced functionality
+- [Super Admin Features](docs/SUPER_ADMIN_FEATURES.md) - Super admin capabilities
+- [UI Visual Guide](docs/UI_VISUAL_GUIDE.md) - Visual interface guide
+- [Performance Optimizations](docs/PERFORMANCE_OPTIMIZATIONS.md) - Performance improvements
+- [Security Notes](docs/SECURITY_NOTES.md) - Security considerations
+- [Version Tracking](docs/VERSION_TRACKING_IMPLEMENTATION.md) - Version management
 
 ## 🛠️ Development
 
@@ -137,7 +143,7 @@ All deployment scripts are located in the `deployment/` directory:
 **Main Deployment:**
 - `production-deploy.sh` - ⭐ Complete production workflow (recommended)
 - `one-click-deploy.sh` - Fresh VPS setup with prerequisites
-- `deploy.sh` - Basic deployment without extras
+- `vps-full-deploy.sh` - Remote deployment via curl
 - `cloudpanel-deploy.sh` - CloudPanel-specific deployment
 
 **Maintenance:**
@@ -182,13 +188,13 @@ Automate branch merging and cleanup:
 
 ```bash
 # Merge all remote branches and delete after sync
-./merge-and-delete-branches.sh
+./scripts/merge-and-delete-branches.sh
 
 # Test without making changes (dry run)
-./merge-and-delete-branches.sh cortexbuildpro true
+./scripts/merge-and-delete-branches.sh cortexbuildpro true
 
 # Merge into a specific branch
-./merge-and-delete-branches.sh main
+./scripts/merge-and-delete-branches.sh main
 ```
 
 Features:
@@ -205,7 +211,7 @@ If branches are already merged, use the simple cleanup script:
 
 ```bash
 # Delete specific pre-merged branches
-./cleanup-branches.sh
+./scripts/cleanup-branches.sh
 ```
 
 ## 📊 Monitoring
