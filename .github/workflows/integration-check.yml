@@ -38,6 +38,8 @@ jobs:
       - name: Generate Prisma Client
         working-directory: ./nextjs_space
         run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
       
       - name: Type check with TypeScript
         working-directory: ./nextjs_space
@@ -65,6 +67,8 @@ jobs:
       - name: Generate Prisma Client
         working-directory: ./nextjs_space
         run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
       
       - name: Build Next.js application
         working-directory: ./nextjs_space
@@ -112,11 +116,17 @@ jobs:
       - name: Validate Prisma schema
         working-directory: ./nextjs_space
         run: npx prisma validate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
       
       - name: Generate Prisma Client
         working-directory: ./nextjs_space
         run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
       
       - name: Check for schema drift
         working-directory: ./nextjs_space
         run: npx prisma format --check
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
