@@ -1,0 +1,207 @@
+# Windmill Workflow for CortexBuild Pro Deployment
+# This workflow automates the build and deployment process
+summary: Deploy CortexBuild Pro Application
+description: Automated workflow to build Docker image and deploy via Docker Manager
+
+# Configuration (can be overridden via environment variables or Windmill parameters)
+# PROJECT_DIR: Base directory for the project (default: /root/cortexbuild_pro)
+# DEPLOYMENT_DIR: Deployment scripts directory (default: /root/cortexbuild_pro/deployment)
+
+# Workflow steps
+steps:
+  # Step 1: Pull latest code
+  - id: pull_code
+    summary: Pull latest code from repository
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        # Use environment variable or default
+        PROJECT_DIR="${PROJECT_DIR:-/root/cortexbuild_pro}"
+        
+        cd "$PROJECT_DIR"
+        
+        # Check for local modifications to avoid pull conflicts
+        if ! git diff --quiet || ! git diff --cached --quiet; then
+          echo "Error: Local changes detected in $PROJECT_DIR."
+          echo "Please commit, stash, or discard local changes before running this deployment."
+          git status
+          exit 1
+        fi
+        
+        # Attempt to pull from 'main', then fall back to 'master'
+        set +e
+        BRANCH_PULLED=""
+        
+        git pull origin main 2>&1
+        PULL_STATUS=$?
+        if [ $PULL_STATUS -eq 0 ]; then
+          BRANCH_PULLED="main"
+        else
+          echo "Warning: Failed to pull from 'main' branch. Attempting 'master'..."
+          git pull origin master 2>&1
+          PULL_STATUS=$?
+          if [ $PULL_STATUS -eq 0 ]; then
+            BRANCH_PULLED="master"
+          fi
+        fi
+        set -e
+        
+        if [ -z "$BRANCH_PULLED" ]; then
+          echo "Error: Failed to pull from both 'main' and 'master' branches."
+          echo "Possible causes include:"
+          echo "  - Network or connectivity issues"
+          echo "  - Authentication/authorization problems"
+          echo "  - Remote branch not existing or being inaccessible"
+          exit 1
+        fi
+        
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+        echo "Code pulled successfully from '$BRANCH_PULLED' branch (current branch: $CURRENT_BRANCH)."
+      language: bash
+    
+  # Step 2: Build Docker image
+  - id: build_image
+    summary: Build Docker image for the application
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        # Use environment variables or defaults
+        PROJECT_DIR="${PROJECT_DIR:-/root/cortexbuild_pro}"
+        DEPLOYMENT_DIR="${DEPLOYMENT_DIR:-$PROJECT_DIR/deployment}"
+        
+        cd "$DEPLOYMENT_DIR"
+        
+        echo "Building Docker image..."
+        docker build -t cortexbuild-app:latest -f Dockerfile ..
+        
+        # Tag with timestamp
+        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+        docker tag cortexbuild-app:latest cortexbuild-app:$TIMESTAMP
+        
+        echo "Image built successfully: cortexbuild-app:latest"
+        echo "Backup tag: cortexbuild-app:$TIMESTAMP"
+      language: bash
+    depends_on:
+      - pull_code
+  
+  # Step 3: Deploy/Update container
+  - id: deploy_container
+    summary: Deploy or update the application container
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        # Use environment variables or defaults
+        PROJECT_DIR="${PROJECT_DIR:-/root/cortexbuild_pro}"
+        DEPLOYMENT_DIR="${DEPLOYMENT_DIR:-$PROJECT_DIR/deployment}"
+        
+        cd "$DEPLOYMENT_DIR"
+        
+        echo "Deploying application..."
+        
+        # Check if using Docker Compose or Docker Stack
+        if docker stack ls 2>/dev/null | grep -q cortexbuild; then
+          echo "Updating Docker Stack..."
+          docker stack deploy -c docker-stack.yml cortexbuild
+        else
+          echo "Using Docker Compose..."
+          docker compose up -d --no-deps --build app
+        fi
+        
+        echo "Deployment initiated"
+      language: bash
+    depends_on:
+      - build_image
+  
+  # Step 4: Wait for health check
+  - id: health_check
+    summary: Wait for application to be healthy
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        # Configurable health check settings
+        HEALTHCHECK_URL="${HEALTHCHECK_URL:-http://localhost:3000/}"
+        HEALTHCHECK_RETRIES="${HEALTHCHECK_RETRIES:-30}"
+        HEALTHCHECK_INTERVAL="${HEALTHCHECK_INTERVAL:-10}"
+        
+        echo "Waiting for application to be healthy at ${HEALTHCHECK_URL}..."
+        
+        RETRIES="${HEALTHCHECK_RETRIES}"
+        COUNT=0
+        LAST_ERROR=""
+        
+        while [ "${COUNT}" -lt "${RETRIES}" ]; do
+          # Try to reach the health endpoint
+          if curl -fsS "${HEALTHCHECK_URL}" >/dev/null 2>&1; then
+            echo "Application is healthy at ${HEALTHCHECK_URL}!"
+            exit 0
+          fi
+          
+          COUNT=$((COUNT + 1))
+          echo "Attempt ${COUNT}/${RETRIES} failed for ${HEALTHCHECK_URL}. Retrying in ${HEALTHCHECK_INTERVAL}s..."
+          sleep "${HEALTHCHECK_INTERVAL}"
+        done
+        
+        echo "Health check failed after ${RETRIES} attempts for ${HEALTHCHECK_URL}."
+        echo "Please check application logs and ensure the service is running."
+        exit 1
+      language: bash
+    depends_on:
+      - deploy_container
+  
+  # Step 5: Run database migrations
+  - id: run_migrations
+    summary: Run database migrations
+    script:
+      content: |
+        #!/bin/bash
+        set -e
+        
+        echo "Running database migrations..."
+        
+        # Get container name(s) matching cortexbuild-app
+        CONTAINERS=$(docker ps --filter "name=cortexbuild-app" --format "{{.Names}}")
+        
+        if [ -z "$CONTAINERS" ]; then
+          echo "Error: Could not find cortexbuild-app container"
+          exit 1
+        fi
+        
+        # Count containers reliably
+        CONTAINER_COUNT=$(echo "$CONTAINERS" | wc -l)
+        if [ "$CONTAINER_COUNT" -gt 1 ]; then
+          echo "Error: Multiple cortexbuild-app containers found:"
+          echo "$CONTAINERS"
+          echo "Please specify which container to use or ensure only one is running."
+          exit 1
+        fi
+        
+        CONTAINER="$CONTAINERS"
+        
+        docker exec "$CONTAINER" npx prisma migrate deploy
+        
+        echo "Migrations completed successfully"
+      language: bash
+    depends_on:
+      - health_check
+
+# Trigger configuration
+trigger:
+  schedule: "0 2 * * *"  # Run daily at 2 AM (optional)
+  webhook: true  # Enable webhook trigger for manual/CI deployments
+
+# Notification settings
+notifications:
+  on_success:
+    - type: email
+      message: "CortexBuild Pro deployed successfully"
+  on_failure:
+    - type: email
+      message: "CortexBuild Pro deployment failed"

@@ -6,23 +6,18 @@ import {
   Shield,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Activity,
   Target,
   Clock,
   Users,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   Brain,
   Sparkles,
   RefreshCw,
-  Building2,
   Calendar,
   BarChart3,
   Loader2,
-  ChevronRight,
-  Zap,
   Eye,
   FileWarning,
 } from 'lucide-react';
@@ -44,7 +39,6 @@ import {
   Cell,
   BarChart,
   Bar,
-  Legend,
 } from 'recharts';
 
 interface SafetyMetrics {

@@ -124,7 +124,6 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       onAnnotationComplete,
       onAnnotationSelect,
       onAnnotationMove,
-      onAnnotationResize,
       onColorPick,
       onCursorMove,
     },
@@ -142,10 +141,10 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
     const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
     const [loading, setLoading] = useState(true);
     const [polygonPoints, setPolygonPoints] = useState<Point[]>([]);
-    const [bezierControlPoints, setBezierControlPoints] = useState<Point[]>([]);
+    const [_bezierControlPoints, _setBezierControlPoints] = useState<Point[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState<Point>({ x: 0, y: 0 });
-    const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+    const [_resizeHandle, _setResizeHandle] = useState<string | null>(null);
     const [hoverAnnotationId, setHoverAnnotationId] = useState<string | null>(null);
     const animationFrameRef = useRef<number>();
     const lastRenderTime = useRef<number>(0);
@@ -204,10 +203,13 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       return () => {
         window.removeEventListener("resize", resizeCanvas);
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const frameId = animationFrameRef.current;
+        if (frameId) {
+          cancelAnimationFrame(frameId);
         }
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, selectedAnnotationId]);
 
     // Optimized render with requestAnimationFrame
@@ -267,6 +269,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       // Render overlay (selection handles, cursors)
       renderOverlay();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, isDrawing, currentPath, selectedAnnotationId, polygonPoints, color, strokeWidth, selectedTool, opacity]);
 
     useEffect(() => {
@@ -489,7 +492,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
     };
 
     // Drawing helper functions
-    const drawPenPath = (ctx: CanvasRenderingContext2D, data: any, annotation: Annotation) => {
+    const drawPenPath = (ctx: CanvasRenderingContext2D, data: any, _annotation: Annotation) => {
       if (!data.points || data.points.length < 2) return;
       
       ctx.beginPath();
@@ -511,7 +514,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       ctx.stroke();
     };
 
-    const drawSprayPath = (ctx: CanvasRenderingContext2D, data: any, annotation: Annotation) => {
+    const drawSprayPath = (ctx: CanvasRenderingContext2D, data: any, _annotation: Annotation) => {
       if (!data.sprays) return;
       
       data.sprays.forEach((spray: { x: number; y: number; dots: Point[] }) => {
@@ -1646,7 +1649,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
       if (e.ctrlKey) {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -10 : 10;
-        const newZoom = Math.max(25, Math.min(400, zoom + delta));
+        const _newZoom = Math.max(25, Math.min(400, zoom + delta));
         // Zoom toward cursor position (not implemented yet)
       } else {
         setPanOffset(prev => ({

@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   FileText,
   Sparkles,
-  Download,
   Copy,
   Loader2,
   BarChart3,
@@ -12,17 +11,13 @@ import {
   PoundSterling,
   TrendingUp,
   Calendar,
-  Users,
-  ClipboardCheck,
-  Printer,
-  CheckCircle2
+  Printer
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface Project {
   id: string;

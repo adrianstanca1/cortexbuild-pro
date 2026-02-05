@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Cloud,
@@ -12,17 +12,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   Calendar,
-  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
-  ChevronRight,
-  Zap,
   CloudLightning,
   Cloudy,
   Umbrella,
-  Snowflake,
-  Clock,
   TrendingUp,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -111,14 +106,6 @@ export default function WeatherImpactPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    fetchWeatherData();
-  }, [selectedProject]);
-
   const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
@@ -131,7 +118,11 @@ export default function WeatherImpactPage() {
     }
   };
 
-  const fetchWeatherData = async () => {
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchWeatherData = useCallback(async () => {
     setLoading(true);
     try {
       const url = selectedProject
@@ -151,7 +142,11 @@ export default function WeatherImpactPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProject]);
+
+  useEffect(() => {
+    fetchWeatherData();
+  }, [selectedProject, fetchWeatherData]);
 
   const runAiAnalysis = async () => {
     setAnalyzing(true);

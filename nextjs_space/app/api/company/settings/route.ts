@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, description, website, email, phone, address } = body;
+    const { name, _description, _website, _email, _phone, _address } = body;
 
     // Validate name is not empty
     if (name !== undefined && !name.trim()) {
@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 // GET - Get organization settings
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

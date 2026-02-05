@@ -44,6 +44,8 @@ A comprehensive multi-tenant construction management platform built with Next.js
 
 ## Getting Started
 
+### Development Setup
+
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database
@@ -59,7 +61,7 @@ cd cortex-abacus
 
 2. Install dependencies:
 ```bash
-yarn install
+npm install
 ```
 
 3. Set up environment variables:
@@ -70,21 +72,45 @@ cp .env.example .env
 
 4. Run database migrations:
 ```bash
-yarn prisma generate
-yarn prisma db push
+npm run prisma generate
+npm run prisma db push
 ```
 
 5. Seed the database (optional):
 ```bash
-yarn prisma db seed
+npm run prisma db seed
 ```
 
 6. Start the development server:
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Production Deployment (VPS)
+
+For production deployment to a VPS (Virtual Private Server):
+
+**Quick Start:**
+```bash
+cd /root
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+```
+
+See the [Deployment Quick Start Guide](../deployment/QUICKSTART.md) for complete instructions, including:
+- One-click deployment script
+- Health monitoring
+- Rollback capability
+- SSL setup
+- Backup strategies
+
+**Documentation:**
+- [Quick Start Guide](../deployment/QUICKSTART.md) - Fastest deployment method
+- [Full Deployment Guide](../deployment/README.md) - Comprehensive instructions
+- [CloudPanel Guide](../deployment/CLOUDPANEL-GUIDE.md) - Managed hosting option
 
 ## Environment Variables
 
@@ -126,11 +152,13 @@ Key API routes include:
 
 ## Scripts
 
-- `yarn dev` - Start development server
-- `yarn build` - Build for production
-- `yarn start` - Start production server
-- `yarn prisma generate` - Generate Prisma client
-- `yarn prisma db push` - Push schema to database
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:db:push` - Push schema to database
+- `npm run prisma:db:seed` - Seed the database
+- `npm run prisma:studio` - Open Prisma Studio
 
 ## License
 

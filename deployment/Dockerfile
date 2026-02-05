@@ -50,8 +50,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install openssl for Prisma
-RUN apk add --no-cache openssl
+# Install openssl for Prisma (try openssl3 first, fallback to base install)
+# Note: Alpine node:20 images typically include openssl3 by default
+RUN apk update && (apk add --no-cache openssl3 openssl3-libs-static || \
+    apk add --no-cache openssl || \
+    (echo "ERROR: OpenSSL installation failed - Prisma requires OpenSSL" && exit 1))
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

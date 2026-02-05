@@ -4,7 +4,8 @@ import {
   DeleteObjectCommand,
   CreateMultipartUploadCommand,
   UploadPartCommand,
-  CompleteMultipartUploadCommand
+  CompleteMultipartUploadCommand,
+  HeadObjectCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createS3Client, getBucketConfig } from "./aws-config";
@@ -111,4 +112,18 @@ export async function deleteFile(cloud_storage_path: string): Promise<void> {
     Key: cloud_storage_path
   });
   await s3Client.send(command);
+}
+
+export async function fileExists(cloud_storage_path: string): Promise<boolean> {
+  try {
+    const { bucketName } = getBucketConfig();
+    const command = new HeadObjectCommand({
+      Bucket: bucketName,
+      Key: cloud_storage_path
+    });
+    await s3Client.send(command);
+    return true;
+  } catch {
+    return false;
+  }
 }

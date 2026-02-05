@@ -3,29 +3,26 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  FolderKanban, ListTodo, Users, Clock, Plus, ArrowRight, Activity, Calendar,
-  FileQuestion, FileCheck, Shield, AlertTriangle, ClipboardCheck, PoundSterling,
-  TrendingUp, CheckCircle2, XCircle, AlertCircle, Target, Wrench, FileText,
-  ChevronRight, Bell, BarChart3, Building2, Briefcase, Timer, Eye, Sparkles,
-  Zap, Brain, Gauge, Award, Package, HardHat, TrendingDown, Flame,
-  Folder, FolderOpen, FolderCog, FolderHeart, FolderSync, FolderCheck,
-  Milestone, Flag, MapPin, CircleDot, Play, Pause, CheckCircle,
-  LayoutGrid, LayoutList, FileStack, Truck, Hammer, Receipt, Wallet
+  FolderKanban, ListTodo, Users, Clock, Plus, Activity,
+  FileQuestion, Shield, ClipboardCheck, PoundSterling,
+  AlertCircle, ChevronRight, BarChart3, Building2, Briefcase, Sparkles,
+  Zap, HardHat, Flame,
+  Folder, FolderOpen, FolderCog,
+  Flag, CircleDot, CheckCircle,
+  FileStack, Wallet
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MetricCard, CompactMetric, MetricSection } from "@/components/ui/metric-card";
 import { KPICard, QuickAction, AlertBanner, ProgressRing } from "@/components/ui/kpi-dashboard";
-import { ProjectStatusChart } from "./project-status-chart";
 import { TodayAgenda } from "./today-agenda";
 import { PortfolioIntelligence } from "@/components/ui/portfolio-intelligence";
 import { PredictiveAnalytics } from "@/components/ui/predictive-analytics";
 import { SmartAlerts } from "@/components/ui/smart-alerts";
 import { ResourceIntelligence } from "@/components/ui/resource-intelligence";
-import { formatDistanceToNow, format, isToday, isPast, addDays } from "date-fns";
+import { formatDistanceToNow, format, isToday, isPast } from "date-fns";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 
 interface ConstructionMetrics {
@@ -92,12 +89,12 @@ function CommandCenter({
   constructionMetrics, 
   projectStatusCounts,
   tasks,
-  rfis
+  rfis,
 }: { 
   constructionMetrics?: ConstructionMetrics;
   projectStatusCounts: { PLANNING: number; IN_PROGRESS: number; ON_HOLD: number; COMPLETED: number };
   tasks: any[];
-  rfis: any[];
+  rfis?: any[];
 }) {
   const [hoveredFolder, setHoveredFolder] = useState<string | null>(null);
   
@@ -436,11 +433,7 @@ export function DashboardClient({
   projectStatusCounts,
   constructionMetrics,
   rfis = [],
-  submittals = [],
-  safetyIncidents = [],
-  punchLists = [],
   upcomingMilestones = [],
-  changeOrders = []
 }: DashboardClientProps) {
   const router = useRouter();
 

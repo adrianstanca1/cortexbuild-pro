@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
     const summary = {
       totalPending: pendingEntries.length,
       totalHours: pendingEntries.reduce((sum, e) => sum + e.hours, 0),
-      byUser: Object.entries(groupedByUser).map(([userId, entries]) => ({
+      byUser: Object.entries(groupedByUser).map(([_userId, entries]) => ({
         user: entries[0].user,
         count: entries.length,
         totalHours: entries.reduce((sum, e) => sum + e.hours, 0)

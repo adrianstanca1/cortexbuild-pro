@@ -7,15 +7,16 @@ import { ProjectDetailClient } from "./_components/project-detail-client";
 export const dynamic = "force-dynamic";
 
 interface ProjectDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
   const project = await prisma.project.findFirst({
-    where: { id: params?.id ?? "", organizationId: orgId ?? undefined },
+    where: { id: id ?? "", organizationId: orgId ?? undefined },
     include: {
       manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
       tasks: {
@@ -219,7 +220,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } }
     }),
     prisma.activityLog.findMany({
-      where: { projectId: params?.id ?? "" },
+      where: { projectId: id ?? "" },
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } }
       },
