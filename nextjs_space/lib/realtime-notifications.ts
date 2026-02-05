@@ -1,7 +1,7 @@
 // lib/realtime-notifications.ts
+import { randomUUID } from 'crypto';
 import { prisma } from './db';
-
-type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
+import { NotificationType } from './types';
 
 interface NotificationPayload {
   userId?: string;
@@ -36,7 +36,7 @@ export class RealTimeNotifications {
     // });
 
     const notification = {
-      id: `temp-${Date.now()}`,
+      id: randomUUID(),
       userId,
       title,
       message,
@@ -102,8 +102,8 @@ export class RealTimeNotifications {
     //   )
     // );
 
-    const notifications = userIds.map((userId, index) => ({
-      id: `temp-${Date.now()}-${index}`,
+    const notifications = userIds.map((userId) => ({
+      id: randomUUID(),
       userId,
       projectId,
       title,
@@ -161,8 +161,8 @@ export class RealTimeNotifications {
     //   )
     // );
 
-    const notifications = userIds.map((userId, index) => ({
-      id: `temp-${Date.now()}-${index}`,
+    const notifications = userIds.map((userId) => ({
+      id: randomUUID(),
       userId,
       title,
       message,
