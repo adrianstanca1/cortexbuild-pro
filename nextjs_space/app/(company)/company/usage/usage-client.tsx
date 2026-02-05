@@ -50,6 +50,12 @@ interface CompanyUsageClientProps {
   error?: string;
 }
 
+type TooltipPayloadItem = {
+  dataKey?: string | number;
+  name?: string | number;
+  value?: number | string | Array<number | string>;
+};
+
 /**
  * Render the company usage dashboard with overview, usage history, and billing views.
  *
@@ -379,17 +385,21 @@ export function CompanyUsageClient({ usageData: initialData, error }: CompanyUsa
                         return (
                           <div className="bg-white p-3 border rounded-lg shadow-sm">
                             <p className="font-semibold">{label}</p>
-                            {payload.map((item, index) => {
-                              const dataKey =
-                                typeof item.dataKey === 'string' ? item.dataKey : String(item.dataKey ?? item.name ?? index);
-                              const displayValue = Array.isArray(item.value) ? item.value.join(', ') : item.value;
+                            {payload.map((item: TooltipPayloadItem) => {
+                              const dataKeyText = String(item.dataKey ?? item.name ?? '');
+                              if (!dataKeyText) {
+                                return null;
+                              }
+                              const rawValue = Array.isArray(item.value) ? item.value.join(', ') : item.value ?? '';
+                              const displayValue = typeof rawValue === 'number' ? rawValue.toLocaleString() : String(rawValue);
+                              const isApiCalls = dataKeyText === 'API Calls';
 
                               return (
-                                <p key={dataKey} className="text-sm">
-                                  <span className={`mr-2 ${dataKey === 'API Calls' ? 'text-blue-500' : 'text-emerald-500'}`}>
+                                <p key={dataKeyText} className="text-sm">
+                                  <span className={`mr-2 ${isApiCalls ? 'text-blue-500' : 'text-emerald-500'}`}>
                                     ●
                                   </span>
-                                  {dataKey}: {displayValue}
+                                  {dataKeyText}: {displayValue}
                                 </p>
                               );
                             })}

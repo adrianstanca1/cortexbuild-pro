@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
@@ -34,13 +35,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const where: any = {
+    const where: Prisma.ProductionLogWhereInput = {
+      ...(workPackageId ? { workPackageId } : {}),
       workPackage: { projectId }
     };
-    
-    if (workPackageId) {
-      where.workPackageId = workPackageId;
-    }
     
     if (startDate || endDate) {
       where.date = {};
@@ -101,6 +99,26 @@ export async function POST(request: Request) {
       );
     }
 
+    const numericFields: Record<string, number | null | undefined> = {
+      plannedQuantity,
+      actualQuantity,
+      cumulativeQuantity,
+      plannedProductivity,
+      actualProductivity,
+      crewSize,
+      crewHours
+    };
+
+    for (const [field, value] of Object.entries(numericFields)) {
+      if (value != null && !Number.isFinite(value)) {
+        const label = field
+          .replace(/([A-Z])/g, " $1")
+          .trim()
+          .replace(/^./, char => char.toUpperCase());
+        return NextResponse.json({ error: `${label} must be a valid number` }, { status: 400 });
+      }
+    }
+
     // Verify work package belongs to user's organization and project
     const workPackage = await prisma.workPackage.findFirst({
       where: {
@@ -119,13 +137,13 @@ export async function POST(request: Request) {
         workPackageId,
         shift: shift || null,
         unit,
-        plannedQuantity: plannedQuantity || 0,
-        actualQuantity: actualQuantity || 0,
-        cumulativeQuantity: cumulativeQuantity || 0,
+        plannedQuantity: plannedQuantity ?? 0,
+        actualQuantity: actualQuantity ?? 0,
+        cumulativeQuantity: cumulativeQuantity ?? 0,
         plannedProductivity: plannedProductivity ?? null,
         actualProductivity: actualProductivity ?? null,
-        crewSize: crewSize || 0,
-        crewHours: crewHours || 0,
+        crewSize: crewSize ?? 0,
+        crewHours: crewHours ?? 0,
         weatherCondition: weatherCondition || null,
         weatherImpact: weatherImpact || null,
         date: date ? new Date(date) : new Date(),

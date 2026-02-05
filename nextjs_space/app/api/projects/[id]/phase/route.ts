@@ -145,7 +145,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     return NextResponse.json({
       project: {
         ...project,
-        phaseGates: {}
+        phaseGates: null
       }
     });
   } catch (error) {
