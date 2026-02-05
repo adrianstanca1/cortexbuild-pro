@@ -33,7 +33,7 @@ export async function POST(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {
@@ -80,7 +80,7 @@ export async function POST(
     });
 
     return NextResponse.json({ attendee });
-  } catch {
+  } catch (error) {
     console.error("Error signing toolbox talk:", error);
     return NextResponse.json({ error: "Failed to sign toolbox talk" }, { status: 500 });
   }
@@ -112,7 +112,7 @@ export async function PUT(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {
@@ -144,7 +144,7 @@ export async function PUT(
     });
 
     return NextResponse.json({ attendee });
-  } catch {
+  } catch (error) {
     console.error("Error adding guest signature:", error);
     return NextResponse.json({ error: "Failed to add guest signature" }, { status: 500 });
   }

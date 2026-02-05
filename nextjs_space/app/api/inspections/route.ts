@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -36,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(inspections);
-  } catch {
+  } catch (error) {
     console.error('Error fetching inspections:', error);
     return NextResponse.json({ error: 'Failed to fetch inspections' }, { status: 500 });
   }
@@ -116,7 +113,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(inspection, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating inspection:', error);
     return NextResponse.json({ error: 'Failed to create inspection' }, { status: 500 });
   }

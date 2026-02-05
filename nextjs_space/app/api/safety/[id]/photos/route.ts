@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { deleteFile } from '@/lib/s3';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -27,7 +23,7 @@ export async function GET(
     });
 
     return NextResponse.json(photos);
-  } catch {
+  } catch (error) {
     console.error('Error fetching safety incident photos:', error);
     return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });
   }
@@ -73,7 +69,7 @@ export async function POST(
     });
 
     return NextResponse.json(photo, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating safety incident photo:', error);
     return NextResponse.json({ error: 'Failed to create photo' }, { status: 500 });
   }
@@ -113,14 +109,14 @@ export async function DELETE(
 
     try {
       await deleteFile(photo.cloudStoragePath);
-    } catch {
+    } catch (e) {
       console.warn('Failed to delete file from S3:', e);
     }
 
     await prisma.safetyIncidentPhoto.delete({ where: { id: photoId } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error deleting safety incident photo:', error);
     return NextResponse.json({ error: 'Failed to delete photo' }, { status: 500 });
   }

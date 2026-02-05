@@ -12,7 +12,9 @@ import {
   Send,
   Eye,
   Paperclip,
+  ArrowRight,
   RefreshCw,
+  FileCheck,
   LayoutGrid,
   List,
   Calendar,
@@ -20,7 +22,8 @@ import {
   User,
   ChevronRight,
   AlertCircle,
-  FileText
+  FileText,
+  Timer
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -81,7 +84,7 @@ const statusConfig: Record<SubmittalStatus, { color: string; bgColor: string; ic
   REVISE_RESUBMIT: { color: 'text-orange-600', bgColor: 'bg-orange-100 dark:bg-orange-900/30', icon: <RefreshCw className="w-3.5 h-3.5" />, label: 'Revise & Resubmit' }
 };
 
-export function SubmittalsClient({ initialSubmittals, projects }: SubmittalsClientProps) {
+export function SubmittalsClient({ initialSubmittals, projects, teamMembers }: SubmittalsClientProps) {
   const router = useRouter();
   const [submittals, setSubmittals] = useState<Submittal[]>(initialSubmittals);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,7 +137,7 @@ export function SubmittalsClient({ initialSubmittals, projects }: SubmittalsClie
         const err = await res.json();
         toast.error(err.error || 'Failed to create submittal');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to create submittal');
     } finally {
       setLoading(false);
@@ -164,7 +167,7 @@ export function SubmittalsClient({ initialSubmittals, projects }: SubmittalsClie
       } else {
         toast.error('Failed to update submittal');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to update submittal');
     } finally {
       setLoading(false);

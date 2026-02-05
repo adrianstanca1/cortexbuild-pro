@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -76,7 +76,7 @@ export function AuditLogsClient() {
         setPagination(prev => ({ ...prev, ...data.pagination }));
         setFilters(data.filters);
       }
-    } catch {
+    } catch (error) {
       console.error("Error fetching audit logs:", error);
     } finally {
       setLoading(false);

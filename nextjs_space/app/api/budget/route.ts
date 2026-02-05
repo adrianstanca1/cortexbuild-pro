@@ -1,11 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(request: NextRequest) {
@@ -20,19 +18,19 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const status = searchParams.get("status");
 
-    const where: any = {};
-    
+    const where: Prisma.CostItemWhereInput = {};
+
     if (projectId) {
       where.projectId = projectId;
     } else {
       // Filter by organization's projects
       where.project = {
-        organizationId: session.user.organizationId
+        organizationId: session.user.organizationId ?? undefined
       };
     }
-    
-    if (category && category !== "all") where.category = category;
-    if (status && status !== "all") where.status = status;
+
+    if (category && category !== "all") where.category = category as any;
+    if (status && status !== "all") where.status = status as any;
 
     const costItems = await prisma.costItem.findMany({
       where,
@@ -45,7 +43,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate budget summary
-    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item) => {
+    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item: { estimatedAmount: number; committedAmount: number; actualAmount: number }) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;
@@ -53,7 +51,7 @@ export async function GET(request: NextRequest) {
     }, { totalEstimated: 0, totalCommitted: 0, totalActual: 0 });
 
     return NextResponse.json({ costItems, summary });
-  } catch {
+  } catch (error) {
     console.error("Error fetching cost items:", error);
     return NextResponse.json({ error: "Failed to fetch cost items" }, { status: 500 });
   }
@@ -126,7 +124,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(costItem);
-  } catch {
+  } catch (error) {
     console.error("Error creating cost item:", error);
     return NextResponse.json({ error: "Failed to create cost item" }, { status: 500 });
   }

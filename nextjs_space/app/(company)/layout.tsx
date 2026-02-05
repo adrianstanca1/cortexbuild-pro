@@ -16,7 +16,7 @@ export default async function CompanyLayout({
     redirect("/login");
   }
 
-  const user = session.user as any;
+  const user = session.user as { role: string; organizationId?: string };
   
   // Only COMPANY_OWNER and ADMIN can access company management
   if (user.role !== "COMPANY_OWNER" && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
@@ -51,7 +51,7 @@ export default async function CompanyLayout({
       <div className="lg:pl-64">
         <CompanyHeader 
           user={session.user} 
-          organization={organization}
+          organization={{ name: organization?.name }}
         />
         <main className="p-6">{children}</main>
       </div>

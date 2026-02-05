@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -27,7 +24,7 @@ export async function GET(
 
     // Verify project
     const project = await prisma.project.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -57,7 +54,7 @@ export async function GET(
     }));
 
     return NextResponse.json(formattedTeam);
-  } catch {
+  } catch (error) {
     console.error('Get project team error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -86,7 +83,7 @@ export async function POST(
     }
 
     const project = await prisma.project.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -145,7 +142,7 @@ export async function POST(
     });
 
     return NextResponse.json(projectTeamMember, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Add project team member error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -197,7 +194,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Remove project team member error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

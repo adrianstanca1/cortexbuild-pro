@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -49,7 +46,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(riskAssessments);
-  } catch {
+  } catch (error) {
     console.error('Error fetching risk assessments:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -130,7 +127,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(riskAssessment, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating risk assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

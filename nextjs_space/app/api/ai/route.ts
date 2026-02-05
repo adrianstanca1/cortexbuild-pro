@@ -1,11 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
+import { generateAIResponse, isAIConfigured, getActiveAIProvider } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +12,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { message, _projectId, context } = await request.json();
+    // Check if AI is configured
+    if (!isAIConfigured()) {
+      return NextResponse.json({ 
+        error: 'AI service not configured. Please configure Abacus AI or Google Gemini API.' 
+      }, { status: 503 });
+    }
+
+    const { message, context } = await request.json();
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
@@ -82,63 +87,33 @@ ${recentChangeOrders.map(c => `- #${c.number} (${c.project.name}): ${c.title} - 
 Provide helpful, accurate answers based on this data. If asked about something not in the data, say so clearly. Be concise and professional.`;
 
     const messages = [
-      { role: 'system', content: systemContext },
+      { role: 'system' as const, content: systemContext },
       ...(context || []),
-      { role: 'user', content: message }
+      { role: 'user' as const, content: message }
     ];
 
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        messages,
-        stream: true,
-        max_tokens: 2000
-      })
+    // Use unified AI service with automatic provider selection
+    const result = await generateAIResponse({
+      messages,
+      stream: true,
+      maxTokens: 2000
     });
 
-    if (!response.ok) {
-      throw new Error(`LLM API error: ${response.status}`);
+    if (!result.success || !result.stream) {
+      throw new Error(result.error || 'AI service failed');
     }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            controller.enqueue(encoder.encode(chunk));
-          }
-        } catch {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Stream error:', error);
-          }
-          controller.error(error);
-        } finally {
-          controller.close();
-        }
-      }
+    // Add provider info header for debugging
+    const headers = new Headers({
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-AI-Provider': result.provider
     });
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      }
-    });
-  } catch {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('AI API Error:', error);
-    }
+    return new Response(result.stream, { headers });
+  } catch (error) {
+    console.error('AI API Error:', error);
     return NextResponse.json({ error: 'Failed to process AI request' }, { status: 500 });
   }
 }

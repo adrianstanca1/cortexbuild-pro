@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ metrics });
-  } catch {
+  } catch (error) {
     console.error("Get production metrics error:", error);
     return NextResponse.json({ error: "Failed to fetch production metrics" }, { status: 500 });
   }
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ metric }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Create production metric error:", error);
     return NextResponse.json({ error: "Failed to create production metric" }, { status: 500 });
   }

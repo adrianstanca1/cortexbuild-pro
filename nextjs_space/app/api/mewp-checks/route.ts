@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ checks });
-  } catch {
+  } catch (error) {
     console.error("Error fetching MEWP checks:", error);
     return NextResponse.json({ error: "Failed to fetch MEWP checks" }, { status: 500 });
   }
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
     ).catch(err => console.error('Email notification error:', err));
 
     return NextResponse.json({ check }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating MEWP check:", error);
     return NextResponse.json({ error: "Failed to create MEWP check" }, { status: 500 });
   }

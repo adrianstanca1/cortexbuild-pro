@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Truck, Check, Eye, Loader2, Weight, Ruler } from 'lucide-react';
+import { Plus, Truck, Check, Eye, Loader2, Weight, Ruler, Wind, User, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface LiftingOperationsTabProps {
   project: any;
@@ -91,7 +91,7 @@ export function LiftingOperationsTab({ project, teamMembers, liftingOperations: 
       setShowCreateModal(false);
       toast.success('Lift plan created');
       resetForm();
-    } catch {
+    } catch (error) {
       toast.error('Failed to create lift plan');
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export function LiftingOperationsTab({ project, teamMembers, liftingOperations: 
       if (!response.ok) throw new Error('Failed');
       toast.success('Status updated');
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Failed to update status');
     }
   };

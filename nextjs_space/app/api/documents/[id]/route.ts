@@ -1,12 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { deleteFile } from "@/lib/s3";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,7 +15,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     const document = await prisma.document.findUnique({
-      where: { id: id ?? "" }
+      where: { id }
     });
 
     if (!document) {
@@ -27,17 +25,17 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Delete from S3
     try {
       await deleteFile(document.cloudStoragePath);
-    } catch {
+    } catch (e) {
       console.error("S3 delete error:", e);
     }
 
     // Delete from database
     await prisma.document.delete({
-      where: { id: id ?? "" }
+      where: { id }
     });
 
     return NextResponse.json({ message: "Document deleted" });
-  } catch {
+  } catch (error) {
     console.error("Delete document error:", error);
     return NextResponse.json({ error: "Failed to delete document" }, { status: 500 });
   }

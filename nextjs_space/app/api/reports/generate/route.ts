@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -240,7 +237,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(reportData);
-  } catch {
+  } catch (error) {
     console.error('Generate report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

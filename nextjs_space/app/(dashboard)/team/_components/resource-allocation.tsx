@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import {
-  Users, Clock, Briefcase, TrendingUp, TrendingDown,
+  Users, Clock, Briefcase, AlertTriangle, TrendingUp, TrendingDown,
   Loader2, RefreshCw, BarChart3, User
 } from 'lucide-react';
 
@@ -36,7 +36,7 @@ export function ResourceAllocation() {
       const res = await fetch('/api/dashboard/analytics?type=resource-allocation');
       const data = await res.json();
       setResources(data.allocation || []);
-    } catch {
+    } catch (error) {
       console.error('Failed to fetch resource allocation:', error);
     } finally {
       setLoading(false);

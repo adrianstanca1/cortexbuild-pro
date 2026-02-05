@@ -1,13 +1,11 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { parseEntitlements } from "@/lib/entitlements";
-import { sendTeamMemberInvitationNotification } from "@/lib/email-notifications";
+import { sendEmail, generateTeamInvitationEmail } from "@/lib/email-service";
+import { Prisma } from "@prisma/client";
 
 // GET - List team invitations for the organization
 export async function GET(req: NextRequest) {
@@ -17,10 +15,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can view invitations
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can view invitations
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -31,16 +29,16 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where: any = {
+    const whereClause: Prisma.TeamInvitationWhereInput = {
       organizationId: user.organizationId,
     };
 
     if (status && status !== "all") {
-      where.status = status;
+      whereClause.status = status as any;
     }
 
     const invitations = await prisma.teamInvitation.findMany({
-      where,
+      where: whereClause,
       include: {
         invitedBy: {
           select: { name: true, email: true }
@@ -57,15 +55,15 @@ export async function GET(req: NextRequest) {
     });
 
     const statusCounts = {
-      total: counts.reduce((sum: number, c: any) => sum + c._count.status, 0),
-      PENDING: counts.find((c: any) => c.status === "PENDING")?._count.status || 0,
-      ACCEPTED: counts.find((c: any) => c.status === "ACCEPTED")?._count.status || 0,
-      EXPIRED: counts.find((c: any) => c.status === "EXPIRED")?._count.status || 0,
-      REVOKED: counts.find((c: any) => c.status === "REVOKED")?._count.status || 0,
+      total: counts.reduce((sum: number, c: { _count: { status: number } }) => sum + c._count.status, 0),
+      PENDING: counts.find((c: { status: string; _count: { status: number } }) => c.status === "PENDING")?._count.status || 0,
+      ACCEPTED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "ACCEPTED")?._count.status || 0,
+      EXPIRED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "EXPIRED")?._count.status || 0,
+      REVOKED: counts.find((c: { status: string; _count: { status: number } }) => c.status === "REVOKED")?._count.status || 0,
     };
 
     return NextResponse.json({ invitations, counts: statusCounts });
-  } catch {
+  } catch (error) {
     console.error("Error fetching team invitations:", error);
     return NextResponse.json({ error: "Failed to fetch invitations" }, { status: 500 });
   }
@@ -79,10 +77,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can create invitations
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    // Only COMPANY_OWNER, ADMIN, or SUPER_ADMIN can create invitations
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -179,28 +177,31 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Send invitation email using notification API
+    // Send invitation email using dynamic email service
     try {
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
       const acceptUrl = `${baseUrl}/team-invite/accept/${invitation.token}`;
       
-      // Use the notification API to send the email
-      const emailResult = await sendTeamMemberInvitationNotification({
+      // Use the unified email service (tries SendGrid first, then falls back to Abacus)
+      const emailHtml = generateTeamInvitationEmail({
         memberName: name,
-        memberEmail: email.toLowerCase(),
         inviterName: invitation.invitedBy.name || "A team member",
         organizationName: organization.name,
         role: inviteRole,
-        jobTitle: jobTitle || undefined,
-        department: department || undefined,
-        acceptUrl,
-        expiresAt
+        acceptUrl
+      });
+
+      const emailResult = await sendEmail({
+        to: email.toLowerCase(),
+        subject: `You're invited to join ${organization.name} on CortexBuild Pro`,
+        html: emailHtml,
+        from: { name: "CortexBuild Pro" }
       });
 
       if (!emailResult.success) {
-        console.warn("Email sending warning:", emailResult.message);
+        console.warn("Email sending warning:", emailResult.error, "(provider:", emailResult.provider, ")");
       } else {
-        console.log("Team invitation email sent successfully");
+        console.log("Team invitation email sent via:", emailResult.provider);
       }
     } catch (emailError) {
       console.error("Email sending error:", emailError);
@@ -219,7 +220,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ invitation }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating team invitation:", error);
     return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });
   }

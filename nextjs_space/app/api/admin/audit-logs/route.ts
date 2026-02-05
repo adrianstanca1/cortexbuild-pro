@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -100,7 +96,7 @@ export async function GET(request: NextRequest) {
         entityTypes: entityTypes.filter(e => e.entityType).map(e => ({ type: e.entityType, count: e._count }))
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching audit logs:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

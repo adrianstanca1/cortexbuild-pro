@@ -1,50 +1,51 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-import {
-  getOrganizationContext,
-  parseQueryParams,
-  successResponse,
-  errorResponse,
-  withErrorHandler,
-} from '@/lib/api-utils';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
-
-export const GET = withErrorHandler(async (request: NextRequest) => {
-  const { context, error } = await getOrganizationContext();
-  if (error) return error;
-
-  const { status, searchParams } = parseQueryParams(request);
-  const category = searchParams.get('category');
-
-  const where: any = { organizationId: context!.organizationId };
-  if (status) where.status = status;
-  if (category) where.category = category;
-
-  const equipment = await prisma.equipment.findMany({
-    where,
-    include: {
-      currentProject: { select: { id: true, name: true } },
-      _count: { select: { maintenanceLogs: true, usageLogs: true } }
-    },
-    orderBy: { name: 'asc' }
-  });
-
-  return successResponse(equipment);
-});
-
-export const POST = withErrorHandler(async (request: NextRequest) => {
-  const { context, error } = await getOrganizationContext();
-  if (error) return error;
-
-  const body = await request.json();
-  const { name, equipmentNumber, category, manufacturer, model, serialNumber, purchaseDate, purchaseCost, notes, nextServiceDate } = body;
-
+export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const category = searchParams.get('category');
+
+    const where: any = { organizationId: session.user.organizationId };
+    if (status) where.status = status;
+    if (category) where.category = category;
+
+    const equipment = await prisma.equipment.findMany({
+      where,
+      include: {
+        currentProject: { select: { id: true, name: true } },
+        _count: { select: { maintenanceLogs: true, usageLogs: true } }
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    return NextResponse.json(equipment);
+  } catch (error) {
+    console.error('Error fetching equipment:', error);
+    return NextResponse.json({ error: 'Failed to fetch equipment' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { name, equipmentNumber, category, manufacturer, model, serialNumber, purchaseDate, purchaseCost, notes, nextServiceDate } = body;
+
     const equipment = await prisma.equipment.create({
       data: {
         name,
@@ -57,7 +58,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         purchaseCost,
         notes,
         nextServiceDate: nextServiceDate ? new Date(nextServiceDate) : null,
-        organizationId: context!.organizationId!
+        organizationId: session.user.organizationId!
       }
     });
 
@@ -68,21 +69,22 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         entityType: 'equipment',
         entityId: equipment.id,
         entityName: equipment.name,
-        userId: context!.userId
+        userId: session.user.id
       }
     });
 
     // Broadcast real-time event
-    broadcastToOrganization(context!.organizationId!, {
+    broadcastToOrganization(session.user.organizationId!, {
       type: 'equipment_added',
       payload: { id: equipment.id, name: equipment.name, category: equipment.category }
     });
 
     return NextResponse.json(equipment, { status: 201 });
   } catch (error: any) {
+    console.error('Error creating equipment:', error);
     if (error.code === 'P2002') {
-      return errorResponse('CONFLICT', 'Equipment number already exists');
+      return NextResponse.json({ error: 'Equipment number already exists' }, { status: 400 });
     }
-    throw error; // Let withErrorHandler handle other errors
+    return NextResponse.json({ error: 'Failed to create equipment' }, { status: 500 });
   }
-});
+}

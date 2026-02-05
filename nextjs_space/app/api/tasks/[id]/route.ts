@@ -35,7 +35,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
 
     const task = await prisma.task.update({
-      where: { id: id ?? "" },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
@@ -79,7 +79,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     return NextResponse.json({ task });
-  } catch {
+  } catch (error) {
     console.error("Update task error:", error);
     return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
   }
@@ -98,11 +98,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     // Fetch task before deletion for broadcast
     const task = await prisma.task.findUnique({
-      where: { id: id ?? "" },
+      where: { id },
       include: { project: { select: { id: true, name: true } } }
     });
 
-    await prisma.task.delete({ where: { id: id ?? "" } });
+    await prisma.task.delete({ where: { id } });
 
     // Broadcast real-time event to organization
     if (organizationId && task) {
@@ -120,7 +120,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ message: "Task deleted" });
-  } catch {
+  } catch (error) {
     console.error("Delete task error:", error);
     return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
   }

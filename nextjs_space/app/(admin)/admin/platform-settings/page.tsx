@@ -1,9 +1,6 @@
 import { PlatformSettingsClient } from "./_components/platform-settings-client";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
+export const dynamic = "force-dynamic";
 
 export default function PlatformSettingsPage() {
   return <PlatformSettingsClient />;

@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -21,7 +18,7 @@ export async function GET(
 
     const timeEntry = await prisma.timeEntry.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -37,7 +34,7 @@ export async function GET(
     }
 
     return NextResponse.json(timeEntry);
-  } catch {
+  } catch (error) {
     console.error("Error fetching time entry:", error);
     return NextResponse.json({ error: "Failed to fetch time entry" }, { status: 500 });
   }
@@ -56,7 +53,7 @@ export async function PATCH(
 
     const existing = await prisma.timeEntry.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -87,7 +84,7 @@ export async function PATCH(
     }
 
     const timeEntry = await prisma.timeEntry.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -103,7 +100,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(timeEntry);
-  } catch {
+  } catch (error) {
     console.error("Error updating time entry:", error);
     return NextResponse.json({ error: "Failed to update time entry" }, { status: 500 });
   }
@@ -122,7 +119,7 @@ export async function DELETE(
 
     const existing = await prisma.timeEntry.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -138,15 +135,15 @@ export async function DELETE(
       return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
-    await prisma.timeEntry.delete({ where: { id: id } });
+    await prisma.timeEntry.delete({ where: { id } });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "time_entry_deleted",
-      data: { id: id, projectId: existing.projectId }
+      data: { id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting time entry:", error);
     return NextResponse.json({ error: "Failed to delete time entry" }, { status: 500 });
   }

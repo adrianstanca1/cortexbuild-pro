@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
@@ -58,7 +55,7 @@ export async function POST(
 
     // Log activity
     const teamMember = await prisma.teamMember.findUnique({
-      where: { id: id },
+      where: { id },
       include: { user: { select: { name: true } } }
     });
 
@@ -74,7 +71,7 @@ export async function POST(
     });
 
     return NextResponse.json(assignment);
-  } catch {
+  } catch (error) {
     console.error('Error assigning to project:', error);
     return NextResponse.json({ error: 'Failed to assign to project' }, { status: 500 });
   }
@@ -108,7 +105,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error removing from project:', error);
     return NextResponse.json({ error: 'Failed to remove from project' }, { status: 500 });
   }

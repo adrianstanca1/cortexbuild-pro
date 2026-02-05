@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { testWebhook } from '@/lib/webhook-dispatcher';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function POST(
   request: NextRequest,
@@ -31,7 +27,7 @@ export async function POST(
 
     // Verify webhook belongs to organization
     const webhook = await prisma.webhook.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!webhook) {
@@ -41,7 +37,7 @@ export async function POST(
     const result = await testWebhook(id);
     
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
     console.error('Test webhook error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

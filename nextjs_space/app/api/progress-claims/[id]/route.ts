@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -20,7 +17,7 @@ export async function GET(
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         lineItems: { orderBy: { sortOrder: "asc" } },
@@ -33,7 +30,7 @@ export async function GET(
     }
 
     return NextResponse.json(claim);
-  } catch {
+  } catch (error) {
     console.error("Error fetching progress claim:", error);
     return NextResponse.json({ error: "Failed to fetch progress claim" }, { status: 500 });
   }
@@ -57,7 +54,7 @@ export async function PATCH(
     } = body;
 
     const existingClaim = await prisma.progressClaim.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -98,7 +95,7 @@ export async function PATCH(
     if (paidDate) updateData.paidDate = new Date(paidDate);
 
     const claim = await prisma.progressClaim.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -115,7 +112,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(claim);
-  } catch {
+  } catch (error) {
     console.error("Error updating progress claim:", error);
     return NextResponse.json({ error: "Failed to update progress claim" }, { status: 500 });
   }
@@ -133,7 +130,7 @@ export async function DELETE(
     }
 
     const claim = await prisma.progressClaim.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -146,7 +143,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Can only delete draft claims" }, { status: 400 });
     }
 
-    await prisma.progressClaim.delete({ where: { id: id } });
+    await prisma.progressClaim.delete({ where: { id } });
 
     if (claim.project.organizationId) {
       broadcastToOrganization(claim.project.organizationId, {
@@ -156,7 +153,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting progress claim:", error);
     return NextResponse.json({ error: "Failed to delete progress claim" }, { status: 500 });
   }

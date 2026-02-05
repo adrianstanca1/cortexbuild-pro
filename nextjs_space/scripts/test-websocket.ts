@@ -123,7 +123,7 @@ async function main() {
     console.log('');
     
     process.exit(0);
-  } catch {
+  } catch (error) {
     console.log('\n' + '='.repeat(50));
     console.log('❌ WebSocket Test FAILED');
     console.log('='.repeat(50));

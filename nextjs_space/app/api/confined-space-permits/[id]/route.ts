@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -21,7 +17,7 @@ export async function GET(
     }
 
     const permit = await prisma.confinedSpacePermit.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         requestedBy: { select: { id: true, name: true } },
@@ -34,7 +30,7 @@ export async function GET(
     }
 
     return NextResponse.json(permit);
-  } catch {
+  } catch (error) {
     console.error('Error fetching confined space permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -54,7 +50,7 @@ export async function PATCH(
     const data = await request.json();
 
     const existing = await prisma.confinedSpacePermit.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -78,7 +74,7 @@ export async function PATCH(
     if (data.testDateTime) updateData.testDateTime = new Date(data.testDateTime);
 
     const permit = await prisma.confinedSpacePermit.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
@@ -104,7 +100,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(permit);
-  } catch {
+  } catch (error) {
     console.error('Error updating confined space permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

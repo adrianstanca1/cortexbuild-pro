@@ -2,13 +2,19 @@
 
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, LogOut, User } from 'lucide-react';
+import { LogOut, User, ChevronDown, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 interface CompanyHeaderProps {
-  user: any;
-  organization: any;
+  user: {
+    name?: string;
+    email?: string;
+    role?: string;
+  };
+  organization: {
+    name?: string;
+  };
 }
 
 export function CompanyHeader({ user, organization }: CompanyHeaderProps) {
@@ -58,7 +64,7 @@ export function CompanyHeader({ user, organization }: CompanyHeaderProps) {
             </div>
             <div className="text-left hidden sm:block">
               <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-              <div className="text-xs text-gray-500">{roleLabels[user?.role] || user?.role}</div>
+              <div className="text-xs text-gray-500">{user?.role ? (roleLabels[user.role] || user.role) : ''}</div>
             </div>
             <ChevronDown className="h-4 w-4 text-gray-500" />
           </button>

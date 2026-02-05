@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -103,7 +100,7 @@ export async function POST(request: NextRequest) {
       updated: updateResult.count,
       entries: updatedEntries
     });
-  } catch {
+  } catch (error) {
     console.error("Error bulk approving time entries:", error);
     return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
@@ -152,7 +149,7 @@ export async function GET(request: NextRequest) {
     const summary = {
       totalPending: pendingEntries.length,
       totalHours: pendingEntries.reduce((sum, e) => sum + e.hours, 0),
-      byUser: Object.entries(groupedByUser).map(([_userId, entries]) => ({
+      byUser: Object.entries(groupedByUser).map(([userId, entries]) => ({
         user: entries[0].user,
         count: entries.length,
         totalHours: entries.reduce((sum, e) => sum + e.hours, 0)
@@ -160,7 +157,7 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({ entries: pendingEntries, summary, grouped: groupedByUser });
-  } catch {
+  } catch (error) {
     console.error("Error fetching pending time entries:", error);
     return NextResponse.json({ error: "Failed to fetch pending entries" }, { status: 500 });
   }

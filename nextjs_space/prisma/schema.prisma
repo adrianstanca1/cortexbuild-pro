@@ -31,6 +31,14 @@ enum ProjectStatus {
   ARCHIVED
 }
 
+enum ProjectPhase {
+  PRE_CONSTRUCTION
+  MOBILIZATION
+  ACTIVE
+  CLOSEOUT
+  CLOSED
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -57,41 +65,26 @@ enum DocumentType {
 }
 
 model Organization {
-  id                   String                  @id @default(cuid())
+  id                   String                @id @default(cuid())
   name                 String
-  slug                 String                  @unique
+  slug                 String                @unique
   logoUrl              String?
   // Entitlements - JSON object defining enabled modules and limits
-  entitlements         Json?                   @default("{\"modules\":{\"projects\":true,\"tasks\":true,\"documents\":true,\"rfis\":true,\"submittals\":true,\"changeOrders\":true,\"dailyReports\":true,\"safety\":true,\"reports\":true,\"team\":true},\"limits\":{\"storageGB\":10,\"maxUsers\":50,\"maxProjects\":100}}")
-  storageUsedBytes     BigInt                  @default(0)
-  isActive             Boolean                 @default(true)
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
+  entitlements         Json?                 @default("{\"modules\":{\"projects\":true,\"tasks\":true,\"documents\":true,\"rfis\":true,\"submittals\":true,\"changeOrders\":true,\"dailyReports\":true,\"safety\":true,\"reports\":true,\"team\":true},\"limits\":{\"storageGB\":10,\"maxUsers\":50,\"maxProjects\":100}}")
+  storageUsedBytes     BigInt                @default(0)
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
   users                User[]
   projects             Project[]
   teamMembers          TeamMember[]
   invitations          CompanyInvitation[]
-  teamInvitations      TeamInvitation[]        @relation("TeamInvitations")
+  teamInvitations      TeamInvitation[]      @relation("TeamInvitations")
   equipment            Equipment[]
   webhooks             Webhook[]
   subcontractors       Subcontractor[]
   workerCertifications WorkerCertification[]
-  // Phase 1-3 enterprise features
-  costCodes            CostCode[]
-  dashboardSnapshots   DashboardSnapshot[]     @relation("OrgDashboardSnapshots")
-  automationRules      AutomationRule[]        @relation("OrgAutomationRules")
-  predictiveSignals    PredictiveSignal[]      @relation("OrgPredictiveSignals")
-  documentTemplates    DocumentTemplate[]
-  // Advanced features relations
-  analyticsWidgets     AnalyticsWidget[]       @relation("OrgAnalyticsWidgets")
-  analyticsDashboards  AnalyticsDashboard[]    @relation("OrgAnalyticsDashboards")
-  backupConfigs        BackupConfiguration[]   @relation("OrgBackupConfigs")
-  backupRecords        BackupRecord[]          @relation("OrgBackupRecords")
-  scheduledTasks       ScheduledTask[]         @relation("OrgScheduledTasks")
-  customReports        CustomReport[]          @relation("OrgCustomReports")
-  permissionGrants     PermissionGrant[]       @relation("OrgPermissionGrants")
-  resourceQuotas       ResourceQuota[]         @relation("OrgResourceQuotas")
-  rateLimits           OrganizationRateLimit[] @relation("OrgRateLimits")
+  inspectionTemplates  InspectionTemplate[]
 }
 
 model CompanyInvitation {
@@ -121,106 +114,91 @@ model CompanyInvitation {
 }
 
 model User {
-  id                          String                    @id @default(cuid())
-  email                       String                    @unique
-  password                    String
-  name                        String
-  role                        UserRole                  @default(FIELD_WORKER)
-  avatarUrl                   String?
-  phone                       String?
-  organizationId              String?
-  organization                Organization?             @relation(fields: [organizationId], references: [id])
-  createdAt                   DateTime                  @default(now())
-  updatedAt                   DateTime                  @updatedAt
-  lastLogin                   DateTime?
-  managedProjects             Project[]                 @relation("ProjectManager")
-  assignedTasks               Task[]                    @relation("TaskAssignee")
-  createdTasks                Task[]                    @relation("TaskCreator")
-  uploadedDocs                Document[]                @relation("DocumentUploader")
-  activities                  ActivityLog[]
-  taskComments                TaskComment[]
-  teamMemberships             TeamMember[]
+  id                      String                    @id @default(cuid())
+  email                   String                    @unique
+  password                String
+  name                    String
+  role                    UserRole                  @default(FIELD_WORKER)
+  avatarUrl               String?
+  phone                   String?
+  organizationId          String?
+  organization            Organization?             @relation(fields: [organizationId], references: [id])
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  lastLogin               DateTime?
+  managedProjects         Project[]                 @relation("ProjectManager")
+  assignedTasks           Task[]                    @relation("TaskAssignee")
+  createdTasks            Task[]                    @relation("TaskCreator")
+  uploadedDocs            Document[]                @relation("DocumentUploader")
+  activities              ActivityLog[]
+  taskComments            TaskComment[]
+  teamMemberships         TeamMember[]
   // Construction management relations
-  createdRFIs                 RFI[]                     @relation("RFICreator")
-  assignedRFIs                RFI[]                     @relation("RFIAssignee")
-  answeredRFIs                RFI[]                     @relation("RFIAnswerer")
-  submittedSubmittals         Submittal[]               @relation("SubmittalSubmitter")
-  reviewedSubmittals          Submittal[]               @relation("SubmittalReviewer")
-  requestedCOs                ChangeOrder[]             @relation("ChangeOrderRequester")
-  approvedCOs                 ChangeOrder[]             @relation("ChangeOrderApprover")
-  dailyReports                DailyReport[]             @relation("DailyReportCreator")
-  reportedIncidents           SafetyIncident[]          @relation("IncidentReporter")
-  assignedIncidents           SafetyIncident[]          @relation("IncidentInvestigator")
-  createdInvitations          CompanyInvitation[]       @relation("InvitationCreator")
-  createdTeamInvitations      TeamInvitation[]          @relation("TeamInvitationCreator")
+  createdRFIs             RFI[]                     @relation("RFICreator")
+  assignedRFIs            RFI[]                     @relation("RFIAssignee")
+  answeredRFIs            RFI[]                     @relation("RFIAnswerer")
+  submittedSubmittals     Submittal[]               @relation("SubmittalSubmitter")
+  reviewedSubmittals      Submittal[]               @relation("SubmittalReviewer")
+  requestedCOs            ChangeOrder[]             @relation("ChangeOrderRequester")
+  approvedCOs             ChangeOrder[]             @relation("ChangeOrderApprover")
+  dailyReports            DailyReport[]             @relation("DailyReportCreator")
+  reportedIncidents       SafetyIncident[]          @relation("IncidentReporter")
+  assignedIncidents       SafetyIncident[]          @relation("IncidentInvestigator")
+  createdInvitations      CompanyInvitation[]       @relation("InvitationCreator")
+  createdTeamInvitations  TeamInvitation[]          @relation("TeamInvitationCreator")
   // Additional construction module relations
-  assignedPunchLists          PunchList[]               @relation("PunchListAssignee")
-  createdPunchLists           PunchList[]               @relation("PunchListCreator")
-  verifiedPunchLists          PunchList[]               @relation("PunchListVerifier")
-  maintenancePerformed        EquipmentMaintenanceLog[] @relation("MaintenancePerformer")
-  equipmentCheckouts          EquipmentUsageLog[]       @relation("EquipmentCheckOut")
-  requestedInspections        Inspection[]              @relation("InspectionRequester")
-  organizedMeetings           MeetingMinutes[]          @relation("MeetingOrganizer")
-  webhooksCreated             Webhook[]                 @relation("WebhookCreator")
+  assignedPunchLists      PunchList[]               @relation("PunchListAssignee")
+  createdPunchLists       PunchList[]               @relation("PunchListCreator")
+  verifiedPunchLists      PunchList[]               @relation("PunchListVerifier")
+  maintenancePerformed    EquipmentMaintenanceLog[] @relation("MaintenancePerformer")
+  equipmentCheckouts      EquipmentUsageLog[]       @relation("EquipmentCheckOut")
+  requestedInspections    Inspection[]              @relation("InspectionRequester")
+  organizedMeetings       MeetingMinutes[]          @relation("MeetingOrganizer")
+  webhooksCreated         Webhook[]                 @relation("WebhookCreator")
   // API Management relations
-  apiConnectionsCreated       ApiConnection[]           @relation("ApiConnectionCreator")
-  apiConnectionsModified      ApiConnection[]           @relation("ApiConnectionModifier")
-  apiConnectionLogs           ApiConnectionLog[]        @relation("ApiConnectionAuditor")
+  apiConnectionsCreated   ApiConnection[]           @relation("ApiConnectionCreator")
+  apiConnectionLogs       ApiConnectionLog[]        @relation("ApiConnectionAuditor")
   // Advanced construction module relations
-  createdCostItems            CostItem[]                @relation("CostItemCreator")
-  createdMaterials            Material[]                @relation("MaterialCreator")
-  receivedDeliveries          MaterialDelivery[]        @relation("MaterialReceiver")
-  createdMilestones           Milestone[]               @relation("MilestoneCreator")
+  createdCostItems        CostItem[]                @relation("CostItemCreator")
+  createdMaterials        Material[]                @relation("MaterialCreator")
+  receivedDeliveries      MaterialDelivery[]        @relation("MaterialReceiver")
+  createdMilestones       Milestone[]               @relation("MilestoneCreator")
   // Time tracking relations
-  timeEntries                 TimeEntry[]               @relation("UserTimeEntries")
-  approvedTimeEntries         TimeEntry[]               @relation("ApprovedTimeEntries")
+  timeEntries             TimeEntry[]               @relation("UserTimeEntries")
+  approvedTimeEntries     TimeEntry[]               @relation("ApprovedTimeEntries")
   // Toolbox talks and daily checks relations
-  presentedToolboxTalks       ToolboxTalk[]             @relation("ToolboxTalkPresenter")
-  toolboxTalkAttendance       ToolboxTalkAttendee[]     @relation("ToolboxTalkAttendance")
-  mewpChecksAsOperator        MEWPCheck[]               @relation("MEWPOperator")
-  mewpChecksAsSupervisor      MEWPCheck[]               @relation("MEWPSupervisor")
-  toolChecks                  ToolCheck[]               @relation("ToolInspector")
+  presentedToolboxTalks   ToolboxTalk[]             @relation("ToolboxTalkPresenter")
+  toolboxTalkAttendance   ToolboxTalkAttendee[]     @relation("ToolboxTalkAttendance")
+  mewpChecksAsOperator    MEWPCheck[]               @relation("MEWPOperator")
+  mewpChecksAsSupervisor  MEWPCheck[]               @relation("MEWPSupervisor")
+  toolChecks              ToolCheck[]               @relation("ToolInspector")
   // Enhanced construction features relations
-  createdRAMS                 RiskAssessment[]          @relation("RAMSCreator")
-  reviewedRAMS                RiskAssessment[]          @relation("RAMSReviewer")
-  approvedRAMS                RiskAssessment[]          @relation("RAMSApprover")
-  ramsAcknowledgements        RAMSAcknowledgement[]     @relation("RAMSAcknowledger")
-  requestedHotWorkPermits     HotWorkPermit[]           @relation("HotWorkRequester")
-  approvedHotWorkPermits      HotWorkPermit[]           @relation("HotWorkApprover")
-  completedHotWorkPermits     HotWorkPermit[]           @relation("HotWorkCompleter")
-  requestedCSPermits          ConfinedSpacePermit[]     @relation("CSRequester")
-  approvedCSPermits           ConfinedSpacePermit[]     @relation("CSApprover")
-  plannedLifts                LiftingOperation[]        @relation("LiftPlanner")
-  operatedLifts               LiftingOperation[]        @relation("LiftOperator")
-  supervisedLifts             LiftingOperation[]        @relation("LiftSupervisor")
-  appointedPersonLifts        LiftingOperation[]        @relation("LiftAppointedPerson")
-  certifications              WorkerCertification[]     @relation("WorkerCerts")
-  verifiedCertifications      WorkerCertification[]     @relation("CertVerifier")
-  siteAccessLogs              SiteAccessLog[]           @relation("UserSiteAccess")
-  recordedAccessLogs          SiteAccessLog[]           @relation("AccessRecorder")
-  // Phase 1-3 enterprise features
-  responsibleWorkPackages     WorkPackage[]             @relation("WorkPackageResponsible")
-  createdWorkPackages         WorkPackage[]             @relation("WorkPackageCreator")
-  productionLogs              ProductionLog[]           @relation("ProductionLogRecorder")
-  changeOrderVersionsCreated  ChangeOrderVersion[]      @relation("ChangeOrderVersionCreator")
-  changeOrderVersionsApproved ChangeOrderVersion[]      @relation("ChangeOrderVersionApprover")
-  forecastsCreated            ForecastEntry[]           @relation("ForecastCreator")
-  ownedRisks                  RiskRegisterEntry[]       @relation("RiskOwner")
-  createdRisks                RiskRegisterEntry[]       @relation("RiskCreator")
-  assignedRiskActions         RiskAction[]              @relation("RiskActionAssignee")
-  automationRulesCreated      AutomationRule[]          @relation("AutomationRuleCreator")
-  acknowledgedSignals         PredictiveSignal[]        @relation("SignalAcknowledger")
-  vendorAccessCreated         VendorPortalAccess[]      @relation("VendorAccessCreator")
-  vendorSubmissionsReviewed   VendorSubmission[]        @relation("VendorSubmissionReviewer")
-  createdTemplates            DocumentTemplate[]        @relation("TemplateCreator")
-  // Drawing management relations
-  uploadedDrawingRevisions    DrawingRevision[]
-  drawingAnnotations          DrawingAnnotation[]
-  // Advanced features relations
-  permissionGrants            PermissionGrant[]         @relation("UserPermissionGrants")
-  grantedPermissions          PermissionGrant[]         @relation("GrantedPermissions")
-  mfaMethods                  UserMFA[]                 @relation("UserMFAMethods")
-  rateLimitUsage              RateLimitUsage[]          @relation("UserRateLimitUsage")
+  createdRAMS             RiskAssessment[]          @relation("RAMSCreator")
+  reviewedRAMS            RiskAssessment[]          @relation("RAMSReviewer")
+  approvedRAMS            RiskAssessment[]          @relation("RAMSApprover")
+  ramsAcknowledgements    RAMSAcknowledgement[]     @relation("RAMSAcknowledger")
+  requestedHotWorkPermits HotWorkPermit[]           @relation("HotWorkRequester")
+  approvedHotWorkPermits  HotWorkPermit[]           @relation("HotWorkApprover")
+  completedHotWorkPermits HotWorkPermit[]           @relation("HotWorkCompleter")
+  requestedCSPermits      ConfinedSpacePermit[]     @relation("CSRequester")
+  approvedCSPermits       ConfinedSpacePermit[]     @relation("CSApprover")
+  plannedLifts            LiftingOperation[]        @relation("LiftPlanner")
+  operatedLifts           LiftingOperation[]        @relation("LiftOperator")
+  supervisedLifts         LiftingOperation[]        @relation("LiftSupervisor")
+  appointedPersonLifts    LiftingOperation[]        @relation("LiftAppointedPerson")
+  certifications          WorkerCertification[]     @relation("WorkerCerts")
+  verifiedCertifications  WorkerCertification[]     @relation("CertVerifier")
+  siteAccessLogs          SiteAccessLog[]           @relation("UserSiteAccess")
+  recordedAccessLogs      SiteAccessLog[]           @relation("AccessRecorder")
+  notifications           Notification[]
+  // Enhanced feature relations
+  workPackagesResponsible WorkPackage[]             @relation("WorkPackageResponsible")
+  productionMetrics       ProductionMetric[]        @relation("ProductionMetricCreator")
+  forecasts               ProjectForecast[]         @relation("ForecastCreator")
+  createdTemplates        InspectionTemplate[]      @relation("TemplateCreator")
+  verifiedIncidents       SafetyIncident[]          @relation("IncidentVerifier")
+  createdBusinessRules    BusinessRule[]            @relation("RuleCreator")
+  businessRuleExecutions  BusinessRuleExecution[]   @relation("RuleExecutor")
 }
 
 model Project {
@@ -228,6 +206,11 @@ model Project {
   name                 String
   description          String?
   status               ProjectStatus           @default(PLANNING)
+  // Project Lifecycle Intelligence
+  phase                ProjectPhase            @default(PRE_CONSTRUCTION)
+  phaseStartedAt       DateTime?
+  phaseGatesData       Json?                   @default("{}") // Stores phase gate requirements and completion status
+  // Original fields
   location             String?
   clientName           String?
   clientEmail          String?
@@ -279,19 +262,76 @@ model Project {
   confinedSpacePermits ConfinedSpacePermit[]
   liftingOperations    LiftingOperation[]
   siteAccessLogs       SiteAccessLog[]
-  // Phase 1-3 enterprise features
-  phase                ProjectPhase            @default(PRECONSTRUCTION)
+  notifications        Notification[]
+  // Work Packages & Task Decomposition
   workPackages         WorkPackage[]
-  costCodes            CostCode[]              @relation("ProjectCostCodes")
-  budgetLines          BudgetLine[]            @relation("ProjectBudgetLines")
-  forecasts            ForecastEntry[]         @relation("ProjectForecasts")
-  riskRegister         RiskRegisterEntry[]     @relation("ProjectRisks")
-  dashboardSnapshots   DashboardSnapshot[]     @relation("ProjectDashboardSnapshots")
-  automationRules      AutomationRule[]        @relation("ProjectAutomationRules")
-  predictiveSignals    PredictiveSignal[]      @relation("ProjectPredictiveSignals")
-  vendorSubmissions    VendorSubmission[]      @relation("ProjectVendorSubmissions")
-  // Advanced features relations
-  permissionGrants     PermissionGrant[]       @relation("ProjectPermissionGrants")
+  productionMetrics    ProductionMetric[]
+  costCodes            CostCode[]
+  forecasts            ProjectForecast[]
+}
+
+// Work Package Model - Middle layer between projects and tasks
+model WorkPackage {
+  id                 String                  @id @default(cuid())
+  name               String
+  description        String?                 @db.Text
+  code               String // Unique identifier like "WP-001"
+  scopeDescription   String?                 @db.Text
+  budget             Float                   @default(0)
+  startDate          DateTime?
+  endDate            DateTime?
+  responsiblePartyId String?
+  responsibleParty   User?                   @relation("WorkPackageResponsible", fields: [responsiblePartyId], references: [id])
+  projectId          String
+  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status             TaskStatus              @default(TODO) // Reusing TaskStatus enum
+  priority           TaskPriority            @default(MEDIUM)
+  progressPercent    Float                   @default(0)
+  isCriticalPath     Boolean                 @default(false)
+  orderIndex         Int                     @default(0)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  tasks              Task[]
+  dependencies       WorkPackageDependency[] @relation("DependentPackage")
+  dependents         WorkPackageDependency[] @relation("PrecedingPackage")
+  productionMetrics  ProductionMetric[]
+
+  @@unique([projectId, code])
+}
+
+// Work Package Dependencies for Critical Path
+model WorkPackageDependency {
+  id                 String      @id @default(cuid())
+  precedingPackageId String
+  precedingPackage   WorkPackage @relation("PrecedingPackage", fields: [precedingPackageId], references: [id], onDelete: Cascade)
+  dependentPackageId String
+  dependentPackage   WorkPackage @relation("DependentPackage", fields: [dependentPackageId], references: [id], onDelete: Cascade)
+  dependencyType     String      @default("FINISH_TO_START") // FS, SS, FF, SF
+  lagDays            Int         @default(0)
+  createdAt          DateTime    @default(now())
+
+  @@unique([precedingPackageId, dependentPackageId])
+}
+
+// Production Metrics for quantity-based progress tracking
+model ProductionMetric {
+  id              String       @id @default(cuid())
+  name            String // e.g., "Concrete Poured", "Blocks Laid"
+  unit            String // e.g., "cubic meters", "units", "linear meters"
+  plannedQuantity Float        @default(0)
+  actualQuantity  Float        @default(0)
+  date            DateTime     @default(now())
+  notes           String?      @db.Text
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workPackageId   String?
+  workPackage     WorkPackage? @relation(fields: [workPackageId], references: [id], onDelete: Cascade)
+  dailyReportId   String?
+  dailyReport     DailyReport? @relation(fields: [dailyReportId], references: [id], onDelete: Cascade)
+  createdById     String
+  createdBy       User         @relation("ProductionMetricCreator", fields: [createdById], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Task {
@@ -304,6 +344,8 @@ model Task {
   completedAt   DateTime?
   projectId     String
   project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workPackageId String?
+  workPackage   WorkPackage?  @relation(fields: [workPackageId], references: [id], onDelete: SetNull)
   assigneeId    String?
   assignee      User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
   creatorId     String?
@@ -312,9 +354,6 @@ model Task {
   updatedAt     DateTime      @updatedAt
   comments      TaskComment[]
   timeEntries   TimeEntry[]
-  // Work Package inheritance
-  workPackageId String?
-  workPackage   WorkPackage?  @relation("WorkPackageTasks", fields: [workPackageId], references: [id], onDelete: SetNull)
 }
 
 model TaskComment {
@@ -536,56 +575,59 @@ model SubmittalAttachment {
 }
 
 model ChangeOrder {
-  id             String               @id @default(cuid())
-  number         Int
-  title          String
-  description    String?              @db.Text
-  status         ChangeOrderStatus    @default(DRAFT)
-  reason         String?
-  costChange     Float                @default(0)
-  scheduleChange Int? // Days added/removed
-  originalBudget Float?
-  revisedBudget  Float?
-  projectId      String
-  project        Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  requestedById  String
-  requestedBy    User                 @relation("ChangeOrderRequester", fields: [requestedById], references: [id])
-  approvedById   String?
-  approvedBy     User?                @relation("ChangeOrderApprover", fields: [approvedById], references: [id])
-  approvedAt     DateTime?
-  executedAt     DateTime?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  // Version tracking for audit trail
-  currentVersion Int                  @default(1)
-  versions       ChangeOrderVersion[] @relation("ChangeOrderVersions")
+  id                     String            @id @default(cuid())
+  number                 Int
+  title                  String
+  description            String?           @db.Text
+  status                 ChangeOrderStatus @default(DRAFT)
+  reason                 String?
+  costChange             Float             @default(0)
+  scheduleChange         Int? // Days added/removed
+  originalBudget         Float?
+  revisedBudget          Float?
+  // Enhanced Change Order tracking
+  scopeChangeDescription String?           @db.Text
+  versionNumber          Int               @default(1)
+  previousVersionId      String?
+  impactAnalysis         Json?             @default("{}") // Stores detailed impact analysis
+  reviewComments         String?           @db.Text
+  projectId              String
+  project                Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedById          String
+  requestedBy            User              @relation("ChangeOrderRequester", fields: [requestedById], references: [id])
+  approvedById           String?
+  approvedBy             User?             @relation("ChangeOrderApprover", fields: [approvedById], references: [id])
+  approvedAt             DateTime?
+  executedAt             DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
 
   @@unique([projectId, number])
 }
 
 model DailyReport {
-  id               String                 @id @default(cuid())
-  reportDate       DateTime               @db.Date
-  weather          WeatherCondition       @default(SUNNY)
-  temperature      Int? // Fahrenheit
-  workPerformed    String?                @db.Text
-  materialsUsed    String?                @db.Text
-  equipmentUsed    String?                @db.Text
-  visitors         String?
-  delays           String?                @db.Text
-  safetyNotes      String?                @db.Text
-  manpowerCount    Int                    @default(0)
-  projectId        String
-  project          Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdById      String
-  createdBy        User                   @relation("DailyReportCreator", fields: [createdById], references: [id])
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  photos           DailyReportPhoto[]
-  // Structured entries for Phase 1 enhancement
-  laborEntries     DailyReportLabor[]     @relation("DailyReportLaborEntries")
-  equipmentEntries DailyReportEquipment[] @relation("DailyReportEquipmentEntries")
-  materialEntries  DailyReportMaterial[]  @relation("DailyReportMaterialEntries")
+  id                String             @id @default(cuid())
+  reportDate        DateTime           @db.Date
+  weather           WeatherCondition   @default(SUNNY)
+  temperature       Int? // Fahrenheit
+  workPerformed     String?            @db.Text
+  materialsUsed     String?            @db.Text
+  equipmentUsed     String?            @db.Text
+  visitors          String?
+  delays            String?            @db.Text
+  safetyNotes       String?            @db.Text
+  manpowerCount     Int                @default(0)
+  // Field Progress & Production Tracking
+  weatherImpact     String?            @db.Text
+  progressSummary   String?            @db.Text
+  projectId         String
+  project           Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById       String
+  createdBy         User               @relation("DailyReportCreator", fields: [createdById], references: [id])
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  photos            DailyReportPhoto[]
+  productionMetrics ProductionMetric[]
 
   @@unique([projectId, reportDate])
 }
@@ -600,27 +642,37 @@ model DailyReportPhoto {
 }
 
 model SafetyIncident {
-  id                String                @id @default(cuid())
-  incidentDate      DateTime
-  location          String?
-  description       String                @db.Text
-  severity          IncidentSeverity      @default(MEDIUM)
-  status            IncidentStatus        @default(OPEN)
-  injuryOccurred    Boolean               @default(false)
-  injuryDescription String?               @db.Text
-  rootCause         String?               @db.Text
-  correctiveAction  String?               @db.Text
-  preventiveAction  String?               @db.Text
-  resolvedAt        DateTime?
-  projectId         String
-  project           Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  reportedById      String
-  reportedBy        User                  @relation("IncidentReporter", fields: [reportedById], references: [id])
-  assignedToId      String?
-  assignedTo        User?                 @relation("IncidentInvestigator", fields: [assignedToId], references: [id])
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  photos            SafetyIncidentPhoto[]
+  id                          String                @id @default(cuid())
+  incidentDate                DateTime
+  location                    String?
+  description                 String                @db.Text
+  severity                    IncidentSeverity      @default(MEDIUM)
+  status                      IncidentStatus        @default(OPEN)
+  injuryOccurred              Boolean               @default(false)
+  injuryDescription           String?               @db.Text
+  rootCause                   String?               @db.Text
+  correctiveAction            String?               @db.Text
+  preventiveAction            String?               @db.Text
+  resolvedAt                  DateTime?
+  // Enhanced Safety Management
+  incidentType                String? // NEAR_MISS, INJURY, HAZARD, PROPERTY_DAMAGE
+  rootCauseCategory           String? // e.g., "Human Error", "Equipment Failure", "Environmental"
+  correctiveActionDueDate     DateTime?
+  correctiveActionCompletedAt DateTime?
+  verifiedById                String?
+  verifiedBy                  User?                 @relation("IncidentVerifier", fields: [verifiedById], references: [id])
+  verifiedAt                  DateTime?
+  lostTimeIncident            Boolean               @default(false)
+  daysLost                    Int                   @default(0)
+  projectId                   String
+  project                     Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  reportedById                String
+  reportedBy                  User                  @relation("IncidentReporter", fields: [reportedById], references: [id])
+  assignedToId                String?
+  assignedTo                  User?                 @relation("IncidentInvestigator", fields: [assignedToId], references: [id])
+  createdAt                   DateTime              @default(now())
+  updatedAt                   DateTime              @updatedAt
+  photos                      SafetyIncidentPhoto[]
 }
 
 model SafetyIncidentPhoto {
@@ -766,28 +818,69 @@ model EquipmentUsageLog {
 }
 
 model Inspection {
-  id               String                    @id @default(cuid())
-  number           Int
-  title            String
-  inspectionType   String // e.g., "Foundation", "Framing", "Electrical", "Plumbing", "Final"
-  description      String?                   @db.Text
-  status           InspectionStatus          @default(SCHEDULED)
-  scheduledDate    DateTime?
-  completedDate    DateTime?
-  inspectorName    String?
-  inspectorCompany String?
-  result           String?                   @db.Text
-  deficiencies     String?                   @db.Text
-  projectId        String
-  project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  requestedById    String
-  requestedBy      User                      @relation("InspectionRequester", fields: [requestedById], references: [id])
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
-  checklistItems   InspectionChecklistItem[]
-  photos           InspectionPhoto[]
+  id                         String                    @id @default(cuid())
+  number                     Int
+  title                      String
+  inspectionType             String // e.g., "Foundation", "Framing", "Electrical", "Plumbing", "Final"
+  description                String?                   @db.Text
+  status                     InspectionStatus          @default(SCHEDULED)
+  scheduledDate              DateTime?
+  completedDate              DateTime?
+  inspectorName              String?
+  inspectorCompany           String?
+  result                     String?                   @db.Text
+  deficiencies               String?                   @db.Text
+  // Enhanced Quality Control
+  passedChecks               Int                       @default(0)
+  failedChecks               Int                       @default(0)
+  requiresReinspection       Boolean                   @default(false)
+  correctiveActionsRequired  String?                   @db.Text
+  correctiveActionsCompleted String?                   @db.Text
+  reminderSentAt             DateTime?
+  templateId                 String?
+  template                   InspectionTemplate?       @relation(fields: [templateId], references: [id])
+  projectId                  String
+  project                    Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedById              String
+  requestedBy                User                      @relation("InspectionRequester", fields: [requestedById], references: [id])
+  createdAt                  DateTime                  @default(now())
+  updatedAt                  DateTime                  @updatedAt
+  checklistItems             InspectionChecklistItem[]
+  photos                     InspectionPhoto[]
 
   @@unique([projectId, number])
+}
+
+// Inspection Templates for reusable checklists
+model InspectionTemplate {
+  id             String                   @id @default(cuid())
+  name           String
+  description    String?                  @db.Text
+  inspectionType String
+  isStandard     Boolean                  @default(false) // System-wide template
+  organizationId String?
+  organization   Organization?            @relation(fields: [organizationId], references: [id])
+  createdById    String
+  createdBy      User                     @relation("TemplateCreator", fields: [createdById], references: [id])
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  items          InspectionTemplateItem[]
+  inspections    Inspection[]
+
+  @@index([organizationId])
+}
+
+model InspectionTemplateItem {
+  id         String             @id @default(cuid())
+  templateId String
+  template   InspectionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  itemText   String
+  category   String?
+  isCritical Boolean            @default(false)
+  order      Int                @default(0)
+  createdAt  DateTime           @default(now())
+
+  @@index([templateId])
 }
 
 model InspectionChecklistItem {
@@ -911,20 +1004,6 @@ enum ApiEnvironment {
   PRODUCTION
 }
 
-// Integration categories for plug-and-play API management
-enum IntegrationCategory {
-  EMAIL_DELIVERY
-  AI_PROCESSING
-  PAYMENT_PROCESSING
-  CLOUD_STORAGE
-  AUTHENTICATION
-  NOTIFICATIONS
-  ANALYTICS
-  DOCUMENT_PROCESSING
-  COMMUNICATION
-  OTHER
-}
-
 // API Connection Management for Super Admin
 model ApiConnection {
   id          String            @id @default(cuid())
@@ -933,16 +1012,6 @@ model ApiConnection {
   description String?           @db.Text
   type        ApiConnectionType @default(EXTERNAL)
   environment ApiEnvironment    @default(PRODUCTION)
-
-  // Plug-and-play categorization
-  category IntegrationCategory @default(OTHER)
-  purpose  String? // Brief description of what this integration does
-
-  // Configuration schema (JSON schema for required fields)
-  configSchema Json? @default("{}")
-
-  // Module dependencies - which modules rely on this integration
-  dependentModules String[] @default([])
 
   // Encrypted credentials stored as JSON
   credentials Json // { apiKey: "encrypted...", secretKey: "encrypted...", etc. }
@@ -958,29 +1027,18 @@ model ApiConnection {
   lastErrorMessage  String?             @db.Text
   consecutiveErrors Int                 @default(0)
 
-  // Health metrics
-  lastSuccessAt DateTime?
-  lastFailureAt DateTime?
-  successCount  Int       @default(0)
-  failureCount  Int       @default(0)
-
   // Rate limiting info
   rateLimitInfo Json? @default("{}")
 
   // Metadata
-  isEnabled     Boolean   @default(true)
-  isBuiltIn     Boolean   @default(false) // Platform-provided vs user-configured
-  isRequired    Boolean   @default(false) // Required for core functionality
-  autoReconnect Boolean   @default(true) // Auto-reconnect on failures
-  expiresAt     DateTime? // For keys with expiry
+  isEnabled Boolean   @default(true)
+  expiresAt DateTime? // For keys with expiry
 
   // Audit
-  createdById      String?
-  createdBy        User?    @relation("ApiConnectionCreator", fields: [createdById], references: [id])
-  lastModifiedById String?
-  lastModifiedBy   User?    @relation("ApiConnectionModifier", fields: [lastModifiedById], references: [id])
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation("ApiConnectionCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   logs            ApiConnectionLog[]
@@ -992,8 +1050,6 @@ model ApiConnection {
   @@index([status])
   @@index([type])
   @@index([environment])
-  @@index([category])
-  @@index([isBuiltIn])
 }
 
 // Audit log for all API connection changes
@@ -1135,6 +1191,70 @@ enum CostStatus {
   PAID
 }
 
+// Cost Code Hierarchy for Budget Control
+model CostCode {
+  id                String     @id @default(cuid())
+  code              String // e.g., "01.100", "02.200.010"
+  name              String
+  description       String?    @db.Text
+  level             Int        @default(1) // Hierarchy level: 1 = top, 2 = sub, etc.
+  parentId          String?
+  parent            CostCode?  @relation("CostCodeHierarchy", fields: [parentId], references: [id])
+  children          CostCode[] @relation("CostCodeHierarchy")
+  // Budget tracking
+  budgetAmount      Float      @default(0)
+  committedAmount   Float      @default(0)
+  actualAmount      Float      @default(0)
+  varianceThreshold Float      @default(10) // Percentage threshold for alerts
+  projectId         String
+  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  costItems         CostItem[]
+
+  @@unique([projectId, code])
+  @@index([projectId])
+  @@index([parentId])
+}
+
+// Project Forecast for Forecast-at-Completion (FAC)
+model ProjectForecast {
+  id                       String   @id @default(cuid())
+  forecastDate             DateTime @default(now())
+  // Cost forecasting
+  budgetAtCompletion       Float    @default(0)
+  estimateAtCompletion     Float    @default(0)
+  actualCostToDate         Float    @default(0)
+  estimateToComplete       Float    @default(0)
+  costVariance             Float    @default(0)
+  costPerformanceIndex     Float    @default(1.0)
+  // Schedule forecasting
+  originalDuration         Int? // Days
+  forecastDuration         Int? // Days
+  scheduleVariance         Int? // Days
+  schedulePerformanceIndex Float    @default(1.0)
+  // Earned value metrics
+  plannedValue             Float    @default(0)
+  earnedValue              Float    @default(0)
+  // Productivity metrics
+  productivityIndex        Float    @default(1.0)
+  productivityTrend        String?  @default("STABLE") // IMPROVING, STABLE, DECLINING
+  // Risk and confidence
+  confidenceLevel          Float    @default(0.5) // 0 to 1
+  riskExposure             Float    @default(0)
+  notes                    String?  @db.Text
+  scenarioName             String? // For scenario analysis
+  projectId                String
+  project                  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById              String
+  createdBy                User     @relation("ForecastCreator", fields: [createdById], references: [id])
+  createdAt                DateTime @default(now())
+
+  @@index([projectId])
+  @@index([forecastDate])
+}
+
 // Budget & Cost Tracking
 model CostItem {
   id              String         @id @default(cuid())
@@ -1151,15 +1271,14 @@ model CostItem {
   notes           String?        @db.Text
   projectId       String
   project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  costCodeId      String?
+  costCode        CostCode?      @relation(fields: [costCodeId], references: [id])
   subcontractorId String?
   subcontractor   Subcontractor? @relation(fields: [subcontractorId], references: [id])
   createdById     String
   createdBy       User           @relation("CostItemCreator", fields: [createdById], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  // Cost code linkage for Phase 1
-  costCodeId      String?
-  costCode        CostCode?      @relation("CostCodeItems", fields: [costCodeId], references: [id])
 
   @@index([projectId])
   @@index([category])
@@ -1274,8 +1393,6 @@ model Subcontractor {
   updatedAt       DateTime                @updatedAt
   contracts       SubcontractorContract[]
   costItems       CostItem[]
-  // Phase 3: Vendor portal access
-  portalAccess    VendorPortalAccess[]    @relation("SubcontractorPortalAccess")
 
   @@index([organizationId])
   @@index([trade])
@@ -1503,21 +1620,20 @@ enum DrawingDiscipline {
 
 // Drawing Management
 model Drawing {
-  id              String              @id @default(cuid())
+  id              String            @id @default(cuid())
   number          String // Drawing number e.g., "A-101"
   title           String
-  description     String?             @db.Text
-  discipline      DrawingDiscipline   @default(ARCHITECTURAL)
-  status          DrawingStatus       @default(DRAFT)
-  currentRevision String              @default("0") // e.g., "A", "B", "1", "2"
+  description     String?           @db.Text
+  discipline      DrawingDiscipline @default(ARCHITECTURAL)
+  status          DrawingStatus     @default(DRAFT)
+  currentRevision String            @default("0") // e.g., "A", "B", "1", "2"
   scale           String? // e.g., "1:100", "1/4\" = 1'-0\""
   sheetSize       String? // e.g., "A1", "A0", "24x36"
   projectId       String
-  project         Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   revisions       DrawingRevision[]
-  annotations     DrawingAnnotation[]
 
   @@unique([projectId, number])
   @@index([projectId])
@@ -1536,40 +1652,10 @@ model DrawingRevision {
   issuedBy         String? // Name of person/company issuing
   drawingId        String
   drawing          Drawing  @relation(fields: [drawingId], references: [id], onDelete: Cascade)
-  uploadedById     String?
-  uploadedBy       User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
 
   @@unique([drawingId, revision])
   @@index([drawingId])
-}
-
-// Drawing Annotations for markup and review
-model DrawingAnnotation {
-  id          String   @id @default(cuid())
-  drawingId   String
-  drawing     Drawing  @relation(fields: [drawingId], references: [id], onDelete: Cascade)
-  type        String // pen, brush, highlighter, marker, spray, text, rectangle, filledRectangle, roundedRectangle, circle, filledCircle, ellipse, triangle, polygon, star, arrow, doubleArrow, line, cloud, cloudRevision, callout, speechBubble, measurement, areaMeasurement, angleMeasurement, dimension, leader, bezier, spline, crosshatch, stamp, etc.
-  data        Json // Stores the annotation data (points, coordinates, etc.)
-  color       String   @default("#FF0000")
-  fillColor   String?  @default("#FF0000")
-  strokeWidth Int      @default(3)
-  opacity     Float    @default(1)
-  text        String?  @db.Text // For text annotations
-  fontFamily  String?  @default("Arial")
-  fontSize    Int?     @default(16)
-  fontStyle   String?  @default("normal")
-  visible     Boolean  @default(true)
-  locked      Boolean  @default(false)
-  layer       Int      @default(0)
-  transform   Json? // For rotation, scale, translation
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([drawingId])
-  @@index([createdById])
 }
 
 // Site Diary Entry Types
@@ -2494,608 +2580,77 @@ model SiteAccessLog {
   @@index([accessType])
 }
 
-// ============================================
-// PHASE 1: ENTERPRISE CONSTRUCTION MANAGEMENT
-// ============================================
-
-// Project Phase for lifecycle management
-enum ProjectPhase {
-  PRECONSTRUCTION
-  MOBILIZATION
-  ACTIVE
-  CLOSEOUT
-  WARRANTY
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMPLETED
+  PROJECT_MESSAGE
+  RFI_RESPONSE
+  SUBMITTAL_APPROVED
+  SUBMITTAL_REJECTED
+  DEADLINE_REMINDER
+  SAFETY_INCIDENT
+  SYSTEM_ALERT
 }
 
-// Work Package Status
-enum WorkPackageStatus {
-  DRAFT
-  PLANNED
-  IN_PROGRESS
-  ON_HOLD
-  COMPLETED
-  CANCELLED
-}
-
-// Work Packages - Middle layer between projects and tasks
-model WorkPackage {
-  id          String            @id @default(cuid())
-  number      Int
-  name        String
-  description String?           @db.Text
-  status      WorkPackageStatus @default(DRAFT)
-
-  // Scope definition
-  scope        String?  @db.Text
-  deliverables String[] @default([])
-
-  // Budget allocation
-  budgetAmount    Float @default(0)
-  committedAmount Float @default(0)
-  actualAmount    Float @default(0)
-
-  // Schedule
-  plannedStartDate DateTime?
-  plannedEndDate   DateTime?
-  actualStartDate  DateTime?
-  actualEndDate    DateTime?
-
-  // Progress tracking
-  percentComplete Int   @default(0) // 0-100
-  weightage       Float @default(1) // For weighted progress
-
-  // Responsible party
-  responsiblePartyId String?
-  responsibleParty   User?   @relation("WorkPackageResponsible", fields: [responsiblePartyId], references: [id])
-
-  // Dependencies (Work Package IDs)
-  predecessors   String[] @default([])
-  successors     String[] @default([])
-  dependencyType String? // FS, SS, FF, SF
-  leadLagDays    Int      @default(0)
-
-  // Critical path
-  isCriticalPath Boolean @default(false)
-  totalFloat     Int? // Days of float
-
-  // Cost code linkage
-  costCodeId String?
-  costCode   CostCode? @relation(fields: [costCodeId], references: [id])
-
-  // Project relation
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Audit
-  createdById String
-  createdBy   User   @relation("WorkPackageCreator", fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Related tasks inherit from this work package
-  tasks Task[] @relation("WorkPackageTasks")
-
-  // Production tracking entries
-  productionLogs ProductionLog[]
-
-  @@unique([projectId, number])
-  @@index([projectId])
-  @@index([status])
-  @@index([costCodeId])
-}
-
-// Cost Code Hierarchy
-model CostCode {
-  id          String  @id @default(cuid())
-  code        String // e.g., "01", "01.01", "01.01.001"
-  name        String
-  description String? @db.Text
-
-  // Hierarchy
-  parentId String?
-  parent   CostCode?  @relation("CostCodeHierarchy", fields: [parentId], references: [id])
-  children CostCode[] @relation("CostCodeHierarchy")
-  level    Int        @default(1) // 1, 2, 3, etc.
-
-  // Category mapping
-  category CostCategory @default(OTHER)
-
-  // Budget tracking
-  budgetAmount    Float @default(0)
-  committedAmount Float @default(0)
-  actualAmount    Float @default(0)
-  forecastAmount  Float @default(0)
-
-  // Variance thresholds
-  varianceThreshold Float @default(10) // Percentage
-
-  // Status
-  isActive Boolean @default(true)
-
-  // Organization-level (shared library) or project-specific
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  // Project-specific override (null = organization library)
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId String?
-  project   Project? @relation("ProjectCostCodes", fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  data      Json? // Additional data associated with the notification
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  workPackages WorkPackage[]
-  costItems    CostItem[]    @relation("CostCodeItems")
-  budgetLines  BudgetLine[]
-
-  @@unique([organizationId, code, projectId])
-  @@index([organizationId])
+  @@index([userId])
   @@index([projectId])
-  @@index([parentId])
-  @@index([category])
+  @@index([read])
+  @@index([createdAt])
 }
 
-// Budget Line Items (linked to cost codes)
-model BudgetLine {
-  id String @id @default(cuid())
-
-  // Cost code linkage
-  costCodeId String
-  costCode   CostCode @relation(fields: [costCodeId], references: [id], onDelete: Cascade)
-
-  // Project linkage
-  projectId String
-  project   Project @relation("ProjectBudgetLines", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Budget values
-  description    String?
-  originalBudget Float   @default(0)
-  revisedBudget  Float   @default(0)
-  committed      Float   @default(0)
-  actual         Float   @default(0)
-  forecast       Float   @default(0)
-
-  // Variance
-  variance        Float @default(0)
-  variancePercent Float @default(0)
-
-  // Period tracking
-  periodStart DateTime?
-  periodEnd   DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([costCodeId, projectId])
-  @@index([projectId])
-  @@index([costCodeId])
-}
-
-// Production Log - Quantity-based progress tracking
-model ProductionLog {
-  id String @id @default(cuid())
-
-  // Date and shift
-  date  DateTime @db.Date
-  shift String? // Day, Night, etc.
-
-  // Work package linkage
-  workPackageId String
-  workPackage   WorkPackage @relation(fields: [workPackageId], references: [id], onDelete: Cascade)
-
-  // Quantity tracking
-  unit               String // meters, units, sqm, etc.
-  plannedQuantity    Float  @default(0)
-  actualQuantity     Float  @default(0)
-  cumulativeQuantity Float  @default(0)
-
-  // Productivity metrics
-  plannedProductivity Float? // Units per hour
-  actualProductivity  Float?
-
-  // Crew info
-  crewSize  Int   @default(0)
-  crewHours Float @default(0)
-
-  // Weather impact
-  weatherCondition String?
-  weatherImpact    String? // None, Minor, Major, Work Stopped
-
-  // Notes
-  notes String? @db.Text
-
-  // Recorded by
-  recordedById String
-  recordedBy   User   @relation("ProductionLogRecorder", fields: [recordedById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([workPackageId, date, shift])
-  @@index([workPackageId])
-  @@index([date])
-}
-
-// Change Order Version (for versioning)
-model ChangeOrderVersion {
-  id      String @id @default(cuid())
-  version Int
-
-  // Parent change order
-  changeOrderId String
-  changeOrder   ChangeOrder @relation("ChangeOrderVersions", fields: [changeOrderId], references: [id], onDelete: Cascade)
-
-  // Snapshot of data at this version
-  title          String
-  description    String? @db.Text
-  reason         String?
-  costChange     Float   @default(0)
-  scheduleChange Int?
-
-  // Scope diff (JSON object showing what changed)
-  scopeDiff Json?
-
-  // Approval state at this version
-  status ChangeOrderStatus @default(DRAFT)
-
-  // Who created this version
-  createdById String
-  createdBy   User   @relation("ChangeOrderVersionCreator", fields: [createdById], references: [id])
-
-  // Approval details
-  approvedById     String?
-  approvedBy       User?     @relation("ChangeOrderVersionApprover", fields: [approvedById], references: [id])
-  approvedAt       DateTime?
-  approvalComments String?   @db.Text
-
-  createdAt DateTime @default(now())
-
-  @@unique([changeOrderId, version])
-  @@index([changeOrderId])
-}
-
-// Enhanced Daily Report - Structured Labor Entry
-model DailyReportLabor {
-  id            String      @id @default(cuid())
-  dailyReportId String
-  dailyReport   DailyReport @relation("DailyReportLaborEntries", fields: [dailyReportId], references: [id], onDelete: Cascade)
-
-  // Worker/Trade details
-  trade          String?
-  company        String? // Subcontractor company
-  classification String? // Apprentice, Journeyman, Foreman, etc.
-
-  // Hours
-  regularHours    Float @default(0)
-  overtimeHours   Float @default(0)
-  doubleTimeHours Float @default(0)
-
-  // Headcount
-  headcount Int @default(1)
-
-  // Work performed
-  workArea        String?
-  workDescription String? @db.Text
-
-  createdAt DateTime @default(now())
-
-  @@index([dailyReportId])
-}
-
-// Enhanced Daily Report - Structured Equipment Entry
-model DailyReportEquipment {
-  id            String      @id @default(cuid())
-  dailyReportId String
-  dailyReport   DailyReport @relation("DailyReportEquipmentEntries", fields: [dailyReportId], references: [id], onDelete: Cascade)
-
-  // Equipment details
-  equipmentName   String
-  equipmentNumber String?
-  equipmentType   String? // Excavator, Crane, Truck, etc.
-
-  // Usage
-  hoursUsed Float @default(0)
-  idleHours Float @default(0)
-
-  // Status
-  operationalStatus String? // Operating, Idle, Down
-  downReason        String? @db.Text
-
-  // Operator
-  operatorName String?
-
-  createdAt DateTime @default(now())
-
-  @@index([dailyReportId])
-}
-
-// Enhanced Daily Report - Structured Material Entry
-model DailyReportMaterial {
-  id            String      @id @default(cuid())
-  dailyReportId String
-  dailyReport   DailyReport @relation("DailyReportMaterialEntries", fields: [dailyReportId], references: [id], onDelete: Cascade)
-
-  // Material details
-  materialName String
-  materialCode String?
-
-  // Quantities
-  quantityReceived Float  @default(0)
-  quantityUsed     Float  @default(0)
-  unit             String @default("each")
-
-  // Supplier
-  supplierName String?
-  deliveryNote String?
-
-  // Location
-  storageLocation String?
-
-  createdAt DateTime @default(now())
-
-  @@index([dailyReportId])
-}
-
-// ============================================
-// PHASE 2: DIFFERENTIATION FEATURES
-// ============================================
-
-// Forecast Entry for cost/schedule forecasting
-model ForecastEntry {
-  id String @id @default(cuid())
-
-  // Project linkage
-  projectId String
-  project   Project @relation("ProjectForecasts", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Forecast type
-  forecastType String // COST, SCHEDULE, PRODUCTIVITY
-
-  // Period
-  forecastDate DateTime  @default(now())
-  periodStart  DateTime?
-  periodEnd    DateTime?
-
-  // Cost forecasting
-  originalBudget       Float?
-  currentBudget        Float?
-  actualToDate         Float?
-  forecastAtCompletion Float? // FAC
-  estimateToComplete   Float? // ETC
-  varianceAtCompletion Float? // VAC
-
-  // Schedule forecasting
-  plannedDuration  Int? // Days
-  actualDuration   Int?
-  forecastDuration Int?
-  scheduleVariance Int? // Days
-
-  // Earned Value metrics
-  plannedValue             Float? // BCWS
-  earnedValue              Float? // BCWP
-  actualCost               Float? // ACWP
-  costPerformanceIndex     Float? // CPI
-  schedulePerformanceIndex Float? // SPI
-
-  // Confidence level
-  confidence  String? // HIGH, MEDIUM, LOW
-  assumptions String? @db.Text
-  risks       String? @db.Text
-
-  // Scenario tracking
-  scenarioName String? // Best Case, Worst Case, Most Likely
-  isBaseline   Boolean @default(false)
-
-  // Created by
-  createdById String
-  createdBy   User   @relation("ForecastCreator", fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([projectId])
-  @@index([forecastType])
-  @@index([forecastDate])
-}
-
-// Risk Register
-model RiskRegisterEntry {
-  id     String @id @default(cuid())
-  number Int
-
-  // Project linkage
-  projectId String
-  project   Project @relation("ProjectRisks", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Risk identification
-  title       String
-  description String  @db.Text
-  category    String? // Technical, Financial, Schedule, Safety, etc.
-  source      String? // Where identified
-
-  // Risk assessment
-  probability Int     @default(3) // 1-5
-  impact      Int     @default(3) // 1-5
-  riskScore   Int     @default(9) // probability x impact
-  riskLevel   String? // LOW, MEDIUM, HIGH, CRITICAL
-
-  // Dates
-  identifiedDate DateTime  @default(now())
-  reviewDate     DateTime?
-  closedDate     DateTime?
-
-  // Status
-  status String @default("OPEN") // OPEN, MITIGATING, CLOSED, OCCURRED
-
-  // Response
-  responseStrategy String? // AVOID, MITIGATE, TRANSFER, ACCEPT
-  mitigationPlan   String? @db.Text
-  contingencyPlan  String? @db.Text
-
-  // Cost/Schedule impact
-  costImpactMin        Float?
-  costImpactMax        Float?
-  costImpactMostLikely Float?
-  scheduleImpactDays   Int?
-
-  // Owner
-  ownerId String?
-  owner   User?   @relation("RiskOwner", fields: [ownerId], references: [id])
-
-  // Linked actions
-  mitigationActions RiskAction[]
-
-  // Trend tracking
-  trendDirection String? // IMPROVING, STABLE, WORSENING
-  previousScore  Int?
-
-  // Audit
-  createdById String
-  createdBy   User   @relation("RiskCreator", fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([projectId, number])
-  @@index([projectId])
-  @@index([status])
-  @@index([riskLevel])
-}
-
-// Risk Mitigation Actions
-model RiskAction {
-  id String @id @default(cuid())
-
-  riskId String
-  risk   RiskRegisterEntry @relation(fields: [riskId], references: [id], onDelete: Cascade)
-
-  description   String    @db.Text
-  dueDate       DateTime?
-  status        String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
-  completedDate DateTime?
-
-  // Assigned to
-  assigneeId String?
-  assignee   User?   @relation("RiskActionAssignee", fields: [assigneeId], references: [id])
-
-  // Effectiveness
-  effectiveness String? // EFFECTIVE, PARTIALLY_EFFECTIVE, INEFFECTIVE
-  notes         String? @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([riskId])
-  @@index([status])
-}
-
-// Executive Dashboard Snapshot (cached KPIs)
-model DashboardSnapshot {
-  id String @id @default(cuid())
-
-  // Scope - organization or project level
-  organizationId String
-  organization   Organization @relation("OrgDashboardSnapshots", fields: [organizationId], references: [id])
-  projectId      String?
-  project        Project?     @relation("ProjectDashboardSnapshots", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Snapshot timestamp
-  snapshotDate DateTime @default(now())
-
-  // Schedule KPIs
-  scheduleVariance         Float? // Days
-  schedulePerformanceIndex Float?
-  projectsOnSchedule       Int?
-  projectsDelayed          Int?
-
-  // Cost KPIs
-  costVariance         Float?
-  costPerformanceIndex Float?
-  totalBudget          Float?
-  totalSpent           Float?
-  forecastAtCompletion Float?
-
-  // Risk KPIs
-  openRisks     Int?
-  highRisks     Int?
-  criticalRisks Int?
-  riskExposure  Float? // Total potential cost impact
-
-  // Safety KPIs
-  openIncidents      Int?
-  incidentsThisMonth Int?
-  nearMisses         Int?
-  lostTimeInjuries   Int?
-
-  // Change KPIs
-  pendingChangeOrders  Int?
-  approvedChangeOrders Int?
-  changeOrderValue     Float?
-
-  // Quality KPIs
-  openDefects   Int?
-  closedDefects Int?
-  defectRate    Float?
-
-  // Productivity KPIs
-  plannedProgress   Float?
-  actualProgress    Float?
-  productivityIndex Float?
-
-  // Raw data (JSON for flexibility)
-  additionalMetrics Json?
-
-  createdAt DateTime @default(now())
-
-  @@index([organizationId])
-  @@index([projectId])
-  @@index([snapshotDate])
-}
-
-// ============================================
-// PHASE 3: INNOVATION LAYER
-// ============================================
-
-// Automation Rules Engine
-model AutomationRule {
-  id String @id @default(cuid())
-
+// =====================
+// AUTOMATION & RULES ENGINE
+// =====================
+
+// Business Rules for automation
+model BusinessRule {
+  id          String  @id @default(cuid())
   name        String
   description String? @db.Text
+  isActive    Boolean @default(true)
+
+  // Rule definition
+  triggerType      String // e.g., "COST_VARIANCE", "SCHEDULE_SLIP", "INSPECTION_FAIL", "SAFETY_INCIDENT"
+  triggerCondition Json // Stores the condition logic (e.g., {"operator": "gt", "value": 10, "field": "costVariancePercent"})
+
+  // Action definition
+  actionType   String // e.g., "SEND_EMAIL", "CREATE_NOTIFICATION", "ESCALATE", "CHANGE_STATUS"
+  actionConfig Json // Stores action configuration (e.g., {"recipients": ["PM", "EXECUTIVE"], "template": "cost_alert"})
 
   // Scope
-  organizationId String
-  organization   Organization @relation("OrgAutomationRules", fields: [organizationId], references: [id])
-  projectId      String? // If null, applies to all projects
-  project        Project?     @relation("ProjectAutomationRules", fields: [projectId], references: [id], onDelete: Cascade)
+  organizationId String?
+  projectId      String?
 
-  // Trigger conditions (JSON)
-  triggerType      String // THRESHOLD, SCHEDULE, EVENT
-  triggerCondition Json // { "field": "costVariance", "operator": ">", "value": 10 }
+  // Execution tracking
+  lastExecutedAt DateTime?
+  executionCount Int       @default(0)
 
-  // Actions (JSON array)
-  actions Json // [{ "type": "NOTIFY", "recipients": ["role:PM"], "message": "..." }]
-
-  // Notification settings
-  notifyRoles     String[] @default([])
-  notifyUsers     String[] @default([])
-  escalationDelay Int? // Minutes before escalation
-
-  // Status
-  isActive        Boolean   @default(true)
-  lastTriggeredAt DateTime?
-  triggerCount    Int       @default(0)
-
-  // Audit
   createdById String
-  createdBy   User   @relation("AutomationRuleCreator", fields: [createdById], references: [id])
+  createdBy   User     @relation("RuleCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Execution log
-  executionLogs RuleExecutionLog[]
+  executions BusinessRuleExecution[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -3103,919 +2658,25 @@ model AutomationRule {
   @@index([triggerType])
 }
 
-// Rule Execution Log
-model RuleExecutionLog {
-  id String @id @default(cuid())
-
+// Business Rule Execution Log
+model BusinessRuleExecution {
+  id     String       @id @default(cuid())
   ruleId String
-  rule   AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  rule   BusinessRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
 
-  executedAt      DateTime @default(now())
-  triggerData     Json? // What triggered the rule
-  actionsExecuted Json? // What actions were taken
-  success         Boolean  @default(true)
-  errorMessage    String?  @db.Text
+  // Execution context
+  triggeredBy String? // What triggered the rule (e.g., "cost_item_update", "schedule_change")
+  contextData Json? // Snapshot of data that triggered the rule
+
+  // Result
+  success      Boolean @default(true)
+  actionsTaken Json? // What actions were performed
+  errorMessage String? @db.Text
+
+  executedById String?
+  executedBy   User?    @relation("RuleExecutor", fields: [executedById], references: [id])
+  executedAt   DateTime @default(now())
 
   @@index([ruleId])
   @@index([executedAt])
-}
-
-// Predictive Signals (deterministic, non-ML)
-model PredictiveSignal {
-  id String @id @default(cuid())
-
-  // Scope
-  organizationId String
-  organization   Organization @relation("OrgPredictiveSignals", fields: [organizationId], references: [id])
-  projectId      String?
-  project        Project?     @relation("ProjectPredictiveSignals", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Signal identification
-  signalType  String // PRODUCTIVITY_DECLINE, COST_OVERRUN_RISK, SCHEDULE_SLIP, REWORK_PATTERN, CHANGE_FREQUENCY_SPIKE
-  signalName  String
-  description String? @db.Text
-
-  // Detection
-  detectedAt DateTime @default(now())
-
-  // Severity
-  severity   String @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
-  confidence Float  @default(0.7) // 0-1
-
-  // Supporting data
-  dataPoints     Json? // Array of data points supporting the signal
-  trendDirection String? // UP, DOWN, STABLE
-  trendDuration  Int? // Days of trend
-
-  // Impact assessment
-  potentialImpact         String? @db.Text
-  potentialCostImpact     Float?
-  potentialScheduleImpact Int?
-
-  // Recommended actions
-  recommendations String[] @default([])
-
-  // Status
-  status           String    @default("ACTIVE") // ACTIVE, ACKNOWLEDGED, RESOLVED, DISMISSED
-  acknowledgedById String?
-  acknowledgedBy   User?     @relation("SignalAcknowledger", fields: [acknowledgedById], references: [id])
-  acknowledgedAt   DateTime?
-  resolvedAt       DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([projectId])
-  @@index([signalType])
-  @@index([severity])
-  @@index([status])
-}
-
-// Vendor Portal Access (controlled external access)
-model VendorPortalAccess {
-  id String @id @default(cuid())
-
-  // Vendor/Subcontractor linkage
-  subcontractorId String
-  subcontractor   Subcontractor @relation("SubcontractorPortalAccess", fields: [subcontractorId], references: [id], onDelete: Cascade)
-
-  // Access credentials (email-based)
-  email        String
-  passwordHash String
-
-  // Token for session management
-  accessToken    String?
-  tokenExpiresAt DateTime?
-
-  // Permissions (JSON array of allowed actions)
-  permissions Json // ["view_schedule", "submit_progress", "upload_documents", "view_payments"]
-
-  // Project access (if empty, all projects with subcontractor)
-  projectIds String[] @default([])
-
-  // Status
-  isActive    Boolean   @default(true)
-  lastLoginAt DateTime?
-  loginCount  Int       @default(0)
-
-  // Audit
-  createdById String
-  createdBy   User   @relation("VendorAccessCreator", fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Submissions from this vendor
-  submissions VendorSubmission[]
-
-  @@unique([subcontractorId, email])
-  @@index([subcontractorId])
-  @@index([email])
-  @@index([isActive])
-}
-
-// Vendor Submission (progress, invoices, compliance docs)
-model VendorSubmission {
-  id String @id @default(cuid())
-
-  // Vendor access linkage
-  vendorAccessId String
-  vendorAccess   VendorPortalAccess @relation(fields: [vendorAccessId], references: [id], onDelete: Cascade)
-
-  // Submission type
-  submissionType String // PROGRESS_UPDATE, INVOICE, COMPLIANCE_DOC, CERTIFICATION, SCHEDULE_UPDATE
-
-  // Project linkage
-  projectId String
-  project   Project @relation("ProjectVendorSubmissions", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Content
-  title       String
-  description String? @db.Text
-
-  // For progress updates
-  percentComplete Float?
-  workDescription String? @db.Text
-
-  // For invoices
-  invoiceNumber String?
-  invoiceAmount Float?
-  invoiceDate   DateTime?
-
-  // Attachments
-  attachments VendorSubmissionAttachment[]
-
-  // Approval workflow
-  status         String    @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED, NEEDS_REVISION
-  reviewedById   String?
-  reviewedBy     User?     @relation("VendorSubmissionReviewer", fields: [reviewedById], references: [id])
-  reviewedAt     DateTime?
-  reviewComments String?   @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([vendorAccessId])
-  @@index([projectId])
-  @@index([submissionType])
-  @@index([status])
-}
-
-model VendorSubmissionAttachment {
-  id           String           @id @default(cuid())
-  submissionId String
-  submission   VendorSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-
-  name             String
-  cloudStoragePath String
-  fileSize         Int?
-  mimeType         String?
-
-  createdAt DateTime @default(now())
-
-  @@index([submissionId])
-}
-
-// =====================
-// DOCUMENT TEMPLATES
-// =====================
-
-enum TemplateCategory {
-  METHOD_STATEMENT
-  RISK_ASSESSMENT
-  COSHH_ASSESSMENT
-  PERMIT_TO_WORK
-  TOOLBOX_TALK
-  INSPECTION_FORM
-  SAFETY_BRIEFING
-  SITE_INDUCTION
-  PROGRESS_REPORT
-  MEETING_AGENDA
-  CONTRACT_DOCUMENT
-  DELIVERY_RECEIPT
-  QUALITY_CHECKLIST
-  HANDOVER_DOCUMENT
-  SNAG_LIST
-  EMAIL_TEMPLATE
-  OTHER
-}
-
-model DocumentTemplate {
-  id String @id @default(cuid())
-
-  // Basic info
-  name        String
-  description String?          @db.Text
-  category    TemplateCategory @default(OTHER)
-  version     String           @default("1.0")
-
-  // Content - JSON structure with fields, sections, etc.
-  content Json // Template structure with sections, fields, etc.
-
-  // Preview image
-  thumbnailUrl String?
-
-  // Status
-  isActive         Boolean @default(true)
-  isSystemTemplate Boolean @default(false) // Built-in vs custom
-
-  // Usage tracking
-  usageCount Int @default(0)
-
-  // Organization context (null for system templates)
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Created by
-  createdById String?
-  createdBy   User?   @relation("TemplateCreator", fields: [createdById], references: [id])
-
-  // Tags for filtering
-  tags String[] @default([])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([category])
-  @@index([isActive])
-  @@index([isSystemTemplate])
-}
-
-// ============================================================
-// Advanced Features - Analytics Dashboard
-// ============================================================
-
-enum AnalyticsChartType {
-  LINE
-  BAR
-  PIE
-  AREA
-  SCATTER
-  HEATMAP
-  GAUGE
-  TABLE
-}
-
-enum AnalyticsPeriod {
-  DAILY
-  WEEKLY
-  MONTHLY
-  QUARTERLY
-  YEARLY
-  CUSTOM
-}
-
-model AnalyticsWidget {
-  id          String             @id @default(cuid())
-  name        String
-  description String?
-  chartType   AnalyticsChartType
-
-  // Data source configuration
-  dataSource String // e.g., "projects", "tasks", "costs"
-  query      Json // Query configuration for data
-
-  // Display settings
-  position Json? // { x, y, width, height }
-  settings Json? // Chart-specific settings
-
-  // Filtering
-  filters Json? // User-defined filters
-  period  AnalyticsPeriod @default(MONTHLY)
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgAnalyticsWidgets", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Dashboard relationship
-  dashboardId String?
-  dashboard   AnalyticsDashboard? @relation("DashboardWidgets", fields: [dashboardId], references: [id], onDelete: Cascade)
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([dashboardId])
-}
-
-model AnalyticsDashboard {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  // Layout configuration
-  layout Json? // Grid layout configuration
-
-  // Widgets
-  widgets AnalyticsWidget[] @relation("DashboardWidgets")
-
-  // Sharing and permissions
-  isPublic  Boolean @default(false)
-  isDefault Boolean @default(false)
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgAnalyticsDashboards", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([isDefault])
-}
-
-// ============================================================
-// Advanced Features - Backup and Restore
-// ============================================================
-
-enum BackupType {
-  FULL
-  INCREMENTAL
-  DIFFERENTIAL
-}
-
-enum BackupStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
-  EXPIRED
-}
-
-model BackupConfiguration {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  // Backup settings
-  backupType BackupType @default(FULL)
-  schedule   String? // Cron expression
-  retention  Int        @default(30) // Days
-
-  // What to backup
-  includeDocuments Boolean @default(true)
-  includeDatabase  Boolean @default(true)
-  includeMedia     Boolean @default(true)
-
-  // Compression and encryption
-  isCompressed Boolean @default(true)
-  isEncrypted  Boolean @default(true)
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgBackupConfigs", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Backup history
-  backups BackupRecord[] @relation("ConfigBackups")
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([isActive])
-}
-
-model BackupRecord {
-  id String @id @default(cuid())
-
-  // Backup details
-  backupType BackupType
-  status     BackupStatus @default(PENDING)
-
-  // Storage information
-  fileName        String
-  fileSize        BigInt? // Bytes
-  filePath        String?
-  storageLocation String? // S3 bucket, local path, etc.
-
-  // Metadata
-  recordCount  Json? // Count of records backed up by model
-  errorMessage String?
-
-  // Timing
-  startedAt   DateTime?
-  completedAt DateTime?
-  expiresAt   DateTime?
-
-  // Configuration
-  configId      String?
-  configuration BackupConfiguration? @relation("ConfigBackups", fields: [configId], references: [id], onDelete: SetNull)
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgBackupRecords", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([status])
-  @@index([expiresAt])
-}
-
-// ============================================================
-// Advanced Features - Scheduled Tasks
-// ============================================================
-
-enum ScheduledTaskType {
-  BACKUP
-  REPORT_GENERATION
-  DATA_EXPORT
-  EMAIL_NOTIFICATION
-  WEBHOOK_TRIGGER
-  DATA_CLEANUP
-  CUSTOM_SCRIPT
-}
-
-enum ScheduledTaskStatus {
-  ACTIVE
-  PAUSED
-  DISABLED
-  FAILED
-}
-
-enum TaskExecutionStatus {
-  PENDING
-  RUNNING
-  SUCCESS
-  FAILED
-  CANCELLED
-}
-
-model ScheduledTask {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  // Task configuration
-  taskType ScheduledTaskType
-  schedule String // Cron expression
-  timezone String            @default("UTC")
-
-  // Execution settings
-  payload       Json? // Task-specific configuration
-  timeout       Int   @default(300) // Seconds
-  retryAttempts Int   @default(3)
-
-  // Status
-  status ScheduledTaskStatus @default(ACTIVE)
-
-  // Next and last execution
-  nextRunAt  DateTime?
-  lastRunAt  DateTime?
-  lastStatus TaskExecutionStatus?
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgScheduledTasks", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Execution logs
-  executions ScheduledTaskExecution[] @relation("TaskExecutions")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([status])
-  @@index([nextRunAt])
-}
-
-model ScheduledTaskExecution {
-  id String @id @default(cuid())
-
-  // Execution details
-  status      TaskExecutionStatus @default(PENDING)
-  startedAt   DateTime?
-  completedAt DateTime?
-  duration    Int? // Milliseconds
-
-  // Results
-  output       String? @db.Text
-  errorMessage String? @db.Text
-
-  // Attempt tracking
-  attemptNumber Int @default(1)
-
-  // Task reference
-  taskId String
-  task   ScheduledTask @relation("TaskExecutions", fields: [taskId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([taskId])
-  @@index([status])
-  @@index([startedAt])
-}
-
-// ============================================================
-// Advanced Features - Custom Report Builder
-// ============================================================
-
-enum ReportOutputFormat {
-  PDF
-  EXCEL
-  CSV
-  HTML
-  JSON
-}
-
-enum ReportScheduleFrequency {
-  ONCE
-  DAILY
-  WEEKLY
-  MONTHLY
-  QUARTERLY
-  YEARLY
-}
-
-model CustomReport {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  // Report configuration
-  dataSource   String // Main data model
-  columns      Json // Selected columns/fields
-  filters      Json? // Filter conditions
-  groupBy      Json? // Grouping configuration
-  sortBy       Json? // Sorting configuration
-  aggregations Json? // Sum, avg, count, etc.
-
-  // Visualization
-  chartConfig Json? // Chart settings if visual
-
-  // Output settings
-  outputFormat     ReportOutputFormat @default(PDF)
-  includeCharts    Boolean            @default(true)
-  includeDataTable Boolean            @default(true)
-
-  // Scheduling
-  isScheduled       Boolean                  @default(false)
-  scheduleFrequency ReportScheduleFrequency?
-  scheduleCron      String?
-  nextRunAt         DateTime?
-
-  // Recipients for scheduled reports
-  recipients String[] @default([])
-
-  // Organization context
-  organizationId String?
-  organization   Organization? @relation("OrgCustomReports", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Execution history
-  executions ReportExecution[] @relation("ReportExecutions")
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId])
-  @@index([isActive])
-  @@index([nextRunAt])
-}
-
-model ReportExecution {
-  id String @id @default(cuid())
-
-  // Execution details
-  status      TaskExecutionStatus @default(PENDING)
-  startedAt   DateTime?
-  completedAt DateTime?
-  duration    Int? // Milliseconds
-
-  // Output
-  outputUrl    String? // URL to generated report
-  fileSize     BigInt? // Bytes
-  recordCount  Int?
-  errorMessage String?
-
-  // Report reference
-  reportId String
-  report   CustomReport @relation("ReportExecutions", fields: [reportId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([reportId])
-  @@index([status])
-  @@index([startedAt])
-}
-
-// ============================================================
-// Advanced Features - Advanced User Permissions
-// ============================================================
-
-enum PermissionAction {
-  CREATE
-  READ
-  UPDATE
-  DELETE
-  APPROVE
-  EXPORT
-  MANAGE
-  ALL
-}
-
-enum PermissionResource {
-  PROJECT
-  TASK
-  DOCUMENT
-  USER
-  REPORT
-  COST
-  TIMESHEET
-  RISK
-  SAFETY
-  EQUIPMENT
-  SUBCONTRACTOR
-  WEBHOOK
-  BACKUP
-  ANALYTICS
-  SYSTEM_SETTINGS
-  ALL
-}
-
-model Permission {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-
-  // Permission definition
-  resource PermissionResource
-  action   PermissionAction
-
-  // Conditions (JSON for complex permission logic)
-  conditions Json? // e.g., { "projectStatus": ["ACTIVE"], "ownerId": "$userId" }
-
-  // System vs custom
-  isSystem Boolean @default(false)
-
-  // Grants
-  grants PermissionGrant[] @relation("PermissionGrants")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([resource, action])
-  @@index([resource])
-  @@index([action])
-}
-
-model PermissionGrant {
-  id String @id @default(cuid())
-
-  // Permission reference
-  permissionId String
-  permission   Permission @relation("PermissionGrants", fields: [permissionId], references: [id], onDelete: Cascade)
-
-  // Grant target (user or role)
-  userId String?
-  user   User?   @relation("UserPermissionGrants", fields: [userId], references: [id], onDelete: Cascade)
-
-  role UserRole? // Grant to entire role
-
-  // Scope limiting
-  organizationId String?
-  organization   Organization? @relation("OrgPermissionGrants", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  projectId String?
-  project   Project? @relation("ProjectPermissionGrants", fields: [projectId], references: [id], onDelete: Cascade)
-
-  // Expiry
-  expiresAt DateTime?
-
-  // Audit
-  grantedById String?
-  grantedBy   User?   @relation("GrantedPermissions", fields: [grantedById], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([permissionId])
-  @@index([userId])
-  @@index([organizationId])
-  @@index([projectId])
-  @@index([role])
-}
-
-// ============================================================
-// Advanced Features - Organization Resource Quotas
-// ============================================================
-
-enum QuotaType {
-  STORAGE
-  USERS
-  PROJECTS
-  API_CALLS
-  BACKUPS
-  REPORTS
-  WEBHOOKS
-  CUSTOM
-}
-
-enum QuotaPeriod {
-  DAILY
-  MONTHLY
-  YEARLY
-  TOTAL
-}
-
-model ResourceQuota {
-  id String @id @default(cuid())
-
-  // Quota definition
-  quotaType   QuotaType
-  name        String
-  description String?
-
-  // Limits
-  limitValue       BigInt // Max allowed
-  warningThreshold Float       @default(0.8) // 80%
-  period           QuotaPeriod @default(MONTHLY)
-
-  // Organization context
-  organizationId String
-  organization   Organization @relation("OrgResourceQuotas", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Usage tracking
-  usage QuotaUsageRecord[] @relation("QuotaUsage")
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([organizationId, quotaType, period])
-  @@index([organizationId])
-  @@index([quotaType])
-}
-
-model QuotaUsageRecord {
-  id String @id @default(cuid())
-
-  // Usage details
-  currentValue BigInt // Current usage
-  timestamp    DateTime @default(now())
-
-  // Period tracking
-  periodStart DateTime
-  periodEnd   DateTime
-
-  // Quota reference
-  quotaId String
-  quota   ResourceQuota @relation("QuotaUsage", fields: [quotaId], references: [id], onDelete: Cascade)
-
-  // Metadata
-  metadata Json? // Additional context
-
-  createdAt DateTime @default(now())
-
-  @@index([quotaId])
-  @@index([timestamp])
-}
-
-// ============================================================
-// Advanced Features - API Rate Limiting
-// ============================================================
-
-model OrganizationRateLimit {
-  id String @id @default(cuid())
-
-  // Rate limit configuration
-  endpoint          String? // Specific endpoint or "*" for all
-  requestsPerMinute Int     @default(60)
-  requestsPerHour   Int     @default(1000)
-  requestsPerDay    Int     @default(10000)
-
-  // Burst allowance
-  burstSize Int @default(10)
-
-  // Organization context
-  organizationId String
-  organization   Organization @relation("OrgRateLimits", fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Usage tracking
-  usage RateLimitUsage[] @relation("RateLimitUsage")
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([organizationId, endpoint])
-  @@index([organizationId])
-}
-
-model RateLimitUsage {
-  id String @id @default(cuid())
-
-  // Usage details
-  endpoint     String
-  requestCount Int      @default(1)
-  windowStart  DateTime
-
-  // Window type (minute, hour, day)
-  windowType String // "minute", "hour", "day"
-
-  // Rate limit reference
-  rateLimitId String
-  rateLimit   OrganizationRateLimit @relation("RateLimitUsage", fields: [rateLimitId], references: [id], onDelete: Cascade)
-
-  // User context
-  userId String?
-  user   User?   @relation("UserRateLimitUsage", fields: [userId], references: [id], onDelete: SetNull)
-
-  // Request metadata
-  ipAddress String?
-  userAgent String?
-
-  createdAt DateTime @default(now())
-
-  @@index([rateLimitId])
-  @@index([windowStart])
-  @@index([endpoint])
-  @@index([userId])
-}
-
-// ============================================================
-// Advanced Features - Multi-Factor Authentication
-// ============================================================
-
-enum MFAType {
-  TOTP
-  SMS
-  EMAIL
-  BACKUP_CODE
-}
-
-enum MFAStatus {
-  PENDING_SETUP
-  ACTIVE
-  DISABLED
-  SUSPENDED
-}
-
-model UserMFA {
-  id String @id @default(cuid())
-
-  // MFA configuration
-  mfaType MFAType
-  status  MFAStatus @default(PENDING_SETUP)
-
-  // TOTP secret (encrypted)
-  secret String? // For TOTP
-
-  // Phone number for SMS
-  phoneNumber String? // For SMS
-
-  // Backup codes (hashed)
-  backupCodes String[] @default([])
-
-  // Verification
-  isVerified Boolean   @default(false)
-  verifiedAt DateTime?
-
-  // Usage tracking
-  lastUsedAt DateTime?
-  usageCount Int       @default(0)
-
-  // User reference
-  userId String
-  user   User   @relation("UserMFAMethods", fields: [userId], references: [id], onDelete: Cascade)
-
-  // Verification logs
-  verificationLogs MFAVerificationLog[] @relation("MFAVerifications")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-}
-
-model MFAVerificationLog {
-  id String @id @default(cuid())
-
-  // Verification details
-  mfaId String
-  mfa   UserMFA @relation("MFAVerifications", fields: [mfaId], references: [id], onDelete: Cascade)
-
-  // Result
-  success Boolean
-  method  MFAType
-
-  // Request metadata
-  ipAddress String?
-  userAgent String?
-
-  // Error info
-  errorMessage String?
-
-  timestamp DateTime @default(now())
-
-  @@index([mfaId])
-  @@index([timestamp])
 }

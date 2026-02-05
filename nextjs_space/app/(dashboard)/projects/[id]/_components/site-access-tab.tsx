@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Badge as BadgeIcon, Car, Check, Clock, Loader2, LogIn, LogOut, Search, User, Users } from 'lucide-react';
+import { Plus, LogIn, LogOut, Users, Search, Car, Phone, Badge as BadgeIcon, Check, Clock, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format, differenceInMinutes } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface SiteAccessTabProps {
   project: any;
@@ -23,7 +23,7 @@ interface SiteAccessTabProps {
 
 const roleTypes = ['Worker', 'Visitor', 'Delivery', 'Inspector', 'Client', 'Contractor', 'Consultant'];
 
-export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
+export function SiteAccessTab({ project, teamMembers, siteAccessLogs: initialLogs }: SiteAccessTabProps) {
   const router = useRouter();
   const [logs, setLogs] = useState(initialLogs || []);
   const [showSignInModal, setShowSignInModal] = useState(false);
@@ -86,7 +86,7 @@ export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAcce
       setShowSignInModal(false);
       toast.success(`${signInForm.personName} signed in`);
       resetForm();
-    } catch {
+    } catch (error) {
       toast.error('Failed to sign in');
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ export function SiteAccessTab({ project, siteAccessLogs: initialLogs }: SiteAcce
       setSelectedEntry(null);
       toast.success(`${selectedEntry.personName} signed out`);
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Failed to sign out');
     } finally {
       setLoading(false);

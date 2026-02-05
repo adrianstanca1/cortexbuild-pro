@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -30,7 +27,7 @@ export async function GET(
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -174,7 +171,7 @@ export async function GET(
     }
 
     return NextResponse.json(exportData);
-  } catch {
+  } catch (error) {
     console.error('Project export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

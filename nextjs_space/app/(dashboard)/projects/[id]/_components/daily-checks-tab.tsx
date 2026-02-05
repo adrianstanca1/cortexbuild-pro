@@ -3,8 +3,11 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { AlertTriangle, Calendar, Check, CheckCircle2, ChevronRight, Download, HardHat, Plus, User, Wrench, XCircle } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  HardHat, Wrench, Plus, Check, X, AlertTriangle, ChevronRight,
+  Loader2, Calendar, User, FileText, CheckCircle2, XCircle, Shield, Download
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -85,7 +88,8 @@ interface DailyChecksTabProps {
 export function DailyChecksTab({
   projectId,
   mewpChecks: initialMewpChecks,
-  toolChecks: initialToolChecks
+  toolChecks: initialToolChecks,
+  equipment
 }: DailyChecksTabProps) {
   const router = useRouter();
   const [mewpChecks, setMewpChecks] = useState(initialMewpChecks || []);
@@ -144,7 +148,7 @@ export function DailyChecksTab({
         const data = await toolRes.json();
         setToolChecks(data.checks || []);
       }
-    } catch {
+    } catch (error) {
       console.error("Error fetching checks:", error);
     }
   }, [projectId]);
@@ -207,7 +211,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to create MEWP check");
     } finally {
       setLoading(false);
@@ -243,7 +247,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to create tool check");
     } finally {
       setLoading(false);
@@ -541,7 +545,7 @@ export function DailyChecksTab({
                           onClick={() => handleMewpCheckItem(item.key, status)}
                         >
                           {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <AlertTriangle className="h-4 w-4" /> :
+                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
                            status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
                            "N/A"}
                         </Button>
@@ -671,7 +675,7 @@ export function DailyChecksTab({
                           onClick={() => handleToolCheckItem(item.key, status)}
                         >
                           {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <AlertTriangle className="h-4 w-4" /> :
+                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
                            status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
                            "N/A"}
                         </Button>

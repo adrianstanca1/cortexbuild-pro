@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -95,7 +91,7 @@ async function loadConfigFromDb(): Promise<void> {
       platformConfig = deepMerge(DEFAULT_CONFIG, parsed);
     }
     lastLoadedAt = new Date();
-  } catch {
+  } catch (e) {
     console.error("Error loading platform config from DB:", e);
   }
 }
@@ -113,7 +109,7 @@ function deepMerge(target: any, source: any): any {
   return output;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
@@ -175,7 +171,7 @@ export async function GET(_request: NextRequest) {
       environment: process.env.NODE_ENV || "development",
       serverTime: new Date().toISOString()
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -232,7 +228,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, config: platformConfig });
-  } catch {
+  } catch (error) {
     console.error("Error updating platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -291,7 +287,7 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch {
+  } catch (error) {
     console.error("Error in platform config action:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

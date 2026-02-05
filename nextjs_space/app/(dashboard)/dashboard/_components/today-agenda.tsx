@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { format, isBefore } from "date-fns";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { format, isToday, isBefore, differenceInDays } from "date-fns";
 import {
-  Calendar, Clock, ListTodo, ClipboardCheck, Shield, Target,
+  Calendar, Clock, ListTodo, Users, ClipboardCheck, Shield, Target,
   AlertTriangle, ChevronRight, Loader2, FileQuestion, RefreshCw,
-  Wrench, MessageSquare,
-  CheckCircle2, Flame, Clock4, Send
+  HardHat, Wrench, MessageSquare, FileText, Send, AlertCircle,
+  CheckCircle2, XCircle, Flame, TrendingUp, Clock4, Bell
 } from "lucide-react";
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
@@ -100,10 +101,11 @@ const typeLabels: Record<string, string> = {
 };
 
 export function TodayAgenda() {
+  const router = useRouter();
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [summary, setSummary] = useState<AgendaSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   const fetchAgenda = useCallback(async () => {

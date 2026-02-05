@@ -5,9 +5,7 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 import { sendToolCheckCompletedNotification } from "@/lib/email-notifications";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,7 +48,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ checks });
-  } catch {
+  } catch (error) {
     console.error("Error fetching tool checks:", error);
     return NextResponse.json({ error: "Failed to fetch tool checks" }, { status: 500 });
   }
@@ -200,7 +198,7 @@ export async function POST(request: NextRequest) {
     ).catch(err => console.error('Email notification error:', err));
 
     return NextResponse.json({ check }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating tool check:", error);
     return NextResponse.json({ error: "Failed to create tool check" }, { status: 500 });
   }

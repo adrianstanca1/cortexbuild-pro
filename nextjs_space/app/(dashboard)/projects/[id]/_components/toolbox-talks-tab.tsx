@@ -2,9 +2,12 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { AlertTriangle, Check, CheckCircle2, Download, Loader2, MapPin, MessageSquare, PenTool, Plus, User, Users } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import { format, formatDistanceToNow } from "date-fns";
+import {
+  MessageSquare, Plus, Users, Calendar, Clock, MapPin, Check,
+  ChevronRight, Loader2, PenTool, AlertTriangle, CheckCircle2, Download
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -56,7 +59,7 @@ const statusColors: Record<string, string> = {
   CANCELLED: "destructive"
 };
 
-export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: ToolboxTalksTabProps) {
+export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMembers }: ToolboxTalksTabProps) {
   const router = useRouter();
   const [talks, setTalks] = useState<ToolboxTalk[]>(initialTalks || []);
   const [loading, setLoading] = useState(false);
@@ -88,7 +91,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         setTalks(data.toolboxTalks || []);
       }
-    } catch {
+    } catch (error) {
       console.error("Error fetching toolbox talks:", error);
     }
   }, [projectId]);
@@ -136,7 +139,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         toast.error(data.error || "Failed to create toolbox talk");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to create toolbox talk");
     } finally {
       setLoading(false);
@@ -168,7 +171,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         const data = await res.json();
         toast.error(data.error || "Failed to record signature");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to record signature");
     } finally {
       setLoading(false);
@@ -186,7 +189,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         toast.success("Toolbox talk started");
         fetchTalks();
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to start toolbox talk");
     }
   };
@@ -202,7 +205,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks }: Toolb
         toast.success("Toolbox talk completed");
         fetchTalks();
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to complete toolbox talk");
     }
   };

@@ -1,114 +1,122 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
+export const dynamic = "force-dynamic";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
 
-
-
-export async function GET(request: NextRequest) {
+// GET all cost codes for a project
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId');
-    const parentId = searchParams.get('parentId');
-    const includeProjectOverrides = searchParams.get('includeProjectOverrides') === 'true';
+    const projectId = searchParams.get("projectId");
 
-    const where: Record<string, unknown> = {
-      organizationId: session.user.organizationId
-    };
-
-    if (projectId && includeProjectOverrides) {
-      where.OR = [
-        { projectId: null },  // Organization library
-        { projectId }          // Project-specific
-      ];
-    } else if (projectId) {
-      where.projectId = projectId;
-    } else {
-      where.projectId = null;  // Only org library
+    if (!projectId) {
+      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
     }
 
-    if (parentId === 'null') {
-      where.parentId = null;
-    } else if (parentId) {
-      where.parentId = parentId;
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
+
+    // Verify project belongs to user's organization
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, organizationId: orgId }
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     const costCodes = await prisma.costCode.findMany({
-      where,
+      where: { projectId, isActive: true },
       include: {
         parent: { select: { id: true, code: true, name: true } },
-        children: { select: { id: true, code: true, name: true, level: true } },
-        _count: {
-          select: {
-            workPackages: true,
-            costItems: true,
-            budgetLines: true
-          }
-        }
+        children: { select: { id: true, code: true, name: true, budgetAmount: true } },
+        _count: { select: { costItems: true, children: true } }
       },
-      orderBy: { code: 'asc' }
+      orderBy: { code: "asc" }
     });
 
-    return NextResponse.json(costCodes);
-  } catch {
-    console.error('Error fetching cost codes:', error);
-    return NextResponse.json({ error: 'Failed to fetch cost codes' }, { status: 500 });
+    return NextResponse.json({ costCodes });
+  } catch (error) {
+    console.error("Get cost codes error:", error);
+    return NextResponse.json({ error: "Failed to fetch cost codes" }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+// POST create new cost code
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id || !session?.user?.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
     const body = await request.json();
-    const { code, name, description, parentId, category, budgetAmount, projectId, varianceThreshold } = body;
+    const {
+      projectId,
+      code,
+      name,
+      description,
+      level,
+      parentId,
+      budgetAmount,
+      varianceThreshold
+    } = body;
 
-    if (!code || !name) {
-      return NextResponse.json({ error: 'Code and name are required' }, { status: 400 });
+    if (!projectId || !code || !name) {
+      return NextResponse.json(
+        { error: "Project ID, code, and name are required" },
+        { status: 400 }
+      );
     }
 
-    // Calculate level based on parent
-    let level = 1;
-    if (parentId) {
-      const parent = await prisma.costCode.findUnique({ where: { id: parentId } });
-      if (parent) {
-        level = parent.level + 1;
-      }
+    // Verify project belongs to user's organization
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, organizationId: orgId }
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    // Check if code already exists for this project
+    const existing = await prisma.costCode.findUnique({
+      where: { projectId_code: { projectId, code } }
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "Cost code already exists for this project" },
+        { status: 400 }
+      );
     }
 
     const costCode = await prisma.costCode.create({
       data: {
+        projectId,
         code,
         name,
         description,
+        level: level || 1,
         parentId: parentId || null,
-        level,
-        category: category || 'OTHER',
         budgetAmount: budgetAmount || 0,
-        varianceThreshold: varianceThreshold || 10,
-        organizationId: session.user.organizationId,
-        projectId: projectId || null
+        varianceThreshold: varianceThreshold || 10
       },
       include: {
         parent: { select: { id: true, code: true, name: true } },
-        children: { select: { id: true, code: true, name: true } }
+        _count: { select: { costItems: true, children: true } }
       }
     });
 
-    return NextResponse.json(costCode, { status: 201 });
-  } catch {
-    console.error('Error creating cost code:', error);
-    return NextResponse.json({ error: 'Failed to create cost code' }, { status: 500 });
+    return NextResponse.json({ costCode }, { status: 201 });
+  } catch (error) {
+    console.error("Create cost code error:", error);
+    return NextResponse.json({ error: "Failed to create cost code" }, { status: 500 });
   }
 }

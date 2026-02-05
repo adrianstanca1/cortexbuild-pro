@@ -45,7 +45,7 @@ async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
     'CLOUD_STORAGE_ENABLED'
   ];
 
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
 
   for (const varName of requiredVars) {
     const isSet = !!process.env[varName];
@@ -70,7 +70,7 @@ async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
 }
 
 async function checkDatabaseSchema(): Promise<DiagnosticResult> {
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
   
   const expectedModels = [
     'User', 'Organization', 'Project', 'Task', 'TeamMember',
@@ -81,7 +81,7 @@ async function checkDatabaseSchema(): Promise<DiagnosticResult> {
   for (const model of expectedModels) {
     try {
       const modelKey = model.charAt(0).toLowerCase() + model.slice(1);
-      // @ts-expect-error - Dynamic model access
+      // @ts-ignore - Dynamic model access
       const count = await prisma[modelKey]?.count?.();
       
       checks.push({
@@ -104,7 +104,7 @@ async function checkDatabaseSchema(): Promise<DiagnosticResult> {
 }
 
 async function checkFileSystem(): Promise<DiagnosticResult> {
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
   const projectRoot = path.join(__dirname, '..');
 
   const requiredPaths = [
@@ -142,7 +142,7 @@ async function checkFileSystem(): Promise<DiagnosticResult> {
 }
 
 async function checkDatabaseConnectivity(): Promise<DiagnosticResult> {
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
 
   // Test basic connectivity
   try {
@@ -229,7 +229,7 @@ async function checkDatabaseConnectivity(): Promise<DiagnosticResult> {
 }
 
 async function checkApiIntegrations(): Promise<DiagnosticResult> {
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
 
   try {
     const connections = await prisma.apiConnection.findMany({
@@ -299,7 +299,7 @@ async function checkApiIntegrations(): Promise<DiagnosticResult> {
 }
 
 async function checkDataHealth(): Promise<DiagnosticResult> {
-  const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];
+  const checks = [];
 
   try {
     // Check for organizations without users

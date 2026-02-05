@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,7 +43,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(permits);
-  } catch {
+  } catch (error) {
     console.error('Error fetching confined space permits:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -124,7 +120,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(permit, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating confined space permit:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

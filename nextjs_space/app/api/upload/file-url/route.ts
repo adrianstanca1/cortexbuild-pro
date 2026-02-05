@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { getFileUrl } from '@/lib/s3';
@@ -23,7 +20,7 @@ export async function POST(request: NextRequest) {
     const url = await getFileUrl(cloud_storage_path, isPublic);
 
     return NextResponse.json({ url });
-  } catch {
+  } catch (error) {
     console.error('File URL error:', error);
     return NextResponse.json({ error: 'Failed to get file URL' }, { status: 500 });
   }

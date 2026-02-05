@@ -1,13 +1,10 @@
 import { getServerSession } from "next-auth";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { MaterialsClient } from "./_components/materials-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function MaterialsPage() {
   const session = await getServerSession(authOptions);
@@ -34,7 +31,7 @@ export default async function MaterialsPage() {
   ]);
 
   const summary = materials.reduce(
-    (acc: { totalValue: number; totalOrdered: number; totalReceived: number }, mat: { totalCost: number; quantityOrdered: number; quantityReceived: number }) => {
+    (acc: any, mat: any) => {
       acc.totalValue += mat.totalCost;
       acc.totalOrdered += mat.quantityOrdered;
       acc.totalReceived += mat.quantityReceived;

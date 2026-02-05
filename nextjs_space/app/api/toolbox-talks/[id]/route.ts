@@ -22,7 +22,7 @@ export async function GET(
 
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: orgId }
       },
       include: {
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     return NextResponse.json({ toolboxTalk });
-  } catch {
+  } catch (error) {
     console.error("Error fetching toolbox talk:", error);
     return NextResponse.json({ error: "Failed to fetch toolbox talk" }, { status: 500 });
   }
@@ -65,7 +65,7 @@ export async function PATCH(
 
     // Verify toolbox talk exists and belongs to org
     const existing = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } },
+      where: { id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -74,7 +74,7 @@ export async function PATCH(
     }
 
     const toolboxTalk = await prisma.toolboxTalk.update({
-      where: { id: id },
+      where: { id },
       data: {
         title: body.title,
         topic: body.topic,
@@ -134,7 +134,7 @@ export async function PATCH(
     }
 
     return NextResponse.json({ toolboxTalk });
-  } catch {
+  } catch (error) {
     console.error("Error updating toolbox talk:", error);
     return NextResponse.json({ error: "Failed to update toolbox talk" }, { status: 500 });
   }
@@ -155,7 +155,7 @@ export async function DELETE(
     const userId = (session.user as any).id;
 
     const existing = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } },
+      where: { id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -163,7 +163,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
     }
 
-    await prisma.toolboxTalk.delete({ where: { id: id } });
+    await prisma.toolboxTalk.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({
@@ -179,11 +179,11 @@ export async function DELETE(
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_deleted",
-      data: { id: id }
+      data: { id }
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting toolbox talk:", error);
     return NextResponse.json({ error: "Failed to delete toolbox talk" }, { status: 500 });
   }

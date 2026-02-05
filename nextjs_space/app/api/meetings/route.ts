@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(meetings);
-  } catch {
+  } catch (error) {
     console.error('Error fetching meetings:', error);
     return NextResponse.json({ error: 'Failed to fetch meetings' }, { status: 500 });
   }
@@ -119,7 +115,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(meeting, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating meeting:', error);
     return NextResponse.json({ error: 'Failed to create meeting' }, { status: 500 });
   }

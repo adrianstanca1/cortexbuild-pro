@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Flame, Check, Eye, Loader2, Clock } from 'lucide-react';
+import { Plus, Flame, AlertOctagon, Check, X, Eye, Loader2, Clock, ShieldAlert, Wind } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,8 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { format, differenceInHours } from 'date-fns';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface PermitsToWorkTabProps {
   project: any;
@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
   EXPIRED: 'bg-orange-500'
 };
 
-export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
+export function PermitsToWorkTab({ project, teamMembers, hotWorkPermits: initialHotWork, confinedSpacePermits: initialCS }: PermitsToWorkTabProps) {
   const router = useRouter();
   const [hotWorkPermits, setHotWorkPermits] = useState(initialHotWork || []);
   const [csPermits, setCsPermits] = useState(initialCS || []);
@@ -114,7 +114,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       setShowHotWorkModal(false);
       toast.success('Hot Work Permit requested');
       resetHotWorkForm();
-    } catch {
+    } catch (error) {
       toast.error('Failed to create permit');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       setShowCSModal(false);
       toast.success('Confined Space Permit requested');
       resetCSForm();
-    } catch {
+    } catch (error) {
       toast.error('Failed to create permit');
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       if (!response.ok) throw new Error('Failed');
       toast.success('Permit approved');
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Failed to approve');
     }
   };
@@ -177,7 +177,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
       if (!response.ok) throw new Error('Failed');
       toast.success('Permit completed');
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Failed to complete');
     }
   };
@@ -712,7 +712,7 @@ export function PermitsToWorkTab({ project, hotWorkPermits: initialHotWork, conf
                         { key: 'ventilationAdequate', label: 'Ventilation Adequate' }
                       ].map(({ key, label }) => (
                         <div key={key} className="flex items-center gap-2">
-                          {selectedPermit[key] ? <Check className="h-4 w-4 text-green-500" /> : <AlertTriangle className="h-4 w-4 text-red-500" />}
+                          {selectedPermit[key] ? <Check className="h-4 w-4 text-green-500" /> : <X className="h-4 w-4 text-red-500" />}
                           <span className="text-foreground">{label}</span>
                         </div>
                       ))}

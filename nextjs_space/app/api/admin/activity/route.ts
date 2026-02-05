@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -50,7 +46,7 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(total / limit)
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching activities:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

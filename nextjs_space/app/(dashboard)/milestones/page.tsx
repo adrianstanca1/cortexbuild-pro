@@ -1,13 +1,10 @@
 import { getServerSession } from "next-auth";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import MilestonesClient from "./_components/milestones-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function MilestonesPage() {
   const session = await getServerSession(authOptions);

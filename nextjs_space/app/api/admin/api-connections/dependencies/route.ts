@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { serviceRegistry, getAllServiceInstances, PLATFORM_SERVICES } from "@/lib/service-registry";
@@ -122,7 +118,7 @@ export async function GET(req: NextRequest) {
         ).length
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching dependencies:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -20,7 +17,7 @@ export async function GET(
     }
 
     const diary = await prisma.siteDiary.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         entries: { orderBy: { time: "asc" } },
@@ -33,7 +30,7 @@ export async function GET(
     }
 
     return NextResponse.json(diary);
-  } catch {
+  } catch (error) {
     console.error("Error fetching site diary:", error);
     return NextResponse.json({ error: "Failed to fetch site diary" }, { status: 500 });
   }
@@ -59,7 +56,7 @@ export async function PATCH(
     } = body;
 
     const existingDiary = await prisma.siteDiary.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -82,7 +79,7 @@ export async function PATCH(
     }
 
     const diary = await prisma.siteDiary.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...(weatherMorning !== undefined && { weatherMorning }),
         ...(weatherAfternoon !== undefined && { weatherAfternoon }),
@@ -114,7 +111,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(diary);
-  } catch {
+  } catch (error) {
     console.error("Error updating site diary:", error);
     return NextResponse.json({ error: "Failed to update site diary" }, { status: 500 });
   }
@@ -132,7 +129,7 @@ export async function DELETE(
     }
 
     const diary = await prisma.siteDiary.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -140,7 +137,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Site diary not found" }, { status: 404 });
     }
 
-    await prisma.siteDiary.delete({ where: { id: id } });
+    await prisma.siteDiary.delete({ where: { id } });
 
     if (diary.project.organizationId) {
       broadcastToOrganization(diary.project.organizationId, {
@@ -150,7 +147,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting site diary:", error);
     return NextResponse.json({ error: "Failed to delete site diary" }, { status: 500 });
   }

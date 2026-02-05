@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
-  Package, Plus, Search, Truck, CheckCircle, Clock,
-  Edit2, Trash2, Loader2, Calendar
+  Package, Plus, Search, Truck, CheckCircle, Clock, AlertTriangle,
+  Edit2, Trash2, Loader2, MapPin, Calendar, ArrowRight
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useRealtimeSubscription } from "@/components/realtime-provider";
+import { useEntitySubscription } from "@/hooks/use-entity-subscription";
+import { MATERIAL_STATUS_CONFIG } from "@/lib/constants/status-configs";
 
 interface Material {
   id: string;
@@ -110,14 +111,8 @@ export function MaterialsClient({
     notes: ""
   });
 
-  const handleMaterialEvent = useCallback(() => {
-    router.refresh();
-  }, [router]);
-
-  useRealtimeSubscription(
-    ["material_created", "material_updated", "material_deleted"],
-    handleMaterialEvent
-  );
+  // Use centralized realtime subscription hook
+  useEntitySubscription('material', { includeDeleted: true });
 
   const filteredMaterials = materials.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -149,7 +144,7 @@ export function MaterialsClient({
         supplier: "", leadTime: "", expectedDate: "", location: "", notes: ""
       });
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Failed to create material");
     } finally {
       setLoading(false);
@@ -169,7 +164,7 @@ export function MaterialsClient({
       toast.success("Material updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Failed to update material");
     } finally {
       setLoading(false);
@@ -183,7 +178,7 @@ export function MaterialsClient({
       if (!res.ok) throw new Error("Failed to delete material");
       toast.success("Material deleted");
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Failed to delete material");
     }
   };

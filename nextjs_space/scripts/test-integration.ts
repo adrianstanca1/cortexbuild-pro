@@ -363,7 +363,7 @@ async function main() {
     
     const exitCode = await printSummary();
     process.exit(exitCode);
-  } catch {
+  } catch (error) {
     console.error('\n❌ Test execution error:', error);
     process.exit(1);
   }

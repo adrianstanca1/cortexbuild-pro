@@ -6,23 +6,30 @@ import {
   FileQuestion,
   Plus,
   Search,
+  Filter,
   AlertCircle,
   CheckCircle,
   Clock,
   Send,
   Paperclip,
   Calendar,
+  ArrowRight,
+  X,
   PoundSterling,
   Timer,
   LayoutGrid,
   List,
+  TrendingUp,
   AlertTriangle,
   MessageSquare,
+  Eye,
   User,
   Building2,
-  ChevronRight
+  ChevronRight,
+  MoreHorizontal,
+  ExternalLink
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -114,7 +121,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
   });
   const [answerInput, setAnswerInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [_loadingAttachments, setLoadingAttachments] = useState(false);
+  const [loadingAttachments, setLoadingAttachments] = useState(false);
 
   const handleRFIEvent = useCallback(() => {
     router.refresh();
@@ -139,7 +146,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
           mimeType: a.mimeType
         })));
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to fetch attachments:', error);
     } finally {
       setLoadingAttachments(false);
@@ -165,7 +172,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
           a.name === file.name && !a.id ? { ...a, id: saved.id } : a
         ));
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to save attachment:', error);
     }
   };
@@ -176,7 +183,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
       await fetch(`/api/rfis/${selectedRFI.id}/attachments?attachmentId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch {
+    } catch (error) {
       console.error('Failed to delete attachment:', error);
     }
   };
@@ -222,7 +229,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
         const err = await res.json();
         toast.error(err.error || 'Failed to create RFI');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to create RFI');
     } finally {
       setLoading(false);
@@ -252,7 +259,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
       } else {
         toast.error('Failed to answer RFI');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to answer RFI');
     } finally {
       setLoading(false);
@@ -276,7 +283,7 @@ export function RFIsClient({ initialRFIs, projects, teamMembers }: RFIsClientPro
         setSelectedRFI({ ...selectedRFI, ...updated });
         toast.success('RFI closed');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to close RFI');
     } finally {
       setLoading(false);

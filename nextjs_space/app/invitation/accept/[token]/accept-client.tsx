@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
@@ -70,7 +70,7 @@ export default function AcceptInvitationClient({ token }: { token: string }) {
         } else {
           setError(data.error || 'Invalid invitation');
         }
-      } catch {
+      } catch (e) {
         setError('Failed to validate invitation');
       } finally {
         setLoading(false);
@@ -113,7 +113,7 @@ export default function AcceptInvitationClient({ token }: { token: string }) {
       } else {
         setError(data.error || 'Failed to accept invitation');
       }
-    } catch {
+    } catch (e) {
       setError('Failed to accept invitation');
     } finally {
       setSubmitting(false);

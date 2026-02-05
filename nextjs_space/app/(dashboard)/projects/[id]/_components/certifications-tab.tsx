@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, Award, Calendar, Check, Clock, Loader2, Plus, Search, Shield, User } from 'lucide-react';
+import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, Filter, Loader2, Shield, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { format, differenceInDays } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { format, differenceInDays, addDays } from 'date-fns';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface CertificationsTabProps {
   teamMembers: any[];
@@ -123,7 +123,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
       setShowCreateModal(false);
       toast.success('Certification added');
       resetForm();
-    } catch {
+    } catch (error) {
       toast.error('Failed to add certification');
     } finally {
       setLoading(false);
@@ -140,7 +140,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
       if (!response.ok) throw new Error('Failed');
       toast.success('Certification verified');
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error('Failed to verify');
     }
   };

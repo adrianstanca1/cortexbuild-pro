@@ -4,8 +4,12 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
-import { AlertCircle, AlertTriangle, Calendar, CheckCircle2, Clock, Edit, Flag, FolderKanban, Loader2, MoreVertical, Plus, Search, Target, Trash2, TrendingUp } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Flag, Plus, Search, Filter, Calendar, CheckCircle2, Clock,
+  AlertTriangle, Target, MoreVertical, Edit, Trash2, ChevronRight,
+  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as MilestoneIcon
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -73,14 +77,14 @@ const statusConfig = {
 
 export default function MilestonesClient({ projects, initialMilestones }: MilestonesClientProps) {
   const router = useRouter();
-  const [milestones, _setMilestones] = useState<Milestone[]>(initialMilestones);
+  const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [showNewModal, setShowNewModal] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [loading, setLoading] = useState(false);
-  const [_viewMode, _setViewMode] = useState<"timeline" | "list">("timeline");
+  const [viewMode, setViewMode] = useState<"timeline" | "list">("timeline");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -165,7 +169,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       setShowNewModal(false);
       resetForm();
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Failed to save milestone");
     } finally {
       setLoading(false);
@@ -180,7 +184,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       if (!res.ok) throw new Error("Failed to delete");
       toast.success("Milestone deleted");
       router.refresh();
-    } catch {
+    } catch (error) {
       toast.error("Failed to delete milestone");
     }
   };

@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -20,7 +16,7 @@ export async function GET(
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         users: {
           select: {
@@ -51,7 +47,7 @@ export async function GET(
     }
 
     return NextResponse.json({ organization });
-  } catch {
+  } catch (error) {
     console.error("Error fetching organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -69,9 +65,9 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, slug, logoUrl, isActive, entitlements } = body;
+    const { name, slug, logoUrl } = body;
 
-    const existingOrg = await prisma.organization.findUnique({ where: { id: id } });
+    const existingOrg = await prisma.organization.findUnique({ where: { id } });
     if (!existingOrg) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
@@ -88,14 +84,9 @@ export async function PATCH(
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
-    if (isActive !== undefined) updateData.isActive = isActive;
-    
-    // Note: Entitlements structure validation could be added here in the future
-    // based on business requirements. Currently accepts any JSON object.
-    if (entitlements !== undefined) updateData.entitlements = entitlements;
 
     const organization = await prisma.organization.update({
-      where: { id: id },
+      where: { id },
       data: updateData
     });
 
@@ -112,7 +103,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ organization });
-  } catch {
+  } catch (error) {
     console.error("Error updating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -130,7 +121,7 @@ export async function DELETE(
     }
 
     const organization = await prisma.organization.findUnique({
-      where: { id: id },
+      where: { id },
       include: { _count: { select: { users: true, projects: true } } }
     });
 
@@ -146,7 +137,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.organization.delete({ where: { id: id } });
+    await prisma.organization.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({
@@ -160,7 +151,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

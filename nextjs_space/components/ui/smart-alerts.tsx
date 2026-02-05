@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import {
   Bell,
   AlertTriangle,
   CheckCircle2,
+  Clock,
   Calendar,
   TrendingUp,
   Users,
@@ -18,6 +19,8 @@ import {
   ChevronRight,
   X,
   Lightbulb,
+  Eye,
+  BarChart3,
   Flame,
   ThumbsUp,
   ArrowRight
@@ -87,7 +90,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
     // Analyze tasks for overdue items
     const allTasks = tasks.length > 0 ? tasks : projects.flatMap(p => p.tasks || []);
     const overdueTasks = allTasks.filter(t => {
-      if (!t.dueDate || t.status === 'COMPLETED' || t.status === 'DONE') return false;
+      if (!t.dueDate || t.status === 'COMPLETE') return false;
       return new Date(t.dueDate) < now;
     });
 
@@ -107,7 +110,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
 
     // Tasks due today
     const dueTodayTasks = allTasks.filter(t => {
-      if (!t.dueDate || t.status === 'COMPLETED' || t.status === 'DONE') return false;
+      if (!t.dueDate || t.status === 'COMPLETE') return false;
       const dueDate = new Date(t.dueDate);
       return dueDate.toDateString() === now.toDateString();
     });
@@ -182,7 +185,7 @@ export function SmartAlerts({ projects, tasks = [], teamMembers = [], compact = 
     });
 
     // Resource optimization opportunities
-    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE');
+    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS');
     if (activeProjects.length > 0 && teamMembers.length > 0) {
       const avgProjectsPerMember = activeProjects.length / teamMembers.length;
       if (avgProjectsPerMember > 2) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
@@ -15,6 +15,7 @@ import {
   MapPin,
   User,
   ChevronRight,
+  Activity,
   XCircle,
   LayoutGrid,
   List,
@@ -25,7 +26,7 @@ import {
   FileText,
   Camera
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -162,7 +163,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
           mimeType: p.mimeType
         })));
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to fetch photos:', error);
     }
   };
@@ -187,7 +188,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
         ));
         toast.success('Photo added');
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to save photo:', error);
     }
   };
@@ -198,7 +199,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
       await fetch(`/api/safety/${selectedIncident.id}/photos?photoId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch {
+    } catch (error) {
       console.error('Failed to delete photo:', error);
     }
   };
@@ -236,7 +237,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
         const err = await res.json();
         toast.error(err.error || 'Failed to report incident');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to report incident');
     } finally {
       setLoading(false);
@@ -262,7 +263,7 @@ export function SafetyClient({ initialIncidents, projects, teamMembers }: Safety
       } else {
         toast.error('Failed to update incident');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to update incident');
     } finally {
       setLoading(false);

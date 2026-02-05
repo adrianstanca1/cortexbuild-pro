@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -23,7 +20,7 @@ export async function POST(
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -59,7 +56,7 @@ export async function POST(
     });
 
     return NextResponse.json(acknowledgement);
-  } catch {
+  } catch (error) {
     console.error('Error acknowledging RAMS:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -80,7 +77,7 @@ export async function PUT(
     }
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -104,7 +101,7 @@ export async function PUT(
     });
 
     return NextResponse.json(acknowledgement);
-  } catch {
+  } catch (error) {
     console.error('Error adding guest acknowledgement:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

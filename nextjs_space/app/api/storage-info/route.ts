@@ -27,7 +27,7 @@ export async function GET() {
       storage: storageInfo,
       timestamp: new Date().toISOString()
     });
-  } catch {
+  } catch (error) {
     console.error("Storage info error:", error);
     return NextResponse.json(
       { error: "Failed to get storage info" },

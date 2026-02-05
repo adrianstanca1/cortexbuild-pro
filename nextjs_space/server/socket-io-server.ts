@@ -112,7 +112,7 @@ export class SocketIOService {
           });
 
           console.log(`User ${socket.userId} authenticated on socket ${socket.id}`);
-        } catch {
+        } catch (error) {
           console.error('Authentication error:', error);
           socket.emit('authentication-error', { message: 'Authentication failed' });
           socket.disconnect();
@@ -164,7 +164,7 @@ export class SocketIOService {
           });
 
           console.log(`User ${userId} joined project ${projectId}`);
-        } catch {
+        } catch (error) {
           console.error('Error joining project:', error);
           socket.emit('error', { message: 'Failed to join project' });
         }

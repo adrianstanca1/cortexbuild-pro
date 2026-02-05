@@ -16,7 +16,7 @@ import {
   Clock,
   Building2
 } from "lucide-react";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -56,7 +56,7 @@ interface Pagination {
   totalPages: number;
 }
 
-const entityIcons: Record<string, any> = {
+const entityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Project: FolderKanban,
   Task: ListTodo,
   Document: FileText,
@@ -96,7 +96,7 @@ export function ActivityMonitorClient() {
         setActivities(data.activities);
         setPagination(data.pagination);
       }
-    } catch {
+    } catch (error) {
       console.error("Error fetching activities:", error);
     } finally {
       setLoading(false);
@@ -106,6 +106,7 @@ export function ActivityMonitorClient() {
 
   useEffect(() => {
     fetchActivities();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -113,6 +114,7 @@ export function ActivityMonitorClient() {
       fetchActivities(1);
     }, 300);
     return () => clearTimeout(debounce);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, entityFilter]);
 
   const handleRefresh = () => {
@@ -271,7 +273,7 @@ export function ActivityMonitorClient() {
                           <span className="text-purple-600">{activity.user.name}</span>
                           {" "}{activity.action}
                           {activity.entityName && (
-                            <span className="font-semibold"> "{activity.entityName}"</span>
+                            <span className="font-semibold"> &quot;{activity.entityName}&quot;</span>
                           )}
                         </p>
                         <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">

@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -37,7 +34,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(punchLists);
-  } catch {
+  } catch (error) {
     console.error('Error fetching punch lists:', error);
     return NextResponse.json({ error: 'Failed to fetch punch lists' }, { status: 500 });
   }
@@ -111,7 +108,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(punchList, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating punch list:', error);
     return NextResponse.json({ error: 'Failed to create punch list' }, { status: 500 });
   }

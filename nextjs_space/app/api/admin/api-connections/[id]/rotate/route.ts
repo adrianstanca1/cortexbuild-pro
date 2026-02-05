@@ -1,24 +1,15 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { encryptCredentials, maskCredentials } from "@/lib/encryption";
+import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/encryption";
 
 // POST - Rotate/Replace API credentials
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Prevent execution during build time
-  if (process.env.__NEXT_TEST_MODE) {
-    return NextResponse.json({ error: "Not available during build" }, { status: 503 });
-  }
-
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -27,7 +18,7 @@ export async function POST(
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: id }
+      where: { id }
     });
 
     if (!connection) {
@@ -52,7 +43,7 @@ export async function POST(
 
     // Update connection with new credentials
     const updated = await prisma.apiConnection.update({
-      where: { id: id },
+      where: { id },
       data: {
         credentials: encryptedCredentials,
         status: "ACTIVE",
@@ -90,7 +81,7 @@ export async function POST(
       },
       message: "Credentials rotated successfully"
     })));
-  } catch {
+  } catch (error) {
     console.error("Error rotating API credentials:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

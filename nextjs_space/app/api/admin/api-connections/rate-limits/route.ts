@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -51,7 +47,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ rateLimits: formattedLimits })));
-  } catch {
+  } catch (error) {
     console.error("Error fetching rate limits:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -140,7 +136,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ rateLimitConfig })));
-  } catch {
+  } catch (error) {
     console.error("Error updating rate limit:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

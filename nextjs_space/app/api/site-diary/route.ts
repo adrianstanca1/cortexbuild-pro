@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -45,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(diaries);
-  } catch {
+  } catch (error) {
     console.error("Error fetching site diaries:", error);
     return NextResponse.json({ error: "Failed to fetch site diaries" }, { status: 500 });
   }
@@ -104,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(diary, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating site diary:", error);
     return NextResponse.json({ error: "Failed to create site diary" }, { status: 500 });
   }

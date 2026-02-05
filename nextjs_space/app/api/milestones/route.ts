@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -38,7 +35,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(milestones);
-  } catch {
+  } catch (error) {
     console.error("Error fetching milestones:", error);
     return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
   }
@@ -107,7 +104,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(milestone);
-  } catch {
+  } catch (error) {
     console.error("Error creating milestone:", error);
     return NextResponse.json({ error: "Failed to create milestone" }, { status: 500 });
   }

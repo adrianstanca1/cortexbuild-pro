@@ -1,39 +1,55 @@
-**/node_modules
-.next
-.cache
-.build
-*.nfs*
-**/.yarn/
-!**/.yarn/patches
-!**/.yarn/plugins
-!**/.yarn/releases
-!**/.yarn/sdks
-!**/.yarn/versions
-!**/.yarn/cache
-**/.yarn/build-state.yml
-**/.yarn/install-state.gz
-dist
-target
-out
-.deploy
-.logs
+# Environment variables (contains secrets - never commit)
+.env
+.env.local
+.env.*.local
+deployment/.env
+
+# Auto-generated deployment files
+DEPLOYMENT_SUMMARY.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
 *.tsbuildinfo
 
-# Deployment artifacts
-*.tar.gz
-*.zip
-/.env
-/deployment/.env
-/deployment/.env.*
-!/deployment/.env.example
-!/deployment/.env.production
-/deployment/PRODUCTION-CREDENTIALS.txt
-**/PRODUCTION-CREDENTIALS.txt
-**/*-CREDENTIALS.txt
-**/*-CREDENTIALS*.md
-**/ACTUAL-CREDENTIALS*.md
-**/.env.local
-**/.env.*.local
+# Local file uploads (use S3 in production)
+nextjs_space/uploads/
+uploads/
 
-# Git rewrite artifacts
-.git-rewrite/
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+.c8_output/
+lcov.info
+clover.xml
+
+# Debug
+npm-debug.log*
+.pnpm-debug.log*
+
+# Deployment packages (regenerate with create-deployment-package.sh)
+cortexbuild_vps_deploy.tar.gz
+
+.env.prod

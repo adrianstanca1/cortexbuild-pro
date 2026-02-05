@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -21,7 +18,7 @@ export async function GET(
 
     const costItem = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -36,7 +33,7 @@ export async function GET(
     }
 
     return NextResponse.json(costItem);
-  } catch {
+  } catch (error) {
     console.error("Error fetching cost item:", error);
     return NextResponse.json({ error: "Failed to fetch cost item" }, { status: 500 });
   }
@@ -55,7 +52,7 @@ export async function PATCH(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -69,7 +66,7 @@ export async function PATCH(
     const { description, category, status, estimatedAmount, actualAmount, committedAmount, vendor, notes, subcontractorId, invoiceNumber, invoiceDate, paidDate } = body;
 
     const costItem = await prisma.costItem.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...(description && { description }),
         ...(category && { category }),
@@ -110,7 +107,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(costItem);
-  } catch {
+  } catch (error) {
     console.error("Error updating cost item:", error);
     return NextResponse.json({ error: "Failed to update cost item" }, { status: 500 });
   }
@@ -129,7 +126,7 @@ export async function DELETE(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -139,7 +136,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
     }
 
-    await prisma.costItem.delete({ where: { id: id } });
+    await prisma.costItem.delete({ where: { id } });
 
     await prisma.activityLog.create({
       data: {
@@ -155,11 +152,11 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_deleted",
-      data: { id: id, projectId: existing.projectId }
+      data: { id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting cost item:", error);
     return NextResponse.json({ error: "Failed to delete cost item" }, { status: 500 });
   }

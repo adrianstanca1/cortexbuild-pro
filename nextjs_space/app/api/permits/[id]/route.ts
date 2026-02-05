@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -21,7 +17,7 @@ export async function GET(
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
         documents: true,
@@ -33,7 +29,7 @@ export async function GET(
     }
 
     return NextResponse.json(permit);
-  } catch {
+  } catch (error) {
     console.error("Error fetching permit:", error);
     return NextResponse.json({ error: "Failed to fetch permit" }, { status: 500 });
   }
@@ -58,7 +54,7 @@ export async function PATCH(
     } = body;
 
     const existingPermit = await prisma.permit.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -67,7 +63,7 @@ export async function PATCH(
     }
 
     const permit = await prisma.permit.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...(type && { type }),
         ...(title && { title }),
@@ -98,7 +94,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(permit);
-  } catch {
+  } catch (error) {
     console.error("Error updating permit:", error);
     return NextResponse.json({ error: "Failed to update permit" }, { status: 500 });
   }
@@ -116,7 +112,7 @@ export async function DELETE(
     }
 
     const permit = await prisma.permit.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -124,7 +120,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Permit not found" }, { status: 404 });
     }
 
-    await prisma.permit.delete({ where: { id: id } });
+    await prisma.permit.delete({ where: { id } });
 
     if (permit.project.organizationId) {
       broadcastToOrganization(permit.project.organizationId, {
@@ -134,7 +130,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error deleting permit:", error);
     return NextResponse.json({ error: "Failed to delete permit" }, { status: 500 });
   }

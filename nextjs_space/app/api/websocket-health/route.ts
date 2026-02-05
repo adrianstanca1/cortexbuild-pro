@@ -24,7 +24,7 @@ export async function GET() {
     };
 
     return NextResponse.json(status, { status: 200 });
-  } catch {
+  } catch (error) {
     console.error('WebSocket health check failed:', error);
     return NextResponse.json(
       {

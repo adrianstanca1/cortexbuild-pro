@@ -1,14 +1,10 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
 import { z } from 'zod';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 // Batch operation schemas
 const BatchTaskSchema = z.object({
@@ -62,125 +58,39 @@ export async function POST(request: NextRequest) {
         const { operation, tasks } = result.data;
         let processed = 0;
         const results: unknown[] = [];
-        const validationErrors: { index: number; task: any; error: string }[] = [];
 
         if (operation === 'create') {
-          // Validate tasks and track which ones are invalid
-          const validTasks: Array<typeof tasks[number] & { index: number }> = [];
-          
-          for (let i = 0; i < tasks.length; i++) {
-            const task = tasks[i];
-            
-            if (!task.title || !task.projectId) {
-              validationErrors.push({
-                index: i,
-                task: { title: task.title, projectId: task.projectId },
-                error: 'Missing required fields: title and projectId are required'
-              });
-              continue;
-            }
-            
-            // Validate date format if provided
-            if (task.dueDate) {
-              const parsedDate = new Date(task.dueDate);
-              if (isNaN(parsedDate.getTime())) {
-                validationErrors.push({
-                  index: i,
-                  task: { title: task.title, dueDate: task.dueDate },
-                  error: 'Invalid dueDate format'
-                });
-                continue;
-              }
-            }
-            
-            validTasks.push({ ...task, index: i });
-          }
-          
-          if (validTasks.length > 0) {
-            // Verify all projectIds belong to user's organization
-            const projectIds = [...new Set(validTasks.map(t => t.projectId).filter((id): id is string => id !== undefined))];
-            const authorizedProjects = await prisma.project.findMany({
-              where: {
-                id: { in: projectIds },
-                organizationId: user.organizationId
-              },
-              select: { id: true }
-            });
-            
-            const authorizedProjectIds = new Set(authorizedProjects.map(p => p.id));
-            
-            // Separate authorized and unauthorized tasks
-            const authorizedTasks: Array<typeof validTasks[number]> = [];
-            for (const task of validTasks) {
-              if (!authorizedProjectIds.has(task.projectId!)) {
-                validationErrors.push({
-                  index: task.index,
-                  task: { title: task.title, projectId: task.projectId },
-                  error: 'Unauthorized: project does not belong to your organization'
-                });
-              } else {
-                authorizedTasks.push(task);
-              }
-            }
-            
-            if (authorizedTasks.length > 0) {
-              // Use createMany for batch insert (much faster than individual creates)
-              const tasksData = authorizedTasks.map(task => ({
-                title: task.title!,
-                description: task.description || '',
-                status: task.status || 'TODO',
-                priority: task.priority || 'MEDIUM',
-                projectId: task.projectId!,
-                assigneeId: task.assigneeId || null,
-                dueDate: task.dueDate ? new Date(task.dueDate) : null,
-                creatorId: user.id,
-              }));
+          // Use createMany for bulk insert - much faster than individual creates
+          const tasksData = tasks
+            .filter(task => task.title && task.projectId)
+            .map(task => ({
+              title: task.title!,
+              description: task.description || '',
+              status: task.status || 'TODO',
+              priority: task.priority || 'MEDIUM',
+              projectId: task.projectId!,
+              assigneeId: task.assigneeId || null,
+              dueDate: task.dueDate ? new Date(task.dueDate) : null,
+              creatorId: user.id,
+            }));
 
-              const createResult = await prisma.task.createMany({
-                data: tasksData,
-                skipDuplicates: true,
-              });
-              processed = createResult.count;
-
-              // Note: For performance, batch create (createMany) returns count only, 
-              // not individual task objects. This is documented in the API response schema.
-              // Clients should handle the response format: { success: true, created: N, message: "..." }
-              results.push({ 
-                success: true, 
-                created: processed,
-                message: `Successfully created ${processed} tasks`,
-                ...(validationErrors.length > 0 && { 
-                  skipped: validationErrors.length,
-                  errors: validationErrors 
-                })
-              });
-            } else {
-              results.push({
-                success: false,
-                created: 0,
-                message: 'No valid tasks to create',
-                errors: validationErrors
-              });
-            }
-          } else {
-            results.push({
-              success: false,
-              created: 0,
-              message: 'No valid tasks to create',
-              errors: validationErrors
-            });
-          }
+          const createResult = await prisma.task.createMany({
+            data: tasksData,
+            skipDuplicates: true,
+          });
+          processed = createResult.count;
 
           broadcastToOrganization(user.organizationId, {
             type: 'task_created',
             payload: { count: processed, message: `${processed} tasks created` },
           });
         } else if (operation === 'update') {
-          // Update operations need individual handling due to different fields per task
-          for (const task of tasks) {
-            if (task.id) {
-              const updated = await prisma.task.update({
-                where: { id: task.id },
+          // Execute updates in parallel for better performance
+          const updatePromises = tasks
+            .filter(task => task.id)
+            .map(task => 
+              prisma.task.update({
+                where: { id: task.id! },
                 data: {
                   ...(task.title && { title: task.title }),
                   ...(task.description && { description: task.description }),
@@ -189,11 +99,13 @@ export async function POST(request: NextRequest) {
                   ...(task.assigneeId && { assigneeId: task.assigneeId }),
                   ...(task.dueDate && { dueDate: new Date(task.dueDate) }),
                 },
-              });
-              results.push(updated);
-              processed++;
-            }
-          }
+              })
+            );
+
+          const updated = await Promise.all(updatePromises);
+          results.push(...updated);
+          processed = updated.length;
+
           broadcastToOrganization(user.organizationId, {
             type: 'task_updated',
             payload: { count: processed, message: `${processed} tasks updated` },
@@ -318,7 +230,7 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }
-  } catch {
+  } catch (error) {
     console.error('Batch operation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

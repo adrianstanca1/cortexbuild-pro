@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         name: user.name
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Failed to create account" },

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Award, Clock, HardHat, Loader2, Lock, Mail, User, Zap } from 'lucide-react';
+import { HardHat, Mail, Lock, User, Loader2, ArrowRight, Zap, Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -71,7 +71,7 @@ export default function SignupPage() {
         toast.success("Account created successfully!");
         router.replace("/dashboard");
       }
-    } catch {
+    } catch (error) {
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -241,7 +241,7 @@ export default function SignupPage() {
             {/* Testimonial */}
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <p className="text-white/90 mb-4">
-                "CortexBuild has transformed how we manage our construction projects. The time savings alone have been incredible."
+                &quot;CortexBuild has transformed how we manage our construction projects. The time savings alone have been incredible.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">

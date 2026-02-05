@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ toolboxTalks });
-  } catch {
+  } catch (error) {
     console.error("Error fetching toolbox talks:", error);
     return NextResponse.json({ error: "Failed to fetch toolbox talks" }, { status: 500 });
   }
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ toolboxTalk }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating toolbox talk:", error);
     return NextResponse.json({ error: "Failed to create toolbox talk" }, { status: 500 });
   }

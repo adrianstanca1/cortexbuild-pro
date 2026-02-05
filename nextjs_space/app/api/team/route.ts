@@ -23,7 +23,7 @@ export async function GET() {
     });
 
     return NextResponse.json({ teamMembers });
-  } catch {
+  } catch (error) {
     console.error("Get team error:", error);
     return NextResponse.json({ error: "Failed to fetch team" }, { status: 500 });
   }
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ teamMember });
-  } catch {
+  } catch (error) {
     console.error("Add team member error:", error);
     return NextResponse.json({ error: "Failed to add team member" }, { status: 500 });
   }

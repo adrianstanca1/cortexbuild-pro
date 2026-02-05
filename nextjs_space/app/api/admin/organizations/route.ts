@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -43,7 +39,8 @@ export async function GET(req: NextRequest) {
             email: true,
             role: true,
             lastLogin: true
-          }
+          },
+          take: 100  // Limit users per organization
         },
         projects: {
           select: {
@@ -51,7 +48,8 @@ export async function GET(req: NextRequest) {
             name: true,
             status: true,
             budget: true
-          }
+          },
+          take: 100  // Limit projects per organization
         },
         _count: {
           select: {
@@ -61,52 +59,83 @@ export async function GET(req: NextRequest) {
           }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      take: 100  // Limit total organizations
     });
 
-    // Calculate additional stats for each organization
-    const orgsWithStats = await Promise.all(
-      organizations.map(async (org) => {
-        const projectIds = org.projects.map(p => p.id);
-        
-        // Handle empty projectIds array
-        const [taskCount, documentCount, rfiCount, totalBudget] = await Promise.all([
-          projectIds.length > 0 
-            ? prisma.task.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          projectIds.length > 0 
-            ? prisma.document.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          projectIds.length > 0 
-            ? prisma.rFI.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          prisma.project.aggregate({
-            where: { organizationId: org.id },
-            _sum: { budget: true }
+    // Get all project IDs for batch queries
+    const allProjectIds = organizations.flatMap(org => org.projects.map(p => p.id));
+    
+    // Batch fetch stats for all organizations in parallel - eliminates N+1 pattern
+    const [tasksByProject, documentsByProject, rfisByProject, budgetsByOrg] = await Promise.all([
+      allProjectIds.length > 0
+        ? prisma.task.groupBy({
+            by: ['projectId'],
+            where: { projectId: { in: allProjectIds } },
+            _count: true
           })
-        ]);
-
-        return {
-          ...org,
-          // Convert _count values explicitly
-          _count: {
-            users: Number(org._count.users),
-            projects: Number(org._count.projects),
-            teamMembers: Number(org._count.teamMembers)
-          },
-          stats: {
-            taskCount: Number(taskCount),
-            documentCount: Number(documentCount),
-            rfiCount: Number(rfiCount),
-            totalBudget: Number(totalBudget._sum.budget || 0)
-          }
-        };
+        : Promise.resolve([]),
+      allProjectIds.length > 0
+        ? prisma.document.groupBy({
+            by: ['projectId'],
+            where: { projectId: { in: allProjectIds } },
+            _count: true
+          })
+        : Promise.resolve([]),
+      allProjectIds.length > 0
+        ? prisma.rFI.groupBy({
+            by: ['projectId'],
+            where: { projectId: { in: allProjectIds } },
+            _count: true
+          })
+        : Promise.resolve([]),
+      prisma.project.groupBy({
+        by: ['organizationId'],
+        where: { organizationId: { in: organizations.map(o => o.id) } },
+        _sum: { budget: true }
       })
-    );
+    ]);
+
+    // Create lookup maps for O(1) access
+    const tasksMap = new Map(tasksByProject.map(t => [t.projectId, t._count]));
+    const documentsMap = new Map(documentsByProject.map(d => [d.projectId, d._count]));
+    const rfisMap = new Map(rfisByProject.map(r => [r.projectId, r._count]));
+    const budgetsMap = new Map(budgetsByOrg.map(b => [b.organizationId, b._sum.budget || 0]));
+
+    // Calculate stats for each organization using lookup maps
+    const orgsWithStats = organizations.map(org => {
+      const projectIds = org.projects.map(p => p.id);
+      
+      // Sum all counts in a single pass for better performance
+      const counts = projectIds.reduce((acc, pid) => {
+        acc.taskCount += tasksMap.get(pid) || 0;
+        acc.documentCount += documentsMap.get(pid) || 0;
+        acc.rfiCount += rfisMap.get(pid) || 0;
+        return acc;
+      }, { taskCount: 0, documentCount: 0, rfiCount: 0 });
+      
+      const totalBudget = budgetsMap.get(org.id) || 0;
+
+      return {
+        ...org,
+        // Convert _count values explicitly
+        _count: {
+          users: Number(org._count.users),
+          projects: Number(org._count.projects),
+          teamMembers: Number(org._count.teamMembers)
+        },
+        stats: {
+          taskCount: Number(counts.taskCount),
+          documentCount: Number(counts.documentCount),
+          rfiCount: Number(counts.rfiCount),
+          totalBudget: Number(totalBudget)
+        }
+      };
+    });
 
     // Use custom serializer to handle any remaining BigInt values
     return NextResponse.json(serializeData({ organizations: orgsWithStats }));
-  } catch {
+  } catch (error) {
     console.error("Error fetching organizations:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -153,7 +182,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ organization }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

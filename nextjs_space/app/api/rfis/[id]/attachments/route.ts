@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { deleteFile } from '@/lib/s3';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -27,7 +23,7 @@ export async function GET(
     });
 
     return NextResponse.json(attachments);
-  } catch {
+  } catch (error) {
     console.error('Error fetching RFI attachments:', error);
     return NextResponse.json({ error: 'Failed to fetch attachments' }, { status: 500 });
   }
@@ -73,7 +69,7 @@ export async function POST(
     });
 
     return NextResponse.json(attachment, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating RFI attachment:', error);
     return NextResponse.json({ error: 'Failed to create attachment' }, { status: 500 });
   }
@@ -114,14 +110,14 @@ export async function DELETE(
     // Delete from S3
     try {
       await deleteFile(attachment.cloudStoragePath);
-    } catch {
+    } catch (e) {
       console.warn('Failed to delete file from S3:', e);
     }
 
     await prisma.rFIAttachment.delete({ where: { id: attachmentId } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error deleting RFI attachment:', error);
     return NextResponse.json({ error: 'Failed to delete attachment' }, { status: 500 });
   }

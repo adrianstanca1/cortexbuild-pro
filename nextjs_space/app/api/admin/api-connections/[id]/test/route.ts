@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -55,11 +51,6 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Prevent execution during build time
-  if (process.env.__NEXT_TEST_MODE) {
-    return NextResponse.json({ error: "Not available during build" }, { status: 503 });
-  }
-
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -68,7 +59,7 @@ export async function POST(
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: id }
+      where: { id }
     });
 
     if (!connection) {
@@ -141,7 +132,7 @@ export async function POST(
     const consecutiveErrors = success ? 0 : connection.consecutiveErrors + 1;
 
     await prisma.apiConnection.update({
-      where: { id: id },
+      where: { id },
       data: {
         status: newStatus,
         lastValidatedAt: new Date(),
@@ -187,7 +178,7 @@ export async function POST(
       error: errorMessage,
       newStatus
     });
-  } catch {
+  } catch (error) {
     console.error("Error testing API connection:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

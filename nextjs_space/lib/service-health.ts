@@ -4,7 +4,7 @@
 // =====================================================
 
 import { prisma } from "@/lib/db";
-import { serviceRegistry, getAllServiceInstances, ServiceStatus } from "./service-registry";
+import { serviceRegistry, getAllServiceInstances, ServiceInstance, ServiceStatus } from "./service-registry";
 import { SendGridAdapter, AIAdapter, TwilioAdapter, StripeAdapter } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
 
@@ -91,7 +91,7 @@ const healthCheckers: Record<string, () => Promise<HealthCheckResult>> = {
         responseTime: Date.now() - startTime,
         lastChecked: new Date()
       };
-    } catch {
+    } catch (error) {
       return {
         serviceId: "postgresql",
         serviceName: "PostgreSQL Database",
@@ -138,7 +138,7 @@ export async function checkServiceHealth(serviceId: string): Promise<HealthCheck
       await updateServiceStatus(serviceId, result.status, result.errorMessage);
       
       return result;
-    } catch {
+    } catch (error) {
       return {
         serviceId,
         serviceName: serviceRegistry.getService(serviceId)?.name || serviceId,
@@ -234,8 +234,8 @@ async function updateServiceStatus(
         }
       });
     }
-  } catch {
-    // console.error(`Failed to update service status for ${serviceId}:`, error);
+  } catch (error) {
+    console.error(`Failed to update service status for ${serviceId}:`, error);
   }
 }
 
@@ -257,8 +257,8 @@ export function broadcastServiceStatusChange(
         ...details
       }
     });
-  } catch {
-    // console.error("Failed to broadcast service status change:", error);
+  } catch (error) {
+    console.error("Failed to broadcast service status change:", error);
   }
 }
 
@@ -288,7 +288,7 @@ export async function getServiceUptimeStats(
     }
   });
 
-  const totalChecks = logs.length;
+  let totalChecks = logs.length;
   let successfulChecks = 0;
   let totalResponseTime = 0;
   let responseTimeCount = 0;

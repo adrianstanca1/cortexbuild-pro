@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -30,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     const where: Record<string, unknown> = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else {
@@ -64,7 +61,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({ activities, total });
-  } catch {
+  } catch (error) {
     console.error('Error fetching activities:', error);
     return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
   }
@@ -121,7 +118,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(activity);
-  } catch {
+  } catch (error) {
     console.error('Error creating activity:', error);
     return NextResponse.json({ error: 'Failed to create activity' }, { status: 500 });
   }

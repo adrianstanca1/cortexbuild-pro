@@ -17,10 +17,12 @@ import {
   Wind,
   CloudLightning,
   Users,
+  Truck,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  Thermometer
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -156,7 +158,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         ));
         toast.success('Photo added');
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to save photo:', error);
     }
   };
@@ -167,7 +169,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
       await fetch(`/api/daily-reports/${selectedReport.id}/photos?photoId=${file.id}`, {
         method: 'DELETE'
       });
-    } catch {
+    } catch (error) {
       console.error('Failed to delete photo:', error);
     }
   };
@@ -212,7 +214,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         const err = await res.json();
         toast.error(err.error || 'Failed to create report');
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to create report');
     } finally {
       setLoading(false);

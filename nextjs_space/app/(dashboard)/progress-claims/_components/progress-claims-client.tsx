@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  Receipt, Plus, Search, Loader2, Eye, Edit,
-  CheckCircle, Clock, PoundSterling, Send
+  Receipt, Plus, Search, Filter, Loader2, Eye, Edit,
+  CheckCircle, Clock, XCircle, PoundSterling, Send, FileCheck
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ export function ProgressClaimsClient({ claims: initialClaims, projects }: Progre
         thisClaim: "", retentionHeld: "", notes: "",
       });
       toast.success("Progress claim created");
-    } catch {
+    } catch (error) {
       toast.error("Failed to create claim");
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ export function ProgressClaimsClient({ claims: initialClaims, projects }: Progre
       const updated = await res.json();
       setClaims(claims.map(c => c.id === claimId ? updated : c));
       toast.success("Claim submitted successfully");
-    } catch {
+    } catch (error) {
       toast.error("Failed to submit claim");
     }
   };

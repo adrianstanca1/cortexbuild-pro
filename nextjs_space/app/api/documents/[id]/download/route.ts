@@ -1,12 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { getFileUrl } from "@/lib/s3";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 
 export async function GET(
   request: Request,
@@ -20,7 +18,7 @@ export async function GET(
     }
 
     const document = await prisma.document.findUnique({
-      where: { id: id ?? "" },
+      where: { id },
       include: {
         project: { select: { organizationId: true } }
       }
@@ -43,7 +41,7 @@ export async function GET(
       name: document.name,
       mimeType: document.mimeType
     });
-  } catch {
+  } catch (error) {
     console.error("Document download error:", error);
     return NextResponse.json({ error: "Failed to get download URL" }, { status: 500 });
   }

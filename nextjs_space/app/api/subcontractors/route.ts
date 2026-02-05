@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,7 +53,7 @@ export async function GET(request: NextRequest) {
         activeContracts
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching subcontractors:", error);
     return NextResponse.json({ error: "Failed to fetch subcontractors" }, { status: 500 });
   }
@@ -119,7 +115,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(subcontractor);
-  } catch {
+  } catch (error) {
     console.error("Error creating subcontractor:", error);
     return NextResponse.json({ error: "Failed to create subcontractor" }, { status: 500 });
   }

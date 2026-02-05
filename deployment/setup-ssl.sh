@@ -47,7 +47,7 @@ http {
 EOF
 
 echo "[1/4] Starting temporary nginx for domain verification..."
-docker-compose stop nginx 2>/dev/null || true
+docker compose stop nginx 2>/dev/null || true
 docker run -d --name temp-nginx \
     -p 80:80 \
     -v $(pwd)/nginx-temp.conf:/etc/nginx/nginx.conf:ro \
@@ -84,7 +84,7 @@ echo ""
 echo -e "${GREEN}SSL setup complete!${NC}"
 echo ""
 echo "Starting services with SSL..."
-docker-compose up -d nginx
+docker compose up -d nginx
 
 echo ""
 echo "Your site is now available at:"
@@ -92,4 +92,4 @@ echo "  https://$DOMAIN"
 echo "  https://www.$DOMAIN"
 echo ""
 echo "SSL certificates will auto-renew. To manually renew:"
-echo "  docker-compose run --rm certbot renew"
+echo "  docker compose run --rm certbot renew"

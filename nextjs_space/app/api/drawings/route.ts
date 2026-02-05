@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -41,7 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(drawings);
-  } catch {
+  } catch (error) {
     console.error("Error fetching drawings:", error);
     return NextResponse.json({ error: "Failed to fetch drawings" }, { status: 500 });
   }
@@ -85,7 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(drawing, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating drawing:", error);
     return NextResponse.json({ error: "Failed to create drawing" }, { status: 500 });
   }

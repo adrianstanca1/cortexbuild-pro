@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
@@ -200,7 +197,7 @@ export async function POST(req: NextRequest) {
         role: result.role,
       }
     }, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error accepting invitation:", error);
     return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
   }

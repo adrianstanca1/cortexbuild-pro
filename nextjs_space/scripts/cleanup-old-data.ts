@@ -82,7 +82,7 @@ async function cleanupOrphanedAttachments(options: CleanupOptions) {
   }
 }
 
-async function generateCleanupReport(_options: CleanupOptions) {
+async function generateCleanupReport(options: CleanupOptions) {
   console.log(`\n📊 Database Statistics`);
   
   const stats = await Promise.all([
@@ -127,7 +127,7 @@ async function main() {
     await cleanupOrphanedAttachments(options);
 
     console.log('\n✅ Cleanup completed successfully');
-  } catch {
+  } catch (error) {
     console.error('\n❌ Cleanup failed:', error);
     process.exit(1);
   } finally {

@@ -1,10 +1,6 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 // GET /api/invitations/validate?token=xxx - Validate invitation token (public)
 export async function GET(request: NextRequest) {
@@ -76,7 +72,7 @@ export async function GET(request: NextRequest) {
         expiresAt: invitation.expiresAt,
       },
     });
-  } catch {
+  } catch (error) {
     console.error('Error validating invitation:', error);
     return NextResponse.json({ error: 'Failed to validate invitation' }, { status: 500 });
   }

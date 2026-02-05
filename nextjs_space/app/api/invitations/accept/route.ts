@@ -1,12 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateSlug } from '@/lib/entitlements';
 import bcrypt from 'bcryptjs';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+import { Prisma } from '@prisma/client';
 
 // POST /api/invitations/accept - Accept invitation and create company/owner
 export async function POST(request: NextRequest) {
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
         data: {
           name: invitation.companyName,
           slug,
-          entitlements: invitation.entitlements ?? {},
+          entitlements: invitation.entitlements as Prisma.InputJsonValue,
           isActive: true,
         },
       });
@@ -209,7 +206,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
+          deployment_token: process.env.ABACUSAI_API_KEY,
           subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
@@ -236,7 +233,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
+          deployment_token: process.env.ABACUSAI_API_KEY,
           subject: `[Admin] New Company: ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
@@ -244,7 +241,7 @@ export async function POST(request: NextRequest) {
           sender_alias: 'CortexBuild Pro Admin',
         }),
       });
-    } catch {
+    } catch (e) {
       console.error('Failed to notify admin:', e);
     }
 
@@ -257,7 +254,7 @@ export async function POST(request: NextRequest) {
         slug: result.organization.slug,
       },
     });
-  } catch {
+  } catch (error) {
     console.error('Error accepting invitation:', error);
     return NextResponse.json(
       { error: 'Failed to accept invitation' },

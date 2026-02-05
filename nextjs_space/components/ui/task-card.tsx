@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Calendar,
   MessageSquare,
   User,
   Clock,
@@ -44,16 +45,16 @@ interface TaskComment {
 interface Task {
   id: string;
   title: string;
-  description?: string | null;
+  description?: string;
   status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE';
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  dueDate?: string | Date | null;
+  dueDate?: string;
   assignee?: {
     id: string;
     name: string;
-    email?: string;
-    avatarUrl?: string | null;
-  } | null;
+    email: string;
+    avatarUrl?: string;
+  };
   project?: {
     id: string;
     name: string;

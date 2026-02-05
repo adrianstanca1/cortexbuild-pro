@@ -1,7 +1,7 @@
 // contexts/WebSocketContext.tsx
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { websocketClient } from '@/lib/websocket-client';
 import { useSession } from 'next-auth/react';
 

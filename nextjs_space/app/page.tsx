@@ -1,11 +1,6 @@
 import Link from "next/link";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { 
-  HardHat, ClipboardList, BarChart3, ArrowRight, Zap, Shield, Clock,
+  HardHat, ClipboardList, Users, FileText, BarChart3, ArrowRight, Zap, Shield, Clock,
   CheckCircle, Building2, TrendingUp, Globe, Layers, Lock, Smartphone, Star,
   ChevronRight, Play, Award, Target, Workflow
 } from "lucide-react";

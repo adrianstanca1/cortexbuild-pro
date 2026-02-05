@@ -10,7 +10,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import type { Entitlements } from "@/lib/entitlements";
@@ -54,7 +54,7 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
     return { color: "text-emerald-600", bgColor: "bg-emerald-500", status: "Healthy" };
   };
 
-  const documentTypeIcons: Record<string, any> = {
+  const documentTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     PLANS: FileText,
     PERMITS: File,
     PHOTOS: Image,

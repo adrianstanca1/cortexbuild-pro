@@ -1,37 +1,15 @@
 import { getServerSession } from 'next-auth';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { authOptions } from '@/lib/auth-options';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { ReportsClient } from './_components/reports-client';
+import { Project, Task, TeamMember, ActivityLog } from '@prisma/client';
 
-// Define types inline to avoid @prisma/client import issues
-type ProjectWithTasks = {
-  id: string;
-  name: string;
-  status: string;
-  budget: number | null;
-  tasks: { status: string }[];
+export const dynamic = "force-dynamic";
+
+type ProjectWithTasks = Project & {
+  tasks: Task[];
   _count: { tasks: number; documents: number; teamMembers: number };
-};
-
-type TaskData = {
-  status: string;
-  priority: string;
-  dueDate: Date | null;
-  project: { name: string };
-};
-
-type TeamMemberData = {
-  user: { name: string | null; role: string };
-};
-
-type ActivityLogData = {
-  createdAt: Date;
 };
 
 export default async function ReportsPage() {
@@ -71,7 +49,7 @@ export default async function ReportsPage() {
       orderBy: { createdAt: 'desc' },
       take: 100
     })
-  ]) as [ProjectWithTasks[], TaskData[], TeamMemberData[], ActivityLogData[]];
+  ]) as [ProjectWithTasks[], Task[], TeamMember[], ActivityLog[]];
 
   // Calculate statistics
   const stats = {
@@ -79,18 +57,18 @@ export default async function ReportsPage() {
     activeProjects: projects.filter((p: ProjectWithTasks) => p.status === 'IN_PROGRESS').length,
     completedProjects: projects.filter((p: ProjectWithTasks) => p.status === 'COMPLETED').length,
     totalTasks: tasks.length,
-    completedTasks: tasks.filter((t: TaskData) => t.status === 'COMPLETE').length,
-    overdueTasks: tasks.filter((t: TaskData) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'COMPLETE').length,
+    completedTasks: tasks.filter((t: Task) => t.status === 'COMPLETE').length,
+    overdueTasks: tasks.filter((t: Task) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'COMPLETE').length,
     teamSize: teamMembers.length,
     totalBudget: projects.reduce((sum: number, p: ProjectWithTasks) => sum + (p.budget || 0), 0),
   };
 
   // Task distribution by status
   const tasksByStatus = {
-    TODO: tasks.filter((t: TaskData) => t.status === 'TODO').length,
-    IN_PROGRESS: tasks.filter((t: TaskData) => t.status === 'IN_PROGRESS').length,
-    REVIEW: tasks.filter((t: TaskData) => t.status === 'REVIEW').length,
-    COMPLETE: tasks.filter((t: TaskData) => t.status === 'COMPLETE').length,
+    TODO: tasks.filter((t: Task) => t.status === 'TODO').length,
+    IN_PROGRESS: tasks.filter((t: Task) => t.status === 'IN_PROGRESS').length,
+    REVIEW: tasks.filter((t: Task) => t.status === 'REVIEW').length,
+    COMPLETE: tasks.filter((t: Task) => t.status === 'COMPLETE').length,
   };
 
   // Project distribution by status
@@ -103,10 +81,10 @@ export default async function ReportsPage() {
 
   // Tasks by priority
   const tasksByPriority = {
-    LOW: tasks.filter((t: TaskData) => t.priority === 'LOW').length,
-    MEDIUM: tasks.filter((t: TaskData) => t.priority === 'MEDIUM').length,
-    HIGH: tasks.filter((t: TaskData) => t.priority === 'HIGH').length,
-    CRITICAL: tasks.filter((t: TaskData) => t.priority === 'CRITICAL').length,
+    LOW: tasks.filter((t: Task) => t.priority === 'LOW').length,
+    MEDIUM: tasks.filter((t: Task) => t.priority === 'MEDIUM').length,
+    HIGH: tasks.filter((t: Task) => t.priority === 'HIGH').length,
+    CRITICAL: tasks.filter((t: Task) => t.priority === 'CRITICAL').length,
   };
 
   // Activity over time (last 7 days)
@@ -118,7 +96,7 @@ export default async function ReportsPage() {
     const dayEnd = new Date(date.setHours(23, 59, 59, 999));
     return {
       date: dayStart.toISOString().split('T')[0],
-      count: activities.filter((a: ActivityLogData) => {
+      count: activities.filter((a: ActivityLog) => {
         const activityDate = new Date(a.createdAt);
         return activityDate >= dayStart && activityDate <= dayEnd;
       }).length
@@ -130,9 +108,9 @@ export default async function ReportsPage() {
     id: p.id,
     name: p.name,
     totalTasks: p._count.tasks,
-    completedTasks: p.tasks.filter((t) => t.status === 'COMPLETE').length,
+    completedTasks: p.tasks.filter((t: Task) => t.status === 'COMPLETE').length,
     progress: p._count.tasks > 0 
-      ? Math.round((p.tasks.filter((t) => t.status === 'COMPLETE').length / p._count.tasks) * 100) 
+      ? Math.round((p.tasks.filter((t: Task) => t.status === 'COMPLETE').length / p._count.tasks) * 100) 
       : 0,
     budget: p.budget || 0,
     status: p.status

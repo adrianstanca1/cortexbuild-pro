@@ -14,7 +14,7 @@ import {
   Clock,
   FolderKanban,
 } from "lucide-react";
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,27 @@ import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
 interface CompanyTeamClientProps {
-  teamMembers: any[];
+  teamMembers: Array<{
+    id: string;
+    jobTitle: string | null;
+    department: string | null;
+    invitedAt: string;
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      lastLogin: string | null;
+      createdAt: string;
+    };
+    projectAssignments?: Array<{
+      project: {
+        id: string;
+        name: string;
+        status: string;
+      };
+    }>;
+  }>;
   currentUserId: string;
   currentUserRole: string;
 }
@@ -64,10 +84,10 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
   const [teamMembers, setTeamMembers] = useState(initialMembers);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [selectedMember, setSelectedMember] = useState<CompanyTeamClientProps['teamMembers'][0] | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<any>(null);
+  const [memberToDelete, setMemberToDelete] = useState<CompanyTeamClientProps['teamMembers'][0] | null>(null);
 
   const [editForm, setEditForm] = useState({
     jobTitle: "",
@@ -87,7 +107,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
     return matchesSearch && matchesRole;
   });
 
-  const handleEdit = (member: any) => {
+  const handleEdit = (member: CompanyTeamClientProps['teamMembers'][0]) => {
     setSelectedMember(member);
     setEditForm({
       jobTitle: member.jobTitle || "",
@@ -98,6 +118,8 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
   };
 
   const handleSaveEdit = async () => {
+    if (!selectedMember) return;
+    
     try {
       const res = await fetch(`/api/team/${selectedMember.id}`, {
         method: "PATCH",
@@ -113,7 +135,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       } else {
         toast.error("Failed to update team member");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to update team member");
     }
   };
@@ -134,7 +156,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       } else {
         toast.error("Failed to remove team member");
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to remove team member");
     }
   };
@@ -147,7 +169,7 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
     FIELD_WORKER: "bg-gray-100 text-gray-700",
   };
 
-  const canEditMember = (member: any) => {
+  const canEditMember = (member: CompanyTeamClientProps['teamMembers'][0]) => {
     // Can't edit yourself
     if (member.user.id === currentUserId) return false;
     // SUPER_ADMIN can edit anyone

@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -132,7 +128,7 @@ export async function GET(req: NextRequest) {
       uptimeStats,
       incidents
     });
-  } catch {
+  } catch (error) {
     console.error("Error fetching health history:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -177,7 +173,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, healthCheck });
-  } catch {
+  } catch (error) {
     console.error("Error recording health check:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

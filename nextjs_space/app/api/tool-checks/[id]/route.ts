@@ -4,9 +4,7 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +21,7 @@ export async function GET(
 
     const check = await prisma.toolCheck.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: orgId }
       },
       include: {
@@ -37,7 +35,7 @@ export async function GET(
     }
 
     return NextResponse.json({ check });
-  } catch {
+  } catch (error) {
     console.error("Error fetching tool check:", error);
     return NextResponse.json({ error: "Failed to fetch tool check" }, { status: 500 });
   }
@@ -58,7 +56,7 @@ export async function PATCH(
     const body = await request.json();
 
     const existing = await prisma.toolCheck.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!existing) {
@@ -66,7 +64,7 @@ export async function PATCH(
     }
 
     const check = await prisma.toolCheck.update({
-      where: { id: id },
+      where: { id },
       data: body,
       include: {
         project: { select: { id: true, name: true } },
@@ -80,7 +78,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ check });
-  } catch {
+  } catch (error) {
     console.error("Error updating tool check:", error);
     return NextResponse.json({ error: "Failed to update tool check" }, { status: 500 });
   }

@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { getScriptPrismaClient, disconnectScriptPrisma } from "../lib/script-db";
 
@@ -243,7 +244,7 @@ async function main() {
     console.log("\n═══════════════════════════════════════════════");
     console.log("  ✅ Database seeding completed successfully");
     console.log("═══════════════════════════════════════════════\n");
-  } catch {
+  } catch (error) {
     console.error("\n❌ Error during seeding:", error);
     throw error;
   }

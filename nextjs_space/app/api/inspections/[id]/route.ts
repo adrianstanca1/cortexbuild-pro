@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -39,7 +36,7 @@ export async function GET(
     }
 
     return NextResponse.json(inspection);
-  } catch {
+  } catch (error) {
     console.error('Error fetching inspection:', error);
     return NextResponse.json({ error: 'Failed to fetch inspection' }, { status: 500 });
   }
@@ -85,16 +82,17 @@ export async function PATCH(
     if (result !== undefined) updateData.result = result;
     if (deficiencies !== undefined) updateData.deficiencies = deficiencies;
 
-    // Update checklist items if provided
+    // Update checklist items if provided - use parallel updates for better performance
     if (checklistItems?.length) {
-      for (const item of checklistItems) {
-        if (item.id) {
-          await prisma.inspectionChecklistItem.update({
+      const updatePromises = checklistItems
+        .filter(item => item.id)
+        .map(item => 
+          prisma.inspectionChecklistItem.update({
             where: { id: item.id },
             data: { passed: item.passed, notes: item.notes }
-          });
-        }
-      }
+          })
+        );
+      await Promise.all(updatePromises);
     }
 
     const inspection = await prisma.inspection.update({
@@ -119,7 +117,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(inspection);
-  } catch {
+  } catch (error) {
     console.error('Error updating inspection:', error);
     return NextResponse.json({ error: 'Failed to update inspection' }, { status: 500 });
   }
@@ -159,7 +157,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error deleting inspection:', error);
     return NextResponse.json({ error: 'Failed to delete inspection' }, { status: 500 });
   }

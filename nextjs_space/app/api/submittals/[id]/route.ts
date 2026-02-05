@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -40,7 +36,7 @@ export async function GET(
     }
 
     return NextResponse.json(submittal);
-  } catch {
+  } catch (error) {
     console.error('Error fetching submittal:', error);
     return NextResponse.json({ error: 'Failed to fetch submittal' }, { status: 500 });
   }
@@ -128,7 +124,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(submittal);
-  } catch {
+  } catch (error) {
     console.error('Error updating submittal:', error);
     return NextResponse.json({ error: 'Failed to update submittal' }, { status: 500 });
   }
@@ -169,7 +165,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error deleting submittal:', error);
     return NextResponse.json({ error: 'Failed to delete submittal' }, { status: 500 });
   }

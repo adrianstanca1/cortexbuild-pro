@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -48,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(operations);
-  } catch {
+  } catch (error) {
     console.error('Error fetching lifting operations:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -126,7 +123,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(operation, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating lifting operation:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

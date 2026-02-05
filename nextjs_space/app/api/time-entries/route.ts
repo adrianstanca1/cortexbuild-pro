@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -47,7 +44,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(timeEntries);
-  } catch {
+  } catch (error) {
     console.error("Error fetching time entries:", error);
     return NextResponse.json({ error: "Failed to fetch time entries" }, { status: 500 });
   }
@@ -112,7 +109,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(timeEntry);
-  } catch {
+  } catch (error) {
     console.error("Error creating time entry:", error);
     return NextResponse.json({ error: "Failed to create time entry" }, { status: 500 });
   }

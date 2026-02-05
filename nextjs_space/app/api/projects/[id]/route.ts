@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const project = await prisma.project.findUnique({
-      where: { id: id ?? "" },
+      where: { id },
       include: {
         manager: { select: { id: true, name: true, email: true } },
         tasks: { include: { assignee: { select: { id: true, name: true } } } },
@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     return NextResponse.json({ project });
-  } catch {
+  } catch (error) {
     console.error("Get project error:", error);
     return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
   }
@@ -49,7 +49,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
 
     const project = await prisma.project.update({
-      where: { id: id ?? "" },
+      where: { id },
       data: {
         ...(name && { name: name.trim() }),
         ...(description !== undefined && { description: description?.trim() || null }),
@@ -97,7 +97,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     return NextResponse.json({ project });
-  } catch {
+  } catch (error) {
     console.error("Update project error:", error);
     return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
   }
@@ -116,11 +116,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     // Fetch project before deletion for broadcast
     const project = await prisma.project.findUnique({
-      where: { id: id ?? "" },
+      where: { id },
       select: { id: true, name: true }
     });
 
-    await prisma.project.delete({ where: { id: id ?? "" } });
+    await prisma.project.delete({ where: { id } });
 
     // Broadcast real-time event to organization
     if (organizationId && project) {
@@ -137,7 +137,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     return NextResponse.json({ message: "Project deleted" });
-  } catch {
+  } catch (error) {
     console.error("Delete project error:", error);
     return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
   }

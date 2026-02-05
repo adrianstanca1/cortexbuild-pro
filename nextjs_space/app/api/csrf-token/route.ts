@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     });
     
     return NextResponse.json({ csrfToken: token });
-  } catch {
+  } catch (error) {
     logger.error('Failed to generate CSRF token', error);
     return NextResponse.json(
       { error: 'Internal server error' },

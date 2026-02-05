@@ -21,7 +21,7 @@ export async function GET(
 
     const check = await prisma.mEWPCheck.findFirst({
       where: {
-        id: id,
+        id,
         project: { organizationId: orgId }
       },
       include: {
@@ -37,7 +37,7 @@ export async function GET(
     }
 
     return NextResponse.json({ check });
-  } catch {
+  } catch (error) {
     console.error("Error fetching MEWP check:", error);
     return NextResponse.json({ error: "Failed to fetch MEWP check" }, { status: 500 });
   }
@@ -59,7 +59,7 @@ export async function PATCH(
     const body = await request.json();
 
     const existing = await prisma.mEWPCheck.findFirst({
-      where: { id: id, project: { organizationId: orgId } },
+      where: { id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -75,7 +75,7 @@ export async function PATCH(
     }
 
     const check = await prisma.mEWPCheck.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -90,7 +90,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ check });
-  } catch {
+  } catch (error) {
     console.error("Error updating MEWP check:", error);
     return NextResponse.json({ error: "Failed to update MEWP check" }, { status: 500 });
   }
