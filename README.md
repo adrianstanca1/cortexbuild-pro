@@ -61,6 +61,7 @@ sudo bash one-click-deploy.sh
 - [Performance Optimizations](docs/PERFORMANCE_OPTIMIZATIONS.md) - Performance improvements
 - [Security Notes](docs/SECURITY_NOTES.md) - Security considerations
 - [Version Tracking](docs/VERSION_TRACKING_IMPLEMENTATION.md) - Version management
+- [Integration Check Guide](docs/INTEGRATION_CHECK_GUIDE.md) - CI/CD and integration validation
 
 ## 🛠️ Development
 
@@ -181,6 +182,52 @@ Cleanup removes:
 - Old logs (7+ days)
 - Temporary files
 - Optimizes Git repository
+
+## ✅ Integration Checks
+
+Comprehensive validation of all committed and uncommitted changes:
+
+```bash
+# Run all integration checks
+./scripts/integration-check.sh
+
+# Run specific checks
+./scripts/integration-check.sh git      # Git status
+./scripts/integration-check.sh types    # TypeScript
+./scripts/integration-check.sh lint     # ESLint
+./scripts/integration-check.sh build    # Next.js build
+./scripts/integration-check.sh docker   # Docker config
+```
+
+### What Gets Checked
+
+- **Git Status** - Uncommitted/unpushed changes
+- **Dependencies** - Node modules up to date
+- **TypeScript** - Type checking and compilation
+- **Linting** - Code quality and style
+- **Prisma Schema** - Database validation
+- **Build** - Production build success
+- **Docker** - Configuration validation
+- **Environment** - Config file checks
+- **Security** - Sensitive file detection
+
+### GitHub Actions CI/CD
+
+Automated workflows run on every push:
+- ✅ Lint and type checking
+- ✅ Build validation
+- ✅ Docker build check
+- ✅ Prisma schema validation
+
+**See [Integration Check Guide](docs/INTEGRATION_CHECK_GUIDE.md) for complete documentation.**
+
+### Pre-commit Hooks
+
+Setup automatic validation before commits:
+
+```bash
+./scripts/setup-pre-commit-hook.sh
+```
 
 ## 🔀 Branch Management
 
@@ -358,6 +405,10 @@ cd deployment
 ## 🎯 Quick Reference
 
 ```bash
+# Integration Checks
+./scripts/integration-check.sh  # Run all integration checks
+./scripts/integration-check.sh build  # Check build only
+
 # Deploy/Update
 ./production-deploy.sh         # Complete production workflow
 
