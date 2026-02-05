@@ -104,7 +104,7 @@ export function withApiMiddleware(
       
       // Create request logger
       if (enableLogging) {
-        requestLogger = createRequestLogger(request, userId, organizationId);
+        requestLogger = createRequestLogger(request, userId || undefined, organizationId || undefined);
         requestLogger.logRequest(request.method, request.nextUrl.pathname);
       }
       

@@ -1,6 +1,7 @@
 // lib/realtime-notifications.ts
 import { prisma } from './db';
-import { NotificationType } from '@prisma/client';
+
+type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR';
 
 interface NotificationPayload {
   userId?: string;
@@ -22,17 +23,28 @@ export class RealTimeNotifications {
       throw new Error('User ID is required to send notification to user');
     }
 
-    // Save notification to database
-    const notification = await prisma.notification.create({
-      data: {
-        userId,
-        title,
-        message,
-        type,
-        data: data as any,
-        read: false,
-      }
-    });
+    // TODO: Save notification to database when Notification model is added
+    // const notification = await prisma.notification.create({
+    //   data: {
+    //     userId,
+    //     title,
+    //     message,
+    //     type,
+    //     data: data as any,
+    //     read: false,
+    //   }
+    // });
+
+    const notification = {
+      id: `temp-${Date.now()}`,
+      userId,
+      title,
+      message,
+      type,
+      data,
+      read: false,
+      createdAt: new Date(),
+    };
 
     // Emit real-time notification via WebSocket
     // This would be handled by the WebSocket service
@@ -73,22 +85,34 @@ export class RealTimeNotifications {
 
     const userIds = projectUsers.map(ptm => ptm.teamMember.user.id);
 
-    // Create notifications for all users in the project
-    const notifications = await prisma.$transaction(
-      userIds.map(userId => 
-        prisma.notification.create({
-          data: {
-            userId,
-            projectId,
-            title,
-            message,
-            type,
-            data: data as any,
-            read: false,
-          }
-        })
-      )
-    );
+    // TODO: Create notifications for all users in the project when Notification model is added
+    // const notifications = await prisma.$transaction(
+    //   userIds.map(userId => 
+    //     prisma.notification.create({
+    //       data: {
+    //         userId,
+    //         projectId,
+    //         title,
+    //         message,
+    //         type,
+    //         data: data as any,
+    //         read: false,
+    //       }
+    //     })
+    //   )
+    // );
+
+    const notifications = userIds.map((userId, index) => ({
+      id: `temp-${Date.now()}-${index}`,
+      userId,
+      projectId,
+      title,
+      message,
+      type,
+      data,
+      read: false,
+      createdAt: new Date(),
+    }));
 
     // Emit real-time notification to project via WebSocket
     if (process.env.NODE_ENV === 'development') {
@@ -121,21 +145,32 @@ export class RealTimeNotifications {
 
     const userIds = activeUsers.map(user => user.id);
 
-    // Create notifications for all active users
-    const notifications = await prisma.$transaction(
-      userIds.map(userId => 
-        prisma.notification.create({
-          data: {
-            userId,
-            title,
-            message,
-            type,
-            data: data as any,
-            read: false,
-          }
-        })
-      )
-    );
+    // TODO: Create notifications for all active users when Notification model is added
+    // const notifications = await prisma.$transaction(
+    //   userIds.map(userId => 
+    //     prisma.notification.create({
+    //       data: {
+    //         userId,
+    //         title,
+    //         message,
+    //         type,
+    //         data: data as any,
+    //         read: false,
+    //       }
+    //     })
+    //   )
+    // );
+
+    const notifications = userIds.map((userId, index) => ({
+      id: `temp-${Date.now()}-${index}`,
+      userId,
+      title,
+      message,
+      type,
+      data,
+      read: false,
+      createdAt: new Date(),
+    }));
 
     // Emit real-time notification to all users via WebSocket
     if (process.env.NODE_ENV === 'development') {
@@ -155,44 +190,55 @@ export class RealTimeNotifications {
    * Mark a notification as read
    */
   static async markAsRead(notificationId: string, userId: string) {
-    return await prisma.notification.update({
-      where: {
-        id: notificationId,
-        userId
-      },
-      data: {
-        read: true,
-        readAt: new Date()
-      }
-    });
+    // TODO: Mark notification as read when Notification model is added
+    // return await prisma.notification.update({
+    //   where: {
+    //     id: notificationId,
+    //     userId
+    //   },
+    //   data: {
+    //     read: true,
+    //     readAt: new Date()
+    //   }
+    // });
+    return {
+      id: notificationId,
+      userId,
+      read: true,
+      readAt: new Date(),
+    };
   }
 
   /**
    * Get user's unread notifications
    */
   static async getUserUnreadNotifications(userId: string) {
-    return await prisma.notification.findMany({
-      where: {
-        userId,
-        read: false
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // TODO: Get unread notifications when Notification model is added
+    // return await prisma.notification.findMany({
+    //   where: {
+    //     userId,
+    //     read: false
+    //   },
+    //   orderBy: {
+    //     createdAt: 'desc'
+    //   }
+    // });
+    return [];
   }
 
   /**
    * Get project notifications
    */
   static async getProjectNotifications(projectId: string) {
-    return await prisma.notification.findMany({
-      where: {
-        projectId
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // TODO: Get project notifications when Notification model is added
+    // return await prisma.notification.findMany({
+    //   where: {
+    //     projectId
+    //   },
+    //   orderBy: {
+    //     createdAt: 'desc'
+    //   }
+    // });
+    return [];
   }
 }
