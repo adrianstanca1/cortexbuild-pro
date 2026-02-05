@@ -1,0 +1,41 @@
+name: Build Next.js Application
+
+on:
+  push:
+    branches: [ "cortexbuildpro" ]
+  pull_request:
+    branches: [ "cortexbuildpro" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      working-directory: ./nextjs_space
+      run: npm install --legacy-peer-deps
+
+    - name: Generate Prisma Client
+      working-directory: ./nextjs_space
+      run: npx prisma generate
+      env:
+        DATABASE_URL: "postgresql://user:pass@localhost:5432/test?schema=public"
+
+    - name: Build Next.js application
+      working-directory: ./nextjs_space
+      run: npm run build
+      env:
+        DATABASE_URL: "postgresql://user:pass@localhost:5432/test?schema=public"
+        NEXTAUTH_SECRET: "test-secret-for-ci-build-only"
+        NEXTAUTH_URL: "http://localhost:3000"
