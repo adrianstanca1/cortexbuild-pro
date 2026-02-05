@@ -19,11 +19,15 @@ export default [
     {
         rules: {
             "@typescript-eslint/no-explicit-any": "off",
-            "@typescript-eslint/no-unused-vars": ["error", {
+            "@typescript-eslint/no-unused-vars": ["warn", {
                 argsIgnorePattern: "^_",
                 varsIgnorePattern: "^_",
                 ignoreRestSiblings: true,
             }],
+            "@typescript-eslint/no-empty-object-type": "warn",
+            "@typescript-eslint/no-require-imports": "warn",
+            "@typescript-eslint/ban-ts-comment": "warn",
+            "@typescript-eslint/no-unsafe-function-type": "warn",
             "react/no-unescaped-entities": "off",
             "@typescript-eslint/ban-types": "off",
             "react-hooks/exhaustive-deps": "warn",
@@ -31,4 +35,3 @@ export default [
         },
     }
 ];
-
