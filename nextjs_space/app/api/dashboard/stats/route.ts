@@ -211,17 +211,19 @@ export async function GET(_request: NextRequest) {
       quality: {
         punchLists: {
           total: punchLists.reduce((acc, p) => acc + p._count, 0),
-          byStatus: punchLists.filter(p => p.status).reduce((acc, p) => {
-            acc[p.status] = (acc[p.status] || 0) + p._count;
+          byStatus: punchLists.reduce((acc, p) => {
+            if (p.status) acc[p.status] = (acc[p.status] || 0) + p._count;
             return acc;
           }, {} as Record<string, number>),
-          critical: punchLists.filter(p => p.priority === 'CRITICAL').reduce((acc, p) => acc + p._count, 0),
+          critical: punchLists.reduce((acc, p) => acc + (p.priority === 'CRITICAL' ? p._count : 0), 0),
         },
         inspections: {
           total: inspections.reduce((acc, i) => acc + (typeof i._count === 'number' ? i._count : 0), 0),
-          byStatus: inspections.filter(i => i.status).reduce((acc, i) => {
-            const count = typeof i._count === 'number' ? i._count : 0;
-            acc[i.status] = (acc[i.status] || 0) + count;
+          byStatus: inspections.reduce((acc, i) => {
+            if (i.status) {
+              const count = typeof i._count === 'number' ? i._count : 0;
+              acc[i.status] = (acc[i.status] || 0) + count;
+            }
             return acc;
           }, {} as Record<string, number>),
           upcoming: upcomingInspections,
