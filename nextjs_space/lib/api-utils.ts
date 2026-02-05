@@ -313,3 +313,72 @@ export function withAuthHandler(
     return handler(request, context!, params);
   });
 }
+
+// =====================================================
+// ADDITIONAL UTILITIES FOR COMMON PATTERNS
+// =====================================================
+
+/**
+ * Get organization context with validation.
+ * Returns error if user doesn't have an organization.
+ */
+export async function getOrganizationContext(): Promise<{
+  context: ApiContext | null;
+  error: NextResponse | null;
+}> {
+  const { context, error } = await getApiContext();
+  
+  if (error) {
+    return { context: null, error };
+  }
+  
+  if (!context!.organizationId) {
+    return {
+      context: null,
+      error: errorResponse('FORBIDDEN', 'User must belong to an organization'),
+    };
+  }
+  
+  return { context, error: null };
+}
+
+/**
+ * Build common Prisma where clause for organization-scoped queries.
+ * Handles projectId filtering with organization fallback.
+ */
+export function buildOrgScopedWhere(
+  organizationId: string,
+  projectId?: string | null,
+  additionalFilters?: Record<string, unknown>
+): Record<string, unknown> {
+  const where: Record<string, unknown> = {
+    ...additionalFilters,
+  };
+  
+  if (projectId) {
+    where.projectId = projectId;
+  } else {
+    where.project = { organizationId };
+  }
+  
+  return where;
+}
+
+/**
+ * Parse common query parameters from URL searchParams
+ */
+export function parseQueryParams(request: NextRequest): {
+  projectId?: string;
+  status?: string;
+  type?: string;
+  searchParams: URLSearchParams;
+} {
+  const { searchParams } = new URL(request.url);
+  
+  return {
+    projectId: searchParams.get('projectId') || undefined,
+    status: searchParams.get('status') || undefined,
+    type: searchParams.get('type') || undefined,
+    searchParams,
+  };
+}
