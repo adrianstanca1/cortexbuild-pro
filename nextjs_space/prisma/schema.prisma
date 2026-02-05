@@ -442,6 +442,8 @@ model Notification {
   @@index([userId])
   @@index([projectId])
   @@index([read])
+  @@index([createdAt])
+  @@index([userId, read, createdAt])
 }
 
 // =====================

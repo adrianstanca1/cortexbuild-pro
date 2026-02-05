@@ -88,6 +88,14 @@ export async function logAndBroadcast(
           entity,
           context.userId
         )
-      : Promise.resolve(),
+      : (async () => {
+          console.warn('logAndBroadcast: Missing organizationId, skipping broadcast.', {
+            userId: context.userId,
+            action,
+            entityType,
+            entityId: entity.id,
+            projectId: projectId ?? null,
+          });
+        })(),
   ]);
 }

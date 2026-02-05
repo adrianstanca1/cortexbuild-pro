@@ -36,14 +36,15 @@ export async function GET(request: Request) {
     }
 
     const where: Prisma.ProductionLogWhereInput = {
-      ...(workPackageId ? { workPackageId } : {}),
+      workPackageId: workPackageId ?? undefined,
       workPackage: { projectId }
     };
     
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      where.date = {
+        ...(startDate ? { gte: new Date(startDate) } : {}),
+        ...(endDate ? { lte: new Date(endDate) } : {})
+      };
     }
 
     const metrics = await prisma.productionLog.findMany({
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
 
     if (!projectId || !workPackageId || !unit) {
       return NextResponse.json(
-        { error: "Project ID, work package ID, and unit are required" },
+        { error: "Project ID (used to verify the work package), work package ID, and unit are required" },
         { status: 400 }
       );
     }

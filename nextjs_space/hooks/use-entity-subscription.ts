@@ -6,7 +6,10 @@
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
-import { RealtimeEvent, RealtimeEventType } from '@/lib/realtime';
+import { REALTIME_EVENT_TYPES, RealtimeEvent, RealtimeEventType } from '@/lib/realtime';
+
+const isRealtimeEventType = (eventType: string): eventType is RealtimeEventType =>
+  REALTIME_EVENT_TYPES.includes(eventType as RealtimeEventType);
 
 /**
  * Hook to subscribe to entity creation/update events and refresh the router
@@ -43,11 +46,20 @@ export function useEntitySubscription(
   }, [router, onEvent]);
 
   // Build event list based on entity type
-  const events = [
+  const rawEvents = [
     `${entityType}_created`,
     `${entityType}_updated`,
     ...(includeDeleted ? [`${entityType}_deleted`] : [])
-  ] as RealtimeEventType[];
+  ];
+  const events = rawEvents.filter(isRealtimeEventType);
+
+  if (events.length !== rawEvents.length && process.env.NODE_ENV !== 'production') {
+    const invalidEvents = rawEvents.filter(eventType => !isRealtimeEventType(eventType));
+    console.warn('useEntitySubscription: Ignoring unsupported realtime events', {
+      entityType,
+      invalidEvents
+    });
+  }
 
   useRealtimeSubscription(events, handleEvent, []);
 }
@@ -78,11 +90,20 @@ export function useMultiEntitySubscription(
   }, [router, onEvent]);
 
   // Build event list from all entity types
-  const events = entityTypes.flatMap(entityType => [
+  const rawEvents = entityTypes.flatMap(entityType => [
     `${entityType}_created`,
     `${entityType}_updated`,
     ...(includeDeleted ? [`${entityType}_deleted`] : [])
-  ]) as RealtimeEventType[];
+  ]);
+  const events = rawEvents.filter(isRealtimeEventType);
+
+  if (events.length !== rawEvents.length && process.env.NODE_ENV !== 'production') {
+    const invalidEvents = rawEvents.filter(eventType => !isRealtimeEventType(eventType));
+    console.warn('useMultiEntitySubscription: Ignoring unsupported realtime events', {
+      entityTypes,
+      invalidEvents
+    });
+  }
 
   useRealtimeSubscription(events, handleEvent, []);
 }
