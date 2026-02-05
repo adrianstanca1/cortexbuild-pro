@@ -30,9 +30,6 @@ CortexBuild Pro has been fully productionized to enterprise standards with:
 - **[Security Checklist](SECURITY_CHECKLIST.md)** - Security verification
 - **[Operational Runbook](RUNBOOK.md)** - Day-to-day operations
 
-### Summary
-- **[Enterprise Productionization Summary](ENTERPRISE_PRODUCTIONIZATION_SUMMARY.md)** - Complete overview (14KB)
-
 ---
 
 ## 🚀 Deployment in 3 Steps
@@ -367,7 +364,7 @@ Before going to production:
 - [API_SETUP_GUIDE.md](API_SETUP_GUIDE.md) - API configuration
 - [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md) - Security compliance
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Troubleshooting guide
-- [VPS_DEPLOYMENT_CHECKLIST.md](VPS_DEPLOYMENT_CHECKLIST.md) - VPS deployment
+- [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Production deployment checklist
 
 ---
 

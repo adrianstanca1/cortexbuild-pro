@@ -281,10 +281,9 @@ ports:
 ## 📚 Additional Resources
 
 ### Documentation
-- [Full Deployment Guide](DEPLOYMENT_GUIDE.md) - Detailed deployment instructions
+- [Production Deployment Guide](PRODUCTION_DEPLOYMENT.md) - Detailed deployment instructions
 - [API Setup Guide](API_SETUP_GUIDE.md) - Configure API services
-- [Build Status](BUILD_STATUS.md) - Build information and status
-- [Configuration Checklist](CONFIGURATION_CHECKLIST.md) - Complete setup checklist
+- [Production Deployment Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Complete setup checklist
 - [Performance Optimizations](PERFORMANCE_OPTIMIZATIONS.md) - Tuning guide
 
 ### Need Help?

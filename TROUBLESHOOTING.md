@@ -594,10 +594,10 @@ If you're still experiencing issues:
 
 ## 📚 Related Documentation
 
-- [VPS Deployment Guide](VPS_DEPLOYMENT_GUIDE.md)
+- [Production Deployment Guide](PRODUCTION_DEPLOYMENT.md)
 - [API Setup Guide](API_SETUP_GUIDE.md)
-- [Configuration Checklist](CONFIGURATION_CHECKLIST.md)
-- [Deployment Summary](DEPLOYMENT_SUMMARY.md)
+- [Production Deployment Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+- [Runbook](RUNBOOK.md)
 
 ---
 
