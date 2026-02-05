@@ -254,7 +254,6 @@ export async function sendSafetyAlertNotification(
     htmlBody,
     recipientEmail,
     senderEmail: `safety@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
-    senderAlias: 'CortexBuild Pro Safety',
   });
 }
 
@@ -425,7 +424,6 @@ export async function sendDailyReportSubmittedNotification(
     htmlBody,
     recipientEmail,
     senderEmail: `reports@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
-    senderAlias: 'CortexBuild Pro Reports',
   });
 }
 

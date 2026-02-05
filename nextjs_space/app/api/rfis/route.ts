@@ -25,7 +25,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     where: { organizationId: context!.organizationId },
     select: { id: true }
   });
-  const projectIds = projects.map((p: { id: string }) => p.id);
+  const projectIds = projects.map(p => p.id);
 
   const rfis = await prisma.rFI.findMany({
     where: {
