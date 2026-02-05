@@ -46,9 +46,12 @@ sudo bash one-click-deploy.sh
 
 ### Deployment Guides
 - [Quick Start Guide](deployment/QUICKSTART.md) - Get up and running in minutes
-- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) ⭐ **NEW** - Complete production workflow
 - [Complete Deployment Guide](deployment/README.md) - Full deployment documentation
+- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production workflow and updates
+- [Docker Manager Guide](deployment/README-DOCKER-MANAGER.md) - Visual Docker management with Portainer
 - [CloudPanel Guide](deployment/CLOUDPANEL-GUIDE.md) - Deploy with CloudPanel
+- [Deployment Comparison](deployment/DEPLOYMENT-COMPARISON.md) - Compare deployment methods
+- [Quick Reference](deployment/QUICK-REFERENCE.md) - Command reference
 
 ### Feature Documentation
 - [Admin UI Pages](docs/ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
