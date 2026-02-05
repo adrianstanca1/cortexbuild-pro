@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
@@ -19,7 +16,7 @@ export async function GET(
     }
 
     const teamMember = await prisma.teamMember.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         user: {
           select: { id: true, name: true, email: true, role: true, avatarUrl: true, phone: true }
@@ -70,7 +67,7 @@ export async function PATCH(
     const { jobTitle, department } = body;
 
     const teamMember = await prisma.teamMember.update({
-      where: { id: id },
+      where: { id },
       data: {
         jobTitle,
         department
@@ -111,7 +108,7 @@ export async function DELETE(
     }
 
     await prisma.teamMember.delete({
-      where: { id: id }
+      where: { id }
     });
 
     return NextResponse.json({ success: true });

@@ -1,12 +1,8 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { sendTeamMemberInvitationNotification } from "@/lib/email-notifications";
 
 // GET - Get invitation details
 export async function GET(
@@ -20,15 +16,15 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: id,
+        id: params.id,
         organizationId: user.organizationId,
       },
       include: {
@@ -60,9 +56,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -71,7 +67,7 @@ export async function PATCH(
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: id,
+        id,
         organizationId: user.organizationId,
       },
       include: {
@@ -94,28 +90,51 @@ export async function PATCH(
       newExpiresAt.setDate(newExpiresAt.getDate() + 7);
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: id },
+        where: { id },
         data: {
           status: "PENDING",
           expiresAt: newExpiresAt,
         }
       });
 
-      // Resend email using notification API
+      // Resend email
       try {
         const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
         const acceptUrl = `${baseUrl}/team-invite/accept/${invitation.token}`;
         
-        await sendTeamMemberInvitationNotification({
-          memberName: invitation.name,
-          memberEmail: invitation.email,
-          inviterName: invitation.invitedBy.name || "A team member",
-          organizationName: invitation.organization.name,
-          role: invitation.role,
-          jobTitle: invitation.jobTitle || undefined,
-          department: invitation.department || undefined,
-          acceptUrl,
-          expiresAt: newExpiresAt
+        await fetch("https://apps.abacus.ai/api/sendEmail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            toEmails: [invitation.email],
+            subject: `Reminder: You're invited to join ${invitation.organization.name}`,
+            body: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #059669, #047857); padding: 30px; text-align: center;">
+                  <h1 style="color: white; margin: 0;">Team Invitation Reminder</h1>
+                </div>
+                <div style="padding: 30px; background: #f9fafb;">
+                  <p style="font-size: 16px;">Hello <strong>${invitation.name}</strong>,</p>
+                  <p style="font-size: 16px;">
+                    This is a reminder that you've been invited to join 
+                    <strong>${invitation.organization.name}</strong> as a <strong>${invitation.role.replace("_", " ")}</strong>.
+                  </p>
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${acceptUrl}" 
+                       style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                      Accept Invitation
+                    </a>
+                  </div>
+                  <p style="color: #6b7280; font-size: 14px;">
+                    This invitation will expire in 7 days.
+                  </p>
+                </div>
+              </div>
+            `
+          })
         });
       } catch (emailError) {
         console.error("Email sending error:", emailError);
@@ -130,7 +149,7 @@ export async function PATCH(
       }
 
       const updated = await prisma.teamInvitation.update({
-        where: { id: id },
+        where: { id },
         data: { status: "REVOKED" }
       });
 
@@ -167,15 +186,15 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const invitation = await prisma.teamInvitation.findFirst({
       where: {
-        id: id,
+        id,
         organizationId: user.organizationId,
       }
     });
@@ -185,7 +204,7 @@ export async function DELETE(
     }
 
     await prisma.teamInvitation.delete({
-      where: { id: id }
+      where: { id }
     });
 
     return NextResponse.json({ message: "Invitation deleted" });

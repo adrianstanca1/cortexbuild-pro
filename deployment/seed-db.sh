@@ -6,7 +6,7 @@
 
 echo "Seeding database with initial data..."
 
-docker-compose exec app sh -c "cd /app && npx prisma db seed"
+docker compose exec app sh -c "cd /app && yarn prisma db seed"
 
 echo ""
 echo "Database seeded successfully!"

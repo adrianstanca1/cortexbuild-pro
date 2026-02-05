@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -152,7 +149,7 @@ export async function GET(request: NextRequest) {
     const summary = {
       totalPending: pendingEntries.length,
       totalHours: pendingEntries.reduce((sum, e) => sum + e.hours, 0),
-      byUser: Object.entries(groupedByUser).map(([_userId, entries]) => ({
+      byUser: Object.entries(groupedByUser).map(([userId, entries]) => ({
         user: entries[0].user,
         count: entries.length,
         totalHours: entries.reduce((sum, e) => sum + e.hours, 0)

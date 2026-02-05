@@ -144,7 +144,7 @@ interface ApiConnectionLog {
   connectionId: string;
   connection: { id: string; name: string; serviceName: string };
   action: string;
-  details: any;
+  details: Record<string, unknown>;
   previousStatus: string | null;
   newStatus: string | null;
   testSuccess: boolean | null;
@@ -181,7 +181,7 @@ interface CustomApiForm {
 }
 
 // Icon mapping
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail: Mail,
   Brain: Brain,
   CreditCard: CreditCard,
@@ -195,7 +195,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 // Status colors and indicators
-const STATUS_CONFIG: Record<string, { color: string; bgColor: string; icon: any; label: string }> = {
+const STATUS_CONFIG: Record<string, { color: string; bgColor: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
   ACTIVE: { color: "text-green-600", bgColor: "bg-green-500", icon: CheckCircle2, label: "Active" },
   INACTIVE: { color: "text-gray-500", bgColor: "bg-gray-400", icon: PowerOff, label: "Inactive" },
   DISCONNECTED: { color: "text-red-600", bgColor: "bg-red-500", icon: XCircle, label: "Disconnected" },
@@ -239,20 +239,28 @@ export function ApiManagementClient() {
   const [connections, setConnections] = useState<ApiConnection[]>([]);
   const [logs, setLogs] = useState<ApiConnectionLog[]>([]);
   const [dependencies, setDependencies] = useState<DependencyModule[]>([]);
-  const [stats, setStats] = useState<any>({});
+  const [stats, setStats] = useState<{ 
+    totalConnections?: number; 
+    activeConnections?: number;
+    total?: number;
+    active?: number;
+    disconnected?: number;
+    notConfigured?: number;
+    coreServices?: number;
+    coreActive?: number;
+  }>({});
   const [_categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, _setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
+  const [filterCategory, _setFilterCategory] = useState<string>("all");
 
   // Modals
   const [showConfigureModal, setShowConfigureModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRotateModal, setShowRotateModal] = useState(false);
   const [showCustomApiModal, setShowCustomApiModal] = useState(false);
-  const [_showDependenciesModal, _setShowDependenciesModal] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<ApiConnection | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
@@ -286,7 +294,8 @@ export function ApiManagementClient() {
       console.error("Error fetching services:", error);
       toast.error("Failed to fetch platform services");
     }
-  }, [filterEnv, filterCategory]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterEnv]);
 
   // Fetch custom connections
   const fetchConnections = useCallback(async () => {
@@ -477,7 +486,7 @@ export function ApiManagementClient() {
         description: service.description,
         baseUrl: service.baseUrl,
         version: conn?.version || "",
-        environment: conn?.environment || service.environment as any,
+        environment: conn?.environment || service.environment as "DEVELOPMENT" | "STAGING" | "PRODUCTION",
         status: conn?.status || "ACTIVE",
         headers: conn?.headers || {},
         isEnabled: conn?.isEnabled !== false,
@@ -518,7 +527,17 @@ export function ApiManagementClient() {
 
     setSaving(true);
     try {
-      const payload: any = {
+      const payload: {
+        name?: string;
+        description?: string | null;
+        baseUrl?: string | null;
+        version?: string | null;
+        environment?: string;
+        status?: string;
+        headers?: Record<string, string>;
+        isEnabled?: boolean;
+        credentials?: Record<string, string>;
+      } = {
         name: editForm.name,
         description: editForm.description,
         baseUrl: editForm.baseUrl,
@@ -543,7 +562,7 @@ export function ApiManagementClient() {
 
       // Only include credentials if they were modified (not empty)
       const nonEmptyCredentials = Object.fromEntries(
-        Object.entries(configCredentials).filter(([_, v]) => v && v.trim() !== "")
+        Object.entries(configCredentials).filter(([, v]) => v && v.trim() !== "")
       );
       if (Object.keys(nonEmptyCredentials).length > 0) {
         payload.credentials = nonEmptyCredentials;
@@ -795,11 +814,11 @@ export function ApiManagementClient() {
     setCustomApiForm({ ...customApiForm, credentials: newCreds });
   };
 
-  // Copy to clipboard
-  const _handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
-  };
+  // Remove unused copy to clipboard function
+  // const handleCopyToClipboard = (text: string) => {
+  //   navigator.clipboard.writeText(text);
+  //   toast.success("Copied to clipboard");
+  // };
 
   // Filter services
   const filteredServices = services.filter(service => {
@@ -820,11 +839,11 @@ export function ApiManagementClient() {
 
   // Render status indicator
   const renderStatusIndicator = (status: string) => {
-    const config = STATUS_CONFIG[status] || STATUS_CONFIG.NOT_CONFIGURED;
+    const configEntry = STATUS_CONFIG[status] || STATUS_CONFIG.NOT_CONFIGURED;
     return (
       <div className="flex items-center gap-2">
-        <div className={`h-2.5 w-2.5 rounded-full ${config.bgColor} animate-pulse`} />
-        <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
+        <div className={`h-2.5 w-2.5 rounded-full ${configEntry.bgColor} animate-pulse`} />
+        <span className={`text-sm font-medium ${configEntry.color}`}>{configEntry.label}</span>
       </div>
     );
   };
@@ -1004,7 +1023,6 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const _statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div
@@ -1581,7 +1599,7 @@ export function ApiManagementClient() {
                     <Label htmlFor="edit-environment">Environment</Label>
                     <Select
                       value={editForm.environment || "PRODUCTION"}
-                      onValueChange={(v) => setEditForm({ ...editForm, environment: v as any })}
+                      onValueChange={(v) => setEditForm({ ...editForm, environment: v as "DEVELOPMENT" | "STAGING" | "PRODUCTION" })}
                     >
                       <SelectTrigger id="edit-environment">
                         <SelectValue />
@@ -1612,7 +1630,7 @@ export function ApiManagementClient() {
                     <Label htmlFor="edit-status">Status</Label>
                     <Select
                       value={editForm.status || "ACTIVE"}
-                      onValueChange={(v) => setEditForm({ ...editForm, status: v as any })}
+                      onValueChange={(v) => setEditForm({ ...editForm, status: v as "ACTIVE" | "INACTIVE" | "ERROR" | "EXPIRED" | "DISABLED" })}
                     >
                       <SelectTrigger id="edit-status">
                         <SelectValue />
@@ -2006,7 +2024,7 @@ export function ApiManagementClient() {
               Add Custom API
             </DialogTitle>
             <DialogDescription>
-              Configure a custom API integration that isn't part of the built-in services
+              Configure a custom API integration that isn&apos;t part of the built-in services
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -2052,7 +2070,7 @@ export function ApiManagementClient() {
                 <Label htmlFor="custom-type">Type</Label>
                 <Select
                   value={customApiForm.type}
-                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, type: v as any })}
+                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, type: v as "EXTERNAL" | "INTERNAL" })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -2067,7 +2085,7 @@ export function ApiManagementClient() {
                 <Label htmlFor="custom-env">Environment</Label>
                 <Select
                   value={customApiForm.environment}
-                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, environment: v as any })}
+                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, environment: v as "DEVELOPMENT" | "STAGING" | "PRODUCTION" })}
                 >
                   <SelectTrigger>
                     <SelectValue />

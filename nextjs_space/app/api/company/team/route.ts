@@ -1,11 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string };
     const orgId = user.organizationId;
 
     if (!orgId) {
@@ -28,23 +26,23 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
-    const where: any = { organizationId: orgId };
+    const whereClause: Prisma.TeamMemberWhereInput = { organizationId: orgId };
 
     if (search) {
-      where.OR = [
-        { user: { name: { contains: search, mode: "insensitive" } } },
-        { user: { email: { contains: search, mode: "insensitive" } } },
-        { jobTitle: { contains: search, mode: "insensitive" } }
-      ];
+      whereClause.OR = [
+        { user: { name: { contains: search, mode: Prisma.QueryMode.insensitive } } },
+        { user: { email: { contains: search, mode: Prisma.QueryMode.insensitive } } },
+        { jobTitle: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      ] as any;
     }
 
     if (role !== "all") {
-      where.user = { ...where.user, role };
+      whereClause.user = { role } as any;
     }
 
     const [members, total] = await Promise.all([
       prisma.teamMember.findMany({
-        where,
+        where: whereClause,
         include: {
           user: {
             select: {
@@ -68,14 +66,14 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { invitedAt: "desc" }
       }),
-      prisma.teamMember.count({ where })
+      prisma.teamMember.count({ where: whereClause })
     ]);
 
     return NextResponse.json({
-      members: members.map(m => ({
+      members: members.map((m: any) => ({
         ...m,
         projectCount: m.projectAssignments.length,
-        projects: m.projectAssignments.map(pa => pa.project)
+        projects: m.projectAssignments.map((pa: any) => pa.project)
       })),
       pagination: {
         page,
@@ -97,14 +95,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { id: string; organizationId?: string; role?: string };
     
-    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role)) {
+    if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role || "")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
     const { userId, jobTitle, department } = body;
+
+    if (!user.organizationId) {
+      return NextResponse.json({ error: "No organization" }, { status: 400 });
+    }
 
     // Check if team member already exists
     const existing = await prisma.teamMember.findFirst({

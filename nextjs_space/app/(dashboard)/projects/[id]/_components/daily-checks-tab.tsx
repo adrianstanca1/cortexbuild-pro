@@ -4,10 +4,10 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-  HardHat, Wrench, Plus, Check, AlertTriangle, ChevronRight,
-  Calendar, User, CheckCircle2, XCircle, Download
+  HardHat, Wrench, Plus, Check, X, AlertTriangle, ChevronRight,
+  Loader2, Calendar, User, FileText, CheckCircle2, XCircle, Shield, Download
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -88,7 +88,8 @@ interface DailyChecksTabProps {
 export function DailyChecksTab({
   projectId,
   mewpChecks: initialMewpChecks,
-  toolChecks: initialToolChecks
+  toolChecks: initialToolChecks,
+  equipment
 }: DailyChecksTabProps) {
   const router = useRouter();
   const [mewpChecks, setMewpChecks] = useState(initialMewpChecks || []);
@@ -544,7 +545,7 @@ export function DailyChecksTab({
                           onClick={() => handleMewpCheckItem(item.key, status)}
                         >
                           {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <AlertTriangle className="h-4 w-4" /> :
+                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
                            status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
                            "N/A"}
                         </Button>
@@ -674,7 +675,7 @@ export function DailyChecksTab({
                           onClick={() => handleToolCheckItem(item.key, status)}
                         >
                           {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <AlertTriangle className="h-4 w-4" /> :
+                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
                            status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
                            "N/A"}
                         </Button>

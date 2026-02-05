@@ -72,8 +72,8 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
 
     // Schedule Analysis
     let totalScheduleVariance = 0;
-    const delayedProjects: string[] = [];
-    const atRiskProjects: string[] = [];
+    let delayedProjects: string[] = [];
+    let atRiskProjects: string[] = [];
 
     projects.forEach(project => {
       const endDate = new Date(project.endDate);
@@ -124,7 +124,7 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
 
     // Budget Analysis
     let totalBudgetVariance = 0;
-    const overBudgetProjects: string[] = [];
+    let overBudgetProjects: string[] = [];
 
     projects.forEach(project => {
       const spent = project.actualCost || (project.budget * (project.progress / 100) * (0.9 + Math.random() * 0.3));
@@ -189,7 +189,7 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
     }
 
     // Resource Utilization Prediction
-    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE').length;
+    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS').length;
     const resourcePressure = activeProjects > 5 ? 'high' : activeProjects > 3 ? 'medium' : 'low';
 
     if (resourcePressure !== 'low') {

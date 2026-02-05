@@ -37,7 +37,7 @@ export function FileUpload({
   disabled = false,
   isPublic = false
 }: FileUploadProps) {
-  const [_uploading, setUploading] = useState<string[]>([]);
+  const [uploading, setUploading] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -58,12 +58,12 @@ const eventMessages: Partial<Record<RealtimeEventType, (payload: Record<string, 
     return `Daily report submitted${project?.name ? ` for ${project.name}` : ''}`;
   },
   daily_report_updated: (p) => `Daily report updated${p.projectName ? ` for ${p.projectName}` : ''}`,
-  daily_report_deleted: (_p) => `Daily report deleted`,
+  daily_report_deleted: (p) => `Daily report deleted`,
   // Safety
   safety_incident_reported: (p) => `⚠️ Safety incident reported${p.severity ? ` (${p.severity})` : ''}`,
   safety_incident_updated: (p) => `Safety incident updated${p.projectName ? ` for ${p.projectName}` : ''}`,
   safety_incident_resolved: (p) => `✓ Safety incident resolved${p.projectName ? ` for ${p.projectName}` : ''}`,
-  safety_incident_deleted: (_p) => `Safety incident deleted`,
+  safety_incident_deleted: (p) => `Safety incident deleted`,
   // Submittals
   submittal_created: (p) => `New submittal: ${getField(p, 'title')}`,
   submittal_updated: (p) => `Submittal updated: ${getField(p, 'title')}`,
@@ -76,7 +76,7 @@ const eventMessages: Partial<Record<RealtimeEventType, (payload: Record<string, 
   // Punch Lists
   punch_list_created: (p) => `New punch list item: ${getField(p, 'title')}`,
   punch_list_updated: (p) => `Punch list updated: ${getField(p, 'title')}`,
-  punch_list_deleted: (_p) => `Punch list item deleted`,
+  punch_list_deleted: (p) => `Punch list item deleted`,
   // Equipment
   equipment_added: (p) => `Equipment added: ${getField(p, 'name')}`,
   equipment_updated: (p) => `Equipment updated: ${getField(p, 'name')}`,
@@ -86,11 +86,11 @@ const eventMessages: Partial<Record<RealtimeEventType, (payload: Record<string, 
   inspection_updated: (p) => `Inspection updated: ${getField(p, 'title')}`,
   inspection_passed: (p) => `✓ Inspection passed: ${getField(p, 'title')}`,
   inspection_failed: (p) => `✗ Inspection failed: ${getField(p, 'title')}`,
-  inspection_deleted: (_p) => `Inspection deleted`,
+  inspection_deleted: (p) => `Inspection deleted`,
   // Meetings
   meeting_recorded: (p) => `Meeting minutes recorded: ${getField(p, 'title')}`,
   meeting_updated: (p) => `Meeting updated: ${getField(p, 'title')}`,
-  meeting_deleted: (_p) => `Meeting deleted`,
+  meeting_deleted: (p) => `Meeting deleted`,
   // Activity
   activity_logged: (p) => `${p.userName || 'Someone'} ${p.action || 'performed an action'}${p.entityName ? ` on ${p.entityName}` : ''}`,
 };

@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -20,7 +17,7 @@ export async function GET(
     }
 
     const mewpCheck = await prisma.mEWPCheck.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { name: true, organizationId: true } },
         operator: { select: { name: true, email: true } },
@@ -45,7 +42,7 @@ export async function GET(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_APIKEY,
+        deployment_token: process.env.ABACUSAI_API_KEY,
         html_content: htmlContent,
         pdf_options: { format: 'A4', print_background: true },
         base_url: process.env.NEXTAUTH_URL || '',

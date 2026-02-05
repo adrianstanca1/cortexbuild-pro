@@ -1,9 +1,4 @@
 import { getServerSession } from "next-auth";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -16,7 +11,7 @@ export default async function CompanyTeamPage() {
     redirect("/login");
   }
 
-  const user = session.user as any;
+  const user = session.user as { id: string; role: string; organizationId?: string };
 
   if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
     redirect("/dashboard");

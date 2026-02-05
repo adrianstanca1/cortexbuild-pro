@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
@@ -58,7 +55,7 @@ export async function POST(
 
     // Log activity
     const teamMember = await prisma.teamMember.findUnique({
-      where: { id: id },
+      where: { id },
       include: { user: { select: { name: true } } }
     });
 

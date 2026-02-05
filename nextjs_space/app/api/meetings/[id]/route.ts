@@ -1,13 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
 
 export async function GET(
   request: NextRequest,
@@ -74,27 +70,43 @@ export async function PATCH(
 
     const { summary, actionItems } = body;
 
-    // Update action items if provided
+    // Update action items if provided - use parallel operations for better performance
     if (actionItems?.length) {
+      const updatePromises = [];
+      const createData = [];
+
       for (const item of actionItems) {
         if (item.id) {
-          await prisma.meetingActionItem.update({
-            where: { id: item.id },
-            data: {
-              completed: item.completed,
-              completedAt: item.completed ? new Date() : null
-            }
-          });
+          updatePromises.push(
+            prisma.meetingActionItem.update({
+              where: { id: item.id },
+              data: {
+                completed: item.completed,
+                completedAt: item.completed ? new Date() : null
+              }
+            })
+          );
         } else if (item.description) {
-          await prisma.meetingActionItem.create({
-            data: {
-              meetingId: id,
-              description: item.description,
-              assignedTo: item.assignedTo,
-              dueDate: item.dueDate ? new Date(item.dueDate) : null
-            }
+          createData.push({
+            meetingId: id,
+            description: item.description,
+            assignedTo: item.assignedTo,
+            dueDate: item.dueDate ? new Date(item.dueDate) : null
           });
         }
+      }
+
+      // Execute updates in parallel
+      if (updatePromises.length > 0) {
+        await Promise.all(updatePromises);
+      }
+      
+      // Batch create new items
+      if (createData.length > 0) {
+        await prisma.meetingActionItem.createMany({
+          data: createData,
+          skipDuplicates: true
+        });
       }
     }
 

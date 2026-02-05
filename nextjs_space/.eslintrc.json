@@ -4,15 +4,13 @@
     "next/typescript"
   ],
   "rules": {
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": ["error", {
-      "argsIgnorePattern": "^_",
-      "varsIgnorePattern": "^_",
-      "ignoreRestSiblings": true
-    }],
-    "react/no-unescaped-entities": "off",
-    "@typescript-eslint/ban-types": "off",
-    "react-hooks/exhaustive-deps": "warn",
-    "jsx-a11y/alt-text": "warn"
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_"
+      }
+    ]
   }
 }

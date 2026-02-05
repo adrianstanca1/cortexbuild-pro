@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -20,7 +17,7 @@ export async function GET(
     }
 
     const drawing = await prisma.drawing.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true } },
         revisions: { orderBy: { createdAt: "desc" } },
@@ -53,7 +50,7 @@ export async function PATCH(
     const { number, title, description, discipline, status, currentRevision, scale, sheetSize, newRevision } = body;
 
     const existingDrawing = await prisma.drawing.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -77,7 +74,7 @@ export async function PATCH(
     }
 
     const drawing = await prisma.drawing.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...(number && { number }),
         ...(title && { title }),
@@ -120,7 +117,7 @@ export async function DELETE(
     }
 
     const drawing = await prisma.drawing.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -128,7 +125,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Drawing not found" }, { status: 404 });
     }
 
-    await prisma.drawing.delete({ where: { id: id } });
+    await prisma.drawing.delete({ where: { id } });
 
     if (drawing.project.organizationId) {
       broadcastToOrganization(drawing.project.organizationId, {

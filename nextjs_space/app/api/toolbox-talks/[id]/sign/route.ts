@@ -33,7 +33,7 @@ export async function POST(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {
@@ -112,7 +112,7 @@ export async function PUT(
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id, project: { organizationId: orgId } }
     });
 
     if (!toolboxTalk) {

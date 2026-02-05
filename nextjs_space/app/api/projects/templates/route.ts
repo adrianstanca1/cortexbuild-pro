@@ -63,7 +63,7 @@ const DEFAULT_TEMPLATES = [
   }
 ];
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate project dates based on template phases
     const projectStartDate = startDate ? new Date(startDate) : new Date();
-    const totalDuration = template.phases.reduce((sum, p) => sum + p.duration, 0);
+    let totalDuration = template.phases.reduce((sum, p) => sum + p.duration, 0);
     const projectEndDate = new Date(projectStartDate);
     projectEndDate.setDate(projectEndDate.getDate() + totalDuration);
 
@@ -123,30 +123,33 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create tasks from template phases
-    const currentDate = new Date(projectStartDate);
-    const createdTasks: { id: string; title: string }[] = [];
+    // Create tasks from template phases - batch all task data first, then createMany
+    let currentDate = new Date(projectStartDate);
+    const tasksData = [];
 
     for (const phase of template.phases) {
       for (const taskName of phase.tasks) {
         const taskEndDate = new Date(currentDate);
         taskEndDate.setDate(taskEndDate.getDate() + Math.ceil(phase.duration / phase.tasks.length));
         
-        const task = await prisma.task.create({
-          data: {
-            title: `${phase.name}: ${taskName}`,
-            description: `Task from ${template.name} template - ${phase.name} phase`,
-            status: 'TODO',
-            priority: 'MEDIUM',
-            projectId: project.id,
-            dueDate: taskEndDate,
-            creatorId: user.id
-          }
+        tasksData.push({
+          title: `${phase.name}: ${taskName}`,
+          description: `Task from ${template.name} template - ${phase.name} phase`,
+          status: 'TODO',
+          priority: 'MEDIUM',
+          projectId: project.id,
+          dueDate: taskEndDate,
+          creatorId: user.id
         });
-        createdTasks.push(task);
       }
       currentDate.setDate(currentDate.getDate() + phase.duration);
     }
+
+    // Bulk insert all tasks at once - much faster than individual creates
+    await prisma.task.createMany({
+      data: tasksData,
+      skipDuplicates: true
+    });
 
     // Log activity
     await prisma.activityLog.create({
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
         entityType: 'Project',
         entityId: project.id,
         entityName: project.name,
-        details: `Created project from "${template.name}" template with ${createdTasks.length} tasks`,
+        details: `Created project from "${template.name}" template with ${tasksData.length} tasks`,
         userId: user.id,
         projectId: project.id
       }
@@ -164,13 +167,13 @@ export async function POST(request: NextRequest) {
     // Broadcast event
     broadcastToOrganization(user.organizationId, {
       type: 'project_created',
-      data: { project, template: template.name, tasksCreated: createdTasks.length }
+      data: { project, template: template.name, tasksCreated: tasksData.length }
     });
 
     return NextResponse.json({
       project,
-      tasksCreated: createdTasks.length,
-      message: `Project created successfully with ${createdTasks.length} tasks from ${template.name} template`
+      tasksCreated: tasksData.length,
+      message: `Project created successfully with ${tasksData.length} tasks from ${template.name} template`
     });
   } catch (error) {
     console.error('Error creating project from template:', error);

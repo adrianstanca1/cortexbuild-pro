@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  Receipt, Plus, Search, Loader2, Eye, Edit,
-  CheckCircle, Clock, PoundSterling, Send
+  Receipt, Plus, Search, Filter, Loader2, Eye, Edit,
+  CheckCircle, Clock, XCircle, PoundSterling, Send, FileCheck
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

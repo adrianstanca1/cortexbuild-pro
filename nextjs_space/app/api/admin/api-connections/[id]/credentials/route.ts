@@ -4,10 +4,7 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { decryptCredentials } from "@/lib/encryption";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 // GET - Fetch decrypted credentials for editing
 // This endpoint is protected and only accessible by SUPER_ADMIN
@@ -15,11 +12,6 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Prevent execution during build time
-  if (process.env.__NEXT_TEST_MODE) {
-    return NextResponse.json({ error: "Not available during build" }, { status: 503 });
-  }
-  
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);

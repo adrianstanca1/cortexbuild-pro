@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -20,7 +17,7 @@ export async function GET(
     }
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
         createdBy: { select: { id: true, name: true } },
@@ -61,7 +58,7 @@ export async function PATCH(
 
     // Get existing assessment
     const existing = await prisma.riskAssessment.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -90,7 +87,7 @@ export async function PATCH(
     }
 
     const riskAssessment = await prisma.riskAssessment.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...updateData,
         status: status || undefined,
@@ -142,7 +139,7 @@ export async function DELETE(
     }
 
     const existing = await prisma.riskAssessment.findUnique({
-      where: { id: id },
+      where: { id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -150,11 +147,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    await prisma.riskAssessment.delete({ where: { id: id } });
+    await prisma.riskAssessment.delete({ where: { id } });
 
     broadcastToOrganization(existing.project.organizationId, {
       type: 'risk_assessment_deleted',
-      data: { id: id }
+      data: { id }
     });
 
     return NextResponse.json({ success: true });

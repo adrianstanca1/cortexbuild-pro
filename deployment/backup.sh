@@ -15,7 +15,7 @@ mkdir -p $BACKUP_DIR
 
 echo "Creating backup: $FILENAME"
 
-docker-compose exec -T postgres pg_dump \
+docker compose exec -T postgres pg_dump \
     -U ${POSTGRES_USER:-cortexbuild} \
     -d ${POSTGRES_DB:-cortexbuild} \
     --clean \

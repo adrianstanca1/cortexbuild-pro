@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -27,7 +24,7 @@ export async function GET(
 
     // Verify project
     const project = await prisma.project.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {
@@ -86,7 +83,7 @@ export async function POST(
     }
 
     const project = await prisma.project.findFirst({
-      where: { id: id, organizationId: user.organizationId },
+      where: { id, organizationId: user.organizationId },
     });
 
     if (!project) {

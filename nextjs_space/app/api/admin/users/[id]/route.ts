@@ -1,12 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function GET(
@@ -16,12 +13,12 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         organization: true,
         teamMemberships: {
@@ -51,7 +48,7 @@ export async function GET(
     }
 
     // Don't return password
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -66,14 +63,14 @@ export async function PATCH(
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { name, email, role, organizationId, phone, password, _suspended } = body;
+    const { name, email, role, organizationId, phone, password } = body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: id } });
+    const existingUser = await prisma.user.findUnique({ where: { id } });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -86,10 +83,18 @@ export async function PATCH(
       }
     }
 
-    const updateData: any = {};
+    const updateData: {
+      [key: string]: unknown;
+      name?: string;
+      email?: string;
+      role?: UserRole;
+      organizationId?: string | null;
+      phone?: string;
+      password?: string;
+    } = {};
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
-    if (role !== undefined) updateData.role = role;
+    if (role !== undefined) updateData.role = role as UserRole;
     if (organizationId !== undefined) updateData.organizationId = organizationId || null;
     if (phone !== undefined) updateData.phone = phone;
     if (password) {
@@ -97,7 +102,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -159,16 +164,16 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as { id: string; role?: string }).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Prevent self-deletion
-    if (id === session.user.id) {
+    if (id === (session.user as { id: string }).id) {
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: id } });
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -177,7 +182,7 @@ export async function DELETE(
     await prisma.teamMember.deleteMany({ where: { userId: id } });
 
     // Delete user
-    await prisma.user.delete({ where: { id: id } });
+    await prisma.user.delete({ where: { id } });
 
     // Log activity
     await prisma.activityLog.create({

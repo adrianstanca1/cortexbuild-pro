@@ -2,18 +2,18 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Shield, Check, Eye, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Plus, FileText, AlertTriangle, Shield, Check, X, ChevronDown, ChevronUp, Users, Edit, Trash2, Eye, Download, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SignaturePad } from '@/components/ui/signature-pad';
+import { SignaturePad, SignatureDisplay } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { useRealtimeSubscription } from '@/hooks/use-realtime';
+import { useRealtimeSubscription } from '@/components/realtime-provider';
 
 interface RiskAssessmentsTabProps {
   project: any;
@@ -40,7 +40,7 @@ function getRiskLevel(score: number) {
   return riskLevels.find(l => score >= l.score[0] && score <= l.score[1]) || riskLevels[0];
 }
 
-export function RiskAssessmentsTab({ project, riskAssessments: initialAssessments }: RiskAssessmentsTabProps) {
+export function RiskAssessmentsTab({ project, teamMembers, riskAssessments: initialAssessments }: RiskAssessmentsTabProps) {
   const router = useRouter();
   const [assessments, setAssessments] = useState(initialAssessments || []);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -48,7 +48,7 @@ export function RiskAssessmentsTab({ project, riskAssessments: initialAssessment
   const [showAcknowledgeModal, setShowAcknowledgeModal] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
+  const [expandedHazards, setExpandedHazards] = useState<Set<string>>(new Set());
   
   const [newAssessment, setNewAssessment] = useState({
     title: '',

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { format, differenceInDays, isBefore, startOfDay } from "date-fns";
+import { format, differenceInDays, isAfter, isBefore, addDays, startOfDay } from "date-fns";
 import {
   Calendar, Target, CheckCircle2, Clock, AlertTriangle, ChevronRight,
-  Play, Flag, CircleDot, Milestone as MilestoneIcon
+  Play, Pause, Flag, CircleDot, Milestone as MilestoneIcon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,8 +28,6 @@ interface ProjectTimelineTabProps {
   tasks: any[];
 }
 
-// Status colors (currently unused but kept for future use)
-/*
 const statusColors: Record<string, string> = {
   PENDING: "bg-gray-500",
   IN_PROGRESS: "bg-blue-500",
@@ -39,7 +37,6 @@ const statusColors: Record<string, string> = {
   REVIEW: "bg-purple-500",
   COMPLETE: "bg-green-500"
 };
-*/
 
 export function ProjectTimelineTab({ project, milestones, tasks }: ProjectTimelineTabProps) {
   const [selectedItem, setSelectedItem] = useState<TimelineItem | null>(null);
@@ -263,7 +260,7 @@ export function ProjectTimelineTab({ project, milestones, tasks }: ProjectTimeli
               <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
 
               <div className="space-y-4">
-                {timelineItems.map((item) => {
+                {timelineItems.map((item, index) => {
                   const isOverdue = isItemOverdue(item);
                   const isToday = isItemToday(item);
                   const isCompleted = item.status === "COMPLETED" || item.status === "COMPLETE";

@@ -4,9 +4,7 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { format } from 'date-fns';
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic';
-
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,6 +21,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const exportType = searchParams.get('type') || 'projects';
     const projectId = searchParams.get('projectId');
+    const formatType = searchParams.get('format') || 'csv';
 
     let data: any[] = [];
     let filename = '';
@@ -55,7 +54,9 @@ export async function GET(request: NextRequest) {
           include: {
             project: { select: { name: true } },
             assignee: { select: { name: true } }
-          }
+          },
+          take: 10000,  // Limit export size
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Title', 'Project', 'Status', 'Priority', 'Assignee', 'Due Date', 'Completed', 'Description'];
         data = tasks.map(t => ([
@@ -73,7 +74,9 @@ export async function GET(request: NextRequest) {
             project: { select: { name: true } },
             createdBy: { select: { name: true } },
             assignedTo: { select: { name: true } }
-          }
+          },
+          take: 5000,  // Limit export size
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Number', 'Subject', 'Project', 'Status', 'Created By', 'Assigned To', 'Due Date', 'Created', 'Answered'];
         data = rfis.map(r => ([
@@ -90,7 +93,9 @@ export async function GET(request: NextRequest) {
           include: {
             project: { select: { name: true } },
             submittedBy: { select: { name: true } }
-          }
+          },
+          take: 5000,  // Limit export size
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Number', 'Title', 'Project', 'Status', 'Spec Section', 'Submitted By', 'Due Date', 'Reviewed Date'];
         data = submittals.map(s => ([
@@ -106,7 +111,9 @@ export async function GET(request: NextRequest) {
           include: {
             project: { select: { name: true } },
             subcontractor: { select: { companyName: true } }
-          }
+          },
+          take: 10000,  // Limit export size
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Description', 'Project', 'Category', 'Status', 'Estimated', 'Committed', 'Actual', 'Variance', 'Vendor', 'Invoice #'];
         data = costItems.map(c => ([
@@ -124,7 +131,9 @@ export async function GET(request: NextRequest) {
           include: {
             project: { select: { name: true } },
             reportedBy: { select: { name: true } }
-          }
+          },
+          take: 5000,  // Limit export size
+          orderBy: { incidentDate: 'desc' }
         });
         headers = ['Description', 'Project', 'Severity', 'Status', 'Date', 'Location', 'Reported By', 'Injury Occurred', 'Root Cause'];
         data = incidents.map(i => ([
@@ -142,7 +151,9 @@ export async function GET(request: NextRequest) {
             project: { select: { name: true } },
             user: { select: { name: true } },
             task: { select: { title: true } }
-          }
+          },
+          take: 10000,  // Limit export size
+          orderBy: { date: 'desc' }
         });
         headers = ['Date', 'Project', 'User', 'Task', 'Hours', 'Description', 'Status'];
         data = timeEntries.map(t => ([
