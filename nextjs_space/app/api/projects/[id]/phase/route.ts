@@ -142,13 +142,12 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Calculate phase completion metrics
-    // Note: phaseGatesData field doesn't exist in the schema
-    const gatesData = {};
-    
     return NextResponse.json({
       project: {
         ...project,
-        phaseGates: gatesData
+        // Legacy field kept for backward compatibility with older clients.
+        // Phase gate data storage was removed from the schema, so this is always null.
+        phaseGates: null
       }
     });
   } catch (error) {
