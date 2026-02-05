@@ -8,6 +8,18 @@ Complete UK construction management platform built with Next.js, React, and Post
 
 ### For Production VPS Deployment
 
+**Option 1: Automated Deployment via GitHub Actions (Recommended)**
+
+Deploy directly from GitHub with one click - no SSH required!
+
+1. Configure GitHub secrets (VPS_SSH_KEY, VPS_HOST, VPS_USER)
+2. Go to Actions → Deploy to VPS → Run workflow
+3. Watch the automated deployment complete
+
+**See [deployment/AUTOMATED-DEPLOYMENT.md](deployment/AUTOMATED-DEPLOYMENT.md) for setup instructions.**
+
+**Option 2: Manual Deployment on VPS**
+
 ```bash
 # Clone repository
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
@@ -45,6 +57,7 @@ sudo bash one-click-deploy.sh
 ## 📖 Documentation
 
 ### Deployment Guides
+- [Automated Deployment Guide](deployment/AUTOMATED-DEPLOYMENT.md) - ⭐ NEW: Deploy from GitHub Actions
 - [Quick Start Guide](deployment/QUICKSTART.md) - Get up and running in minutes
 - [Complete Deployment Guide](deployment/README.md) - Full deployment documentation
 - [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production workflow and updates

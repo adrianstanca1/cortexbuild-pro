@@ -1,11 +1,50 @@
 # CortexBuild Pro - VPS Deployment Quick Start
 
-## 🚀 One-Command Deployment
+## 🚀 Deployment Options
 
-The easiest way to deploy CortexBuild Pro to your VPS:
+CortexBuild Pro offers multiple deployment methods to suit your workflow:
+
+### Option 1: Automated Deployment via GitHub Actions (⭐ Recommended)
+
+**Best for:** Streamlined deployments, CI/CD workflows, team collaboration
+
+Deploy with a single click from GitHub - no manual SSH access required!
+
+**Features:**
+- ✅ One-click deployment from GitHub UI
+- ✅ Automated pre-deployment validation (tests, linting, builds)
+- ✅ Built-in health checks after deployment
+- ✅ Support for multiple environments (production, staging)
+- ✅ Complete deployment history and logs
+- ✅ Easy rollback capability
+
+**Quick Setup:**
+```bash
+# 1. Complete initial VPS setup (one-time)
+ssh root@YOUR_VPS_IP
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
+cd cortexbuild-pro/deployment
+sudo bash one-click-deploy.sh
+
+# 2. Configure GitHub secrets in your repository:
+#    - VPS_SSH_KEY (SSH private key)
+#    - VPS_HOST (your VPS IP or domain)
+#    - VPS_USER (usually 'root')
+
+# 3. Deploy from GitHub:
+#    Navigate to: Actions → Deploy to VPS → Run workflow
+```
+
+**See [AUTOMATED-DEPLOYMENT.md](AUTOMATED-DEPLOYMENT.md) for complete setup instructions.**
+
+---
+
+### Option 2: One-Command Manual Deployment
+
+**Best for:** Quick deployments, initial setup, learning the system
 
 ```bash
-# Download the deployment package
+# Download and deploy in one command
 wget https://github.com/adrianstanca1/cortexbuild-pro/archive/main.tar.gz
 tar -xzf main.tar.gz
 cd cortexbuild-pro-main/deployment
@@ -37,9 +76,9 @@ That's it! The script will:
 
 ---
 
-## 📦 Deployment Methods
+## 📦 Additional Deployment Methods
 
-### Method 1: Production Deployment (Recommended for Updates)
+### Method 3: Production Update Workflow
 
 **Best for:** Production updates, code deployments, regular maintenance
 
@@ -67,7 +106,7 @@ See [PRODUCTION-DEPLOY-GUIDE.md](PRODUCTION-DEPLOY-GUIDE.md) for complete detail
 
 ---
 
-### Method 2: One-Click Deployment (For Initial Setup)
+### Method 4: Manual Docker Deployment
 
 **Best for:** Fresh VPS installations, automated setup
 
@@ -87,36 +126,7 @@ sudo bash one-click-deploy.sh
 
 ---
 
-### Method 3: Manual Docker Deployment
-
-**Best for:** Custom configurations, existing Docker setups
-
-```bash
-# 1. Install Docker (if needed)
-curl -fsSL https://get.docker.com | sh
-
-# 2. Clone repository
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro/deployment
-
-# 3. Configure environment
-cp .env.example .env
-nano .env  # Edit with your settings
-
-# 4. Deploy
-docker compose build --no-cache app
-docker compose up -d
-
-# 5. Run migrations
-docker compose exec app npx prisma migrate deploy
-
-# 6. Seed database (optional)
-docker compose exec app npx prisma db seed
-```
-
----
-
-### Method 4: CloudPanel Deployment
+### Method 5: CloudPanel Deployment
 
 **Best for:** Managed hosting, GUI preference
 
