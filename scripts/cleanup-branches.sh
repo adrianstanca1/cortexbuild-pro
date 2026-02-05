@@ -9,35 +9,63 @@ echo "🗑️  Branch Cleanup Script"
 echo "=========================="
 echo ""
 
-# List of branches to delete
-BRANCHES=(
-  "copilot/merge-and-clean-cortexbuild"
-  "copilot/fix-api-connections-and-dependencies"
-  "copilot/merge-and-integrate-changes"
-  "copilot/merge-changes-into-main"
-  "copilot/continue-task-implementation"
-  "copilot/continue-existing-feature"
-  "copilot/fix-all-errors-and-conflicts"
-  "copilot/fix-conflicts-and-commit-changes"
-  "copilot/continue-build-and-debug-session"
-  "copilot/commit-all-changes"
-  "copilot/merge-branches-and-cleanup"
-  "copilot/improve-slow-code-efficiency"
-  "copilot/refactor-duplicated-code"
-)
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||')
+DEFAULT_BRANCH=${DEFAULT_BRANCH:-cortexbuildpro}
 
-echo "📋 Branches marked for deletion (13 total):"
+for candidate in "$DEFAULT_BRANCH" cortexbuildpro main master; do
+  if [ -n "$candidate" ] && git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
+    DEFAULT_BRANCH=$candidate
+    break
+  fi
+done
+
+if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  if [ -n "$CURRENT_BRANCH" ] && git show-ref --verify --quiet "refs/remotes/origin/$CURRENT_BRANCH"; then
+    if [ "$CURRENT_BRANCH" != "cortexbuildpro" ] && [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+      echo "⚠️  Warning: '${CURRENT_BRANCH}' is not a standard default branch."
+      read -r -p "Use '${CURRENT_BRANCH}' as the default branch? (yes/no): " USE_CURRENT
+      if [ "$USE_CURRENT" != "yes" ]; then
+        echo "❌ Unable to determine a safe default remote branch."
+        exit 1
+      fi
+    else
+      echo "⚠️  Using current branch '${CURRENT_BRANCH}' as default."
+    fi
+    DEFAULT_BRANCH=$CURRENT_BRANCH
+  else
+    echo "❌ Unable to determine a default remote branch."
+    exit 1
+  fi
+fi
+
+echo "Using default branch: $DEFAULT_BRANCH"
+
+MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
+
+if [ -z "$MERGED_BRANCHES" ]; then
+  echo "✅ No merged branches found to delete."
+  exit 0
+fi
+
+mapfile -t BRANCHES < <(printf '%s\n' "$MERGED_BRANCHES" | sed '/^[[:space:]]*$/d')
+if [ ${#BRANCHES[@]} -eq 0 ]; then
+  echo "✅ No merged branches found to delete."
+  exit 0
+fi
+
+echo "📋 Branches marked for deletion (${#BRANCHES[@]} total):"
 echo ""
 for branch in "${BRANCHES[@]}"; do
   echo "  - $branch"
 done
 echo ""
 
-echo "ℹ️  These branches have been synchronized into cortexbuildpro."
+echo "ℹ️  These branches have been synchronized into ${DEFAULT_BRANCH}."
 echo "   Their changes are preserved in the git history."
 echo ""
 
-read -p "Continue with deletion? (yes/no): " confirm
+read -r -p "Continue with deletion? (yes/no): " confirm
 
 if [ "$confirm" != "yes" ]; then
   echo "❌ Cleanup cancelled."

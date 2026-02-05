@@ -44,7 +44,7 @@ The branches still exist on the remote repository and should be deleted to compl
 ```
 
 This script will:
-- List all 11 branches to be deleted
+- List all merged branches to be deleted (including the 11 listed above)
 - Ask for confirmation
 - Delete all branches from remote
 - Delete local copies if they exist

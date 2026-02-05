@@ -26,28 +26,6 @@ if [ "$1" == "--dry-run" ]; then
     echo -e "${YELLOW}DRY RUN MODE - No branches will be deleted${NC}"
 fi
 
-# Merged branches to delete
-BRANCHES_TO_DELETE=(
-    "copilot/activate-agents-deploy"
-    "copilot/build-and-debug-cortex-version"
-    "copilot/complete-build-features-deployment"
-    "copilot/comprehensive-check-and-fix"
-    "copilot/debug-api-and-backend"
-    "copilot/debug-errors-and-clean-code"
-    "copilot/fix-502-error-and-conflicts"
-    "copilot/fix-errors-and-refactor-code"
-    "copilot/implement-closed-session-changes"
-    "copilot/implement-complete-platform-features"
-    "copilot/merge-and-delete-branches"
-    "copilot/merge-branches-and-cleanup"
-    "copilot/rebuild-and-deploy-public-use"
-    "copilot/refactor-duplicated-code"
-    "copilot/review-and-merge-branches"
-    "copilot/setup-api-keys-and-servers"
-    "copilot/verify-commitments-errors"
-    "revert-64-copilot/rebuild-and-deploy-public-use"
-)
-
 echo "=========================================="
 echo "Remote Branch Cleanup Script"
 echo "Repository: ${REPO_OWNER}/${REPO_NAME}"
@@ -63,6 +41,52 @@ fi
 
 echo -e "${GREEN}✓${NC} Git is installed"
 echo ""
+
+# Resolve default branch and merged remote branches
+DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||')
+DEFAULT_BRANCH=${DEFAULT_BRANCH:-cortexbuildpro}
+
+for candidate in "$DEFAULT_BRANCH" cortexbuildpro main master; do
+    if [ -n "$candidate" ] && git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
+        DEFAULT_BRANCH=$candidate
+        break
+    fi
+done
+
+if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ -n "$CURRENT_BRANCH" ] && git show-ref --verify --quiet "refs/remotes/origin/$CURRENT_BRANCH"; then
+        if [ "$CURRENT_BRANCH" != "cortexbuildpro" ] && [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+            echo -e "${YELLOW}Warning:${NC} '${CURRENT_BRANCH}' is not a standard default branch."
+            read -r -p "Use '${CURRENT_BRANCH}' as the default branch? (yes/no): " USE_CURRENT
+            if [ "$USE_CURRENT" != "yes" ]; then
+                echo -e "${RED}Unable to determine a safe default remote branch.${NC}"
+                exit 1
+            fi
+        else
+            echo -e "${YELLOW}Using current branch '${CURRENT_BRANCH}' as default.${NC}"
+        fi
+        DEFAULT_BRANCH=$CURRENT_BRANCH
+    else
+        echo -e "${RED}Unable to determine a default remote branch.${NC}"
+        exit 1
+    fi
+fi
+
+echo -e "${GREEN}Using default branch:${NC} ${YELLOW}${DEFAULT_BRANCH}${NC}"
+
+MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
+
+if [ -z "$MERGED_BRANCHES" ]; then
+    echo -e "${GREEN}No merged branches found to delete.${NC}"
+    exit 0
+fi
+
+mapfile -t BRANCHES_TO_DELETE < <(printf '%s\n' "$MERGED_BRANCHES" | sed '/^[[:space:]]*$/d')
+if [ ${#BRANCHES_TO_DELETE[@]} -eq 0 ]; then
+    echo -e "${GREEN}No merged branches found to delete.${NC}"
+    exit 0
+fi
 
 # List branches to be deleted
 echo "The following ${#BRANCHES_TO_DELETE[@]} branches will be deleted:"

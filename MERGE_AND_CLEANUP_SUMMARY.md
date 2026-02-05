@@ -45,6 +45,7 @@ To complete the cleanup process, the branches should now be deleted from the rem
 ```bash
 ./delete-merged-branches.sh
 ```
+This script now detects all branches merged into the default branch so any additional merged branches are included automatically.
 
 **Option 2: Manual Git Commands**
 ```bash
