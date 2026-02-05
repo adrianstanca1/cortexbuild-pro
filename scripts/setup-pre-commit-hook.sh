@@ -16,10 +16,17 @@ HOOK_FILE="${GIT_HOOKS_DIR}/pre-commit"
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}Setting up pre-commit hooks...${NC}"
 echo ""
+
+# Ensure we are in a Git repository with a hooks directory
+if [ ! -d "$GIT_HOOKS_DIR" ]; then
+    echo -e "${RED}Error: Not in a git repository or .git/hooks directory doesn't exist${NC}"
+    exit 1
+fi
 
 # Create the pre-commit hook
 cat > "$HOOK_FILE" << 'EOF'
@@ -41,6 +48,7 @@ if git diff --cached --name-only | grep -q "."; then
         cd "$NEXTJS_DIR"
         
         # Generate Prisma client
+        export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}"
         if ! npx prisma generate > /dev/null 2>&1; then
             echo "⚠ Warning: Prisma client generation failed"
             echo "  TypeScript checks may produce misleading errors"
@@ -61,6 +69,7 @@ if git diff --cached --name-only | grep -q "."; then
         echo "→ Validating Prisma schema..."
         cd "$NEXTJS_DIR"
         
+        export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@localhost:5432/test}"
         npx prisma validate || {
             echo "❌ Prisma schema validation failed"
             exit 1

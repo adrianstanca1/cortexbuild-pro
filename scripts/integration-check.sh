@@ -63,7 +63,9 @@ log_section() {
 
 # Print header
 print_header() {
-    clear
+    if [ -t 1 ]; then
+        clear
+    fi
     echo -e "${CYAN}"
     echo "============================================================================="
     echo "  CortexBuild Pro - Integration Check"

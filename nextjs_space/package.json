@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "lint": "eslint .",
     "prisma": "prisma",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
@@ -21,6 +21,8 @@
     "node": ">=18.18.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
