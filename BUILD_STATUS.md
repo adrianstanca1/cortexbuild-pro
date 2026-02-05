@@ -200,6 +200,7 @@ docker-compose exec app sh -c "cd /app && npx prisma migrate deploy"
 - **TypeScript:** Type check passed
 - **Build:** Production build successful
 - **Prisma Schema:** Valid
+- **Verification Method:** Page counts generated using `find app -name "page.tsx"`, API routes counted with `find app/api -name "route.ts"`, linting via `npm run lint`, TypeScript via `npx tsc --noEmit`, build via `npm run build`, schema via `npx prisma validate`
 
 ### Feature Categories Verified
 | Category | Pages | Status |
@@ -239,6 +240,8 @@ docker-compose exec app sh -c "cd /app && npx prisma migrate deploy"
 
 ### To Deploy to VPS
 
+> **Note:** The paths below use `/root/cortexbuild-pro` as the default installation directory. Adjust the path to match your actual installation location if different.
+
 **Option 1: GitHub Actions (Recommended)**
 1. Go to GitHub → Actions → "Deploy to VPS"
 2. Click "Run workflow"
@@ -247,7 +250,7 @@ docker-compose exec app sh -c "cd /app && npx prisma migrate deploy"
 
 **Option 2: Manual Deployment**
 ```bash
-# On VPS
+# On VPS (adjust path if installed elsewhere)
 cd /root/cortexbuild-pro
 git pull origin main
 cd deployment
@@ -256,7 +259,7 @@ cd deployment
 
 **Option 3: One-Click Deploy**
 ```bash
-# On VPS (fresh install)
+# On VPS (fresh install, adjust path if installed elsewhere)
 cd /root/cortexbuild-pro/deployment
 sudo bash one-click-deploy.sh
 ```
