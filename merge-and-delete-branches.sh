@@ -3,7 +3,8 @@
 # Merge and Delete Remote Branches Script
 # Merges all remote branches into the target branch and deletes them after sync
 
-set -e
+# Note: We don't use 'set -e' here because we need interactive error handling
+# and want to allow the user to choose whether to continue after failures
 
 # Colors for output
 RED='\033[0;31m'
@@ -15,6 +16,20 @@ NC='\033[0m' # No Color
 # Configuration
 TARGET_BRANCH="${1:-cortexbuildpro}"
 DRY_RUN="${2:-false}"
+
+# Create secure temporary files
+TEMP_DIR=$(mktemp -d)
+SUCCESSFULLY_MERGED_FILE="$TEMP_DIR/successfully_merged.txt"
+ALREADY_MERGED_FILE="$TEMP_DIR/already_merged.txt"
+FAILED_MERGE_FILE="$TEMP_DIR/failed_merge.txt"
+
+# Cleanup function to remove temporary files
+cleanup() {
+    rm -rf "$TEMP_DIR"
+}
+
+# Set up trap to ensure cleanup happens on exit
+trap cleanup EXIT INT TERM
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}🔀 Merge and Delete Remote Branches${NC}"
@@ -45,8 +60,8 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
 fi
 
 # Get the current branch
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-print_info "Current branch: $CURRENT_BRANCH"
+ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+print_info "Current branch: $ORIGINAL_BRANCH"
 print_info "Target branch for merges: $TARGET_BRANCH"
 echo ""
 
@@ -61,6 +76,8 @@ if ! git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
     print_info "Target branch '$TARGET_BRANCH' doesn't exist locally. Fetching from remote..."
     if git show-ref --verify --quiet "refs/remotes/origin/$TARGET_BRANCH"; then
         git checkout -b "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+        # Set upstream tracking explicitly
+        git branch --set-upstream-to="origin/$TARGET_BRANCH" "$TARGET_BRANCH"
         print_success "Target branch '$TARGET_BRANCH' created and checked out"
     else
         print_error "Target branch '$TARGET_BRANCH' doesn't exist on remote either"
@@ -68,7 +85,7 @@ if ! git show-ref --verify --quiet "refs/heads/$TARGET_BRANCH"; then
     fi
 else
     # Switch to target branch
-    if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
+    if [ "$ORIGINAL_BRANCH" != "$TARGET_BRANCH" ]; then
         print_info "Switching to target branch '$TARGET_BRANCH'..."
         git checkout "$TARGET_BRANCH"
         print_success "Switched to $TARGET_BRANCH"
@@ -77,15 +94,27 @@ fi
 
 # Pull latest changes from target branch
 print_info "Updating target branch with latest changes..."
-git pull origin "$TARGET_BRANCH" || print_warning "Could not pull from origin/$TARGET_BRANCH (might not exist on remote yet)"
+if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" > /dev/null 2>&1; then
+    if ! git pull origin "$TARGET_BRANCH"; then
+        print_error "Failed to pull from origin/$TARGET_BRANCH"
+        exit 1
+    fi
+else
+    print_warning "Branch not found on remote; proceeding without pulling"
+fi
 echo ""
 
 # Get list of remote branches (excluding HEAD and target branch)
 print_info "Analyzing remote branches..."
-REMOTE_BRANCHES=$(git branch -r | grep -v "HEAD" | grep -v "$TARGET_BRANCH" | sed 's/origin\///' | sed 's/^[[:space:]]*//')
+# Use exact matching for target branch and handle grep failures with || true
+REMOTE_BRANCHES=$(git branch -r | grep -v "HEAD" | grep -v "^[[:space:]]*origin/$TARGET_BRANCH$" | sed 's/origin\///' | sed 's/^[[:space:]]*//' || true)
 
 if [ -z "$REMOTE_BRANCHES" ]; then
     print_info "No remote branches to merge"
+    # Restore original branch before exiting
+    if [ "$ORIGINAL_BRANCH" != "$TARGET_BRANCH" ] && git show-ref --verify --quiet "refs/heads/$ORIGINAL_BRANCH"; then
+        git checkout "$ORIGINAL_BRANCH" > /dev/null 2>&1
+    fi
     exit 0
 fi
 
@@ -127,8 +156,8 @@ echo -e "${BLUE}Starting Merge Operations${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
-# Process each branch
-echo "$REMOTE_BRANCHES" | while read -r branch; do
+# Process each branch - using while read with here-string to avoid subshell
+while IFS= read -r branch; do
     if [ -z "$branch" ]; then
         continue
     fi
@@ -149,7 +178,8 @@ echo "$REMOTE_BRANCHES" | while read -r branch; do
     
     if [ -n "$MERGE_BASE" ] && [ -n "$BRANCH_HEAD" ] && [ "$MERGE_BASE" = "$BRANCH_HEAD" ]; then
         print_info "Branch '$branch' is already merged into $TARGET_BRANCH"
-        echo "$branch" >> /tmp/already_merged.txt
+        echo "$branch" >> "$ALREADY_MERGED_FILE"
+        ALREADY_MERGED_COUNT=$((ALREADY_MERGED_COUNT + 1))
         echo ""
         continue
     fi
@@ -157,24 +187,20 @@ echo "$REMOTE_BRANCHES" | while read -r branch; do
     # Attempt merge
     if [ "$DRY_RUN" = "true" ]; then
         print_info "Would merge origin/$branch into $TARGET_BRANCH"
-        echo "$branch" >> /tmp/dry_run_merge.txt
     else
         print_info "Merging origin/$branch into $TARGET_BRANCH..."
         
         if git merge "origin/$branch" --no-edit -m "Merge branch '$branch' into $TARGET_BRANCH"; then
             print_success "Successfully merged $branch"
-            echo "$branch" >> /tmp/successfully_merged.txt
-            
-            # Commit the merge
-            if ! git diff-index --quiet HEAD; then
-                print_info "Committing merge..."
-                git commit -m "Merge branch '$branch' into $TARGET_BRANCH" --allow-empty
-                print_success "Merge committed"
-            fi
+            echo "$branch" >> "$SUCCESSFULLY_MERGED_FILE"
+            SUCCESSFULLY_MERGED+=("$branch")
+            MERGED_COUNT=$((MERGED_COUNT + 1))
         else
             print_error "Failed to merge $branch"
             print_warning "Merge conflicts detected. Please resolve manually."
-            echo "$branch" >> /tmp/failed_merge.txt
+            echo "$branch" >> "$FAILED_MERGE_FILE"
+            FAILED_TO_MERGE+=("$branch")
+            FAILED_MERGE_COUNT=$((FAILED_MERGE_COUNT + 1))
             
             # Abort the merge
             git merge --abort 2>/dev/null || true
@@ -189,29 +215,10 @@ echo "$REMOTE_BRANCHES" | while read -r branch; do
     fi
     
     echo ""
-done
-
-# Read results from temporary files
-MERGED_COUNT=0
-ALREADY_MERGED_COUNT=0
-FAILED_MERGE_COUNT=0
-
-if [ -f /tmp/successfully_merged.txt ]; then
-    MERGED_COUNT=$(wc -l < /tmp/successfully_merged.txt)
-    mapfile -t SUCCESSFULLY_MERGED < /tmp/successfully_merged.txt
-fi
-
-if [ -f /tmp/already_merged.txt ]; then
-    ALREADY_MERGED_COUNT=$(wc -l < /tmp/already_merged.txt)
-fi
-
-if [ -f /tmp/failed_merge.txt ]; then
-    FAILED_MERGE_COUNT=$(wc -l < /tmp/failed_merge.txt)
-    mapfile -t FAILED_TO_MERGE < /tmp/failed_merge.txt
-fi
+done <<< "$REMOTE_BRANCHES"
 
 # Push merged changes to remote
-if [ "$DRY_RUN" != "true" ] && [ "$MERGED_COUNT" -gt 0 ]; then
+if [ "$DRY_RUN" != "true" ] && [ $MERGED_COUNT -gt 0 ]; then
     echo -e "${BLUE}========================================${NC}"
     echo -e "${BLUE}Pushing Merged Changes${NC}"
     echo -e "${BLUE}========================================${NC}"
@@ -251,10 +258,10 @@ if [ ${#SUCCESSFULLY_MERGED[@]} -gt 0 ]; then
                 
                 if git push origin --delete "$branch" 2>/dev/null; then
                     echo -e "${GREEN}✅${NC}"
-                    ((DELETED_COUNT++))
+                    DELETED_COUNT=$((DELETED_COUNT + 1))
                 else
                     echo -e "${RED}❌${NC}"
-                    ((FAILED_DELETE_COUNT++))
+                    FAILED_DELETE_COUNT=$((FAILED_DELETE_COUNT + 1))
                 fi
             done
             
@@ -295,13 +302,10 @@ if [ ${#FAILED_TO_MERGE[@]} -gt 0 ]; then
     echo ""
 fi
 
-# Show remaining remote branches
+# Show remaining remote branches (excluding target branch)
 print_info "Remaining remote branches:"
-git ls-remote --heads origin | awk '{print "  - " $2}' | sed 's|refs/heads/||'
+git ls-remote --heads origin | awk -v target="refs/heads/$TARGET_BRANCH" '$2 != target {print "  - " $2}' | sed 's|refs/heads/||'
 echo ""
-
-# Cleanup temporary files
-rm -f /tmp/successfully_merged.txt /tmp/already_merged.txt /tmp/failed_merge.txt /tmp/dry_run_merge.txt
 
 if [ "$DRY_RUN" = "true" ]; then
     print_success "Dry run completed!"
@@ -312,3 +316,10 @@ fi
 echo ""
 print_info "Current branch: $(git rev-parse --abbrev-ref HEAD)"
 print_info "Latest commit: $(git log -1 --oneline)"
+
+# Restore original branch if different from target
+if [ "$ORIGINAL_BRANCH" != "$TARGET_BRANCH" ] && git show-ref --verify --quiet "refs/heads/$ORIGINAL_BRANCH"; then
+    echo ""
+    print_info "Restoring original branch: $ORIGINAL_BRANCH"
+    git checkout "$ORIGINAL_BRANCH" > /dev/null 2>&1
+fi
