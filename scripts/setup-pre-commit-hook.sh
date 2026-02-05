@@ -41,7 +41,10 @@ if git diff --cached --name-only | grep -q "."; then
         cd "$NEXTJS_DIR"
         
         # Generate Prisma client
-        npx prisma generate > /dev/null 2>&1 || true
+        if ! npx prisma generate > /dev/null 2>&1; then
+            echo "⚠ Warning: Prisma client generation failed"
+            echo "  TypeScript checks may produce misleading errors"
+        fi
         
         # Run type check on staged files only
         npx tsc --noEmit || {

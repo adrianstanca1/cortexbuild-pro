@@ -28,7 +28,10 @@ Run specific checks when you want to validate a particular aspect:
 
 ### Before Committing
 ```bash
-./scripts/integration-check.sh types lint security
+# Run checks sequentially
+./scripts/integration-check.sh types
+./scripts/integration-check.sh lint
+./scripts/integration-check.sh security
 ```
 
 ### Before Pushing

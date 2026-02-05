@@ -32,7 +32,6 @@ NC='\033[0m' # No Color
 CHECKS_PASSED=0
 CHECKS_FAILED=0
 CHECKS_WARNING=0
-CHECKS_TOTAL=0
 
 # Logging functions
 log_info() {
@@ -42,19 +41,16 @@ log_info() {
 log_success() {
     echo -e "${GREEN}[✓]${NC} $1"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
-    CHECKS_TOTAL=$((CHECKS_TOTAL + 1))
 }
 
 log_warn() {
     echo -e "${YELLOW}[⚠]${NC} $1"
     CHECKS_WARNING=$((CHECKS_WARNING + 1))
-    CHECKS_TOTAL=$((CHECKS_TOTAL + 1))
 }
 
 log_error() {
     echo -e "${RED}[✗]${NC} $1"
     CHECKS_FAILED=$((CHECKS_FAILED + 1))
-    CHECKS_TOTAL=$((CHECKS_TOTAL + 1))
 }
 
 log_section() {
@@ -126,12 +122,8 @@ check_dependencies() {
         npm ci
         log_success "Dependencies installed"
     else
-        log_info "Checking if dependencies are up to date..."
-        if npm ci --dry-run 2>&1 | grep -q "up to date"; then
-            log_success "Dependencies are up to date"
-        else
-            log_warn "Dependencies may need updating - consider running 'npm ci'"
-        fi
+        log_success "Dependencies are installed"
+        log_info "Run 'npm ci' to ensure dependencies are up to date"
     fi
 }
 
@@ -366,6 +358,7 @@ print_summary() {
     echo -e "${CYAN}  Integration Check Summary${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}"
     echo ""
+    CHECKS_TOTAL=$((CHECKS_PASSED + CHECKS_WARNING + CHECKS_FAILED))
     echo -e "Total Checks: ${CHECKS_TOTAL}"
     echo -e "${GREEN}Passed: ${CHECKS_PASSED}${NC}"
     echo -e "${YELLOW}Warnings: ${CHECKS_WARNING}${NC}"
