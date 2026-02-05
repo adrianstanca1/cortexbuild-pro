@@ -49,7 +49,7 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
       startDate: startDate ? new Date(startDate) : null,
       endDate: endDate ? new Date(endDate) : null,
       status: status || "PLANNING",
-      organizationId: context.organizationId,
+      organizationId: context.organizationId!,
       managerId: context.userId || null
     },
     include: {

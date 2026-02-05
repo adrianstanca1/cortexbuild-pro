@@ -21,7 +21,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   const { projectId, status } = parseQueryParams(request);
 
   const where = buildOrgScopedWhere(
-    context!.organizationId,
+    context!.organizationId!,
     projectId,
     {
       ...(status && status !== "all" && { status })
@@ -118,12 +118,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     }
   });
 
-  broadcastToOrganization(context!.organizationId, {
+  broadcastToOrganization(context!.organizationId!, {
     type: "material_created",
     data: { material, projectId }
   });
 
   return NextResponse.json(material);
 });
-  }
-}

@@ -210,7 +210,7 @@ export function withErrorHandler<T>(
 
 // Log API activity
 export async function logActivity(
-  prisma: { activityLog: { create: (args: { data: Record<string, unknown> }) => Promise<unknown> } },
+  prisma: any,
   context: ApiContext,
   action: string,
   entityType: string,
@@ -259,7 +259,7 @@ export function sanitizeEntityFields<T extends Record<string, unknown>>(
     if (key in sanitized && typeof sanitized[key] === 'string') {
       const trimmed = (sanitized[key] as string).trim();
       // Explicitly convert empty strings to null, matching original behavior
-      sanitized[key] = (trimmed === '' ? null : trimmed) as T[Extract<keyof T, string>];
+      (sanitized as any)[key] = (trimmed === '' ? null : trimmed);
     }
   }
   
@@ -268,7 +268,7 @@ export function sanitizeEntityFields<T extends Record<string, unknown>>(
 
 // Broadcast entity event helper
 export function broadcastEntityEvent(
-  broadcast: (orgId: string, data: unknown) => void,
+  broadcast: any,
   organizationId: string | undefined,
   eventType: string,
   entity: {

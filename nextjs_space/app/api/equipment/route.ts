@@ -57,7 +57,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         purchaseCost,
         notes,
         nextServiceDate: nextServiceDate ? new Date(nextServiceDate) : null,
-        organizationId: context!.organizationId
+        organizationId: context!.organizationId!
       }
     });
 
@@ -73,7 +73,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     });
 
     // Broadcast real-time event
-    broadcastToOrganization(context!.organizationId, {
+    broadcastToOrganization(context!.organizationId!, {
       type: 'equipment_added',
       payload: { id: equipment.id, name: equipment.name, category: equipment.category }
     });
