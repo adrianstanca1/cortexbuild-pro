@@ -31,6 +31,9 @@ VPS_HOST=${VPS_HOST:-""}
 VPS_USER=${VPS_USER:-"root"}
 DEBUG_MODE=${DEBUG_MODE:-false}
 
+# Default timestamp for reference in summary
+TIMESTAMP=${TIMESTAMP:-$(date +%Y%m%d_%H%M%S)}
+
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -285,10 +288,14 @@ echo -e "${NC}"
 
 echo -e "${GREEN}✓ All tasks completed successfully!${NC}"
 echo ""
-echo -e "${BLUE}Docker Image:${NC}"
-echo "  • cortexbuild-app:latest"
-echo "  • cortexbuild-app:$TIMESTAMP (backup)"
-echo ""
+
+if [ "$SKIP_BUILD" = false ]; then
+    echo -e "${BLUE}Docker Image:${NC}"
+    echo "  • cortexbuild-app:latest"
+    echo "  • cortexbuild-app:$TIMESTAMP (backup)"
+    echo ""
+fi
+
 echo -e "${BLUE}Next Steps for VPS Deployment:${NC}"
 echo "  1. Configure .env file with your production settings"
 echo "  2. Run: ./clean-build-deploy.sh --deploy --vps-host YOUR_VPS_IP"

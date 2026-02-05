@@ -110,7 +110,7 @@ echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━�
 echo -e "${YELLOW}  Database Status${NC}"
 echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-if docker ps --filter "name=cortexbuild-db" --format "{{.Names}}" | grep -q cortexbuild; then
+if docker ps --filter "name=cortexbuild-db" --format "{{.Names}}" | grep -q .; then
     echo -e "${GREEN}✓ Database container is running${NC}"
     
     # Check if we can connect
