@@ -366,11 +366,14 @@ export function buildOrgScopedWhere(
 
 /**
  * Parse common query parameters from URL searchParams
+ * Returns all common parameters plus the searchParams object for custom parsing
  */
 export function parseQueryParams(request: NextRequest): {
   projectId?: string;
   status?: string;
   type?: string;
+  priority?: string;
+  trade?: string;
   searchParams: URLSearchParams;
 } {
   const { searchParams } = new URL(request.url);
@@ -379,6 +382,8 @@ export function parseQueryParams(request: NextRequest): {
     projectId: searchParams.get('projectId') || undefined,
     status: searchParams.get('status') || undefined,
     type: searchParams.get('type') || undefined,
+    priority: searchParams.get('priority') || undefined,
+    trade: searchParams.get('trade') || undefined,
     searchParams,
   };
 }
