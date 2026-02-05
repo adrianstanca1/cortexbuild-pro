@@ -121,7 +121,15 @@ export type RealtimeEventType =
   | 'certification_deleted'
   // Site Access
   | 'site_entry'
-  | 'site_exit';
+  | 'site_exit'
+  // Drawings & Annotations
+  | 'drawing_created'
+  | 'drawing_updated'
+  | 'drawing_deleted'
+  | 'annotation_added'
+  | 'annotation_updated'
+  | 'annotation_deleted'
+  | 'user_viewing_drawing';
 
 export interface RealtimeEvent {
   type: RealtimeEventType;

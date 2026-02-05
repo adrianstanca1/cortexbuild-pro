@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -17,7 +20,7 @@ export async function GET(
     }
 
     const defect = await prisma.defect.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { id: true, name: true } },
         photos: true,
@@ -53,7 +56,7 @@ export async function PATCH(
     } = body;
 
     const existingDefect = await prisma.defect.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -89,7 +92,7 @@ export async function PATCH(
     }
 
     const defect = await prisma.defect.update({
-      where: { id },
+      where: { id: id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },
@@ -123,7 +126,7 @@ export async function DELETE(
     }
 
     const defect = await prisma.defect.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -131,7 +134,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Defect not found" }, { status: 404 });
     }
 
-    await prisma.defect.delete({ where: { id } });
+    await prisma.defect.delete({ where: { id: id } });
 
     if (defect.project.organizationId) {
       broadcastToOrganization(defect.project.organizationId, {

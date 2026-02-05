@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -12,10 +15,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string; role?: string };
+    const user = session.user as any;
     
     // Only COMPANY_OWNER or SUPER_ADMIN can update settings
-    if (!["SUPER_ADMIN", "COMPANY_OWNER"].includes(user.role || "")) {
+    if (!["SUPER_ADMIN", "COMPANY_OWNER"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -24,7 +27,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name } = body;
+    const { name, description, website, email, phone, address } = body;
 
     // Validate name is not empty
     if (name !== undefined && !name.trim()) {
@@ -59,14 +62,14 @@ export async function PATCH(req: NextRequest) {
 }
 
 // GET - Get organization settings
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; organizationId?: string };
+    const user = session.user as any;
 
     if (!user.organizationId) {
       return NextResponse.json({ error: "No organization" }, { status: 400 });

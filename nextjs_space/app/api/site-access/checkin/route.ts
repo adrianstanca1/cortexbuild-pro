@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         organizationName: project.organization.name
       }
     });
-  } catch {
+  } catch (error) {
     console.error('Site check-in error:', error);
     return NextResponse.json(
       { error: 'Failed to process check-in' },
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
       todayEntries: entries,
       todayExits: exits
     });
-  } catch {
+  } catch (error) {
     console.error('Site access stats error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch site access stats' },

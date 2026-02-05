@@ -145,6 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/json'];
     const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.json'];
     const ext = '.' + file.name.split('.').pop()?.toLowerCase();
     
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
       try {
         const jsonText = new TextDecoder().decode(buffer);
         parsedContent = JSON.parse(jsonText);
-      } catch {
+      } catch (e) {
         return NextResponse.json({ error: 'Invalid JSON file' }, { status: 400 });
       }
     } else if (ext === '.txt') {
@@ -215,7 +216,7 @@ export async function POST(request: NextRequest) {
       template,
       message: `Template created with ${templateData.sections.length} sections`
     });
-  } catch {
+  } catch (error) {
     console.error('Error uploading template:', error);
     return NextResponse.json({ error: 'Failed to upload template' }, { status: 500 });
   }

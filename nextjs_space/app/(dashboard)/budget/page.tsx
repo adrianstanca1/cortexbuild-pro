@@ -1,22 +1,13 @@
 import { getServerSession } from "next-auth";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { BudgetClient } from "./_components/budget-client";
-
-export const dynamic = "force-dynamic";
-
-type BudgetSummary = {
-  totalEstimated: number;
-  totalCommitted: number;
-  totalActual: number;
-};
-
-type CostItemForSummary = {
-  estimatedAmount: number;
-  committedAmount: number;
-  actualAmount: number;
-};
 
 export default async function BudgetPage() {
   const session = await getServerSession(authOptions);
@@ -49,7 +40,7 @@ export default async function BudgetPage() {
   ]);
 
   const summary = costItems.reduce(
-    (acc: BudgetSummary, item: CostItemForSummary) => {
+    (acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item: { estimatedAmount: number; committedAmount: number; actualAmount: number }) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;

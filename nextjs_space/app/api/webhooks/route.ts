@@ -1,8 +1,12 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 // Get all webhooks for organization
 export async function GET(request: NextRequest) {

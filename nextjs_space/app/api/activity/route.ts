@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -27,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     const where: Record<string, unknown> = {};
-
+    
     if (projectId) {
       where.projectId = projectId;
     } else {

@@ -192,7 +192,7 @@ Use UK construction terminology and £ currency.`;
       },
       timestamp: new Date().toISOString()
     });
-  } catch {
+  } catch (error) {
     console.error('Cost analysis error:', error);
     return NextResponse.json(
       { error: 'Failed to analyze costs' },

@@ -21,7 +21,7 @@ export async function GET(
 
     const check = await prisma.mEWPCheck.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: orgId }
       },
       include: {
@@ -59,7 +59,7 @@ export async function PATCH(
     const body = await request.json();
 
     const existing = await prisma.mEWPCheck.findFirst({
-      where: { id, project: { organizationId: orgId } },
+      where: { id: id, project: { organizationId: orgId } },
       include: { project: true }
     });
 
@@ -75,7 +75,7 @@ export async function PATCH(
     }
 
     const check = await prisma.mEWPCheck.update({
-      where: { id },
+      where: { id: id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true } },

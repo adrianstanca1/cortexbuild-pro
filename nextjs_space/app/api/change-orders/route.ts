@@ -1,10 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-import { Prisma } from '@prisma/client';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(request: NextRequest) {
   try {

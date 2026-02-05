@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Cloud,
@@ -12,15 +12,20 @@ import {
   AlertTriangle,
   CheckCircle2,
   Calendar,
+  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
+  ChevronRight,
+  Zap,
   CloudLightning,
   Cloudy,
   Umbrella,
+  Snowflake,
+  Clock,
   TrendingUp,
 } from 'lucide-react';
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -106,6 +111,14 @@ export default function WeatherImpactPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
 
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    fetchWeatherData();
+  }, [selectedProject]);
+
   const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
@@ -113,16 +126,12 @@ export default function WeatherImpactPage() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching projects:', error);
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchWeatherData = useCallback(async () => {
+  const fetchWeatherData = async () => {
     setLoading(true);
     try {
       const url = selectedProject
@@ -136,17 +145,13 @@ export default function WeatherImpactPage() {
         setSummary(data.summary);
         setLocation(data.location);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching weather data:', error);
       toast.error('Failed to load weather data');
     } finally {
       setLoading(false);
     }
-  }, [selectedProject]);
-
-  useEffect(() => {
-    fetchWeatherData();
-  }, [selectedProject, fetchWeatherData]);
+  };
 
   const runAiAnalysis = async () => {
     setAnalyzing(true);
@@ -170,7 +175,7 @@ export default function WeatherImpactPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch {
+    } catch (error) {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {

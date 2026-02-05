@@ -1,10 +1,12 @@
-export const dynamic = "force-dynamic";
-
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { getFileUrl } from "@/lib/s3";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(
   request: Request,
@@ -18,7 +20,7 @@ export async function GET(
     }
 
     const document = await prisma.document.findUnique({
-      where: { id },
+      where: { id: id ?? "" },
       include: {
         project: { select: { organizationId: true } }
       }

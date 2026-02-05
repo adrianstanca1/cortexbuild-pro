@@ -123,33 +123,30 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create tasks from template phases - batch all task data first, then createMany
+    // Create tasks from template phases
     let currentDate = new Date(projectStartDate);
-    const tasksData = [];
+    const createdTasks: { id: string; title: string }[] = [];
 
     for (const phase of template.phases) {
       for (const taskName of phase.tasks) {
         const taskEndDate = new Date(currentDate);
         taskEndDate.setDate(taskEndDate.getDate() + Math.ceil(phase.duration / phase.tasks.length));
         
-        tasksData.push({
-          title: `${phase.name}: ${taskName}`,
-          description: `Task from ${template.name} template - ${phase.name} phase`,
-          status: 'TODO',
-          priority: 'MEDIUM',
-          projectId: project.id,
-          dueDate: taskEndDate,
-          creatorId: user.id
+        const task = await prisma.task.create({
+          data: {
+            title: `${phase.name}: ${taskName}`,
+            description: `Task from ${template.name} template - ${phase.name} phase`,
+            status: 'TODO',
+            priority: 'MEDIUM',
+            projectId: project.id,
+            dueDate: taskEndDate,
+            creatorId: user.id
+          }
         });
+        createdTasks.push(task);
       }
       currentDate.setDate(currentDate.getDate() + phase.duration);
     }
-
-    // Bulk insert all tasks at once - much faster than individual creates
-    await prisma.task.createMany({
-      data: tasksData,
-      skipDuplicates: true
-    });
 
     // Log activity
     await prisma.activityLog.create({
@@ -158,7 +155,7 @@ export async function POST(request: NextRequest) {
         entityType: 'Project',
         entityId: project.id,
         entityName: project.name,
-        details: `Created project from "${template.name}" template with ${tasksData.length} tasks`,
+        details: `Created project from "${template.name}" template with ${createdTasks.length} tasks`,
         userId: user.id,
         projectId: project.id
       }
@@ -167,13 +164,13 @@ export async function POST(request: NextRequest) {
     // Broadcast event
     broadcastToOrganization(user.organizationId, {
       type: 'project_created',
-      data: { project, template: template.name, tasksCreated: tasksData.length }
+      data: { project, template: template.name, tasksCreated: createdTasks.length }
     });
 
     return NextResponse.json({
       project,
-      tasksCreated: tasksData.length,
-      message: `Project created successfully with ${tasksData.length} tasks from ${template.name} template`
+      tasksCreated: createdTasks.length,
+      message: `Project created successfully with ${createdTasks.length} tasks from ${template.name} template`
     });
   } catch (error) {
     console.error('Error creating project from template:', error);

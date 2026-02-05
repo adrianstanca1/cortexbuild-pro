@@ -1,10 +1,14 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { DEFAULT_ENTITLEMENTS } from '@/lib/entitlements';
-import { sendEmail, generateCompanyInvitationEmail } from '@/lib/email-service';
+import { sendCompanyInvitationNotification } from '@/lib/email-notifications';
 import crypto from 'crypto';
 
 // GET /api/admin/invitations - List all invitations (SUPER_ADMIN only)
@@ -129,7 +133,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send invitation email using dynamic email service
+    // Send invitation email using notification API
     try {
       const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
       const acceptUrl = `${appUrl}/invitation/accept/${token}`;
@@ -153,8 +157,8 @@ export async function POST(request: NextRequest) {
           return labels[key] || key;
         });
 
-      // Use the unified email service (tries SendGrid first, then falls back to Abacus)
-      const emailHtml = generateCompanyInvitationEmail({
+      // Use the notification API to send the email
+      const emailResult = await sendCompanyInvitationNotification({
         ownerName,
         companyName,
         ownerEmail,
@@ -165,17 +169,10 @@ export async function POST(request: NextRequest) {
         maxUsers: parsedEntitlements.limits?.maxUsers || 50
       });
 
-      const emailResult = await sendEmail({
-        to: ownerEmail,
-        subject: `You're invited to join ${companyName} on CortexBuild Pro`,
-        html: emailHtml,
-        from: { name: 'CortexBuild Pro' }
-      });
-
       if (!emailResult.success) {
-        console.warn('Email sending warning:', emailResult.error, '(provider:', emailResult.provider, ')');
+        console.warn('Email sending warning:', emailResult.message);
       } else {
-        console.log('Invitation email sent via:', emailResult.provider);
+        console.log('Invitation email sent successfully');
       }
     } catch (emailError) {
       console.error('Failed to send invitation email:', emailError);

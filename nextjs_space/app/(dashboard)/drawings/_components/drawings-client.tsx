@@ -261,9 +261,16 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm"><Upload className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm"><Edit className="h-4 w-4" /></Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => window.location.href = `/drawings/${drawing.id}/view`}
+                      title="View & Annotate"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" title="Upload Revision"><Upload className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm" title="Edit Details"><Edit className="h-4 w-4" /></Button>
                   </div>
                 </div>
               </CardContent>
@@ -273,7 +280,11 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDrawings.map((drawing) => (
-            <Card key={drawing.id} className="hover:shadow-md transition-shadow">
+            <Card 
+              key={drawing.id} 
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => window.location.href = `/drawings/${drawing.id}/view`}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <Badge className={getStatusColor(drawing.status)}>{drawing.status.replace("_", " ")}</Badge>

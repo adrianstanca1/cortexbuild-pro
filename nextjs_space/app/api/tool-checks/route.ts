@@ -5,7 +5,9 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 import { sendToolCheckCompletedNotification } from "@/lib/email-notifications";
 
-export const dynamic = "force-dynamic";
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(request: NextRequest) {
   try {

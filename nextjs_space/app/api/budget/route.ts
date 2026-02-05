@@ -1,9 +1,11 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(request: NextRequest) {
@@ -18,19 +20,19 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const status = searchParams.get("status");
 
-    const where: Prisma.CostItemWhereInput = {};
-
+    const where: any = {};
+    
     if (projectId) {
       where.projectId = projectId;
     } else {
       // Filter by organization's projects
       where.project = {
-        organizationId: session.user.organizationId ?? undefined
+        organizationId: session.user.organizationId
       };
     }
-
-    if (category && category !== "all") where.category = category as any;
-    if (status && status !== "all") where.status = status as any;
+    
+    if (category && category !== "all") where.category = category;
+    if (status && status !== "all") where.status = status;
 
     const costItems = await prisma.costItem.findMany({
       where,
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate budget summary
-    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item: { estimatedAmount: number; committedAmount: number; actualAmount: number }) => {
+    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;

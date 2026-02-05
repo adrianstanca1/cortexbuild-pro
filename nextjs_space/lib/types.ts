@@ -1,6 +1,9 @@
-import { UserRole, ProjectStatus, TaskStatus, TaskPriority, DocumentType } from "@prisma/client";
-
-export type { UserRole, ProjectStatus, TaskStatus, TaskPriority, DocumentType };
+// Define types locally to avoid @prisma/client import issues during build
+export type UserRole = 'SUPER_ADMIN' | 'COMPANY_OWNER' | 'ADMIN' | 'PROJECT_MANAGER' | 'FIELD_WORKER';
+export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'ON_HOLD' | 'COMPLETED';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type DocumentType = 'CONTRACT' | 'PERMIT' | 'DRAWING' | 'SPECIFICATION' | 'REPORT' | 'PHOTO' | 'OTHER';
 
 export interface SessionUser {
   id: string;

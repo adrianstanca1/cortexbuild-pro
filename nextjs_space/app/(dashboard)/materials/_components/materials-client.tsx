@@ -29,8 +29,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useEntitySubscription } from "@/hooks/use-entity-subscription";
-import { MATERIAL_STATUS_CONFIG } from "@/lib/constants/status-configs";
+import { useRealtimeSubscription } from "@/components/realtime-provider";
 
 interface Material {
   id: string;
@@ -111,8 +110,14 @@ export function MaterialsClient({
     notes: ""
   });
 
-  // Use centralized realtime subscription hook
-  useEntitySubscription('material', { includeDeleted: true });
+  const handleMaterialEvent = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  useRealtimeSubscription(
+    ["material_created", "material_updated", "material_deleted"],
+    handleMaterialEvent
+  );
 
   const filteredMaterials = materials.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||

@@ -422,7 +422,7 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No tasks found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Create your first task to get started</p>
-            <Button onClick={() => setShowNewTaskModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={() => setShowNewTaskModal(true)} >
               <Plus className="h-4 w-4 mr-2" /> Create Task
             </Button>
           </CardContent>

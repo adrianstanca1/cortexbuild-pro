@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,9 +25,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Package, Plus, Search, PoundSterling,
-  ChevronRight, AlertCircle, CheckCircle2,
-  Loader2
+  Package, Plus, Search, Filter, Calendar, PoundSterling,
+  Clock, Users, ChevronRight, AlertCircle, CheckCircle2,
+  Loader2, MoreHorizontal, Edit, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -121,7 +121,7 @@ export function WorkPackagesClient({ projects, teamMembers, costCodes }: Props) 
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setWorkPackages(data);
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to load work packages');
     } finally {
@@ -169,7 +169,7 @@ export function WorkPackagesClient({ projects, teamMembers, costCodes }: Props) 
         isCriticalPath: false
       });
       fetchWorkPackages();
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to create work package');
     } finally {

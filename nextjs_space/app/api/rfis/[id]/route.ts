@@ -1,10 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
-import { fetchResourceWithProjectAccess } from '@/lib/resource-middleware';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -18,22 +21,24 @@ export async function GET(
 
     const { id } = await params;
 
-    // Use helper to fetch and validate access
-    const { resource: rfi, error } = await fetchResourceWithProjectAccess(
-      'RFI',
-      id,
-      session,
-      'rFI',
-      {
+    const rfi = await prisma.rFI.findUnique({
+      where: { id },
+      include: {
         project: { select: { id: true, name: true, organizationId: true } },
         createdBy: { select: { id: true, name: true, email: true } },
         assignedTo: { select: { id: true, name: true, email: true } },
         answeredBy: { select: { id: true, name: true, email: true } },
         attachments: true
       }
-    );
+    });
 
-    if (error) return error;
+    if (!rfi) {
+      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
+    }
+
+    if (rfi.project.organizationId !== session.user.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     return NextResponse.json(rfi);
   } catch (error) {
@@ -56,16 +61,18 @@ export async function PATCH(
     const body = await request.json();
     const { answer, status, assignedToId, dueDate, costImpact, scheduleImpact } = body;
 
-    // Use helper to fetch and validate access
-    const { resource: existingRFI, error } = await fetchResourceWithProjectAccess(
-      'RFI',
-      id,
-      session,
-      'rFI',
-      { project: { select: { organizationId: true } } }
-    );
+    const existingRFI = await prisma.rFI.findUnique({
+      where: { id },
+      include: { project: { select: { organizationId: true } } }
+    });
 
-    if (error) return error;
+    if (!existingRFI) {
+      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
+    }
+
+    if (existingRFI.project.organizationId !== session.user.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     const updateData: any = {};
     if (answer !== undefined) {
@@ -136,23 +143,25 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Use helper to fetch and validate access - include number and subject
-    const { resource: rfi, error } = await fetchResourceWithProjectAccess(
-      'RFI',
-      id,
-      session,
-      'rFI',
-      { id: true, number: true, subject: true, project: { select: { organizationId: true } } }
-    );
+    const rfi = await prisma.rFI.findUnique({
+      where: { id },
+      include: { project: { select: { organizationId: true } } }
+    });
 
-    if (error) return error;
+    if (!rfi) {
+      return NextResponse.json({ error: 'RFI not found' }, { status: 404 });
+    }
+
+    if (rfi.project.organizationId !== session.user.organizationId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     await prisma.rFI.delete({ where: { id } });
 
     // Broadcast deletion
-    broadcastToOrganization((rfi as any).project.organizationId, {
+    broadcastToOrganization(rfi.project.organizationId, {
       type: 'rfi_deleted',
-      payload: { id, number: (rfi as any).number, subject: (rfi as any).subject },
+      payload: { id, number: rfi.number, subject: rfi.subject },
       timestamp: new Date().toISOString()
     });
 

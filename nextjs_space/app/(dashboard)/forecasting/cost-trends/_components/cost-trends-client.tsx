@@ -3,15 +3,21 @@
 import { useState, useMemo } from 'react';
 import {
   TrendingUp,
+  TrendingDown,
   PoundSterling,
   BarChart3,
   PieChart,
   Sparkles,
   ArrowUpRight,
+  ArrowDownRight,
   AlertTriangle,
-  Loader2
+  CheckCircle2,
+  Loader2,
+  RefreshCw,
+  Download,
+  Filter
 } from 'lucide-react';
-import {  Card, CardContent, CardDescription , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -30,6 +36,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
   PieChart as RePieChart,
   Pie,
   Cell,
@@ -94,7 +102,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [analysisType, setAnalysisType] = useState<'trend' | 'forecast' | 'variance'>('trend');
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [_aiMetrics, setAiMetrics] = useState<Record<string, number | null> | null>(null);
+  const [aiMetrics, setAiMetrics] = useState<Record<string, number | null> | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   // Project budget breakdown for pie chart
@@ -184,7 +192,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
       } else {
         toast.error(data.error || 'Analysis failed');
       }
-    } catch {
+    } catch (error) {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {
@@ -192,7 +200,11 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
     }
   };
 
-
+  const getHealthIndicator = (cpi: number) => {
+    if (cpi >= 1) return { icon: CheckCircle2, color: 'text-green-500', label: 'On Track' };
+    if (cpi >= 0.9) return { icon: AlertTriangle, color: 'text-yellow-500', label: 'At Risk' };
+    return { icon: AlertTriangle, color: 'text-red-500', label: 'Over Budget' };
+  };
 
   return (
     <div className="space-y-6">

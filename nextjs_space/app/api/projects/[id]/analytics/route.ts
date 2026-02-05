@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -9,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: projectId } = await params;
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,6 +22,8 @@ export async function GET(
     if (!user.organizationId) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
+
+    const projectId = id;
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({

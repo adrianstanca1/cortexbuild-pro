@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
-  LayoutDashboard, TrendingUp, TrendingDown, Shield,
+  LayoutDashboard, TrendingUp, TrendingDown, AlertTriangle, Shield,
   PoundSterling, Clock, Target, Activity, ChevronRight, RefreshCw,
   BarChart3, PieChart, Zap, CheckCircle2, XCircle, Building2
 } from 'lucide-react';
@@ -80,7 +80,7 @@ export function ExecutiveDashboardClient() {
       if (!response.ok) throw new Error('Failed to fetch');
       const result = await response.json();
       setData(result);
-    } catch {
+    } catch (error) {
       console.error('Error fetching dashboard:', error);
       toast.error('Failed to load dashboard data');
     } finally {

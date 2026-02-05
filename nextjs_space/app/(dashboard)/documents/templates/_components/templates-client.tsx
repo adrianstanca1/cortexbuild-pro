@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
 import {
-  FileText, Plus, Search, Copy, Edit, Trash2, Upload,
+  FileText, Plus, Search, Copy, Edit, Trash2, Download, Filter, Upload,
   Loader2, LayoutGrid, List, Eye, FileSignature, Shield, ClipboardList,
-  HardHat, Sparkles, Lock, Globe,
-  Package, Calendar, Wrench, X, ChevronDown, ChevronUp,
+  HardHat, CheckSquare, Settings, Sparkles, Lock, Globe, ChevronRight,
+  Package, AlertTriangle, Calendar, Wrench, X, ChevronDown, ChevronUp,
   File, FileUp, Check, Info, Tag, FolderOpen
 } from 'lucide-react';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -170,7 +171,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to duplicate template');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -197,7 +198,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
       } else {
         toast.error('Failed to delete template');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -240,7 +241,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to create template');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -278,7 +279,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to update template');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -314,7 +315,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
         const data = await res.json();
         toast.error(data.error || 'Failed to upload template');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred during upload');
     } finally {
       setUploading(false);
@@ -337,7 +338,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
       } else {
         toast.error('Failed to load system templates');
       }
-    } catch {
+    } catch (error) {
       toast.error('An error occurred');
     } finally {
       setLoading(false);
@@ -394,7 +395,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
 
   const renderSectionEditor = (sections: TemplateSection[], setter: Function) => (
     <div className="space-y-4">
-      {sections.map((section, _idx) => (
+      {sections.map((section, idx) => (
         <Card key={section.id} className="border-slate-200 dark:border-slate-700">
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
@@ -419,7 +420,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
               <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No fields yet. Click "+ Field" to add.</p>
             ) : (
               <div className="space-y-2">
-                {section.fields.map((field, _fIdx) => (
+                {section.fields.map((field, fIdx) => (
                   <div key={field.name} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                     <Input
                       value={field.label}

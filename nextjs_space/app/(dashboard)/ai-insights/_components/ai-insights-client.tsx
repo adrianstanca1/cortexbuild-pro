@@ -13,7 +13,7 @@ import {
   Shield,
   Loader2
 } from "lucide-react";
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -77,7 +77,7 @@ export function AIInsightsClient({ projects, signals }: AIInsightsClientProps) {
       const data = await response.json();
       setRiskPrediction(data);
       toast.success("AI Risk Analysis Complete");
-    } catch {
+    } catch (error) {
       toast.error("Failed to analyze project");
     } finally {
       setAnalyzing(false);

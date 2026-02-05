@@ -24,7 +24,7 @@ interface ResourceAllocation {
   status: 'available' | 'allocated' | 'overallocated';
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -156,7 +156,7 @@ export async function GET(_request: NextRequest) {
         teamCount: p.teamMembers.length,
       })),
     });
-  } catch {
+  } catch (error) {
     console.error('Error fetching resource data:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       analysis,
       analyzedAt: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
     console.error('Resource analysis error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

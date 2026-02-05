@@ -30,7 +30,7 @@ export async function GET(
     });
 
     return NextResponse.json(annotations);
-  } catch {
+  } catch (error) {
     console.error("Error fetching annotations:", error);
     return NextResponse.json(
       { error: "Failed to fetch annotations" },
@@ -117,7 +117,7 @@ export async function POST(
     }
 
     return NextResponse.json(annotation, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error("Error creating annotation:", error);
     return NextResponse.json(
       { error: "Failed to create annotation" },

@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { broadcastToOrganization } from '@/lib/realtime-clients';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +21,7 @@ export async function GET(
     }
 
     const permit = await prisma.hotWorkPermit.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { id: true, name: true } },
         requestedBy: { select: { id: true, name: true } },
@@ -51,7 +55,7 @@ export async function PATCH(
     const data = await request.json();
 
     const existing = await prisma.hotWorkPermit.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -78,7 +82,7 @@ export async function PATCH(
     if (data.validTo) updateData.validTo = new Date(data.validTo);
 
     const permit = await prisma.hotWorkPermit.update({
-      where: { id },
+      where: { id: id },
       data: updateData,
       include: {
         project: { select: { id: true, name: true, organizationId: true } },

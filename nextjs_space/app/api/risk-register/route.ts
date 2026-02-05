@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(risks);
-  } catch {
+  } catch (error) {
     console.error('Error fetching risks:', error);
     return NextResponse.json({ error: 'Failed to fetch risks' }, { status: 500 });
   }
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(risk, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating risk:', error);
     return NextResponse.json({ error: 'Failed to create risk' }, { status: 500 });
   }

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate date range
     const endDate = new Date();
-    const startDate = new Date();
+    let startDate = new Date();
     
     switch (dateRange) {
       case "week":
@@ -277,7 +277,7 @@ Data:\n${reportDataSummary}`;
         generatedBy: session.user.name || session.user.email
       }
     });
-  } catch {
+  } catch (error) {
     console.error("Report generation error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

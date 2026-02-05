@@ -15,7 +15,7 @@ async function main() {
   console.log("Setting up API connections for CortexBuild Pro...\n")
 
   // Internal Platform API (for system functions)
-  await prisma.apiConnection.upsert({
+  const internalApi = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'internal',
@@ -43,7 +43,7 @@ async function main() {
   console.log("✅ Internal Platform API configured")
 
   // Weather API (Open-Meteo - Free, no key needed)
-  await prisma.apiConnection.upsert({
+  const weatherApi = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'open-meteo',
@@ -69,7 +69,7 @@ async function main() {
   console.log("✅ Weather API configured (Open-Meteo - free)")
 
   // Database Connection (Internal reference)
-  await prisma.apiConnection.upsert({
+  const dbConnection = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'postgresql',
@@ -100,7 +100,7 @@ async function main() {
   console.log("✅ Database Connection configured")
 
   // Authentication Service (NextAuth)
-  await prisma.apiConnection.upsert({
+  const authService = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'nextauth',
@@ -129,7 +129,7 @@ async function main() {
   console.log("✅ Authentication Service configured")
 
   // Real-time SSE Service
-  await prisma.apiConnection.upsert({
+  const realtimeService = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'sse',
@@ -159,7 +159,7 @@ async function main() {
 
   // SendGrid Email Service with actual API key
   const sendgridKey = process.env.SENDGRID_API_KEY || 'CONFIGURE_IN_ADMIN_PANEL';
-  await prisma.apiConnection.upsert({
+  const emailService = await prisma.apiConnection.upsert({
     where: {
       serviceName_environment: {
         serviceName: 'sendgrid',

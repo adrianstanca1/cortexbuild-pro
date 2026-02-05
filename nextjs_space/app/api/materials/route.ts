@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +21,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     const where: any = {};
-
+    
     if (projectId) {
       where.projectId = projectId;
     } else {
@@ -25,7 +29,7 @@ export async function GET(request: NextRequest) {
         organizationId: session.user.organizationId
       };
     }
-
+    
     if (status && status !== "all") where.status = status;
 
     const materials = await prisma.material.findMany({
@@ -44,7 +48,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate summary
-    const summary = materials.reduce((acc: any, mat: any) => {
+    const summary = materials.reduce((acc: { totalValue: number; totalOrdered: number; totalReceived: number }, mat) => {
       acc.totalValue += mat.totalCost;
       acc.totalOrdered += mat.quantityOrdered;
       acc.totalReceived += mat.quantityReceived;

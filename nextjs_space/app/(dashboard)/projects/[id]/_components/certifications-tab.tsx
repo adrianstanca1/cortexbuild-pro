@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { format, differenceInDays, addDays } from 'date-fns';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface CertificationsTabProps {
   teamMembers: any[];

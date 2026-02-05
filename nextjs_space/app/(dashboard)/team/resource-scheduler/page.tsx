@@ -5,16 +5,21 @@ import { motion } from 'framer-motion';
 import {
   Users,
   Wrench,
+  Calendar,
   AlertTriangle,
   CheckCircle2,
+  Clock,
   Target,
   TrendingUp,
+  Building2,
   Sparkles,
   Loader2,
   RefreshCw,
   BarChart3,
   User,
+  Zap,
   Search,
+  ChevronRight,
   HardHat,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +39,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts';
 
 interface ResourceAllocation {
@@ -71,6 +77,8 @@ interface ProjectSummary {
   teamCount: number;
 }
 
+const COLORS = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#8b5cf6', '#eab308'];
+
 export default function ResourceSchedulerPage() {
   const [resources, setResources] = useState<ResourceAllocation[]>([]);
   const [metrics, setMetrics] = useState<SchedulerMetrics | null>(null);
@@ -98,7 +106,7 @@ export default function ResourceSchedulerPage() {
         setByTrade(data.byTrade || {});
         setProjects(data.projects || []);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching resource data:', error);
       toast.error('Failed to load resource data');
     } finally {
@@ -130,7 +138,7 @@ export default function ResourceSchedulerPage() {
       } else {
         throw new Error('Analysis failed');
       }
-    } catch {
+    } catch (error) {
       console.error('Analysis error:', error);
       toast.error('Failed to run analysis');
     } finally {
@@ -157,6 +165,19 @@ export default function ResourceSchedulerPage() {
     utilization: data.avgUtilization,
     count: data.count,
   }));
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-500';
+      case 'allocated':
+        return 'bg-blue-500';
+      case 'overallocated':
+        return 'bg-red-500';
+      default:
+        return 'bg-slate-500';
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {

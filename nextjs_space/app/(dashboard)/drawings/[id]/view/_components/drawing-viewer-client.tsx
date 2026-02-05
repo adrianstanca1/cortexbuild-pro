@@ -1,8 +1,22 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, ArrowRight, ArrowUpRight, Brush, CheckCircle, Circle, Clock, Cloud, Download, Eraser, Eye, EyeOff, Hash, Hexagon, Highlighter, Info, Layers, LayoutGrid, Lock, Maximize2, MessageCircle, MessageSquare, Minus, MousePointer, Move, PanelLeft, PanelLeftClose, Pen, Pencil, Pipette, Redo, RotateCcw, RotateCw, Ruler, ScanLine, Sparkles, Square, Stamp, Star, Tag, Target, Trash2, Triangle, Type, Undo, Unlock, User, Users, XCircle, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  ArrowLeft, Download, Maximize2, ZoomIn, ZoomOut, RotateCw, Layers,
+  Pencil, Type, Square, Circle, ArrowRight, Minus, Ruler, Highlighter,
+  Eraser, Save, Undo, Redo, Users, FileText, Eye, EyeOff, Trash2,
+  ChevronDown, MousePointer, Triangle, Cloud, MessageSquare,
+  Grid3X3, Move, PaintBucket, Pipette, Spline, Pen, Brush, Sparkles,
+  Star, Hexagon, ArrowUpRight, ArrowDownLeft, Hash, Stamp, Target,
+  RotateCcw, Crosshair, ScanLine, Maximize, Minimize2, Lock, Unlock,
+  Copy, Clipboard, FlipHorizontal, FlipVertical, AlignLeft, AlignCenter,
+  AlignRight, AlignStartVertical, AlignCenterVertical, AlignEndVertical,
+  Palette, Settings2, LayoutGrid, Shapes, MessageCircle, Tag, Bookmark,
+  CheckCircle, XCircle, AlertCircle, Clock, Info, ChevronLeft, ChevronRight,
+  ChevronsUpDown, MoreVertical, Search, Filter, SortAsc, Sliders,
+  PanelLeftClose, PanelLeft, ImagePlus
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,6 +27,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
@@ -143,10 +160,10 @@ export function DrawingViewerClient({
   const [annotations, setAnnotations] = useState<Annotation[]>(initialAnnotations);
   const [selectedTool, setSelectedTool] = useState<ToolType>("select");
   const [color, setColor] = useState("#FF0000");
-  const [fillColor, _setFillColor] = useState("#FF0000");
+  const [fillColor, setFillColor] = useState("#FF0000");
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [opacity, setOpacity] = useState(1);
-  const [brushSettings, _setBrushSettings] = useState<BrushSettings>({
+  const [brushSettings, setBrushSettings] = useState<BrushSettings>({
     size: 20,
     hardness: 100,
     opacity: 100,
@@ -155,7 +172,7 @@ export function DrawingViewerClient({
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
-  const [gridSize, _setGridSize] = useState(20);
+  const [gridSize, setGridSize] = useState(20);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [selectedRevision, setSelectedRevision] = useState(
@@ -174,7 +191,7 @@ export function DrawingViewerClient({
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
   const [showLayersPanel, setShowLayersPanel] = useState(false);
-  const [showToolSettings, _setShowToolSettings] = useState(true);
+  const [showToolSettings, setShowToolSettings] = useState(true);
   const [stampType, setStampType] = useState('approved');
   const [showStampDialog, setShowStampDialog] = useState(false);
   const [stampPosition, setStampPosition] = useState<Point | null>(null);
@@ -225,7 +242,7 @@ export function DrawingViewerClient({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: currentUser.id, userName: currentUser.name }),
         });
-      } catch {
+      } catch (error) {
         console.error("Failed to announce presence:", error);
       }
     };
@@ -296,7 +313,6 @@ export function DrawingViewerClient({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotationId, strokeWidth]);
 
   const getRandomColor = () => {
@@ -358,7 +374,7 @@ export function DrawingViewerClient({
       setAnnotations((prev) => [newAnnotation, ...prev]);
       addToHistory({ type: "add", annotation: newAnnotation });
       toast.success("Annotation saved");
-    } catch {
+    } catch (error) {
       toast.error("Failed to save annotation");
     } finally {
       setSaving(false);
@@ -410,7 +426,7 @@ export function DrawingViewerClient({
       setAnnotations((prev) => [newAnnotation, ...prev]);
       addToHistory({ type: "add", annotation: newAnnotation });
       toast.success("Stamp added");
-    } catch {
+    } catch (error) {
       toast.error("Failed to add stamp");
     } finally {
       setSaving(false);
@@ -430,7 +446,7 @@ export function DrawingViewerClient({
       addToHistory({ type: "delete", annotation: deleted });
       setSelectedAnnotationId(null);
       toast.success("Annotation deleted");
-    } catch {
+    } catch (error) {
       toast.error("Failed to delete annotation");
     }
   };
@@ -483,7 +499,7 @@ export function DrawingViewerClient({
       link.href = dataUrl;
       link.click();
       toast.success(`Drawing exported as ${format.toUpperCase()}`);
-    } catch {
+    } catch (error) {
       toast.error("Failed to export drawing");
     }
   };
@@ -501,7 +517,7 @@ export function DrawingViewerClient({
     }).catch(() => {});
   }, [drawing.id, currentUser.id, currentUser.name]);
 
-  const handleAnnotationMove = (id: string, _delta: Point) => {
+  const handleAnnotationMove = (id: string, delta: Point) => {
     // Update annotation position locally
     setAnnotations(prev => prev.map(a => {
       if (a.id !== id) return a;
@@ -510,7 +526,7 @@ export function DrawingViewerClient({
     }));
   };
 
-  const handleAnnotationResize = (_id: string, _bounds: any) => {
+  const handleAnnotationResize = (id: string, bounds: any) => {
     // Update annotation bounds locally
   };
 

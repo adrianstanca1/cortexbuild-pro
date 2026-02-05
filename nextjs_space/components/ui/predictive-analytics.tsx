@@ -189,7 +189,7 @@ export function PredictiveAnalytics({ projects, compact = false }: PredictiveAna
     }
 
     // Resource Utilization Prediction
-    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS').length;
+    const activeProjects = projects.filter(p => p.status === 'IN_PROGRESS' || p.status === 'ACTIVE').length;
     const resourcePressure = activeProjects > 5 ? 'high' : activeProjects > 3 ? 'medium' : 'low';
 
     if (resourcePressure !== 'low') {

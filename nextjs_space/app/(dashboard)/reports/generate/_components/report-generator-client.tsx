@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   FileText,
   Sparkles,
+  Download,
   Copy,
   Loader2,
   BarChart3,
@@ -11,13 +12,17 @@ import {
   PoundSterling,
   TrendingUp,
   Calendar,
-  Printer
+  Users,
+  ClipboardCheck,
+  Printer,
+  CheckCircle2
 } from "lucide-react";
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Project {
   id: string;
@@ -116,7 +121,7 @@ export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
       const data = await response.json();
       setReportData(data.report);
       toast.success("Report generated successfully!");
-    } catch {
+    } catch (error) {
       toast.error("Failed to generate report");
     } finally {
       setGenerating(false);

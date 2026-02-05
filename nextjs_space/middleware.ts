@@ -48,7 +48,8 @@ export default withAuth(
           path === "/login" || 
           path === "/signup" ||
           path.startsWith("/invitation/accept") ||
-          path.startsWith("/team-invite/accept")
+          path.startsWith("/team-invite/accept") ||
+          path.startsWith("/site-checkin")
         ) {
           return true;
         }
@@ -80,6 +81,22 @@ export const config = {
     "/equipment/:path*",
     "/meetings/:path*",
     "/invitation/:path*",
-    "/team-invite/:path*"
+    "/team-invite/:path*",
+    "/certifications/:path*",
+    "/executive/:path*",
+    "/work-packages/:path*",
+    "/cost-codes/:path*",
+    "/forecasting/:path*",
+    "/risk-register/:path*",
+    "/budget/:path*",
+    "/milestones/:path*",
+    "/materials/:path*",
+    "/subcontractors/:path*",
+    "/drawings/:path*",
+    "/permits/:path*",
+    "/site-diary/:path*",
+    "/defects/:path*",
+    "/progress-claims/:path*",
+    "/time-tracking/:path*"
   ]
 };

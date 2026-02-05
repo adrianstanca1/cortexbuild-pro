@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   TrendingUp, TrendingDown, Plus, RefreshCw, PoundSterling,
-  Target, Activity, Loader2, Calendar, BarChart3
+  Target, Activity, AlertTriangle, Loader2, Calendar, BarChart3
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -94,7 +94,7 @@ export function ForecastingClient({ projects }: Props) {
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setForecasts(data);
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to load forecasts');
     } finally {
@@ -106,7 +106,7 @@ export function ForecastingClient({ projects }: Props) {
     if (selectedProject) {
       fetchForecasts();
     }
-  }, [selectedProject, fetchForecasts]);
+  }, [selectedProject]);
 
   const handleCreate = async () => {
     if (!newForecast.projectId) {
@@ -139,7 +139,7 @@ export function ForecastingClient({ projects }: Props) {
       if (newForecast.projectId === selectedProject) {
         fetchForecasts();
       }
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to create forecast');
     } finally {

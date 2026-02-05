@@ -1,4 +1,9 @@
 import { getServerSession } from "next-auth";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -12,7 +17,7 @@ export default async function CompanyDashboardPage() {
     redirect("/login");
   }
 
-  const user = session.user as { organizationId?: string };
+  const user = session.user as any;
 
   if (!user.organizationId) {
     redirect("/dashboard");

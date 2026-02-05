@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   PoundSterling, Plus, Search, TrendingUp, TrendingDown,
   FileText, Edit2, Trash2, Loader2, Building2, CheckCircle,
@@ -80,7 +81,7 @@ const CATEGORIES = [
   { value: "OTHER", label: "Other", icon: FileText, color: "bg-slate-400", bgLight: "bg-slate-100 dark:bg-slate-800", textColor: "text-slate-500" },
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; bgColor: string; textColor: string; icon: React.ComponentType<{ className?: string }> }> = {
+const STATUS_CONFIG: Record<string, { label: string; bgColor: string; textColor: string; icon: any }> = {
   ESTIMATED: { label: "Estimated", bgColor: "bg-slate-100 dark:bg-slate-800", textColor: "text-slate-600", icon: Clock },
   COMMITTED: { label: "Committed", bgColor: "bg-blue-100 dark:bg-blue-900/30", textColor: "text-blue-600", icon: FileText },
   ACTUAL: { label: "Actual", bgColor: "bg-emerald-100 dark:bg-emerald-900/30", textColor: "text-emerald-600", icon: CheckCircle },

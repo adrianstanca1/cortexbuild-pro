@@ -1,15 +1,18 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -17,15 +20,16 @@ export async function GET(req: NextRequest) {
     const organizationId = searchParams.get("organizationId");
     const role = searchParams.get("role");
     const search = searchParams.get("search");
+    const status = searchParams.get("status"); // active, suspended
 
-    const where: Prisma.UserWhereInput = {};
+    const where: any = {};
     
     if (organizationId) where.organizationId = organizationId;
-    if (role) where.role = role as any;
+    if (role) where.role = role;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        { email: { contains: search, mode: Prisma.QueryMode.insensitive } }
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } }
       ];
     }
 
@@ -67,7 +71,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || (session.user as { role?: string }).role !== "SUPER_ADMIN") {
+    if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

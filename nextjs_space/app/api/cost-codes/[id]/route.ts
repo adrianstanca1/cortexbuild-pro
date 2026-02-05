@@ -58,7 +58,7 @@ export async function GET(
     }
 
     return NextResponse.json(costCode);
-  } catch {
+  } catch (error) {
     console.error('Error fetching cost code:', error);
     return NextResponse.json({ error: 'Failed to fetch cost code' }, { status: 500 });
   }
@@ -110,7 +110,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(costCode);
-  } catch {
+  } catch (error) {
     console.error('Error updating cost code:', error);
     return NextResponse.json({ error: 'Failed to update cost code' }, { status: 500 });
   }
@@ -154,7 +154,7 @@ export async function DELETE(
     await prisma.costCode.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error('Error deleting cost code:', error);
     return NextResponse.json({ error: 'Failed to delete cost code' }, { status: 500 });
   }

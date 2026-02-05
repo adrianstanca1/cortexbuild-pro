@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
+import prisma from '@/lib/db';
 
 const ABACUS_API_URL = 'https://api.abacus.ai/api/v0/chat';
 const OPEN_METEO_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -149,8 +149,8 @@ export async function GET(request: NextRequest) {
     const days = parseInt(searchParams.get('days') || '14');
 
     // Get project location or use default (London)
-    const latitude = 51.5074;
-    const longitude = -0.1278;
+    let latitude = 51.5074;
+    let longitude = -0.1278;
     let locationName = 'London, UK';
 
     if (projectId) {
@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
           'Generally favourable conditions. Minor adjustments may be needed.',
       },
     });
-  } catch {
+  } catch (error) {
     console.error('Error fetching weather impact:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { forecast, impacts, upcomingTasks } = body;
+    const { projectId, forecast, impacts, upcomingTasks } = body;
 
     // Prepare context for AI analysis
     const context = {
@@ -322,7 +322,7 @@ Use UK construction terminology. Be specific about dates and activities.`;
       analysis,
       analyzedAt: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
     console.error('Weather impact analysis error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

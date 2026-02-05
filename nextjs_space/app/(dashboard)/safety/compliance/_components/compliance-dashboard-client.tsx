@@ -14,6 +14,7 @@ import {
   Building2,
   Calendar,
   Loader2,
+  RefreshCw,
   ChevronDown,
   ChevronRight,
   Scale,
@@ -21,7 +22,8 @@ import {
   FileWarning,
   Wrench
 } from "lucide-react";
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
@@ -99,7 +101,7 @@ export function ComplianceDashboardClient({ projects }: { projects: Project[] })
       const data = await response.json();
       setComplianceData(data);
       toast.success("CDM 2015 Compliance Check Complete");
-    } catch {
+    } catch (error) {
       toast.error("Failed to run compliance check");
     } finally {
       setChecking(false);

@@ -17,7 +17,7 @@ import {
   Download,
   RefreshCw
 } from 'lucide-react';
-import {  Card, CardContent, CardDescription , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -113,7 +113,7 @@ export default function PhotoAnalysisPage() {
       } else {
         toast.error(data.error || 'Analysis failed');
       }
-    } catch {
+    } catch (error) {
       console.error('Analysis error:', error);
       toast.error('Failed to analyze image');
     } finally {

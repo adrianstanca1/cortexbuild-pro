@@ -278,7 +278,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No meetings found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Record your first meeting to get started</p>
-            <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <Button onClick={() => setShowNewModal(true)} >
               <Plus className="h-4 w-4 mr-2" /> Record Meeting
             </Button>
           </CardContent>
@@ -504,7 +504,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={loading} className="bg-gradient-to-r from-primary to-purple-600">
+              <Button onClick={handleCreate} disabled={loading} >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Minutes
               </Button>

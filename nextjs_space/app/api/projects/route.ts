@@ -1,23 +1,23 @@
-export const dynamic = "force-dynamic";
-
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
-import { 
-  getApiContext, 
-  buildOrgFilter, 
-  handleApiError,
-  successResponse,
-  errorResponse
-} from "@/lib/api-utils";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 
 export async function GET() {
   try {
-    const { context, error } = await getApiContext();
-    if (error) return error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
     const projects = await prisma.project.findMany({
-      where: buildOrgFilter(context!.organizationId, true),
+      where: orgId ? { organizationId: orgId } : {},
       include: {
         manager: { select: { id: true, name: true } },
         _count: { select: { tasks: true, documents: true } }
@@ -25,22 +25,32 @@ export async function GET() {
       orderBy: { createdAt: "desc" }
     });
 
-    return successResponse({ projects });
+    return NextResponse.json({ projects });
   } catch (error) {
-    return handleApiError(error, "fetch projects");
+    console.error("Get projects error:", error);
+    return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { context, error } = await getApiContext();
-    if (error) return error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = (session.user as { id?: string })?.id || '';
+    const orgId = (session.user as { organizationId?: string })?.organizationId;
+
+    if (!orgId) {
+      return NextResponse.json({ error: "Organization not found" }, { status: 400 });
+    }
 
     const body = await request.json();
     const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
 
     if (!name?.trim()) {
-      return errorResponse("BAD_REQUEST", "Project name is required");
+      return NextResponse.json({ error: "Project name is required" }, { status: 400 });
     }
 
     const project = await prisma.project.create({
@@ -54,8 +64,8 @@ export async function POST(request: Request) {
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         status: status || "PLANNING",
-        organizationId: context!.organizationId,
-        managerId: context!.userId || null
+        organizationId: orgId,
+        managerId: userId || null
       },
       include: {
         manager: { select: { id: true, name: true } }
@@ -69,13 +79,13 @@ export async function POST(request: Request) {
         entityType: "Project",
         entityId: project.id,
         entityName: project.name,
-        userId: context!.userId,
+        userId,
         projectId: project.id
       }
     });
 
     // Broadcast real-time event to organization
-    broadcastToOrganization(context!.organizationId, {
+    broadcastToOrganization(orgId, {
       type: 'project_created',
       timestamp: new Date().toISOString(),
       payload: {
@@ -87,12 +97,13 @@ export async function POST(request: Request) {
           clientName: project.clientName,
           managerName: project.manager?.name
         },
-        userId: context!.userId
+        userId
       }
     });
 
-    return successResponse({ project }, "Project created successfully");
+    return NextResponse.json({ project });
   } catch (error) {
-    return handleApiError(error, "create project");
+    console.error("Create project error:", error);
+    return NextResponse.json({ error: "Failed to create project" }, { status: 500 });
   }
 }

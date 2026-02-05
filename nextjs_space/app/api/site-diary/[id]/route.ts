@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -17,7 +20,7 @@ export async function GET(
     }
 
     const diary = await prisma.siteDiary.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         project: { select: { id: true, name: true } },
         entries: { orderBy: { time: "asc" } },
@@ -56,7 +59,7 @@ export async function PATCH(
     } = body;
 
     const existingDiary = await prisma.siteDiary.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -79,7 +82,7 @@ export async function PATCH(
     }
 
     const diary = await prisma.siteDiary.update({
-      where: { id },
+      where: { id: id },
       data: {
         ...(weatherMorning !== undefined && { weatherMorning }),
         ...(weatherAfternoon !== undefined && { weatherAfternoon }),
@@ -129,7 +132,7 @@ export async function DELETE(
     }
 
     const diary = await prisma.siteDiary.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } },
     });
 
@@ -137,7 +140,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Site diary not found" }, { status: 404 });
     }
 
-    await prisma.siteDiary.delete({ where: { id } });
+    await prisma.siteDiary.delete({ where: { id: id } });
 
     if (diary.project.organizationId) {
       broadcastToOrganization(diary.project.organizationId, {

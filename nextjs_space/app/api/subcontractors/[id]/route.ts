@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +22,7 @@ export async function GET(
 
     const subcontractor = await prisma.subcontractor.findFirst({
       where: {
-        id,
+        id: id,
         organizationId: session.user.organizationId ?? ""
       },
       include: {
@@ -64,7 +68,7 @@ export async function PATCH(
 
     const existing = await prisma.subcontractor.findFirst({
       where: {
-        id,
+        id: id,
         organizationId: session.user.organizationId ?? ""
       }
     });
@@ -80,7 +84,7 @@ export async function PATCH(
     } = body;
 
     const subcontractor = await prisma.subcontractor.update({
-      where: { id },
+      where: { id: id },
       data: {
         ...(companyName && { companyName }),
         ...(contactName && { contactName }),
@@ -141,7 +145,7 @@ export async function DELETE(
 
     const existing = await prisma.subcontractor.findFirst({
       where: {
-        id,
+        id: id,
         organizationId: session.user.organizationId ?? ""
       }
     });
@@ -150,7 +154,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
     }
 
-    await prisma.subcontractor.delete({ where: { id } });
+    await prisma.subcontractor.delete({ where: { id: id } });
 
     await prisma.activityLog.create({
       data: {
@@ -165,7 +169,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "subcontractor_deleted",
-      data: { id }
+      data: { id: id }
     });
 
     return NextResponse.json({ success: true });

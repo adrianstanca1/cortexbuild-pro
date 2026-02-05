@@ -1,5 +1,8 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
@@ -20,7 +23,7 @@ export async function POST(
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } }
     });
 
@@ -77,7 +80,7 @@ export async function PUT(
     }
 
     const riskAssessment = await prisma.riskAssessment.findUnique({
-      where: { id },
+      where: { id: id },
       include: { project: { select: { organizationId: true } } }
     });
 

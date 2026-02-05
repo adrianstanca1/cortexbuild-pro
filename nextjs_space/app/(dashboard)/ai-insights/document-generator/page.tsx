@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   AlertTriangle,
@@ -14,6 +14,8 @@ import {
   Sparkles,
   Download,
   Copy,
+  RefreshCw,
+  ChevronRight,
   Building2,
   MapPin,
   Calendar,
@@ -23,7 +25,7 @@ import {
   FileWarning,
   Zap,
 } from 'lucide-react';
-import {  Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -64,7 +66,7 @@ export default function DocumentGeneratorPage() {
   const [selectedDocType, setSelectedDocType] = useState<DocumentType | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   // Form fields
   const [workDescription, setWorkDescription] = useState('');
@@ -88,7 +90,7 @@ export default function DocumentGeneratorPage() {
         const data = await response.json();
         setProjects(data.projects || []);
       }
-    } catch {
+    } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
@@ -142,7 +144,7 @@ export default function DocumentGeneratorPage() {
       const data = await response.json();
       setGeneratedContent(data.content);
       toast.success('Document generated successfully!');
-    } catch {
+    } catch (error) {
       console.error('Generation error:', error);
       toast.error('Failed to generate document');
     } finally {

@@ -1,9 +1,13 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +22,7 @@ export async function GET(
 
     const material = await prisma.material.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -57,7 +61,7 @@ export async function PATCH(
 
     const existing = await prisma.material.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -79,7 +83,7 @@ export async function PATCH(
     const totalCost = newQuantityNeeded * newUnitCost;
 
     const material = await prisma.material.update({
-      where: { id },
+      where: { id: id },
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
@@ -143,7 +147,7 @@ export async function DELETE(
 
     const existing = await prisma.material.findFirst({
       where: {
-        id,
+        id: id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -153,7 +157,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Material not found" }, { status: 404 });
     }
 
-    await prisma.material.delete({ where: { id } });
+    await prisma.material.delete({ where: { id: id } });
 
     await prisma.activityLog.create({
       data: {
@@ -169,7 +173,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "material_deleted",
-      data: { id, projectId: existing.projectId }
+      data: { id: id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });

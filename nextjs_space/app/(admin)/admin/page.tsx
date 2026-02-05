@@ -1,7 +1,9 @@
-import { AdminDashboardClient } from "./_components/admin-dashboard-client";
+import { AdminDashboardClient } from './_components/admin-dashboard-client';
 
-export const dynamic = "force-dynamic";
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export default function AdminDashboardPage() {
+export default function AdminPage() {
   return <AdminDashboardClient />;
 }

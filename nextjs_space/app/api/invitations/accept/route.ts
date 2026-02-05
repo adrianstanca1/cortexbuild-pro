@@ -1,9 +1,12 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateSlug } from '@/lib/entitlements';
 import bcrypt from 'bcryptjs';
-import { Prisma } from '@prisma/client';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 // POST /api/invitations/accept - Accept invitation and create company/owner
 export async function POST(request: NextRequest) {
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
         data: {
           name: invitation.companyName,
           slug,
-          entitlements: invitation.entitlements as Prisma.InputJsonValue,
+          entitlements: invitation.entitlements ?? {},
           isActive: true,
         },
       });

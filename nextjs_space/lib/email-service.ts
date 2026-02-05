@@ -56,7 +56,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   }
 
   // Fallback to Abacus AI email API
-  if (process.env.ABACUSAI_API_KEY) {
+  if (process.env.ABACUSAI_API_KEY && process.env.WEB_APP_ID) {
     try {
       const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
       
@@ -66,6 +66,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deployment_token: process.env.ABACUSAI_API_KEY,
+          app_id: process.env.WEB_APP_ID,
           subject: options.subject,
           body: options.html,
           is_html: true,

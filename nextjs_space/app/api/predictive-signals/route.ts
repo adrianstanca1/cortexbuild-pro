@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(signals);
-  } catch {
+  } catch (error) {
     console.error('Error fetching predictive signals:', error);
     return NextResponse.json({ error: 'Failed to fetch predictive signals' }, { status: 500 });
   }
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(signal, { status: 201 });
-  } catch {
+  } catch (error) {
     console.error('Error creating predictive signal:', error);
     return NextResponse.json({ error: 'Failed to create predictive signal' }, { status: 500 });
   }

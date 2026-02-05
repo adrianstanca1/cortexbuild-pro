@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {  Card, CardContent, CardDescription, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
   Select,
   SelectContent,
@@ -24,11 +25,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  AlertTriangle, Plus, Search, PoundSterling,
-  ChevronRight, Loader2,
+  AlertTriangle, Plus, Search, Filter, PoundSterling,
+  Calendar, Users, ChevronRight, Loader2, Target,
   TrendingUp, TrendingDown, Shield, Activity
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 
 interface Project {
   id: string;
@@ -125,7 +127,7 @@ export function RiskRegisterClient({ projects, teamMembers }: Props) {
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setRisks(data);
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to load risks');
     } finally {
@@ -176,7 +178,7 @@ export function RiskRegisterClient({ projects, teamMembers }: Props) {
         ownerId: ''
       });
       fetchRisks();
-    } catch {
+    } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to create risk');
     } finally {

@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { SignaturePad } from '@/components/ui/signature-pad';
 import { toast } from 'sonner';
 import { format, differenceInHours } from 'date-fns';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface PermitsToWorkTabProps {
   project: any;

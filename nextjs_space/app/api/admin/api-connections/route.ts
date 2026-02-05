@@ -1,5 +1,9 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -18,16 +22,25 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get("type");
     const environment = searchParams.get("environment");
     const status = searchParams.get("status");
+    const category = searchParams.get("category");
+    const isBuiltIn = searchParams.get("isBuiltIn");
 
     const where: any = {};
     if (type) where.type = type;
     if (environment) where.environment = environment;
     if (status) where.status = status;
+    if (category) where.category = category;
+    if (isBuiltIn !== null && isBuiltIn !== undefined) {
+      where.isBuiltIn = isBuiltIn === "true";
+    }
 
     const connections = await prisma.apiConnection.findMany({
       where,
       include: {
         createdBy: {
+          select: { id: true, name: true, email: true }
+        },
+        lastModifiedBy: {
           select: { id: true, name: true, email: true }
         },
         _count: {
@@ -73,7 +86,15 @@ export async function POST(req: NextRequest) {
       baseUrl,
       version,
       headers,
-      expiresAt
+      expiresAt,
+      // New plug-and-play fields
+      category,
+      purpose,
+      dependentModules,
+      configSchema,
+      isBuiltIn,
+      isRequired,
+      autoReconnect
     } = body;
 
     if (!name || !serviceName || !credentials) {
@@ -114,7 +135,15 @@ export async function POST(req: NextRequest) {
         headers: headers || {},
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         createdById: session.user.id,
-        status: "ACTIVE"
+        status: "ACTIVE",
+        // New plug-and-play fields
+        category: category || "OTHER",
+        purpose,
+        dependentModules: dependentModules || [],
+        configSchema: configSchema || {},
+        isBuiltIn: isBuiltIn || false,
+        isRequired: isRequired || false,
+        autoReconnect: autoReconnect !== false // Default true
       },
       include: {
         createdBy: {

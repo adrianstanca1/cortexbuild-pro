@@ -10,11 +10,10 @@ import prisma from '@/lib/db';
 import SiteAccessClient from './_components/site-access-client';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function SiteAccessPage({ params }: PageProps) {
-  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) return notFound();
 
@@ -25,7 +24,7 @@ export default async function SiteAccessPage({ params }: PageProps) {
 
   const project = await prisma.project.findFirst({
     where: {
-      id: id,
+      id: params.id,
       organizationId: user?.organizationId || undefined
     },
     select: {
@@ -43,7 +42,7 @@ export default async function SiteAccessPage({ params }: PageProps) {
 
   const accessLogs = await prisma.siteAccessLog.findMany({
     where: {
-      projectId: id,
+      projectId: params.id,
       accessTime: { gte: today }
     },
     orderBy: { accessTime: 'desc' },

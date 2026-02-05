@@ -46,7 +46,7 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (error) {
     console.error("Error announcing presence:", error);
     return NextResponse.json(
       { error: "Failed to announce presence" },

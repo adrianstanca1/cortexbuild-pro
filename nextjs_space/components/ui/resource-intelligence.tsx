@@ -88,14 +88,18 @@ export function ResourceIntelligence({ teamMembers, projects, tasks = [], compac
         return assigneeId === memberId;
       });
 
-      const completedTasks = memberTasks.filter(t => t.status === 'COMPLETE').length;
+      const completedTasks = memberTasks.filter(t => 
+        t.status === 'COMPLETED' || t.status === 'DONE'
+      ).length;
 
       const overdueTasks = memberTasks.filter(t => {
-        if (!t.dueDate || t.status === 'COMPLETE') return false;
+        if (!t.dueDate || t.status === 'COMPLETED' || t.status === 'DONE') return false;
         return new Date(t.dueDate) < now;
       }).length;
 
-      const activeTasks = memberTasks.filter(t => t.status !== 'COMPLETE').length;
+      const activeTasks = memberTasks.filter(t => 
+        t.status !== 'COMPLETED' && t.status !== 'DONE'
+      ).length;
 
       // Calculate workload score (higher = more loaded)
       const baseWorkload = activeTasks * 15;

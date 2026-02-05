@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardTitle , CardHeader, CardTitle } from '@/components/ui/card'';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 const roleOptions = [
@@ -67,7 +67,7 @@ export default function SiteCheckinPage() {
         const data = await res.json();
         setProjectInfo({ name: 'Construction Site', onSiteCount: data.onSiteCount });
       }
-    } catch {
+    } catch (error) {
       console.error('Failed to fetch project info:', error);
     } finally {
       setLoading(false);
@@ -102,7 +102,7 @@ export default function SiteCheckinPage() {
       } else {
         toast.error(data.error || 'Check-in failed');
       }
-    } catch {
+    } catch (error) {
       console.error('Check-in error:', error);
       toast.error('Failed to process check-in');
     } finally {

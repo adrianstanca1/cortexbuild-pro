@@ -1,6 +1,10 @@
-export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+
 
 // GET /api/invitations/validate?token=xxx - Validate invitation token (public)
 export async function GET(request: NextRequest) {

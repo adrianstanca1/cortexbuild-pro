@@ -231,7 +231,7 @@ Format as JSON with keys: scheduleRisks, costRisks, safetyRisks, qualityRisks, r
       },
       analyzedAt: new Date().toISOString()
     });
-  } catch {
+  } catch (error) {
     console.error("Risk prediction error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

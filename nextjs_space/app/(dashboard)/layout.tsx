@@ -7,6 +7,8 @@ import { AIAssistant } from "@/components/ai-assistant";
 import { RealtimeProvider } from "@/components/realtime-provider";
 import { RealtimeStatusIndicator } from "@/components/realtime-status-indicator";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { SidebarProvider } from "@/hooks/use-sidebar";
+import { DashboardContent } from "@/components/dashboard/dashboard-content";
 
 export default async function DashboardLayout({
   children
@@ -21,16 +23,17 @@ export default async function DashboardLayout({
 
   return (
     <RealtimeProvider showToasts={true}>
-      <div className="min-h-screen bg-background">
-        <DashboardSidebar userRole={(session.user as { role: string }).role} />
-        <div className="lg:pl-64">
-          <DashboardHeader user={session.user} userRole={(session.user as { role: string }).role} />
-          <main className="p-6">{children}</main>
+      <SidebarProvider>
+        <div className="min-h-screen bg-background">
+          <DashboardSidebar userRole={(session.user as { role: string }).role} />
+          <DashboardContent user={session.user} userRole={(session.user as { role: string }).role}>
+            {children}
+          </DashboardContent>
+          <RealtimeStatusIndicator />
+          <AIAssistant />
+          <FloatingActionButton />
         </div>
-        <RealtimeStatusIndicator />
-        <AIAssistant />
-        <FloatingActionButton />
-      </div>
+      </SidebarProvider>
     </RealtimeProvider>
   );
 }
