@@ -115,7 +115,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       project: {
         ...project,
         // Legacy field kept for backward compatibility with older clients.
-        // Always null because the underlying phaseGatesData schema field has been removed.
+        // Phase gate data storage was removed from the schema, so this is always null.
         phaseGates: null
       }
     });

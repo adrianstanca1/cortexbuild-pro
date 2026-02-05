@@ -89,7 +89,7 @@ export async function logAndBroadcast(
           context.userId
         )
       : (async () => {
-          console.warn('logAndBroadcast: Missing organizationId, skipping broadcast.', {
+          console.warn('logAndBroadcast: Missing organizationId; activity logged without broadcast.', {
             userId: context.userId,
             action,
             entityType,
