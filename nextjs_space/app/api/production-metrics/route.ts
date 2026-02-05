@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     const where: Prisma.ProductionLogWhereInput = {
-      workPackageId: workPackageId ?? undefined,
+      ...(workPackageId ? { workPackageId } : {}),
       workPackage: { projectId }
     };
     
