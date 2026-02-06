@@ -204,7 +204,7 @@ jobs:
             fi
 
             # Pull latest changes with rebase
-            git pull --rebase origin main || {
+            git pull --rebase origin cortexbuildpro || {
               echo "❌ Failed to pull latest changes"
               git rebase --abort
               exit 1

@@ -107,7 +107,7 @@ jobs:
             # Pull latest changes
             echo "Pulling latest code..."
             git fetch origin
-            git pull origin main
+            git pull origin cortexbuildpro
 
             # Run production deployment
             echo "Running production deployment..."
