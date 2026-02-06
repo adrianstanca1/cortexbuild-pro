@@ -28,7 +28,10 @@ services:
     build:
       context: ..
       dockerfile: deployment/Dockerfile
-    image: ghcr.io/adrianstanca1/cortexbuild-pro:latest
+    # Use specific image tag for deterministic deployments
+    # Tag format: ghcr.io/adrianstanca1/cortexbuild-pro:cortexbuildpro-<sha>
+    # Falls back to building from Dockerfile if image not available
+    image: ghcr.io/adrianstanca1/cortexbuild-pro:${DOCKER_IMAGE_TAG:-cortexbuildpro}
     container_name: cortexbuild-app
     restart: unless-stopped
     ports:
