@@ -18,3 +18,5 @@ out
 .deploy
 .logs
 *.tsbuildinfo
+CREDENTIALS.md
+CREDENTIALS.pdf

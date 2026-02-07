@@ -1,10 +1,7 @@
 // =====================================================
 // UNIFIED EMAIL SERVICE
-// Dynamic email delivery with fallback support
+// SendGrid email delivery for CortexBuild Pro
 // =====================================================
-
-import { SendGridAdapter } from "./service-adapters";
-import { isServiceConfigured } from "./service-registry";
 
 export interface EmailOptions {
   to: string | string[];
@@ -17,96 +14,93 @@ export interface EmailOptions {
 
 export interface EmailResult {
   success: boolean;
-  provider: "sendgrid" | "abacus" | "none";
+  provider: "sendgrid" | "console" | "none";
   error?: string;
+  messageId?: string;
 }
 
 /**
- * Send an email using the best available provider
- * Priority: SendGrid (if configured) > Abacus AI API (fallback)
+ * Send an email using SendGrid
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
-  // First, try SendGrid if configured
-  const sendGridConfigured = await isServiceConfigured("sendgrid");
-  
-  if (sendGridConfigured) {
-    try {
-      const sendgrid = new SendGridAdapter();
-      const result = await sendgrid.sendEmail({
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const fromEmail = process.env.SENDGRID_FROM_EMAIL || "noreply@cortexbuildpro.com";
+  const fromName = process.env.SENDGRID_FROM_NAME || "CortexBuild Pro";
+
+  // If no SendGrid API key, log to console in development
+  if (!apiKey) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("📧 [DEV] Email would be sent:", {
         to: options.to,
         subject: options.subject,
-        html: options.html,
-        text: options.text,
-        from: options.from,
-        replyTo: options.replyTo
+        from: `${fromName} <${fromEmail}>`
       });
-
-      if (result.success) {
-        return {
-          success: true,
-          provider: "sendgrid"
-        };
-      }
-
-      // SendGrid failed, fall through to fallback
-    } catch {
-      // SendGrid adapter error, fall through to fallback
+      return { success: true, provider: "console" };
     }
+    return { 
+      success: false, 
+      provider: "none",
+      error: "SendGrid API key not configured" 
+    };
   }
 
-  // Fallback to Abacus AI email API
-  if (process.env.ABACUSAI_API_KEY && process.env.WEB_APP_ID) {
-    try {
-      const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-      
-      // Try the notification email API
-      const response = await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
-          app_id: process.env.WEB_APPID,
-          subject: options.subject,
-          body: options.html,
-          is_html: true,
-          recipient_email: toAddresses[0], // Primary recipient
-          sender_alias: options.from?.name || "CortexBuild Pro"
-        })
-      });
+  try {
+    const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
+    
+    const payload: Record<string, unknown> = {
+      personalizations: [{
+        to: toAddresses.map(email => ({ email }))
+      }],
+      from: {
+        email: options.from?.email || fromEmail,
+        name: options.from?.name || fromName
+      },
+      subject: options.subject,
+      content: [
+        ...(options.text ? [{ type: "text/plain", value: options.text }] : []),
+        { type: "text/html", value: options.html }
+      ]
+    };
 
-      if (response.ok) {
-        return {
-          success: true,
-          provider: "abacus"
-        };
-      }
+    if (options.replyTo) {
+      payload.reply_to = options.replyTo;
+    }
 
-      // Abacus API failed, fall through to return error
+    const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+      const messageId = response.headers.get("X-Message-Id") || undefined;
       return {
-        success: false,
-        provider: "abacus",
-        error: `Abacus API error: ${response.status}`
-      };
-    } catch (error) {
-      return {
-        success: false,
-        provider: "abacus",
-        error: error instanceof Error ? error.message : "Unknown error"
+        success: true,
+        provider: "sendgrid",
+        messageId
       };
     }
-  }
 
-  // No email provider available
-  return {
-    success: false,
-    provider: "none",
-    error: "No email provider configured. Please configure SendGrid in API Management or ensure ABACUSAI_API_KEY is set."
-  };
+    const errorBody = await response.text();
+    return {
+      success: false,
+      provider: "sendgrid",
+      error: `SendGrid error: ${response.status} - ${errorBody}`
+    };
+  } catch (error) {
+    return {
+      success: false,
+      provider: "sendgrid",
+      error: error instanceof Error ? error.message : "Unknown error"
+    };
+  }
 }
 
 // =====================================================
 // PRE-BUILT EMAIL TEMPLATES
-// Re-export from unified email templates with backward compatibility
 // =====================================================
 
 export {
@@ -119,7 +113,6 @@ export {
 } from './email-templates';
 
 // Backward compatible wrapper for generateTeamInvitationEmail
-// Accepts simpler parameters for existing code
 import { 
   generateTeamInvitationEmail as generateTeamInvitationEmailNew,
   type TeamInvitationTemplateParams 
@@ -134,19 +127,17 @@ export function generateTeamInvitationEmail(
     acceptUrl: string;
   }
 ): string {
-  // Check if it's the old format (missing new required fields)
+  // Check if it's the old format
   if (!('memberEmail' in params) || !('expiresAt' in params)) {
-    // Old format - add default values for new required fields
     return generateTeamInvitationEmailNew({
       memberName: params.memberName,
-      memberEmail: 'noreply@example.com', // Placeholder for backward compatibility
+      memberEmail: 'noreply@example.com',
       inviterName: params.inviterName,
       organizationName: params.organizationName,
       role: params.role,
       acceptUrl: params.acceptUrl,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
   }
-  // New format - pass through
   return generateTeamInvitationEmailNew(params as TeamInvitationTemplateParams);
 }
