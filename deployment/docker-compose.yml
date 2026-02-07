@@ -1,3 +1,30 @@
+# ============================================================
+# CortexBuild Pro - Docker Compose Configuration
+# ============================================================
+# 
+# REQUIRED ENVIRONMENT VARIABLES (must be set before running):
+#   - NEXTAUTH_SECRET: Generate with `openssl rand -base64 32`
+#   - ABACUSAI_API_KEY: Your AbacusAI API key (for AI features)
+#
+# OPTIONAL ENVIRONMENT VARIABLES (have defaults):
+#   - POSTGRES_USER: Database username (default: cortexbuild)
+#   - POSTGRES_PASSWORD: Database password (default: CortexSecure2026)
+#   - POSTGRES_DB: Database name (default: cortexbuild)
+#   - NEXTAUTH_URL: Application URL (default: https://cortexbuildpro.com)
+#   - ENCRYPTION_KEY: Data encryption key
+#
+# Usage:
+#   # Set required variables and run
+#   export NEXTAUTH_SECRET=$(openssl rand -base64 32)
+#   export ABACUSAI_API_KEY=your-api-key
+#   docker compose up -d
+#
+# Or use an .env file in the deployment directory:
+#   cp .env.example .env
+#   # Edit .env with your values
+#   docker compose --env-file .env up -d
+# ============================================================
+
 services:
   # PostgreSQL Database
   db:
@@ -34,9 +61,11 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      # REQUIRED: Generate with `openssl rand -base64 32`
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required - generate with: openssl rand -base64 32}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
-      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY}
+      # REQUIRED: Your AbacusAI API key for AI features
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy
