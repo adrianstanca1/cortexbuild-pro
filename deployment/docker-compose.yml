@@ -3,25 +3,26 @@
 # ============================================================
 # 
 # REQUIRED ENVIRONMENT VARIABLES (must be set before running):
-#   - NEXTAUTH_SECRET: Generate with `openssl rand -base64 32`
-#   - ABACUSAI_API_KEY: Your AbacusAI API key (for AI features)
+#   - POSTGRES_PASSWORD: Database password - generate with `openssl rand -base64 24`
+#   - NEXTAUTH_SECRET: JWT secret - generate with `openssl rand -base64 32`
+#   - ENCRYPTION_KEY: Data encryption key - generate with `openssl rand -hex 32`
 #
 # OPTIONAL ENVIRONMENT VARIABLES (have defaults):
 #   - POSTGRES_USER: Database username (default: cortexbuild)
-#   - POSTGRES_PASSWORD: Database password (default: CortexSecure2026)
 #   - POSTGRES_DB: Database name (default: cortexbuild)
 #   - NEXTAUTH_URL: Application URL (default: https://cortexbuildpro.com)
-#   - ENCRYPTION_KEY: Data encryption key
+#   - ABACUSAI_API_KEY: AbacusAI API key (optional, for AI features)
 #
 # Usage:
 #   # Set required variables and run
+#   export POSTGRES_PASSWORD=$(openssl rand -base64 24)
 #   export NEXTAUTH_SECRET=$(openssl rand -base64 32)
-#   export ABACUSAI_API_KEY=your-api-key
+#   export ENCRYPTION_KEY=$(openssl rand -hex 32)
 #   docker compose up -d
 #
-# Or use an .env file in the deployment directory:
-#   cp .env.example .env
-#   # Edit .env with your values
+# Or use an .env file in the deployment directory (recommended for production):
+#   cp .env.docker-manager .env
+#   # Edit .env to set all required values (DB credentials, NEXTAUTH_SECRET, ENCRYPTION_KEY, etc.)
 #   docker compose --env-file .env up -d
 # ============================================================
 
@@ -33,7 +34,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-cortexbuild}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CortexSecure2026}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required - generate with: openssl rand -base64 24}
       POSTGRES_DB: ${POSTGRES_DB:-cortexbuild}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -59,12 +60,13 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
       # REQUIRED: Generate with `openssl rand -base64 32`
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required - generate with: openssl rand -base64 32}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
-      # REQUIRED: Your AbacusAI API key for AI features
+      # REQUIRED: Generate with `openssl rand -hex 32`
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?ENCRYPTION_KEY is required - generate with: openssl rand -hex 32}
+      # OPTIONAL: AbacusAI API key for AI features (app works without it, but AI endpoints will fail)
       - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
     depends_on:
       db:
