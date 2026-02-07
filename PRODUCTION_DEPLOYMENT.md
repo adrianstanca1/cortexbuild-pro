@@ -110,7 +110,7 @@ DATABASE_URL="postgresql://username:password@host:5432/cortexbuild?schema=public
 
 # NextAuth Configuration (REQUIRED)
 NEXTAUTH_SECRET="your-strong-random-secret-key-minimum-32-characters"
-NEXTAUTH_URL="https://yourdomain.com"
+NEXTAUTH_URL="https://www.cortexbuildpro.com"
 
 # Node Environment
 NODE_ENV="production"
@@ -135,7 +135,7 @@ SMTP_HOST="smtp.example.com"
 SMTP_PORT="587"
 SMTP_USER="your-email@example.com"
 SMTP_PASS="your-password"
-SMTP_FROM="noreply@yourdomain.com"
+SMTP_FROM="noreply@cortexbuildpro.com"
 
 # AI Features (Optional)
 ABACUSAI_API_KEY="your-abacus-api-key"

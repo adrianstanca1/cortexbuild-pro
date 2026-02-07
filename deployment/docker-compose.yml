@@ -8,7 +8,8 @@ services:
       - ../.env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-cortexbuild}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CortexSecure2026}
+      # POSTGRES_PASSWORD must be set in .env file - no default for security
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env file}
       POSTGRES_DB: ${POSTGRES_DB:-cortexbuild}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -28,6 +29,10 @@ services:
     build:
       context: ..
       dockerfile: deployment/Dockerfile
+    # Use specific image tag for deterministic deployments
+    # Tag format: ghcr.io/adrianstanca1/cortexbuild-pro:cortexbuildpro-<sha>
+    # Falls back to building from Dockerfile if image not available
+    image: ghcr.io/adrianstanca1/cortexbuild-pro:${DOCKER_IMAGE_TAG:-cortexbuildpro}
     container_name: cortexbuild-app
     restart: unless-stopped
     ports:
@@ -36,11 +41,11 @@ services:
       - ../.env
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD:-CortexSecure2026}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-MlKVwMSzZh25ydHp6rFPiaxTQ2WT88nK}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-cortexbuild_encryption_key_2026}
-      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-aab7e27d61c14a81a2bcf4d395478e4c}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-cortexbuild}?schema=public
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://www.cortexbuildpro.com}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY}
     depends_on:
       db:
         condition: service_healthy
