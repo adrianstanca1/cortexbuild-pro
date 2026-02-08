@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
-    // Verify all entries belong to user's organization
+    // Verify all entries belong to user's organization and get full data
     const entries = await prisma.timeEntry.findMany({
       where: {
         id: { in: entryIds },
@@ -41,7 +41,9 @@ export async function POST(request: NextRequest) {
       },
       include: {
         project: { select: { id: true, name: true } },
-        user: { select: { id: true, name: true, email: true } }
+        task: { select: { id: true, title: true } },
+        user: { select: { id: true, name: true, email: true } },
+        approvedBy: { select: { id: true, name: true } }
       }
     });
 
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
     // Update all entries
     const status = action === "approve" ? "APPROVED" : "REJECTED";
     
-    const updateResult = await prisma.timeEntry.updateMany({
+    await prisma.timeEntry.updateMany({
       where: { id: { in: entryIds } },
       data: {
         status,
@@ -60,6 +62,15 @@ export async function POST(request: NextRequest) {
         approvedAt: new Date()
       }
     });
+
+    // Update in-memory entries with new status for return value
+    const updatedEntries = entries.map(entry => ({
+      ...entry,
+      status,
+      approvedById: session.user.id,
+      approvedAt: new Date(),
+      approvedBy: { id: session.user.id, name: session.user.name || '' }
+    }));
 
     // Log activity for each entry
     const activityLogs = entries.map(entry => ({
@@ -87,20 +98,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Get updated entries to return
-    const updatedEntries = await prisma.timeEntry.findMany({
-      where: { id: { in: entryIds } },
-      include: {
-        project: { select: { id: true, name: true } },
-        task: { select: { id: true, title: true } },
-        user: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true } }
-      }
-    });
-
     return NextResponse.json({
       success: true,
-      updated: updateResult.count,
+      updated: entries.length,
       entries: updatedEntries
     });
   } catch (error) {

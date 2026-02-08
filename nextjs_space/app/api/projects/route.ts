@@ -17,16 +17,38 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
     return errorResponse("FORBIDDEN", "User must belong to an organization");
   }
 
-  const projects = await prisma.project.findMany({
-    where: { organizationId: context.organizationId },
-    include: {
-      manager: { select: { id: true, name: true } },
-      _count: { select: { tasks: true, documents: true } }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  // Add pagination support
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const skip = (page - 1) * pageSize;
 
-  return NextResponse.json({ projects });
+  // Get projects with pagination
+  const [projects, totalCount] = await Promise.all([
+    prisma.project.findMany({
+      where: { organizationId: context.organizationId },
+      include: {
+        manager: { select: { id: true, name: true } },
+        _count: { select: { tasks: true, documents: true } }
+      },
+      orderBy: { createdAt: "desc" },
+      take: pageSize,
+      skip: skip
+    }),
+    prisma.project.count({
+      where: { organizationId: context.organizationId }
+    })
+  ]);
+
+  return NextResponse.json({ 
+    projects,
+    pagination: {
+      page,
+      pageSize,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize)
+    }
+  });
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {

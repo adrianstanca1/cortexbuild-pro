@@ -16,16 +16,38 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
     return errorResponse("FORBIDDEN", "User must belong to an organization");
   }
 
-  const tasks = await prisma.task.findMany({
-    where: { project: { organizationId: context.organizationId } },
-    include: {
-      project: { select: { id: true, name: true } },
-      assignee: { select: { id: true, name: true, avatarUrl: true } }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  // Add pagination support
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const skip = (page - 1) * pageSize;
 
-  return NextResponse.json({ tasks });
+  // Get tasks with pagination
+  const [tasks, totalCount] = await Promise.all([
+    prisma.task.findMany({
+      where: { project: { organizationId: context.organizationId } },
+      include: {
+        project: { select: { id: true, name: true } },
+        assignee: { select: { id: true, name: true, avatarUrl: true } }
+      },
+      orderBy: { createdAt: "desc" },
+      take: pageSize,
+      skip: skip
+    }),
+    prisma.task.count({
+      where: { project: { organizationId: context.organizationId } }
+    })
+  ]);
+
+  return NextResponse.json({ 
+    tasks,
+    pagination: {
+      page,
+      pageSize,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize)
+    }
+  });
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {

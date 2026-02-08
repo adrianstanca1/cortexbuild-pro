@@ -19,29 +19,46 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   if (error) return error;
 
   const { projectId, status } = parseQueryParams(request);
+  
+  // Add pagination support
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const skip = (page - 1) * pageSize;
 
-  // Get all project IDs for the organization
-  const projects = await prisma.project.findMany({
-    where: { organizationId: context!.organizationId },
-    select: { id: true }
+  // Build where clause
+  const where: any = {
+    project: { organizationId: context!.organizationId },
+    ...(projectId && { projectId }),
+    ...(status && { status: status as any })
+  };
+
+  // Get RFIs with pagination
+  const [rfis, totalCount] = await Promise.all([
+    prisma.rFI.findMany({
+      where,
+      include: {
+        project: { select: { id: true, name: true } },
+        createdBy: { select: { id: true, name: true, email: true } },
+        assignedTo: { select: { id: true, name: true, email: true } },
+        _count: { select: { attachments: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: pageSize,
+      skip: skip
+    }),
+    prisma.rFI.count({ where })
+  ]);
+
+  return NextResponse.json({
+    rfis,
+    pagination: {
+      page,
+      pageSize,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize)
+    }
   });
-  const projectIds = projects.map(p => p.id);
-
-  const rfis = await prisma.rFI.findMany({
-    where: {
-      projectId: projectId ? { equals: projectId } : { in: projectIds },
-      ...(status && { status: status as any })
-    },
-    include: {
-      project: { select: { id: true, name: true } },
-      createdBy: { select: { id: true, name: true, email: true } },
-      assignedTo: { select: { id: true, name: true, email: true } },
-      _count: { select: { attachments: true } }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
-
-  return successResponse(rfis);
 });
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
