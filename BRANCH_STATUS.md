@@ -74,7 +74,7 @@ cortexbuildpro (latest)
 
 - [README.md](README.md) - Project overview
 - [FEATURE_SUMMARY.md](FEATURE_SUMMARY.md) - Feature documentation
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Deployment instructions
+- [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Deployment instructions
 - [BRANCH_CLEANUP_ANALYSIS.md](BRANCH_CLEANUP_ANALYSIS.md) - Cleanup strategy
 
 ---
