@@ -243,9 +243,9 @@ on:
 ## 📚 Additional Resources
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [VPS Deployment Guide](../VPS_DEPLOYMENT_GUIDE.md)
-- [Deployment Automation Guide](../VPS_DEPLOYMENT_AUTOMATION.md)
-- [Troubleshooting Guide](../../docs/TROUBLESHOOTING.md)
+- [Production Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md)
+- [Deployment Quick Start](../deployment/QUICKSTART.md)
+- [Troubleshooting Guide](../docs/TROUBLESHOOTING.md)
 
 ---
 

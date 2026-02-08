@@ -233,11 +233,10 @@ docker-compose restart           # Restart services
 - Maintain deployment guides
 
 ## Support Resources
-- **API Setup**: `API_SETUP_GUIDE.md`
-- **Deployment**: `DEPLOYMENT_GUIDE.md`
-- **Build Status**: `BUILD_STATUS.md`
-- **Configuration**: `CONFIGURATION_CHECKLIST.md`
-- **Performance**: `PERFORMANCE_OPTIMIZATIONS.md`
+- **API Setup**: `docs/API_SETUP_GUIDE.md`
+- **Deployment**: `deployment/PRODUCTION-DEPLOY-GUIDE.md`
+- **Configuration**: `docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md`
+- **Performance**: `docs/PERFORMANCE_OPTIMIZATIONS.md`
 
 ## When in Doubt
 1. Check existing code for similar patterns

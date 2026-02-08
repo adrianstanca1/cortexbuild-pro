@@ -23,7 +23,7 @@ CortexBuild Pro has been fully productionized to enterprise standards with:
 ### Deployment Guides
 - **[CloudPanel Deployment Guide](deployment/CLOUDPANEL-GUIDE.md)** - Complete step-by-step deployment (31KB)
 - **[Production Readiness Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Pre-launch verification (12KB)
-- **[VPS Deployment Guide](VPS_DEPLOYMENT_GUIDE.md)** - Standard VPS deployment
+- **[VPS Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md)** - Production VPS deployment
 
 ### Operations
 - **[Disaster Recovery Runbook](DISASTER_RECOVERY_RUNBOOK.md)** - Emergency procedures (13KB)
