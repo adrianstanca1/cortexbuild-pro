@@ -24,7 +24,7 @@ Deploy with a single click from GitHub - no manual SSH access required!
 ssh root@YOUR_VPS_IP
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 
 # 2. Configure GitHub secrets in your repository:
 #    - VPS_SSH_KEY (SSH private key)
@@ -50,7 +50,7 @@ tar -xzf main.tar.gz
 cd cortexbuild-pro-main/deployment
 
 # Run one-click deployment
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 ```
 
 That's it! The script will:
@@ -114,7 +114,7 @@ See [PRODUCTION-DEPLOY-GUIDE.md](PRODUCTION-DEPLOY-GUIDE.md) for complete detail
 cd /root
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 ```
 
 **Features:**
@@ -548,7 +548,7 @@ After seeding the database, several demo accounts are created for testing.
 
 ```bash
 # Initial Deploy
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 
 # Production Deploy (Updates)
 ./production-deploy.sh

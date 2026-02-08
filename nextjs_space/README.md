@@ -97,7 +97,7 @@ For production deployment to a VPS (Virtual Private Server):
 cd /root
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 ```
 
 See the [Deployment Quick Start Guide](../deployment/QUICKSTART.md) for complete instructions, including:

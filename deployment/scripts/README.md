@@ -6,7 +6,6 @@ This directory contains deployment-specific utility scripts for CortexBuild Pro.
 
 - `verify-platform.ts` - Verify platform configuration and requirements
 - `verify-build.sh` - Verify build integrity and artifacts
-- `verify-deployment.sh` - Comprehensive deployment verification
 - `script-db-helper.ts` - Shared database client helper for deployment scripts
 
 ## Main Application Scripts
@@ -106,6 +105,5 @@ chmod +x scripts/*.ts
 
 ## Learn More
 
-- See `/CODE_STRUCTURE.md` for comprehensive documentation on code patterns
-- See `/DEPLOYMENT_GUIDE.md` for full deployment instructions
+- See `../deployment/PRODUCTION-DEPLOY-GUIDE.md` for full deployment instructions
 - See `../nextjs_space/scripts/README.md` for Next.js script usage

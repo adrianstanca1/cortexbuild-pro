@@ -25,8 +25,8 @@ Deploy directly from GitHub with one click - no SSH required!
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
 
-# One-click deployment (fresh install)
-sudo bash one-click-deploy.sh
+# Quick start deployment (fresh install)
+sudo bash quick-start.sh
 
 # OR Production update workflow (recommended for updates)
 ./production-deploy.sh
@@ -172,23 +172,22 @@ All deployment scripts are located in the `deployment/` directory:
 
 **Main Deployment:**
 - `production-deploy.sh` - ⭐ Complete production workflow (recommended)
-- `one-click-deploy.sh` - Fresh VPS setup with prerequisites
-- `vps-full-deploy.sh` - Remote deployment via curl
+- `quick-start.sh` - Quick start VPS deployment
+- `deploy-from-github.sh` - Deploy from GitHub repository
 - `cloudpanel-deploy.sh` - CloudPanel-specific deployment
 
 **Maintenance:**
 - `cleanup-repos.sh` - Clean Docker and Git artifacts
 - `health-check.sh` - Verify deployment health
-- `backup.sh` - Create database backup
-- `restore.sh` - Restore from backup
+- `enterprise-backup.sh` - Create database backup
+- `enterprise-restore.sh` - Restore from backup
 - `rollback.sh` - Rollback to previous version
-- `scripts-help.sh` - Show all available scripts
 
 **Setup:**
 - `setup-ssl.sh` - Configure SSL certificates
 - `seed-db.sh` - Seed database with initial data
 
-Run `./scripts-help.sh` in the deployment directory to see all available commands.
+See [deployment/README.md](deployment/README.md) for all available deployment scripts.
 
 ## 🧹 Repository Cleanup
 
