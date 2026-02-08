@@ -18,22 +18,3 @@ out
 .deploy
 .logs
 *.tsbuildinfo
-
-# Deployment artifacts
-*.tar.gz
-*.zip
-/.env
-/deployment/.env
-/deployment/.env.*
-!/deployment/.env.example
-!/deployment/.env.production
-/deployment/PRODUCTION-CREDENTIALS.txt
-**/PRODUCTION-CREDENTIALS.txt
-**/*-CREDENTIALS.txt
-**/*-CREDENTIALS*.md
-**/ACTUAL-CREDENTIALS*.md
-**/.env.local
-**/.env.*.local
-
-# Git rewrite artifacts
-.git-rewrite/

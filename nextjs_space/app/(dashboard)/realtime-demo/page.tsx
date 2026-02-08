@@ -1,13 +1,12 @@
 // app/(dashboard)/realtime-demo/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRealtimeContext, useRealtimeSubscription } from '@/components/realtime-provider';
 import { useSession } from 'next-auth/react';
-import RealTimeNotifications from '@/components/ui/realtime-notifications';
 import { toast } from 'sonner';
 import type { RealtimeEvent } from '@/lib/realtime';
 
@@ -68,7 +67,6 @@ const RealTimeDemoPage = () => {
           <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
           <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
           <span className="text-sm text-gray-600">({connectedClients} clients)</span>
-          <RealTimeNotifications />
         </div>
       </div>
 
