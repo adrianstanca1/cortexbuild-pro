@@ -64,8 +64,8 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
-          app_id: process.env.WEB_APPID,
+          deployment_token: process.env.ABACUSAI_API_KEY,
+          app_id: process.env.WEB_APP_ID,
           subject: options.subject,
           body: options.html,
           is_html: true,
