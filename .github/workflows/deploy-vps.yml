@@ -244,7 +244,7 @@ jobs:
 
             # Run database migrations (warn on failure, do not block deployment)
             echo "🗄️ Running database migrations..."
-            if docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>&1; then
+            if docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy"; then
               echo "✅ Database migrations completed successfully"
             else
               echo "⚠️ Database migrations failed (non-blocking)"
