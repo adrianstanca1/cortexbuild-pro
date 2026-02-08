@@ -185,6 +185,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
+          DEPLOY_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || 'cortexbuildpro' }}
         run: |
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
             set -e
@@ -195,7 +196,7 @@ jobs:
             cd $DEPLOYMENT_PATH
 
             # Stash any local changes to avoid conflicts
-            echo "📥 Pulling latest code..."
+            echo "📥 Pulling latest code from branch $DEPLOY_BRANCH..."
             git fetch origin
 
             # Check for local changes
@@ -205,7 +206,7 @@ jobs:
             fi
 
             # Pull latest changes with rebase
-            git pull --rebase origin cortexbuildpro || {
+            git pull --rebase origin $DEPLOY_BRANCH || {
               echo "❌ Failed to pull latest changes"
               git rebase --abort
               exit 1
@@ -222,22 +223,24 @@ jobs:
             echo "🔄 Restarting services..."
             docker compose up -d --no-build
 
-            # Wait for application to be healthy with retries
+            # Wait for application to be healthy (checks DB connectivity via /api/health)
             echo "⏳ Waiting for application to be ready..."
             MAX_RETRIES=30
             RETRY_COUNT=0
             while [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
-              if curl -f -s http://localhost:3000/api/auth/providers > /dev/null 2>&1; then
-                echo "✅ Application is healthy"
+              HEALTH_STATUS=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null || echo "000")
+              if [ "\$HEALTH_STATUS" = "200" ]; then
+                echo "✅ Application is healthy (database connected)"
                 break
               fi
               RETRY_COUNT=\$((RETRY_COUNT + 1))
-              echo "Attempt \$RETRY_COUNT/\$MAX_RETRIES..."
+              echo "Attempt \$RETRY_COUNT/\$MAX_RETRIES... (status: \$HEALTH_STATUS)"
               sleep 10
             done
 
             if [ \$RETRY_COUNT -ge \$MAX_RETRIES ]; then
               echo "❌ Application failed to become healthy within timeout"
+              echo "--- Application logs ---"
               docker compose logs --tail=50 app
               exit 1
             fi
@@ -271,13 +274,10 @@ jobs:
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
             cd $DEPLOYMENT_PATH
 
-            # Run verification script if it exists
-            if [ -f scripts/verify-deployment.sh ]; then
-              echo "🔍 Running deployment verification..."
-              if ! ./scripts/verify-deployment.sh; then
-                echo "⚠️ Verification script reported issues"
-                exit 1
-              fi
+            # Run health check script
+            if [ -f deployment/health-check.sh ]; then
+              echo "🔍 Running deployment health check..."
+              bash deployment/health-check.sh
             fi
           ENDSSH
 
