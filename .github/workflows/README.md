@@ -245,7 +245,7 @@ on:
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [VPS Deployment Guide](../VPS_DEPLOYMENT_GUIDE.md)
 - [Deployment Automation Guide](../VPS_DEPLOYMENT_AUTOMATION.md)
-- [Troubleshooting Guide](../TROUBLESHOOTING.md)
+- [Troubleshooting Guide](../../docs/TROUBLESHOOTING.md)
 
 ---
 

@@ -66,6 +66,22 @@ sudo bash one-click-deploy.sh
 - [Deployment Comparison](deployment/DEPLOYMENT-COMPARISON.md) - Compare deployment methods
 - [Quick Reference](deployment/QUICK-REFERENCE.md) - Command reference
 
+### API & Configuration
+- [API Setup Guide](docs/API_SETUP_GUIDE.md) - API configuration
+- [API Endpoints](docs/API_ENDPOINTS.md) - Complete API reference
+- [API WebSocket Reference](docs/API_WEBSOCKET_REFERENCE.md) - WebSocket API reference
+- [Quick Start](docs/QUICKSTART.md) - Quick start guide
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Documentation Index](docs/DOCUMENTATION_INDEX.md) - Full documentation index
+
+### Security & Operations
+- [Security Compliance](docs/SECURITY_COMPLIANCE.md) - Security best practices
+- [Security Checklist](docs/SECURITY_CHECKLIST.md) - Pre-deployment security checklist
+- [Security Advisory](docs/SECURITY_ADVISORY.md) - Security status and vulnerabilities
+- [Production Deployment Checklist](docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Production readiness
+- [Runbook](docs/RUNBOOK.md) - Operational procedures
+- [Disaster Recovery Runbook](docs/DISASTER_RECOVERY_RUNBOOK.md) - Emergency procedures
+
 ### Feature Documentation
 - [Admin UI Pages](docs/ADMIN_UI_PAGES_SUMMARY.md) - Admin interface overview
 - [Advanced Features](docs/ADVANCED_FEATURES_SUMMARY.md) - Advanced functionality

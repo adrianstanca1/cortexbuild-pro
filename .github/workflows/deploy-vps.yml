@@ -166,7 +166,7 @@ jobs:
             echo "Please configure these secrets in your repository settings:"
             echo "Settings > Secrets and variables > Actions > New repository secret"
             echo ""
-            echo "For detailed instructions, see: GITHUB_SECRETS_GUIDE.md"
+            echo "For detailed instructions, see: docs/GITHUB_SECRETS_GUIDE.md"
             exit 1
           fi
           
@@ -201,7 +201,7 @@ jobs:
             # Check for local changes
             if ! git diff-index --quiet HEAD --; then
               echo "⚠️ Local changes detected, stashing..."
-              git stash save "Auto-stash before deployment $(date +%Y%m%d_%H%M%S)"
+              git stash save "Auto-stash before deployment \$(date +%Y%m%d_%H%M%S)"
             fi
 
             # Pull latest changes with rebase
@@ -226,17 +226,17 @@ jobs:
             echo "⏳ Waiting for application to be ready..."
             MAX_RETRIES=30
             RETRY_COUNT=0
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            while [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
               if curl -f -s http://localhost:3000/api/auth/providers > /dev/null 2>&1; then
                 echo "✅ Application is healthy"
                 break
               fi
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              echo "Attempt $RETRY_COUNT/$MAX_RETRIES..."
+              RETRY_COUNT=\$((RETRY_COUNT + 1))
+              echo "Attempt \$RETRY_COUNT/\$MAX_RETRIES..."
               sleep 10
             done
 
-            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+            if [ \$RETRY_COUNT -ge \$MAX_RETRIES ]; then
               echo "❌ Application failed to become healthy within timeout"
               docker compose logs --tail=50 app
               exit 1

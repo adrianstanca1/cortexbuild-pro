@@ -185,7 +185,7 @@ else
     echo "  1. Check logs: docker compose logs -f"
     echo "  2. Verify .env configuration"
     echo "  3. Ensure all required services are running"
-    echo "  4. Review TROUBLESHOOTING.md for common issues"
+    echo "  4. Review docs/TROUBLESHOOTING.md for common issues"
     echo ""
     exit 1
 fi

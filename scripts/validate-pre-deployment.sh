@@ -268,7 +268,7 @@ if [ $CHECKS_FAILED -eq 0 ]; then
     echo "   - Ports 80, 443, 22 accessible"
     echo ""
     echo "3. Review deployment checklist:"
-    echo "   cat PRODUCTION_DEPLOYMENT_CHECKLIST.md"
+    echo "   cat docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md"
     echo ""
     echo "4. Trigger deployment:"
     echo "   ./trigger-production-deploy.sh"

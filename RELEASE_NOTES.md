@@ -174,11 +174,11 @@ If you're already running CortexBuild Pro, update to the published image:
 - **[README.md](README.md)** - Project overview and quick start
 
 ### API Documentation
-- **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - API configuration
-- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - API reference
+- **[API_SETUP_GUIDE.md](docs/API_SETUP_GUIDE.md)** - API configuration
+- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - API reference
 
 ### Security
-- **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices
+- **[SECURITY_COMPLIANCE.md](docs/SECURITY_COMPLIANCE.md)** - Security best practices
 
 ---
 

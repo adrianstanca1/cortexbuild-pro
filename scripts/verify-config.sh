@@ -128,7 +128,7 @@ if [ -z "$SENDGRID_API_KEY" ]; then
 fi
 echo ""
 echo "📚 Next Steps:"
-echo "   1. Review API_SETUP_GUIDE.md for detailed configuration"
+echo "   1. Review docs/API_SETUP_GUIDE.md for detailed configuration"
 echo "   2. Check CONFIGURATION_CHECKLIST.md for deployment checklist"
 echo "   3. For development: cd nextjs_space && npm install && npm run dev"
 echo "   4. For production: cd deployment && docker-compose up -d"
