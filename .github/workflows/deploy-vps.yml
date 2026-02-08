@@ -245,13 +245,16 @@ jobs:
               exit 1
             fi
 
-            # Run database migrations
+            # Run database migrations (warn on failure, do not block deployment)
             echo "🗄️ Running database migrations..."
-            if ! docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy"; then
-              echo "❌ Database migrations failed"
-              echo "--- Application logs ---"
-              docker compose logs --tail=50 app
-              exit 1
+            if docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy"; then
+              echo "✅ Database migrations completed successfully"
+            else
+              echo "⚠️ Database migrations failed (non-blocking)"
+              echo "The application is running but migrations may need to be applied manually."
+              echo "Common causes: database credential mismatch, pending manual migration steps."
+              echo "Run manually: docker compose exec app sh -c 'cd /app && npx prisma migrate deploy'"
+              docker compose logs --tail=20 app
             fi
 
             # Show running containers

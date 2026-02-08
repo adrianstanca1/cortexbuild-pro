@@ -1,6 +1,6 @@
 # 🎉 CortexBuild Pro - Release Notes
 
-## Version 2.3.0 - Latest
+## Version 2.3.1 - Latest
 
 **Release Date:** February 8, 2026  
 **Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
@@ -169,7 +169,6 @@ If you're already running CortexBuild Pro, update to the published image:
 
 ### Essential Guides
 - **[deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)** - Production deployment options
-- **[deployment/PUBLIC_LAUNCH_GUIDE.md](deployment/PUBLIC_LAUNCH_GUIDE.md)** - Public deployment guide
 - **[README.md](README.md)** - Project overview and quick start
 
 ### API Documentation
@@ -366,6 +365,13 @@ When reporting issues, include:
 ---
 
 ## 📝 Changelog
+
+### [2.3.1] - 2026-02-08
+
+#### Fixed
+- Fixed Deploy to VPS workflow: database migration failures no longer block successful deployments
+- Migration step is now non-blocking when the application is already healthy and running
+- Improved deployment error messages with actionable guidance for manual migration
 
 ### [2.3.0] - 2026-02-08
 

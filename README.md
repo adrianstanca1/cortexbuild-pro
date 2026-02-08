@@ -63,7 +63,6 @@ sudo bash quick-start.sh
 - [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production workflow and updates
 - [Docker Manager Guide](deployment/README-DOCKER-MANAGER.md) - Visual Docker management with Portainer
 - [CloudPanel Guide](deployment/CLOUDPANEL-GUIDE.md) - Deploy with CloudPanel
-- [Deployment Comparison](deployment/DEPLOYMENT-COMPARISON.md) - Compare deployment methods
 - [Quick Reference](deployment/QUICK-REFERENCE.md) - Command reference
 
 ### API & Configuration
