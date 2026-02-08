@@ -30,48 +30,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ results: [] });
     }
 
-    // Search projects
-    const projects = await prisma.project.findMany({
-      where: {
-        organizationId: user.organizationId,
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-          { clientName: { contains: query, mode: 'insensitive' } },
-          { location: { contains: query, mode: 'insensitive' } }
-        ]
-      },
-      select: { id: true, name: true, status: true },
-      take: 5
-    });
-
-    // Search tasks
-    const tasks = await prisma.task.findMany({
-      where: {
-        project: { organizationId: user.organizationId },
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
-        ]
-      },
-      select: { id: true, title: true, status: true, project: { select: { name: true } } },
-      take: 5
-    });
-
-    // Search team members
-    const teamMembers = await prisma.teamMember.findMany({
-      where: {
-        organizationId: user.organizationId,
-        user: {
+    // Parallelize all search queries
+    const [projects, tasks, teamMembers] = await Promise.all([
+      // Search projects
+      prisma.project.findMany({
+        where: {
+          organizationId: user.organizationId,
           OR: [
             { name: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } }
+            { description: { contains: query, mode: 'insensitive' } },
+            { clientName: { contains: query, mode: 'insensitive' } },
+            { location: { contains: query, mode: 'insensitive' } }
           ]
-        }
-      },
-      include: { user: { select: { id: true, name: true, email: true } } },
-      take: 5
-    });
+        },
+        select: { id: true, name: true, status: true },
+        take: 5
+      }),
+      // Search tasks
+      prisma.task.findMany({
+        where: {
+          project: { organizationId: user.organizationId },
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } }
+          ]
+        },
+        select: { id: true, title: true, status: true, project: { select: { name: true } } },
+        take: 5
+      }),
+      // Search team members
+      prisma.teamMember.findMany({
+        where: {
+          organizationId: user.organizationId,
+          user: {
+            OR: [
+              { name: { contains: query, mode: 'insensitive' } },
+              { email: { contains: query, mode: 'insensitive' } }
+            ]
+          }
+        },
+        include: { user: { select: { id: true, name: true, email: true } } },
+        take: 5
+      })
+    ]);
 
     // Combine and format results
     const results = [
