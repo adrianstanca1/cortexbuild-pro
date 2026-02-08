@@ -663,6 +663,6 @@ The application is now ready for deployment with full functionality!
 
 For additional support or questions:
 - Review the main [README.md](../nextjs_space/README.md)
-- Check [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
+- Check [Production Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md)
 - See [RUNBOOK.md](../RUNBOOK.md) for operational guidance
 - Contact the development team

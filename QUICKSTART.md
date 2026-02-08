@@ -2,26 +2,25 @@
 
 > 📖 **Documentation Guide:**
 > - **This guide** - Quick start for local development and Docker deployment
-> - **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
-> - **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Comprehensive production deployment guide
+> - **[deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)** - Comprehensive production deployment guide
 
 Welcome to CortexBuild Pro! This guide will help you get started quickly.
 
 ## 🚀 Quick Deployment (Recommended)
 
-We've made deployment simple with an automated script:
+We've made deployment simple with Docker Compose:
 
 ```bash
-./deploy-now.sh
+cd deployment
+docker-compose up -d
 ```
 
-This script will:
-1. ✅ Check all prerequisites (Docker, Docker Compose, etc.)
-2. ✅ Set up environment configuration
-3. ✅ Auto-generate secure secrets
-4. ✅ Deploy all services with Docker Compose
-5. ✅ Run database migrations
-6. ✅ Display deployment status and next steps
+This will:
+1. ✅ Deploy all services with Docker Compose
+2. ✅ Set up the database
+3. ✅ Start the application
+
+See [deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md) for complete setup instructions.
 
 ## 📋 Prerequisites
 
@@ -42,8 +41,9 @@ Before deployment, ensure you have:
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro
 
-# Run the quick deploy script
-./deploy-now.sh
+# Use Docker Compose to deploy
+cd deployment
+docker-compose up -d
 ```
 
 The script will guide you through configuration and deploy everything automatically!
@@ -281,7 +281,7 @@ ports:
 ## 📚 Additional Resources
 
 ### Documentation
-- [Production Deployment Guide](PRODUCTION_DEPLOYMENT.md) - Detailed deployment instructions
+- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Detailed deployment instructions
 - [API Setup Guide](API_SETUP_GUIDE.md) - Configure API services
 - [Production Deployment Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md) - Complete setup checklist
 - [Performance Optimizations](PERFORMANCE_OPTIMIZATIONS.md) - Tuning guide

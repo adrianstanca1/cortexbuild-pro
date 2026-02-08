@@ -220,6 +220,6 @@ echo "    3. Run: node production-server.js"
 echo ""
 
 echo "📚 Documentation:"
-echo "  - Production Deployment: ../PRODUCTION_DEPLOYMENT.md"
+echo "  - Production Deployment: ../deployment/PRODUCTION-DEPLOY-GUIDE.md"
 echo "  - API Setup: ../API_SERVER_SETUP.md"
 echo ""

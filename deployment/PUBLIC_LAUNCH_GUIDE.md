@@ -395,9 +395,9 @@ docker system prune -af --volumes
 ### Documentation Links
 
 - **Main README**: `/README.md`
-- **Deployment Guide**: `/PRODUCTION_DEPLOYMENT.md`
+- **Deployment Guide**: `/deployment/PRODUCTION-DEPLOY-GUIDE.md`
 - **Docker Manager Guide**: `/deployment/README-DOCKER-MANAGER.md`
-- **VPS Configuration**: `/VPS_CONNECTION_CONFIG.md`
+- **VPS Configuration**: `/GITHUB_SECRETS_GUIDE.md`
 - **API Setup**: `/API_SETUP_GUIDE.md`
 
 ---

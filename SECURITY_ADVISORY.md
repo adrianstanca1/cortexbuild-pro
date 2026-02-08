@@ -354,7 +354,7 @@ docker-compose exec app npx tsx scripts/seed.ts
 ### Documentation
 - [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Pre-deployment security checklist
 - [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md) - Compliance guidelines
-- [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) - Deployment procedures
+- [deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md) - Deployment procedures
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues and solutions
 
 ### External Resources

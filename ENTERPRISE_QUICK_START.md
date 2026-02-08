@@ -21,8 +21,8 @@ CortexBuild Pro has been fully productionized to enterprise standards with:
 ## 🎯 Quick Links
 
 ### Deployment Guides
-- **[CloudPanel Deployment Guide](CLOUDPANEL_DEPLOYMENT_GUIDE.md)** - Complete step-by-step deployment (31KB)
-- **[Production Readiness Checklist](PRODUCTION_READINESS_CHECKLIST.md)** - Pre-launch verification (12KB)
+- **[CloudPanel Deployment Guide](deployment/CLOUDPANEL-GUIDE.md)** - Complete step-by-step deployment (31KB)
+- **[Production Readiness Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Pre-launch verification (12KB)
 - **[VPS Deployment Guide](VPS_DEPLOYMENT_GUIDE.md)** - Standard VPS deployment
 
 ### Operations
@@ -71,7 +71,7 @@ pm2 start ecosystem.config.js
 ```
 
 **Deployment Time:** ~30 minutes  
-**For detailed instructions:** See [CLOUDPANEL_DEPLOYMENT_GUIDE.md](CLOUDPANEL_DEPLOYMENT_GUIDE.md)
+**For detailed instructions:** See [deployment/CLOUDPANEL-GUIDE.md](deployment/CLOUDPANEL-GUIDE.md)
 
 ---
 
@@ -302,8 +302,8 @@ npm audit fix
 
 Before going to production:
 
-1. **Complete** [PRODUCTION_READINESS_CHECKLIST.md](PRODUCTION_READINESS_CHECKLIST.md)
-2. **Review** [CLOUDPANEL_DEPLOYMENT_GUIDE.md](CLOUDPANEL_DEPLOYMENT_GUIDE.md)
+1. **Complete** [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+2. **Review** [deployment/CLOUDPANEL-GUIDE.md](deployment/CLOUDPANEL-GUIDE.md)
 3. **Test** deployment on staging first
 4. **Verify** all security checks pass
 5. **Confirm** backups are working
@@ -370,9 +370,9 @@ Before going to production:
 
 ## 🎯 Next Steps
 
-1. **Read** [CLOUDPANEL_DEPLOYMENT_GUIDE.md](CLOUDPANEL_DEPLOYMENT_GUIDE.md) thoroughly
+1. **Read** [deployment/CLOUDPANEL-GUIDE.md](deployment/CLOUDPANEL-GUIDE.md) thoroughly
 2. **Prepare** your VPS following the guide
-3. **Complete** [PRODUCTION_READINESS_CHECKLIST.md](PRODUCTION_READINESS_CHECKLIST.md)
+3. **Complete** [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
 4. **Deploy** using the automated scripts
 5. **Verify** all health checks pass
 6. **Monitor** for 48 hours post-launch
