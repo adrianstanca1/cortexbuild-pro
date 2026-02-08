@@ -342,7 +342,7 @@ npx tsx scripts/test-integration.ts
 | [QUICKSTART_API.md](QUICKSTART_API.md) | 5-minute quick start |
 | [API_ENDPOINTS.md](API_ENDPOINTS.md) | API reference |
 | [BACKEND_FRONTEND_CONNECTIVITY.md](BACKEND_FRONTEND_CONNECTIVITY.md) | Architecture |
-| [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) | Production guide |
+| [deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md) | Production guide |
 
 ## 🎉 Summary
 

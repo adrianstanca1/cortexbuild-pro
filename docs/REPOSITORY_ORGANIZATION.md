@@ -67,18 +67,12 @@ cortexbuild-pro/
 
 ### Files Removed
 - `deployment/.env.docker-manager` - Redundant (use `.env.example` instead)
-
-### Files Archived
-Moved to `docs/deployment/archived/`:
-- `CLEANUP_SUMMARY.md` - Repository cleanup documentation
-- `DEPLOYMENT_SUCCESS.md` - Deployment status report
-- `VPS_DEPLOYMENT_SUMMARY.md` - VPS deployment implementation summary
+- Archived deployment status reports removed (available in git history)
 
 ### Files Organized
 - All feature documentation in `docs/`
 - All deployment files in `deployment/`
 - All utility scripts in `scripts/`
-- Historical records in `docs/deployment/archived/`
 
 ## File Conventions
 
@@ -153,7 +147,7 @@ cp deployment/.env.production deployment/.env
 - `deployment/QUICK-REFERENCE.md` - Command reference
 
 ### Historical Records
-- `docs/deployment/archived/` - Implementation summaries
+- `docs/` - Feature documentation and guides
 
 ## Maintenance Guidelines
 

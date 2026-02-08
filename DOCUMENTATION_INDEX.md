@@ -9,9 +9,9 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[QUICKSTART.md](QUICKSTART.md)** - Step-by-step guide to get the platform running quickly
 
 ### Deployment & Operations
-- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
-- **[CLOUDPANEL_DEPLOYMENT_GUIDE.md](CLOUDPANEL_DEPLOYMENT_GUIDE.md)** - CloudPanel-specific deployment instructions
-- **[DEPLOYMENT_QUICK_REFERENCE.md](DEPLOYMENT_QUICK_REFERENCE.md)** - Quick reference for common deployment commands
+- **[deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)** - ⭐ **Primary deployment guide** - Comprehensive production deployment
+- **[deployment/CLOUDPANEL-GUIDE.md](deployment/CLOUDPANEL-GUIDE.md)** - CloudPanel-specific deployment instructions
+- **[deployment/README.md](deployment/README.md)** - Deployment scripts overview and quick reference
 - **[RUNBOOK.md](RUNBOOK.md)** - Operational procedures, troubleshooting, and maintenance tasks
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
 
@@ -24,9 +24,7 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)** - Complete reference for all API keys and passwords
 - **[API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)** - Comprehensive guide for configuring API keys and external services
 - **[GITHUB_SECRETS_GUIDE.md](GITHUB_SECRETS_GUIDE.md)** - GitHub repository secrets configuration
-- **[VPS_CONNECTION_CONFIG.md](VPS_CONNECTION_CONFIG.md)** - VPS connection and WebSocket configuration
 - **[PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)** - Production readiness checklist
-- **[PRODUCTION_READINESS_CHECKLIST.md](PRODUCTION_READINESS_CHECKLIST.md)** - Comprehensive pre-deployment checklist
 
 ### Security & Compliance
 - **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices, compliance information, and audit details
@@ -39,7 +37,7 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - Complete API endpoint documentation
 - **[API_WEBSOCKET_REFERENCE.md](API_WEBSOCKET_REFERENCE.md)** - WebSocket API reference
 - **[BACKEND_FRONTEND_CONNECTIVITY.md](BACKEND_FRONTEND_CONNECTIVITY.md)** - Backend-frontend integration guide
-- **[PERFORMANCE_IMPROVEMENTS_2026.md](PERFORMANCE_IMPROVEMENTS_2026.md)** - Performance tuning guide and latest improvements
+- **[docs/PERFORMANCE_OPTIMIZATIONS.md](docs/PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning guide and improvements
 
 ### Release Information
 - **[RELEASE_NOTES.md](RELEASE_NOTES.md)** - Version history and release notes
@@ -54,23 +52,25 @@ This index provides an overview of all documentation available in the CortexBuil
 ## Quick Reference Scripts
 
 ### Root Directory Scripts
-- **[deploy-now.sh](deploy-now.sh)** - Quick deployment script with interactive guidance
 - **[verify-config.sh](verify-config.sh)** - Configuration verification utility
-- **[verify-deployment.sh](verify-deployment.sh)** - Deployment verification script
-- **[cleanup-remote-branches.sh](cleanup-remote-branches.sh)** - Git branch cleanup utility
+- **[scan-env-vars.sh](scan-env-vars.sh)** - Environment variable scanning tool
+- **[validate-pre-deployment.sh](validate-pre-deployment.sh)** - Pre-deployment validation
+- **[trigger-production-deploy.sh](trigger-production-deploy.sh)** - CI/CD deployment trigger
+- **[vps-deploy.sh](vps-deploy.sh)** - VPS deployment script
+- **[create-deployment-package.sh](create-deployment-package.sh)** - Build deployment package
 
 ### Deployment Scripts
 See [deployment/README.md](deployment/README.md) for deployment-specific scripts including:
-- deploy-production.sh - Production deployment automation
-- deploy-vps.sh - VPS deployment
-- setup-ssl.sh - SSL/HTTPS configuration
+- production-deploy.sh - Production deployment automation
+- vps-setup.sh - VPS server setup
+- public-launch-master.sh - Comprehensive public deployment
 - backup.sh / restore.sh - Database backup/restore
 - And more...
 
 ## Deployment Directory
 
 The `deployment/` directory contains Docker configuration and deployment scripts. 
-See [deployment/README.md](deployment/README.md) for quick reference or [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) for comprehensive deployment guide.
+See [deployment/README.md](deployment/README.md) for quick reference or [deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md) for comprehensive deployment guide.
 
 ## Next.js Application
 
@@ -156,7 +156,7 @@ The `nextjs_space/` directory contains:
 1. **Start here**: [README.md](README.md)
 2. **Quick setup**: [QUICKSTART.md](QUICKSTART.md)
 3. **API Keys & Passwords**: [API_KEYS_AND_PASSWORDS_REFERENCE.md](API_KEYS_AND_PASSWORDS_REFERENCE.md)
-4. **Deploy to production**: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
+4. **Deploy to production**: [deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)
 5. **Configuration**: [PRODUCTION_DEPLOYMENT_CHECKLIST.md](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
 6. **Problems?**: [RUNBOOK.md](RUNBOOK.md) - Troubleshooting section
 7. **Security**: [SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)
@@ -172,8 +172,16 @@ When adding new documentation:
 
 ---
 
-**Last Updated:** February 5, 2026  
-**Latest Change:** Repository cleanup - removed 19 redundant files (16 documentation + 3 scripts)
+**Last Updated:** February 8, 2026  
+**Latest Change:** Repository cleanup - removed 25 redundant files (10 documentation, 13 scripts, 2 config files)
+
+### February 8, 2026 Cleanup - Branch Sync & Consolidation
+- **Analyzed all 9 branches** for unmerged changes and conflicts
+- **Removed 5 redundant root shell scripts**: deploy-now.sh, quick-public-launch.sh, delete-copilot-branches.sh, prepare-vps-deployment.sh, show-deployment-status.sh
+- **Removed 8 redundant deployment scripts**: deploy-production.sh, clean-build-deploy.sh, one-click-deploy.sh, vps-full-deploy.sh, vps-public-deploy.sh, windmill-setup.sh, windmill-deploy-flow.yaml, scripts-help.sh
+- **Removed 10 redundant documentation files**: BRANCH_STATUS.md, BRANCH_CLEANUP_ANALYSIS.md, SECURITY_REVIEW_SUMMARY.md, PRODUCTION_DEPLOYMENT.md, CLOUDPANEL_DEPLOYMENT_GUIDE.md, DEPLOYMENT_QUICK_REFERENCE.md, PRODUCTION_READINESS_CHECKLIST.md, VPS_CONNECTION_CONFIG.md, PERFORMANCE_OPTIMIZATIONS_SUMMARY.md, deployment/QUICK-REFERENCE.md
+- **Removed 2 redundant config files**: deployment/.env.docker-manager, deployment/portainer-stack-env.txt
+- **Updated DOCUMENTATION_INDEX.md** to reflect current file structure
 
 ### February 5, 2026 Cleanup
 - **Removed 16 redundant documentation files**:

@@ -594,7 +594,7 @@ If you're still experiencing issues:
 
 ## 📚 Related Documentation
 
-- [Production Deployment Guide](PRODUCTION_DEPLOYMENT.md)
+- [Production Deployment Guide](deployment/PRODUCTION-DEPLOY-GUIDE.md)
 - [API Setup Guide](API_SETUP_GUIDE.md)
 - [Production Deployment Checklist](PRODUCTION_DEPLOYMENT_CHECKLIST.md)
 - [Runbook](RUNBOOK.md)

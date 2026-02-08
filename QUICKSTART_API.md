@@ -185,7 +185,7 @@ npm run build
 
 ### Deploy to Production
 
-See [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md) for:
+See [Production Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md) for:
 - Docker Compose deployment
 - Environment configuration
 - SSL/HTTPS setup
@@ -208,7 +208,7 @@ See [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md) for:
 - 📖 [API Server Setup](../API_SERVER_SETUP.md) - Detailed setup guide
 - 📡 [API Endpoints](../API_ENDPOINTS.md) - Complete API reference
 - 🔌 [Backend Connectivity](../BACKEND_FRONTEND_CONNECTIVITY.md) - Architecture
-- 🚀 [Deployment Guide](../PRODUCTION_DEPLOYMENT.md) - Production setup
+- 🚀 [Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production setup
 - 🔒 [Security](../SECURITY_CHECKLIST.md) - Security best practices
 
 ## Support

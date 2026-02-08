@@ -178,7 +178,7 @@ npm install --legacy-peer-deps
 
 For complete deployment instructions, see:
 - [PRODUCTION_DEPLOYMENT_CHECKLIST.md](../PRODUCTION_DEPLOYMENT_CHECKLIST.md)
-- [DEPLOYMENT_QUICK_REFERENCE.md](../DEPLOYMENT_QUICK_REFERENCE.md)
+- [deployment/PRODUCTION-DEPLOY-GUIDE.md](../deployment/PRODUCTION-DEPLOY-GUIDE.md)
 - [VPS_DEPLOYMENT_GUIDE.md](../VPS_DEPLOYMENT_GUIDE.md)
 
 ## CI/CD Integration

@@ -611,4 +611,4 @@ All components work together to provide a seamless, secure, and real-time experi
 For more information:
 - API Endpoints: See `API_ENDPOINTS.md`
 - API Setup: See `API_SETUP_GUIDE.md`
-- Deployment: See `PRODUCTION_DEPLOYMENT.md`
+- Deployment: See `deployment/PRODUCTION-DEPLOY-GUIDE.md`

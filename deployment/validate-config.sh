@@ -227,18 +227,18 @@ fi
 # 7. Check Documentation
 print_header "7. Documentation"
 
-print_check "VPS connection config guide exists"
-if [ -f "VPS_CONNECTION_CONFIG.md" ]; then
+print_check "Deployment guide exists"
+if [ -f "deployment/PRODUCTION-DEPLOY-GUIDE.md" ] || [ -f "PRODUCTION-DEPLOY-GUIDE.md" ]; then
     print_pass
 else
-    print_warn "VPS_CONNECTION_CONFIG.md not found"
+    print_warn "deployment/PRODUCTION-DEPLOY-GUIDE.md not found"
 fi
 
 print_check "Production deployment guide exists"
-if [ -f "PRODUCTION_DEPLOYMENT.md" ]; then
+if [ -f "deployment/PRODUCTION-DEPLOY-GUIDE.md" ] || [ -f "PRODUCTION_DEPLOYMENT_CHECKLIST.md" ]; then
     print_pass
 else
-    print_warn "PRODUCTION_DEPLOYMENT.md not found"
+    print_warn "Production deployment guide not found"
 fi
 
 print_check "API endpoints documented"
