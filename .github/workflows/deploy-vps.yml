@@ -268,9 +268,9 @@ jobs:
             cd $DEPLOYMENT_PATH
 
             # Run verification script if it exists
-            if [ -f verify-deployment.sh ]; then
+            if [ -f scripts/verify-deployment.sh ]; then
               echo "🔍 Running deployment verification..."
-              if ! ./verify-deployment.sh; then
+              if ! ./scripts/verify-deployment.sh; then
                 echo "⚠️ Verification script reported issues"
                 exit 1
               fi

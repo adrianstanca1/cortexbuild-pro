@@ -255,7 +255,7 @@ For issues or questions:
 
 1. Check workflow logs in Actions tab
 2. Review VPS logs: `docker compose logs`
-3. Run diagnostics: `./verify-deployment.sh`
+3. Run diagnostics: `./scripts/verify-deployment.sh`
 4. Open an issue on GitHub
 
 ---

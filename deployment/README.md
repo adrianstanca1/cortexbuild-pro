@@ -97,21 +97,30 @@ git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild_pro/deployment
 cp .env.example .env
 nano .env
+chmod 600 .env
 ```
 
 **Required settings in `.env`:**
 ```env
-# Database
+# Database (generate password with: openssl rand -base64 24)
 POSTGRES_PASSWORD=choose_a_strong_password_here
 
 # Auth (generate with: openssl rand -base64 32)
 NEXTAUTH_SECRET=your_generated_secret
 NEXTAUTH_URL=https://your-domain.com
 
-# Domain
-DOMAIN=your-domain.com
-SSL_EMAIL=admin@your-domain.com
+# Encryption (generate with: openssl rand -hex 32)
+ENCRYPTION_KEY=your_generated_key
+
+# AWS S3 (for file uploads)
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_BUCKET_NAME=your_bucket
 ```
+
+> **Tip:** For the complete environment variable reference with all optional
+> settings (Google OAuth, SendGrid, SMTP, AI providers, etc.), see
+> [`.env.template`](../.env.template) in the project root.
 
 ### 3. Deploy
 ```bash
@@ -135,8 +144,9 @@ chmod +x *.sh
 
 ```
 deployment/
-├── .env.example          # Environment template
+├── .env.example          # Environment template (see also ../.env.template)
 ├── docker-compose.yml    # Container orchestration
+├── docker-stack.yml      # Portainer / Docker Swarm variant
 ├── Dockerfile            # App build instructions
 ├── nginx.conf            # Reverse proxy config
 ├── quick-start.sh        # ⭐ Quick start deployment
@@ -163,8 +173,12 @@ deployment/
 | `POSTGRES_PASSWORD` | Yes | Database password |
 | `NEXTAUTH_SECRET` | Yes | Auth encryption key |
 | `NEXTAUTH_URL` | Yes | Full domain URL |
-| `DOMAIN` | Yes | Domain without https |
-| `AWS_*` | No | S3 for file uploads |
+| `ENCRYPTION_KEY` | Yes | Data encryption key |
+| `AWS_*` | Recommended | S3 for file uploads |
+| `ABACUSAI_API_KEY` | No | AI features |
+| `GOOGLE_CLIENT_ID/SECRET` | No | Google OAuth login |
+| `SENDGRID_API_KEY` | No | Email via SendGrid |
+| `SMTP_*` | No | Email via SMTP |
 
 ### Using External Database
 
