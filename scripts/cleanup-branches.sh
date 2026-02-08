@@ -1,47 +1,63 @@
 #!/bin/bash
 
 # Branch Cleanup Script
-# Deletes synchronized branches after successful merge to cortexbuildpro
+# Deletes remote branches that are fully merged into the default branch (cortexbuildpro).
+#
+# Usage:
+#   ./scripts/cleanup-branches.sh              # Interactive mode (prompts before deleting)
+#   ./scripts/cleanup-branches.sh --yes        # Non-interactive mode (deletes without prompting)
+#   ./scripts/cleanup-branches.sh --dry-run    # Show what would be deleted without deleting
 
 set -e
+
+AUTO_CONFIRM=false
+DRY_RUN=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --yes|-y) AUTO_CONFIRM=true ;;
+    --dry-run|-n) DRY_RUN=true ;;
+    --help|-h)
+      echo "Usage: $0 [--yes|-y] [--dry-run|-n]"
+      echo "  --yes, -y      Skip confirmation prompt"
+      echo "  --dry-run, -n  Show what would be deleted without deleting"
+      exit 0
+      ;;
+  esac
+done
 
 echo "🗑️  Branch Cleanup Script"
 echo "=========================="
 echo ""
 
-DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||')
-DEFAULT_BRANCH=${DEFAULT_BRANCH:-cortexbuildpro}
-
-for candidate in "$DEFAULT_BRANCH" cortexbuildpro main master; do
-  if [ -n "$candidate" ] && git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
+# Determine the default branch
+DEFAULT_BRANCH=""
+for candidate in cortexbuildpro main master; do
+  if git show-ref --verify --quiet "refs/remotes/origin/$candidate"; then
     DEFAULT_BRANCH=$candidate
     break
   fi
 done
 
-if ! git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
-  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  if [ -n "$CURRENT_BRANCH" ] && git show-ref --verify --quiet "refs/remotes/origin/$CURRENT_BRANCH"; then
-    if [ "$CURRENT_BRANCH" != "cortexbuildpro" ] && [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
-      echo "⚠️  Warning: '${CURRENT_BRANCH}' is not a standard default branch."
-      read -r -p "Use '${CURRENT_BRANCH}' as the default branch? (yes/no): " USE_CURRENT
-      if [ "$USE_CURRENT" != "yes" ]; then
-        echo "❌ Unable to determine a safe default remote branch."
-        exit 1
-      fi
-    else
-      echo "⚠️  Using current branch '${CURRENT_BRANCH}' as default."
-    fi
-    DEFAULT_BRANCH=$CURRENT_BRANCH
-  else
-    echo "❌ Unable to determine a default remote branch."
-    exit 1
-  fi
+if [ -z "$DEFAULT_BRANCH" ]; then
+  echo "❌ Unable to determine the default remote branch."
+  exit 1
 fi
 
 echo "Using default branch: $DEFAULT_BRANCH"
+echo ""
 
-MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" | sed 's|^[[:space:]]*origin/||' | grep -v "^${DEFAULT_BRANCH}$" | grep -v "^HEAD$" || true)
+# Fetch latest state from remote
+echo "🔄 Fetching latest remote state..."
+git fetch --prune origin
+echo ""
+
+# Find branches that are fully merged into the default branch
+MERGED_BRANCHES=$(git branch -r --merged "origin/$DEFAULT_BRANCH" \
+  | sed 's|^[[:space:]]*origin/||' \
+  | grep -v "^${DEFAULT_BRANCH}$" \
+  | grep -v "^HEAD$" \
+  || true)
 
 if [ -z "$MERGED_BRANCHES" ]; then
   echo "✅ No merged branches found to delete."
@@ -54,22 +70,28 @@ if [ ${#BRANCHES[@]} -eq 0 ]; then
   exit 0
 fi
 
-echo "📋 Branches marked for deletion (${#BRANCHES[@]} total):"
+echo "📋 Branches fully merged into '${DEFAULT_BRANCH}' (${#BRANCHES[@]} total):"
 echo ""
 for branch in "${BRANCHES[@]}"; do
   echo "  - $branch"
 done
 echo ""
 
-echo "ℹ️  These branches have been synchronized into ${DEFAULT_BRANCH}."
-echo "   Their changes are preserved in the git history."
+echo "ℹ️  These branches are fully integrated into '${DEFAULT_BRANCH}'."
+echo "   All their changes are preserved in the git history."
 echo ""
 
-read -r -p "Continue with deletion? (yes/no): " confirm
-
-if [ "$confirm" != "yes" ]; then
-  echo "❌ Cleanup cancelled."
+if [ "$DRY_RUN" = true ]; then
+  echo "🔍 Dry run — no branches were deleted."
   exit 0
+fi
+
+if [ "$AUTO_CONFIRM" != true ]; then
+  read -r -p "Continue with deletion? (yes/no): " confirm
+  if [ "$confirm" != "yes" ]; then
+    echo "❌ Cleanup cancelled."
+    exit 0
+  fi
 fi
 
 echo ""
@@ -81,7 +103,7 @@ FAILED=0
 
 for branch in "${BRANCHES[@]}"; do
   echo -n "Deleting $branch... "
-  
+
   if git push origin --delete "$branch" 2>/dev/null; then
     echo "✅"
     ((DELETED++))
