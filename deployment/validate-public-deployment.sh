@@ -95,7 +95,7 @@ SCRIPTS=(
     "setup-ssl.sh"
     "backup.sh"
     "restore.sh"
-    "verify-deployment.sh"
+    "scripts/verify-deployment.sh"
 )
 
 for script in "${SCRIPTS[@]}"; do
