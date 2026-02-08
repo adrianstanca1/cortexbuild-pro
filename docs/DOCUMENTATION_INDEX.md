@@ -30,13 +30,13 @@ This index provides an overview of all documentation available in the CortexBuil
 - **[SECURITY_COMPLIANCE.md](SECURITY_COMPLIANCE.md)** - Security best practices, compliance information, and audit details
 - **[SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md)** - Pre-deployment security verification checklist
 - **[SECURITY_ADVISORY.md](SECURITY_ADVISORY.md)** - Security status and vulnerability reports
+- **[SECURITY_NOTES.md](SECURITY_NOTES.md)** - Next.js 15 upgrade and CVE fix details
 
 ### Development & Architecture
-- **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** - Architecture overview and codebase organization
-- **[API_REFACTORING_GUIDE.md](API_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
 - **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - Complete API endpoint documentation
 - **[API_WEBSOCKET_REFERENCE.md](API_WEBSOCKET_REFERENCE.md)** - WebSocket API reference
 - **[BACKEND_FRONTEND_CONNECTIVITY.md](BACKEND_FRONTEND_CONNECTIVITY.md)** - Backend-frontend integration guide
+- **[CODE_REFACTORING_GUIDE.md](CODE_REFACTORING_GUIDE.md)** - Best practices for API development and code quality
 - **[docs/PERFORMANCE_OPTIMIZATIONS.md](docs/PERFORMANCE_OPTIMIZATIONS.md)** - Performance tuning guide and improvements
 
 ### Release Information
@@ -52,7 +52,6 @@ This index provides an overview of all documentation available in the CortexBuil
 ## Quick Reference Scripts
 
 ### Scripts Directory
-- **[verify-config.sh](../scripts/verify-config.sh)** - Configuration verification utility
 - **[scan-env-vars.sh](../scripts/scan-env-vars.sh)** - Environment variable scanning tool
 - **[validate-pre-deployment.sh](../scripts/validate-pre-deployment.sh)** - Pre-deployment validation
 - **[trigger-production-deploy.sh](../scripts/trigger-production-deploy.sh)** - CI/CD deployment trigger
@@ -64,7 +63,7 @@ See [deployment/README.md](../deployment/README.md) for deployment-specific scri
 - production-deploy.sh - Production deployment automation
 - vps-setup.sh - VPS server setup
 - public-launch-master.sh - Comprehensive public deployment
-- backup.sh / restore.sh - Database backup/restore
+- enterprise-backup.sh / enterprise-restore.sh - Database backup/restore
 - And more...
 
 ## Deployment Directory
@@ -75,7 +74,7 @@ See [deployment/README.md](deployment/README.md) for quick reference or [deploym
 ## Next.js Application
 
 The `nextjs_space/` directory contains:
-- Complete Next.js 14 application
+- Complete Next.js 16 application
 - API routes and backend logic
 - React components and UI
 - Database schema (Prisma)

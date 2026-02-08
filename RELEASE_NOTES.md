@@ -1,8 +1,8 @@
 # 🎉 CortexBuild Pro - Release Notes
 
-## Version 1.0.0 - Production Ready
+## Version 2.3.0 - Latest
 
-**Release Date:** January 26, 2026  
+**Release Date:** February 8, 2026  
 **Docker Image:** `ghcr.io/adrianstanca1/cortexbuild-pro:latest`
 
 ---
@@ -61,7 +61,7 @@ docker compose up -d
 |-----|-------------|----------|
 | `latest` | Latest stable release | Production deployments |
 | `main` | Latest main branch build | Testing latest features |
-| `v1.0.0` | Specific version | Version pinning |
+| `v2.3.0` | Specific version | Version pinning |
 | `main-<sha>` | Specific commit | Rollback/debugging |
 
 ### Pulling Images
@@ -71,7 +71,7 @@ docker compose up -d
 docker pull ghcr.io/adrianstanca1/cortexbuild-pro:latest
 
 # Specific version
-docker pull ghcr.io/adrianstanca1/cortexbuild-pro:v1.0.0
+docker pull ghcr.io/adrianstanca1/cortexbuild-pro:v2.3.0
 
 # Main branch
 docker pull ghcr.io/adrianstanca1/cortexbuild-pro:main
@@ -368,6 +368,16 @@ When reporting issues, include:
 
 ## 📝 Changelog
 
+### [2.3.0] - 2026-02-08
+
+#### Changed
+- Cleaned up duplicate and redundant files across repository
+- Consolidated performance documentation into single reference
+- Removed superseded backup/restore scripts (use enterprise versions)
+- Removed duplicate ESLint config and lock file
+- Updated version references for consistency
+- Fixed documentation index dead links
+
 ### [1.0.0] - 2026-01-26
 
 #### Added
@@ -413,7 +423,7 @@ See [LICENSE](LICENSE) file for details.
 ## 🙏 Acknowledgments
 
 Built with:
-- Next.js 14
+- Next.js 16
 - PostgreSQL 15
 - Docker
 - GitHub Actions

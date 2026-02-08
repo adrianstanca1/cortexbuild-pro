@@ -21,7 +21,7 @@
 #   docker compose up -d
 #
 # Or use an .env file in the deployment directory (recommended for production):
-#   cp .env.docker-manager .env
+#   cp .env.example .env
 #   # Edit .env to set all required values (DB credentials, NEXTAUTH_SECRET, ENCRYPTION_KEY, etc.)
 #   docker compose --env-file .env up -d
 # ============================================================
