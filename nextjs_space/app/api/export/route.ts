@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const exportType = searchParams.get('type') || 'projects';
     const projectId = searchParams.get('projectId');
+    const limit = parseInt(searchParams.get('limit') || '10000'); // Max 10k records per export
 
     let data: any[] = [];
     let filename = '';
@@ -36,10 +37,18 @@ export async function GET(request: NextRequest) {
       case 'projects':
         data = await prisma.project.findMany({
           where: projectFilter,
-          include: {
+          select: {
+            name: true,
+            status: true,
+            startDate: true,
+            endDate: true,
+            budget: true,
+            location: true,
             manager: { select: { name: true } },
             _count: { select: { tasks: true, documents: true } }
-          }
+          },
+          take: limit,
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Name', 'Status', 'Start Date', 'End Date', 'Budget', 'Manager', 'Tasks', 'Documents', 'Location'];
         data = data.map(p => ([
@@ -52,10 +61,18 @@ export async function GET(request: NextRequest) {
       case 'tasks':
         const tasks = await prisma.task.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            title: true,
+            status: true,
+            priority: true,
+            dueDate: true,
+            completedAt: true,
+            description: true,
             project: { select: { name: true } },
             assignee: { select: { name: true } }
-          }
+          },
+          take: limit,
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Title', 'Project', 'Status', 'Priority', 'Assignee', 'Due Date', 'Completed', 'Description'];
         data = tasks.map(t => ([
@@ -69,11 +86,19 @@ export async function GET(request: NextRequest) {
       case 'rfis':
         const rfis = await prisma.rFI.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            number: true,
+            subject: true,
+            status: true,
+            dueDate: true,
+            createdAt: true,
+            answeredAt: true,
             project: { select: { name: true } },
             createdBy: { select: { name: true } },
             assignedTo: { select: { name: true } }
-          }
+          },
+          take: limit,
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Number', 'Subject', 'Project', 'Status', 'Created By', 'Assigned To', 'Due Date', 'Created', 'Answered'];
         data = rfis.map(r => ([
@@ -87,10 +112,18 @@ export async function GET(request: NextRequest) {
       case 'submittals':
         const submittals = await prisma.submittal.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            number: true,
+            title: true,
+            status: true,
+            specSection: true,
+            dueDate: true,
+            reviewedAt: true,
             project: { select: { name: true } },
             submittedBy: { select: { name: true } }
-          }
+          },
+          take: limit,
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Number', 'Title', 'Project', 'Status', 'Spec Section', 'Submitted By', 'Due Date', 'Reviewed Date'];
         data = submittals.map(s => ([
@@ -103,10 +136,20 @@ export async function GET(request: NextRequest) {
       case 'budget':
         const costItems = await prisma.costItem.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            description: true,
+            category: true,
+            status: true,
+            estimatedAmount: true,
+            committedAmount: true,
+            actualAmount: true,
+            vendor: true,
+            invoiceNumber: true,
             project: { select: { name: true } },
             subcontractor: { select: { companyName: true } }
-          }
+          },
+          take: limit,
+          orderBy: { createdAt: 'desc' }
         });
         headers = ['Description', 'Project', 'Category', 'Status', 'Estimated', 'Committed', 'Actual', 'Variance', 'Vendor', 'Invoice #'];
         data = costItems.map(c => ([
@@ -121,10 +164,19 @@ export async function GET(request: NextRequest) {
       case 'safety':
         const incidents = await prisma.safetyIncident.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            description: true,
+            severity: true,
+            status: true,
+            incidentDate: true,
+            location: true,
+            injuryOccurred: true,
+            rootCause: true,
             project: { select: { name: true } },
             reportedBy: { select: { name: true } }
-          }
+          },
+          take: limit,
+          orderBy: { incidentDate: 'desc' }
         });
         headers = ['Description', 'Project', 'Severity', 'Status', 'Date', 'Location', 'Reported By', 'Injury Occurred', 'Root Cause'];
         data = incidents.map(i => ([
@@ -138,11 +190,17 @@ export async function GET(request: NextRequest) {
       case 'time-entries':
         const timeEntries = await prisma.timeEntry.findMany({
           where: { project: projectFilter },
-          include: {
+          select: {
+            date: true,
+            hours: true,
+            description: true,
+            status: true,
             project: { select: { name: true } },
             user: { select: { name: true } },
             task: { select: { title: true } }
-          }
+          },
+          take: limit,
+          orderBy: { date: 'desc' }
         });
         headers = ['Date', 'Project', 'User', 'Task', 'Hours', 'Description', 'Status'];
         data = timeEntries.map(t => ([
@@ -155,10 +213,13 @@ export async function GET(request: NextRequest) {
       case 'team':
         const teamMembers = await prisma.teamMember.findMany({
           where: { organizationId: user.organizationId },
-          include: {
+          select: {
+            jobTitle: true,
+            department: true,
             user: { select: { name: true, email: true, role: true } },
             _count: { select: { projectAssignments: true } }
-          }
+          },
+          take: limit
         });
         headers = ['Name', 'Email', 'Role', 'Job Title', 'Department', 'Projects Assigned'];
         data = teamMembers.map(m => ([

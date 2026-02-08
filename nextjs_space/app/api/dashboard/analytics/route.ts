@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || 'overview';
 
     if (type === 'resource-allocation') {
-      // Get team members with their project assignments and time entries
+      // Get team members with their project assignments
       const teamMembers = await prisma.teamMember.findMany({
         where: { organizationId },
         include: {
@@ -37,45 +37,47 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      // Get time entries for the last 30 days
+      // Get aggregated time entries for the last 30 days
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const timeEntries = await prisma.timeEntry.findMany({
-        where: {
-          project: { organizationId },
-          date: { gte: thirtyDaysAgo }
-        },
-        include: {
-          user: { select: { id: true, name: true } },
-          project: { select: { id: true, name: true } }
-        }
-      });
+      const [timeByUser, tasksByUser] = await Promise.all([
+        // Aggregate time entries by user using database groupBy
+        prisma.timeEntry.groupBy({
+          by: ['userId'],
+          where: {
+            project: { organizationId },
+            date: { gte: thirtyDaysAgo }
+          },
+          _sum: { hours: true }
+        }),
+        // Aggregate tasks by assignee using database groupBy
+        prisma.task.groupBy({
+          by: ['assigneeId', 'priority'],
+          where: {
+            project: { organizationId },
+            status: { not: 'COMPLETE' },
+            assigneeId: { not: null }
+          },
+          _count: { id: true }
+        })
+      ]);
 
-      // Aggregate time by user
+      // Convert aggregated data to maps for quick lookup
       const userTimeMap: Record<string, number> = {};
-      timeEntries.forEach(entry => {
-        userTimeMap[entry.userId] = (userTimeMap[entry.userId] || 0) + entry.hours;
+      timeByUser.forEach(entry => {
+        userTimeMap[entry.userId] = entry._sum.hours || 0;
       });
 
-      // Get tasks by assignee
-      const tasks = await prisma.task.findMany({
-        where: {
-          project: { organizationId },
-          status: { not: 'COMPLETE' }
-        },
-        select: { assigneeId: true, priority: true }
-      });
-
-      const tasksByUser: Record<string, { total: number; critical: number }> = {};
-      tasks.forEach(task => {
+      const tasksByUserMap: Record<string, { total: number; critical: number }> = {};
+      tasksByUser.forEach(task => {
         if (task.assigneeId) {
-          if (!tasksByUser[task.assigneeId]) {
-            tasksByUser[task.assigneeId] = { total: 0, critical: 0 };
+          if (!tasksByUserMap[task.assigneeId]) {
+            tasksByUserMap[task.assigneeId] = { total: 0, critical: 0 };
           }
-          tasksByUser[task.assigneeId].total++;
+          tasksByUserMap[task.assigneeId].total += task._count.id;
           if (task.priority === 'CRITICAL' || task.priority === 'HIGH') {
-            tasksByUser[task.assigneeId].critical++;
+            tasksByUserMap[task.assigneeId].critical += task._count.id;
           }
         }
       });
@@ -94,8 +96,8 @@ export async function GET(request: NextRequest) {
           status: pa.project.status
         })),
         hoursLast30Days: userTimeMap[member.user.id] || 0,
-        activeTasks: tasksByUser[member.user.id]?.total || 0,
-        criticalTasks: tasksByUser[member.user.id]?.critical || 0,
+        activeTasks: tasksByUserMap[member.user.id]?.total || 0,
+        criticalTasks: tasksByUserMap[member.user.id]?.critical || 0,
         utilizationRate: Math.min(100, ((userTimeMap[member.user.id] || 0) / 160) * 100) // Assuming 160 hours/month capacity
       }));
 
