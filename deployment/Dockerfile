@@ -20,12 +20,10 @@ RUN apk add --no-cache libc6-compat || true
 COPY nextjs_space/package.json ./
 COPY nextjs_space/prisma ./prisma
 
-# Create empty yarn.lock to satisfy Next.js check
-RUN touch yarn.lock
-
 # Clean install dependencies with npm (fresh start)
 # Use --legacy-peer-deps for compatibility with some packages
-RUN npm install --legacy-peer-deps
+RUN rm -f package-lock.json yarn.lock && \
+    npm install --legacy-peer-deps
 
 # Generate Prisma Client with correct output path for node_modules
 RUN ./node_modules/.bin/prisma generate
@@ -37,9 +35,6 @@ WORKDIR /app
 # Copy node_modules from deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ ./
-
-# Create yarn.lock to satisfy Next.js check
-RUN touch yarn.lock
 
 # Regenerate Prisma Client with the full source
 RUN ./node_modules/.bin/prisma generate
