@@ -16,14 +16,13 @@ WORKDIR /app
 # These are already included in node:20-alpine but adding explicitly for native module builds
 RUN apk add --no-cache libc6-compat || true
 
-# Copy package files
-COPY nextjs_space/package.json ./
+# Copy package files and lock file for consistent dependency resolution
+COPY nextjs_space/package.json nextjs_space/package-lock.json ./
 COPY nextjs_space/prisma ./prisma
 
-# Clean install dependencies with npm (fresh start)
+# Install dependencies using lock file for reproducible builds
 # Use --legacy-peer-deps for compatibility with some packages
-RUN rm -f package-lock.json yarn.lock && \
-    npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Generate Prisma Client with correct output path for node_modules
 RUN ./node_modules/.bin/prisma generate
@@ -83,6 +82,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./app/public
 # Copy Prisma client to standalone app node_modules (critical for production)
 COPY --from=builder /app/node_modules/.prisma ./app/node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./app/node_modules/@prisma
+
+# Copy Prisma CLI so migrations can run inside the container with the correct version
+# This must be after the standalone copy to avoid being overwritten
+# Note: build/index.js is the standard Prisma CLI entry point for v6.x
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
+RUN mkdir -p node_modules/.bin && ln -sf ../prisma/build/index.js node_modules/.bin/prisma
 
 # Create uploads directory
 RUN mkdir -p uploads && chown nextjs:nodejs uploads
