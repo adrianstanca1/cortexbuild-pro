@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!session.user.organizationId) {
+      return NextResponse.json({ error: "User must belong to an organization" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
@@ -106,7 +110,7 @@ export async function GET(request: NextRequest) {
       .map(([category, data]) => ({
         category,
         overBy: data.actual - data.estimated,
-        percentOver: ((data.actual - data.estimated) / data.estimated * 100).toFixed(1)
+        percentOver: data.estimated > 0 ? ((data.actual - data.estimated) / data.estimated * 100).toFixed(1) : "N/A"
       }));
 
     return NextResponse.json({
