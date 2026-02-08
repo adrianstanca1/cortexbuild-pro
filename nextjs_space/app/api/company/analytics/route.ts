@@ -217,12 +217,12 @@ export async function GET(request: NextRequest) {
         totalIncidents: safetyTotals.total,
         openIncidents: safetyTotals.open,
         criticalIncidents: safetyTotals.critical,
-        incidentRate: projectMetrics.total > 0 ? (safetyTotals.total / projectMetrics.total).toFixed(2) : '0'
+        incidentRate: projectMetrics.total > 0 ? parseFloat((safetyTotals.total / projectMetrics.total).toFixed(2)) : 0
       },
       rfiMetrics: {
         total: rfiTotals.total,
         open: rfiTotals.open,
-        avgResponseDays: 0 // This would require raw data; omitted for performance
+        avgResponseDays: 0 // Note: Requires raw data for calculation, omitted for performance
       },
       submittalMetrics: {
         total: submittalTotals.total,
@@ -233,9 +233,9 @@ export async function GET(request: NextRequest) {
         totalHoursLogged: timeTotals.totalHours,
         activeUsers: timeTotals.uniqueUsers.size,
         avgHoursPerDay: timeRange > 0
-          ? (timeTotals.totalHours / timeRange).toFixed(1)
-          : '0',
-        topPerformers: [] // This would require raw data; omitted for performance
+          ? parseFloat((timeTotals.totalHours / timeRange).toFixed(1))
+          : 0,
+        topPerformers: [] // Note: Requires raw data for calculation, omitted for performance
       },
       activityTrend: getActivityTrend(activities, timeRange),
       recentProjects: projectMetrics.sampleProjects.map(p => ({

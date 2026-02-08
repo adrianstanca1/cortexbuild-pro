@@ -82,6 +82,9 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     });
 
+    const totalOrganizations = Number(organizations);
+    const hasMoreOrganizations = totalOrganizations > 100;
+
     // Storage estimates (document count as proxy) - batch counts
     const [dailyPhotos, safetyPhotos, rfiAttachments, submittalAttachments] = await Promise.all([
       prisma.dailyReportPhoto.count(),
@@ -122,6 +125,11 @@ export async function GET() {
         userCount: Number(o._count.users),
         projectCount: Number(o._count.projects)
       })),
+      organizationsPagination: {
+        showing: orgStats.length,
+        total: totalOrganizations,
+        hasMore: hasMoreOrganizations
+      },
       storage: storageStats
     };
 
