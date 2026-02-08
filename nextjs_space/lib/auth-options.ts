@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
           include: { organization: true }
         });
         
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
         
