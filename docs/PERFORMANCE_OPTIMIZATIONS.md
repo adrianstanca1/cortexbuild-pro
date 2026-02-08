@@ -1,7 +1,9 @@
 # Performance Optimizations - CortexBuild Pro
 
 ## Summary
-This document outlines the performance improvements implemented to address slow and inefficient code patterns in the CortexBuild Pro application.
+This document outlines all performance improvements implemented in CortexBuild Pro, including API-layer bottleneck fixes and code-level optimizations.
+
+> **Note:** This document consolidates the former `PERFORMANCE_IMPROVEMENTS.md` (database aggregation, field selection, caching) and the original pagination/batch optimization notes into a single reference.
 
 ## Optimizations Implemented
 
@@ -271,3 +273,70 @@ Key metrics to monitor after deployment:
 These optimizations provide significant performance improvements while maintaining code quality and maintainability. The changes follow industry best practices and should scale well as the application grows.
 
 For questions or issues, please refer to the individual file comments or open a GitHub issue.
+
+---
+
+## Phase 1: API-Layer Optimizations (15+ Routes)
+
+The following optimizations addressed **15+ critical performance bottlenecks** across the API layer, resulting in:
+- **60-90% reduction** in query execution time for high-traffic endpoints
+- **70-80% reduction** in data transfer for analytics endpoints
+- **Protection against OOM errors** for large datasets
+- **Improved scalability** to handle 100k+ records per organization
+
+### Database Aggregation (5 Routes)
+
+**Problem**: Loading entire datasets into memory and processing with JavaScript loops.
+**Solution**: Use Prisma `groupBy` and database-level aggregation.
+
+**Routes Fixed:**
+- `app/api/company/analytics/route.ts` — Replaced 8 `findMany` with `groupBy` (80-90% faster)
+- `app/api/dashboard/analytics/route.ts` — Replaced 2 `findMany` + manual aggregation with `groupBy` (70% faster)
+
+### Field Selection (6 Routes)
+
+**Problem**: Using `include` loads all related data, even when not needed.
+**Solution**: Use `select` to fetch only required fields.
+
+**Routes Fixed:**
+- `app/api/company/analytics/route.ts`
+- `app/api/export/route.ts` (all 8 export types)
+- `app/api/admin/stats/route.ts`
+
+**Impact**: 50-70% reduction in network payload size.
+
+### HTTP Caching
+
+**Route Fixed:** `app/api/admin/stats/route.ts`
+- 5-minute cache with stale-while-revalidate
+- Reduces admin dashboard load by ~95% during peak usage
+
+### Query Parallelization (3 Routes)
+
+**Routes Fixed:**
+- `app/api/search/route.ts` — 3 queries parallelized
+- `app/api/projects/route.ts` — count + findMany parallelized
+- `app/api/tasks/route.ts` — count + findMany parallelized
+
+**Impact**: 60-70% reduction in search latency.
+
+### Duplicate Query Elimination
+
+**Route Fixed:** `app/api/time-entries/approve/route.ts`
+- Eliminated redundant re-query after update; update in-memory instead
+- **Impact**: 50% reduction in database round trips for bulk approval
+
+### Phase 1 Metrics
+
+| Endpoint | Before | After | Improvement |
+|----------|--------|-------|-------------|
+| Company Analytics (1000 projects) | 3.2s | 0.4s | **87% faster** |
+| Dashboard Resource Allocation | 1.8s | 0.5s | **72% faster** |
+| Admin Stats | 2.1s | 0.3s + 5min cache | **85% faster** |
+| Projects List (10k projects) | Timeout | 0.2s/page | **Works now** |
+| Tasks List (50k tasks) | Timeout | 0.3s/page | **Works now** |
+| Export (100k records) | OOM Error | 2.5s | **Protected** |
+| Search (3 queries) | 0.3s | 0.1s | **67% faster** |
+| Time Entry Approval | 0.4s | 0.2s | **50% faster** |
+
+**Total Routes Optimized**: 15 | **Zero Breaking Changes**: All changes backward compatible
