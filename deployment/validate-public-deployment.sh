@@ -93,9 +93,9 @@ cd "$SCRIPT_DIR"
 SCRIPTS=(
     "deploy-from-published-image.sh"
     "setup-ssl.sh"
-    "backup.sh"
-    "restore.sh"
-    "scripts/verify-deployment.sh"
+    "enterprise-backup.sh"
+    "enterprise-restore.sh"
+    "health-check.sh"
 )
 
 for script in "${SCRIPTS[@]}"; do

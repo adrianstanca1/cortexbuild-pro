@@ -173,19 +173,21 @@ check_application() {
         fi
     fi
     
-    # Test HTTP endpoint
-    local response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/auth/providers 2>/dev/null || echo "000")
+    # Test HTTP endpoint (includes database connectivity check)
+    local response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null || echo "000")
     
     if [[ "$response" == "200" ]]; then
-        status_ok "API endpoint responding (HTTP $response)"
+        status_ok "Health endpoint responding (HTTP $response, database connected)"
+    elif [[ "$response" == "503" ]]; then
+        status_error "Application running but database disconnected (HTTP $response)"
     elif [[ "$response" == "000" ]]; then
         status_error "Cannot connect to application"
     else
-        status_warn "API endpoint returned HTTP $response"
+        status_warn "Health endpoint returned HTTP $response"
     fi
     
     # Check response time
-    local response_time=$(curl -s -o /dev/null -w "%{time_total}" http://localhost:3000/api/auth/providers 2>/dev/null || echo "0")
+    local response_time=$(curl -s -o /dev/null -w "%{time_total}" http://localhost:3000/api/health 2>/dev/null || echo "0")
     
     if [[ -n "$response_time" ]] && [[ "$response_time" != "0" ]]; then
         local response_ms=$(awk -v time="$response_time" 'BEGIN {printf "%.0f", time * 1000}')
