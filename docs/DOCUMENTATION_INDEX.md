@@ -62,7 +62,6 @@ This index provides an overview of all documentation available in the CortexBuil
 See [deployment/README.md](../deployment/README.md) for deployment-specific scripts including:
 - production-deploy.sh - Production deployment automation
 - vps-setup.sh - VPS server setup
-- public-launch-master.sh - Comprehensive public deployment
 - enterprise-backup.sh / enterprise-restore.sh - Database backup/restore
 - And more...
 

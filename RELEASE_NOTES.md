@@ -169,7 +169,6 @@ If you're already running CortexBuild Pro, update to the published image:
 
 ### Essential Guides
 - **[deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)** - Production deployment options
-- **[deployment/PUBLIC_LAUNCH_GUIDE.md](deployment/PUBLIC_LAUNCH_GUIDE.md)** - Public deployment guide
 - **[README.md](README.md)** - Project overview and quick start
 
 ### API Documentation
