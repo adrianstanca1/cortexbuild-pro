@@ -317,4 +317,4 @@ Your CortexBuild Pro installation should now be running!
 **Last Updated**: January 25, 2025  
 **Status**: Production Ready ✅
 
-For detailed information, see [README.md](README.md) and [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+For detailed information, see [README.md](../README.md) and [Production Deploy Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md).

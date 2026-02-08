@@ -168,9 +168,8 @@ If you're already running CortexBuild Pro, update to the published image:
 ## 📚 Documentation
 
 ### Essential Guides
-- **[PUBLIC_DEPLOYMENT.md](PUBLIC_DEPLOYMENT.md)** - Complete public deployment guide
 - **[deployment/PRODUCTION-DEPLOY-GUIDE.md](deployment/PRODUCTION-DEPLOY-GUIDE.md)** - Production deployment options
-- **[VPS_DEPLOYMENT_GUIDE.md](VPS_DEPLOYMENT_GUIDE.md)** - Complete VPS deployment guide
+- **[deployment/PUBLIC_LAUNCH_GUIDE.md](deployment/PUBLIC_LAUNCH_GUIDE.md)** - Public deployment guide
 - **[README.md](README.md)** - Project overview and quick start
 
 ### API Documentation

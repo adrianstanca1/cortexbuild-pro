@@ -722,9 +722,8 @@ curl -H "Cookie: next-auth.session-token=YOUR_TOKEN" \
 
 ## 📚 Related Documentation
 
-- [VPS Deployment Guide](VPS_DEPLOYMENT_GUIDE.md)
+- [Production Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md)
 - [API Setup Guide](API_SETUP_GUIDE.md)
-- [WebSocket Configuration](VPS_DEPLOYMENT_GUIDE.md#websocket-configuration)
 - [Troubleshooting](TROUBLESHOOTING.md)
 
 ---

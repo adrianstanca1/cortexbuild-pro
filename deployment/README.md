@@ -72,7 +72,7 @@ The easiest way to deploy manually on your VPS:
 cd /root
 git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro/deployment
-sudo bash one-click-deploy.sh
+sudo bash quick-start.sh
 ```
 
 This script handles everything: Docker installation, environment setup, deployment, migrations, and health checks.
@@ -139,16 +139,16 @@ deployment/
 ├── docker-compose.yml    # Container orchestration
 ├── Dockerfile            # App build instructions
 ├── nginx.conf            # Reverse proxy config
-├── one-click-deploy.sh   # ⭐ One-click deployment
+├── quick-start.sh        # ⭐ Quick start deployment
 ├── production-deploy.sh  # ⭐ Complete production workflow
-├── vps-full-deploy.sh    # Remote deployment via curl
+├── deploy-from-github.sh # Deploy from GitHub repository
 ├── cleanup-repos.sh      # ⭐ Repository cleanup
 ├── health-check.sh       # ⭐ Health monitoring
 ├── rollback.sh           # ⭐ Deployment rollback
 ├── QUICKSTART.md         # ⭐ Quick start guide
 ├── setup-ssl.sh          # SSL certificate setup
-├── backup.sh             # Database backup
-├── restore.sh            # Database restore
+├── enterprise-backup.sh  # Database backup
+├── enterprise-restore.sh # Database restore
 └── seed-db.sh            # Seed initial data
 ```
 

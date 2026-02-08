@@ -228,6 +228,5 @@ echo "   Update app:    cd $DEPLOY_DIR && git pull && cd deployment && docker co
 echo ""
 echo "📚 Documentation:"
 echo "   $DEPLOY_DIR/README.md"
-echo "   $DEPLOY_DIR/DEPLOYMENT_GUIDE.md"
-echo "   $DEPLOY_DIR/deployment/DEPLOYMENT_TO_VPS.md"
+echo "   $DEPLOY_DIR/deployment/PRODUCTION-DEPLOY-GUIDE.md"
 echo ""

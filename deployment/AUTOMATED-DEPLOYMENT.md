@@ -34,7 +34,7 @@ Before setting up automated deployment, ensure you have:
    ```bash
    # On your VPS, run initial setup
    cd /root/cortexbuild-pro/deployment
-   sudo bash one-click-deploy.sh
+   sudo bash quick-start.sh
    ```
 
 ---
