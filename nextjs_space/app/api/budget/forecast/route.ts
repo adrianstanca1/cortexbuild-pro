@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       .map(([category, data]) => ({
         category,
         overBy: data.actual - data.estimated,
-        percentOver: data.estimated > 0 ? ((data.actual - data.estimated) / data.estimated * 100).toFixed(1) : "N/A"
+        percentOver: data.estimated > 0 ? ((data.actual - data.estimated) / data.estimated * 100).toFixed(1) : null
       }));
 
     return NextResponse.json({
