@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!session.user.organizationId) {
+      return NextResponse.json({ error: "User must belong to an organization" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
