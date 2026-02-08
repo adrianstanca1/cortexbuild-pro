@@ -86,7 +86,7 @@ AWS_FOLDER_PREFIX=""
 
 # Application Settings
 NODE_ENV="production"
-ENVOF
+ENVEOF
         sed -i "s/REPLACE_WITH_GENERATED_SECRET/$NEXTAUTH_SECRET/" .env
         echo -e "${GREEN}✓ Created fresh .env file${NC}"
     fi
