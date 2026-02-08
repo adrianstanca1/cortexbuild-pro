@@ -177,7 +177,7 @@ npm install --legacy-peer-deps
 ## Production Deployment
 
 For complete deployment instructions, see:
-- [PRODUCTION_DEPLOYMENT_CHECKLIST.md](../PRODUCTION_DEPLOYMENT_CHECKLIST.md)
+- [PRODUCTION_DEPLOYMENT_CHECKLIST.md](../docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md)
 - [deployment/PRODUCTION-DEPLOY-GUIDE.md](../deployment/PRODUCTION-DEPLOY-GUIDE.md)
 - [VPS_DEPLOYMENT_GUIDE.md](../VPS_DEPLOYMENT_GUIDE.md)
 
@@ -213,8 +213,8 @@ The build process can be integrated into CI/CD pipelines:
 ## Related Documentation
 
 - [README.md](README.md) - Main project documentation
-- [API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md) - API configuration
-- [SECURITY_CHECKLIST.md](../SECURITY_CHECKLIST.md) - Security guidelines
+- [API_SETUP_GUIDE.md](../docs/API_SETUP_GUIDE.md) - API configuration
+- [SECURITY_CHECKLIST.md](../docs/SECURITY_CHECKLIST.md) - Security guidelines
 
 ---
 

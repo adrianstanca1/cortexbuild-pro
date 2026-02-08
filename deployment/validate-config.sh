@@ -235,17 +235,17 @@ else
 fi
 
 print_check "Production deployment guide exists"
-if [ -f "deployment/PRODUCTION-DEPLOY-GUIDE.md" ] || [ -f "PRODUCTION_DEPLOYMENT_CHECKLIST.md" ]; then
+if [ -f "deployment/PRODUCTION-DEPLOY-GUIDE.md" ] || [ -f "docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md" ]; then
     print_pass
 else
     print_warn "Production deployment guide not found"
 fi
 
 print_check "API endpoints documented"
-if [ -f "API_ENDPOINTS.md" ]; then
+if [ -f "docs/API_ENDPOINTS.md" ]; then
     print_pass
 else
-    print_warn "API_ENDPOINTS.md not found"
+    print_warn "docs/API_ENDPOINTS.md not found"
 fi
 
 # 8. Summary

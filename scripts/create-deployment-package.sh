@@ -56,13 +56,13 @@ cp .env.template "$PACKAGE_DIR/" 2>/dev/null || true
 echo "Copying documentation..."
 cp README.md "$PACKAGE_DIR/" 2>/dev/null || true
 cp deployment/PRODUCTION-DEPLOY-GUIDE.md "$PACKAGE_DIR/" 2>/dev/null || true
-cp TROUBLESHOOTING.md "$PACKAGE_DIR/" 2>/dev/null || true
-cp API_SETUP_GUIDE.md "$PACKAGE_DIR/" 2>/dev/null || true
+cp docs/TROUBLESHOOTING.md "$PACKAGE_DIR/" 2>/dev/null || true
+cp docs/API_SETUP_GUIDE.md "$PACKAGE_DIR/" 2>/dev/null || true
 
 # Copy deployment scripts
 echo "Copying deployment scripts..."
-cp vps-deploy.sh "$PACKAGE_DIR/" 2>/dev/null || true
-cp verify-config.sh "$PACKAGE_DIR/" 2>/dev/null || true
+cp scripts/vps-deploy.sh "$PACKAGE_DIR/" 2>/dev/null || true
+cp scripts/verify-config.sh "$PACKAGE_DIR/" 2>/dev/null || true
 
 echo -e "${GREEN}✓ Files copied successfully${NC}"
 echo ""

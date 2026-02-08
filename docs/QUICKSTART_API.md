@@ -172,12 +172,12 @@ npm run build
 1. **AWS S3** (File Uploads)
    - Create S3 bucket
    - Add credentials to `.env`
-   - See [API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md)
+   - See [API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)
 
 2. **Google OAuth** (Social Login)
    - Create OAuth credentials
    - Add to `.env`
-   - See [API_SETUP_GUIDE.md](../API_SETUP_GUIDE.md)
+   - See [API_SETUP_GUIDE.md](API_SETUP_GUIDE.md)
 
 3. **Email Service** (Notifications)
    - Setup SendGrid or SMTP
@@ -206,15 +206,15 @@ See [Production Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md) for:
 ## Documentation
 
 - 📖 [API Server Setup](../API_SERVER_SETUP.md) - Detailed setup guide
-- 📡 [API Endpoints](../API_ENDPOINTS.md) - Complete API reference
-- 🔌 [Backend Connectivity](../BACKEND_FRONTEND_CONNECTIVITY.md) - Architecture
+- 📡 [API Endpoints](API_ENDPOINTS.md) - Complete API reference
+- 🔌 [Backend Connectivity](BACKEND_FRONTEND_CONNECTIVITY.md) - Architecture
 - 🚀 [Deployment Guide](../deployment/PRODUCTION-DEPLOY-GUIDE.md) - Production setup
-- 🔒 [Security](../SECURITY_CHECKLIST.md) - Security best practices
+- 🔒 [Security](SECURITY_CHECKLIST.md) - Security best practices
 
 ## Support
 
 Having issues? Check:
-1. [TROUBLESHOOTING.md](../TROUBLESHOOTING.md)
+1. [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 2. Application logs: `npm run dev` output
 3. Database connection: `npx prisma studio`
 4. Health endpoint: http://localhost:3000/api/health

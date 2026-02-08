@@ -51,16 +51,16 @@ This index provides an overview of all documentation available in the CortexBuil
 
 ## Quick Reference Scripts
 
-### Root Directory Scripts
-- **[verify-config.sh](verify-config.sh)** - Configuration verification utility
-- **[scan-env-vars.sh](scan-env-vars.sh)** - Environment variable scanning tool
-- **[validate-pre-deployment.sh](validate-pre-deployment.sh)** - Pre-deployment validation
-- **[trigger-production-deploy.sh](trigger-production-deploy.sh)** - CI/CD deployment trigger
-- **[vps-deploy.sh](vps-deploy.sh)** - VPS deployment script
-- **[create-deployment-package.sh](create-deployment-package.sh)** - Build deployment package
+### Scripts Directory
+- **[verify-config.sh](../scripts/verify-config.sh)** - Configuration verification utility
+- **[scan-env-vars.sh](../scripts/scan-env-vars.sh)** - Environment variable scanning tool
+- **[validate-pre-deployment.sh](../scripts/validate-pre-deployment.sh)** - Pre-deployment validation
+- **[trigger-production-deploy.sh](../scripts/trigger-production-deploy.sh)** - CI/CD deployment trigger
+- **[vps-deploy.sh](../scripts/vps-deploy.sh)** - VPS deployment script
+- **[create-deployment-package.sh](../scripts/create-deployment-package.sh)** - Build deployment package
 
 ### Deployment Scripts
-See [deployment/README.md](deployment/README.md) for deployment-specific scripts including:
+See [deployment/README.md](../deployment/README.md) for deployment-specific scripts including:
 - production-deploy.sh - Production deployment automation
 - vps-setup.sh - VPS server setup
 - public-launch-master.sh - Comprehensive public deployment

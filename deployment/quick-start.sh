@@ -212,7 +212,7 @@ main() {
     echo "6. Monitor services:"
     echo -e "   ${BLUE}docker compose ps${NC}"
     echo ""
-    print_info "For troubleshooting, see: $INSTALL_DIR/GITHUB_SECRETS_GUIDE.md"
+    print_info "For troubleshooting, see: $INSTALL_DIR/docs/GITHUB_SECRETS_GUIDE.md"
     echo ""
 }
 
