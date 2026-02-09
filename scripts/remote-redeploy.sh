@@ -40,6 +40,38 @@ USAGE
 
 SKIP_PACKAGE="false"
 
+
+if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
+  echo "ssh/scp commands are required but not available in PATH" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PACKAGE_SCRIPT" ]]; then
+  echo "Package script is missing: $PACKAGE_SCRIPT" >&2
+  exit 1
+fi
+
+check_route_to_host() {
+  local host="$1"
+
+  # Skip route probing if `ip` is unavailable.
+  if ! command -v ip >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # For non-IP hosts we rely on SSH to resolve and report errors.
+  if [[ ! "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    return 0
+  fi
+
+  if ! ip route get "$host" >/dev/null 2>&1; then
+    echo "No network route to $host from this machine." >&2
+    echo "Fix connectivity first (VPN/VPC route/security group/firewall), then rerun." >&2
+    echo "Tip: verify with: ip route get $host" >&2
+    exit 1
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --host) VPS_HOST="$2"; shift 2 ;;
@@ -60,14 +92,25 @@ if [[ "$DEPLOY_MODE" != "docker-manager" && "$DEPLOY_MODE" != "compose" ]]; then
 fi
 
 SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=20 -p "$SSH_PORT")
+SCP_OPTS=(-o BatchMode=yes -o ConnectTimeout=20 -P "$SSH_PORT")
 if [[ -n "$SSH_KEY_PATH" ]]; then
+  if [[ ! -f "$SSH_KEY_PATH" ]]; then
+    echo "SSH key file not found: $SSH_KEY_PATH" >&2
+    exit 1
+  fi
+  if grep -qE '^(ssh-rsa|ssh-ed25519|ecdsa-sha2-nistp256) ' "$SSH_KEY_PATH"; then
+    echo "Provided --key appears to be a public key. Please provide a private key file." >&2
+    exit 1
+  fi
   SSH_OPTS+=(-i "$SSH_KEY_PATH")
+  SCP_OPTS+=(-i "$SSH_KEY_PATH")
 fi
 REMOTE="$VPS_USER@$VPS_HOST"
+REMOTE_APP_DIR="$VPS_DEPLOY_DIR/cortexbuild/deployment"
 
 if [[ "$SKIP_PACKAGE" != "true" ]]; then
   echo "[1/6] Creating deployment package..."
-  "$PACKAGE_SCRIPT"
+  bash "$PACKAGE_SCRIPT"
 fi
 
 echo "[2/6] Verifying local package..."
@@ -77,20 +120,29 @@ if [[ ! -f "$PACKAGE_PATH" ]]; then
 fi
 
 echo "[3/6] Testing SSH connectivity to $REMOTE:$SSH_PORT..."
-ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'"
+check_route_to_host "$VPS_HOST"
+SSH_TEST_OUTPUT=""
+if ! SSH_TEST_OUTPUT=$(ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'" 2>&1); then
+  echo "$SSH_TEST_OUTPUT" >&2
+  if [[ "$SSH_TEST_OUTPUT" == *"Network is unreachable"* ]]; then
+    echo "No reachable network path to $VPS_HOST:$SSH_PORT from this machine." >&2
+    echo "Run this deploy from a host with route access (same VPC/VPN/public egress), or open firewall/route rules." >&2
+  fi
+  exit 1
+fi
 
 echo "[4/6] Uploading package to $VPS_DEPLOY_DIR..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "mkdir -p '$VPS_DEPLOY_DIR'"
-scp "${SSH_OPTS[@]}" "$PACKAGE_PATH" "$REMOTE:$VPS_DEPLOY_DIR/cortexbuild_vps_deploy.tar.gz"
+scp "${SCP_OPTS[@]}" "$PACKAGE_PATH" "$REMOTE:$VPS_DEPLOY_DIR/cortexbuild_vps_deploy.tar.gz"
 
 echo "[5/6] Extracting package on VPS..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "cd '$VPS_DEPLOY_DIR' && rm -rf cortexbuild && tar -xzf cortexbuild_vps_deploy.tar.gz"
 
 echo "[6/6] Rebuilding and redeploying in $DEPLOY_MODE mode..."
 if [[ "$DEPLOY_MODE" == "docker-manager" ]]; then
-  ssh "${SSH_OPTS[@]}" "$REMOTE" "bash -s" <<'EOSSH'
+  ssh "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
 set -euo pipefail
-cd /root/cortexbuild/cortexbuild/deployment
+cd "$REMOTE_APP_DIR"
 
 echo "Building fresh app image (no cache)..."
 docker build --no-cache -t cortexbuild-app:latest -f Dockerfile ..
@@ -109,9 +161,9 @@ docker compose exec -T app npx prisma migrate deploy
 echo "Deployment complete."
 EOSSH
 else
-  ssh "${SSH_OPTS[@]}" "$REMOTE" "bash -s" <<'EOSSH'
+  ssh "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
 set -euo pipefail
-cd /root/cortexbuild/cortexbuild/deployment
+cd "$REMOTE_APP_DIR"
 
 echo "Rebuilding compose services..."
 docker compose build --no-cache app

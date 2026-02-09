@@ -26,12 +26,28 @@ echo -e "${NC}"
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Output file
-OUTPUT_FILE="cortexbuild_vps_deploy.tar.gz"
+OUTPUT_FILE="$ROOT_DIR/cortexbuild_vps_deploy.tar.gz"
+OUTPUT_BASENAME="$(basename "$OUTPUT_FILE")"
 TEMP_DIR=$(mktemp -d)
 PACKAGE_DIR="$TEMP_DIR/cortexbuild"
+
+cleanup() {
+  rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
+
+# Validate required source directories
+if [[ ! -d "$ROOT_DIR/deployment" ]]; then
+  echo -e "${RED}Error: Missing deployment directory at $ROOT_DIR/deployment${NC}" >&2
+  exit 1
+fi
+if [[ ! -d "$ROOT_DIR/nextjs_space" ]]; then
+  echo -e "${RED}Error: Missing nextjs_space directory at $ROOT_DIR/nextjs_space${NC}" >&2
+  exit 1
+fi
 
 echo -e "${CYAN}[1/4] Preparing package directory...${NC}"
 echo ""
@@ -41,28 +57,28 @@ mkdir -p "$PACKAGE_DIR"
 
 # Copy deployment directory
 echo "Copying deployment files..."
-cp -r deployment "$PACKAGE_DIR/"
+cp -r "$ROOT_DIR/deployment" "$PACKAGE_DIR/"
 
 # Copy nextjs_space directory
 echo "Copying Next.js application..."
-cp -r nextjs_space "$PACKAGE_DIR/"
+cp -r "$ROOT_DIR/nextjs_space" "$PACKAGE_DIR/"
 
 # Copy configuration files
 echo "Copying configuration files..."
-cp .dockerignore "$PACKAGE_DIR/" 2>/dev/null || true
-cp .env.template "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/.dockerignore" "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/.env.template" "$PACKAGE_DIR/" 2>/dev/null || true
 
 # Copy documentation
 echo "Copying documentation..."
-cp README.md "$PACKAGE_DIR/" 2>/dev/null || true
-cp deployment/PRODUCTION-DEPLOY-GUIDE.md "$PACKAGE_DIR/" 2>/dev/null || true
-cp docs/TROUBLESHOOTING.md "$PACKAGE_DIR/" 2>/dev/null || true
-cp docs/API_SETUP_GUIDE.md "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/README.md" "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/deployment/PRODUCTION-DEPLOY-GUIDE.md" "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/docs/TROUBLESHOOTING.md" "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/docs/API_SETUP_GUIDE.md" "$PACKAGE_DIR/" 2>/dev/null || true
 
 # Copy deployment scripts
 echo "Copying deployment scripts..."
-cp scripts/vps-deploy.sh "$PACKAGE_DIR/" 2>/dev/null || true
-cp scripts/verify-config.sh "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/scripts/vps-deploy.sh" "$PACKAGE_DIR/" 2>/dev/null || true
+cp "$ROOT_DIR/scripts/verify-config.sh" "$PACKAGE_DIR/" 2>/dev/null || true
 
 echo -e "${GREEN}✓ Files copied successfully${NC}"
 echo ""
@@ -90,19 +106,16 @@ echo ""
 
 # Create tarball
 cd "$TEMP_DIR"
-tar -czf "$SCRIPT_DIR/$OUTPUT_FILE" cortexbuild/
+tar -czf "$OUTPUT_FILE" cortexbuild/
 
 # Get file size
-FILE_SIZE=$(du -h "$SCRIPT_DIR/$OUTPUT_FILE" | cut -f1)
+FILE_SIZE=$(du -h "$OUTPUT_FILE" | cut -f1)
 
-echo -e "${GREEN}✓ Tarball created: $OUTPUT_FILE ($FILE_SIZE)${NC}"
+echo -e "${GREEN}✓ Tarball created: $OUTPUT_BASENAME ($FILE_SIZE)${NC}"
 echo ""
 
 echo -e "${CYAN}[4/4] Cleaning up temporary files...${NC}"
 echo ""
-
-# Cleanup
-rm -rf "$TEMP_DIR"
 
 echo -e "${GREEN}✓ Cleanup complete${NC}"
 echo ""
@@ -110,10 +123,10 @@ echo ""
 # Display package contents summary
 echo -e "${CYAN}Package Contents Summary:${NC}"
 echo ""
-tar -tzf "$SCRIPT_DIR/$OUTPUT_FILE" | head -20
+tar -tzf "$OUTPUT_FILE" | head -20
 echo "..."
 echo ""
-echo "Total files: $(tar -tzf "$SCRIPT_DIR/$OUTPUT_FILE" | wc -l)"
+echo "Total files: $(tar -tzf "$OUTPUT_FILE" | wc -l)"
 echo ""
 
 echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -123,7 +136,7 @@ echo -e "${GREEN}║                                                           �
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-echo "Deployment Package: $OUTPUT_FILE"
+echo "Deployment Package: $OUTPUT_BASENAME"
 echo "File Size: $FILE_SIZE"
 echo ""
 echo "Next Steps:"
@@ -137,7 +150,7 @@ echo ""
 echo "3. SSH into VPS and extract:"
 echo "   → ssh root@72.62.132.43"
 echo "   → cd /root/cortexbuild"
-echo "   → tar -xzf $OUTPUT_FILE"
+echo "   → tar -xzf $OUTPUT_BASENAME"
 echo ""
 echo "4. Run deployment:"
 echo "   → cd cortexbuild/deployment"
