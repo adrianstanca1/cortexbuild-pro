@@ -116,20 +116,28 @@ if [ ! -f "deployment/.env" ]; then
         echo "Creating .env from template..."
         cp deployment/.env.example deployment/.env
         echo -e "${GREEN}✓ Created .env file${NC}"
-        echo ""
-        echo -e "${YELLOW}IMPORTANT: You must configure the .env file before continuing!${NC}"
-        echo ""
-        echo "Edit deployment/.env and set:"
-        echo "  - POSTGRES_PASSWORD"
-        echo "  - NEXTAUTH_SECRET (generate with: openssl rand -base64 32)"
-        echo "  - NEXTAUTH_URL"
-        echo "  - Other required variables"
-        echo ""
-        if [ -t 0 ]; then
-            read -p "Press Enter after configuring .env file..." 
+
+        if [ -x "deployment/setup-env-and-deps.sh" ] && [ -n "${POSTGRES_USER:-}" ] && [ -n "${POSTGRES_PASSWORD:-}" ] && [ -n "${POSTGRES_DB:-}" ] && [ -n "${NEXTAUTH_SECRET:-}" ] && [ -n "${NEXTAUTH_URL:-}" ]; then
+            echo -e "${CYAN}Detected exported credentials. Generating deployment/.env automatically...${NC}"
+            (cd deployment && ./setup-env-and-deps.sh --skip-deps)
+            echo -e "${GREEN}✓ deployment/.env generated from exported env vars${NC}"
         else
-            echo -e "${YELLOW}Non-interactive environment detected; skipping .env confirmation prompt.${NC}"
-        fi 
+            echo ""
+            echo -e "${YELLOW}IMPORTANT: You must configure the .env file before continuing!${NC}"
+            echo ""
+            echo "Option A (recommended): export vars + run auto-setup"
+            echo "  cd deployment"
+            echo "  export POSTGRES_USER=... POSTGRES_PASSWORD=... POSTGRES_DB=..."
+            echo "  export NEXTAUTH_SECRET=... NEXTAUTH_URL=..."
+            echo "  ./setup-env-and-deps.sh --skip-deps"
+            echo ""
+            echo "Option B: Edit deployment/.env manually and set required vars"
+            if [ -t 0 ]; then
+                read -p "Press Enter after configuring .env file..."
+            else
+                echo -e "${YELLOW}Non-interactive environment detected; skipping .env confirmation prompt.${NC}"
+            fi
+        fi
     else
         echo -e "${RED}✗ No .env.example found${NC}"
         exit 1
