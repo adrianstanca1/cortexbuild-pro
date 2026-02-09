@@ -30,8 +30,14 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Output file
 OUTPUT_FILE="$ROOT_DIR/cortexbuild_vps_deploy.tar.gz"
+OUTPUT_BASENAME="$(basename "$OUTPUT_FILE")"
 TEMP_DIR=$(mktemp -d)
 PACKAGE_DIR="$TEMP_DIR/cortexbuild"
+
+cleanup() {
+  rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
 
 echo -e "${CYAN}[1/4] Preparing package directory...${NC}"
 echo ""
@@ -95,14 +101,11 @@ tar -czf "$OUTPUT_FILE" cortexbuild/
 # Get file size
 FILE_SIZE=$(du -h "$OUTPUT_FILE" | cut -f1)
 
-echo -e "${GREEN}✓ Tarball created: $(basename "$OUTPUT_FILE") ($FILE_SIZE)${NC}"
+echo -e "${GREEN}✓ Tarball created: $OUTPUT_BASENAME ($FILE_SIZE)${NC}"
 echo ""
 
 echo -e "${CYAN}[4/4] Cleaning up temporary files...${NC}"
 echo ""
-
-# Cleanup
-rm -rf "$TEMP_DIR"
 
 echo -e "${GREEN}✓ Cleanup complete${NC}"
 echo ""
@@ -123,7 +126,7 @@ echo -e "${GREEN}║                                                           �
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-echo "Deployment Package: $(basename "$OUTPUT_FILE")"
+echo "Deployment Package: $OUTPUT_BASENAME"
 echo "File Size: $FILE_SIZE"
 echo ""
 echo "Next Steps:"
@@ -137,7 +140,7 @@ echo ""
 echo "3. SSH into VPS and extract:"
 echo "   → ssh root@72.62.132.43"
 echo "   → cd /root/cortexbuild"
-echo "   → tar -xzf $OUTPUT_FILE"
+echo "   → tar -xzf $OUTPUT_BASENAME"
 echo ""
 echo "4. Run deployment:"
 echo "   → cd cortexbuild/deployment"

@@ -40,6 +40,16 @@ USAGE
 
 SKIP_PACKAGE="false"
 
+if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
+  echo "ssh/scp commands are required but not available in PATH" >&2
+  exit 1
+fi
+
+if [[ ! -x "$PACKAGE_SCRIPT" ]]; then
+  echo "Package script is missing or not executable: $PACKAGE_SCRIPT" >&2
+  exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --host) VPS_HOST="$2"; shift 2 ;;
