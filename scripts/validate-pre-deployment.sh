@@ -80,10 +80,10 @@ if command -v gh &> /dev/null; then
     if gh auth status &> /dev/null; then
         check_pass "GitHub CLI is authenticated"
     else
-        check_fail "GitHub CLI is not authenticated (run: gh auth login)"
+        check_warn "GitHub CLI is not authenticated (run: gh auth login)"
     fi
 else
-    check_fail "GitHub CLI is not installed (required for deployment trigger)"
+    check_warn "GitHub CLI is not installed (required only for trigger-production-deploy.sh)"
 fi
 
 echo ""

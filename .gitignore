@@ -25,3 +25,6 @@ out
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Deployment runtime logs
+deployment/production-deploy.log

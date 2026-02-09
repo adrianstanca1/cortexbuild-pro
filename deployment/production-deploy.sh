@@ -17,6 +17,80 @@ APP_ROOT="$(dirname "$SCRIPT_DIR")"
 DEPLOYMENT_DIR="$SCRIPT_DIR"
 LOG_FILE="${DEPLOYMENT_DIR}/production-deploy.log"
 
+# Require command to exist before continuing
+require_command() {
+    local cmd="$1"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        log_error "Required command not found: $cmd"
+        return 1
+    fi
+}
+
+# Install Docker automatically when missing
+install_docker() {
+    log_warn "Docker not found. Attempting automatic installation..."
+
+    if ! command -v curl >/dev/null 2>&1; then
+        log_error "curl is required to install Docker automatically"
+        return 1
+    fi
+
+    if [[ $EUID -ne 0 ]]; then
+        if command -v sudo >/dev/null 2>&1; then
+            curl -fsSL https://get.docker.com | sudo sh
+        else
+            log_error "Docker install requires root privileges or sudo"
+            return 1
+        fi
+    else
+        curl -fsSL https://get.docker.com | sh
+    fi
+
+    if ! command -v docker >/dev/null 2>&1; then
+        log_error "Docker installation finished but docker command is still unavailable"
+        return 1
+    fi
+
+    log_success "Docker installed successfully"
+}
+
+# Ensure Docker Engine and CLI are available and ready
+ensure_docker_available() {
+    if ! command -v docker >/dev/null 2>&1; then
+        install_docker || return 1
+    fi
+
+    # Start Docker daemon if present but not running
+    if ! docker info >/dev/null 2>&1; then
+        log_warn "Docker daemon is not running. Attempting to start it..."
+        if command -v systemctl >/dev/null 2>&1; then
+            if [[ $EUID -ne 0 ]] && command -v sudo >/dev/null 2>&1; then
+                sudo systemctl start docker || true
+            else
+                systemctl start docker || true
+            fi
+        elif command -v service >/dev/null 2>&1; then
+            if [[ $EUID -ne 0 ]] && command -v sudo >/dev/null 2>&1; then
+                sudo service docker start || true
+            else
+                service docker start || true
+            fi
+        fi
+    fi
+
+    if ! docker info >/dev/null 2>&1; then
+        log_error "Docker is installed but the daemon is not running"
+        return 1
+    fi
+
+    if ! docker compose version >/dev/null 2>&1; then
+        log_error "Docker Compose plugin is not available (docker compose)"
+        return 1
+    fi
+
+    log_success "Docker and Docker Compose are available"
+}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -64,7 +138,7 @@ commit_changes() {
     # Check if there are changes to commit
     if [[ -n $(git status --porcelain) ]]; then
         log_info "Found uncommitted changes, committing..."
-        git add .
+        git add -A ':!deployment/production-deploy.log'
         git commit -m "Production deployment: $(date +'%Y-%m-%d %H:%M:%S')" || log_warn "Commit failed or nothing to commit"
         log_success "Changes committed successfully"
     else
@@ -76,6 +150,8 @@ commit_changes() {
 rebuild_production() {
     log_info "Step 2: Rebuilding application for production..."
     cd "$DEPLOYMENT_DIR"
+
+    ensure_docker_available || return 1
     
     # Stop existing containers
     log_info "Stopping existing containers..."
@@ -99,6 +175,8 @@ rebuild_production() {
 deploy_to_vps() {
     log_info "Step 3: Deploying to VPS..."
     cd "$DEPLOYMENT_DIR"
+
+    ensure_docker_available || return 1
     
     # Start containers
     log_info "Starting containers in production mode..."
@@ -153,6 +231,8 @@ clean_repositories() {
 # Health check
 run_health_check() {
     log_info "Running post-deployment health check..."
+
+    require_command curl || return 1
     
     # Wait for app to be fully ready
     sleep 10
@@ -213,6 +293,8 @@ error_handler() {
 # Main execution
 main() {
     print_header
+
+    require_command git || error_handler "require_command git"
     
     log_info "Starting production deployment workflow..."
     log_info "Log file: $LOG_FILE"
