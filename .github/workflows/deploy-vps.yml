@@ -215,11 +215,12 @@ jobs:
             # Navigate to deployment folder
             cd deployment
 
-            # Pull latest Docker image
-            echo "🐳 Pulling latest Docker image..."
-            docker compose pull app
+            # Pull latest Docker images (app + nginx)
+            echo "🐳 Pulling latest Docker images..."
+            docker compose pull app || true
+            docker compose pull nginx || true
 
-            # Restart services with new image
+            # Restart all services (db, app, nginx, certbot)
             echo "🔄 Restarting services..."
             docker compose up -d --no-build
 
@@ -243,6 +244,16 @@ jobs:
               echo "--- Application logs ---"
               docker compose logs --tail=50 app
               exit 1
+            fi
+
+            # Verify nginx is proxying requests
+            echo "🔍 Verifying nginx reverse proxy..."
+            NGINX_STATUS=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/ 2>/dev/null || echo "000")
+            if [ "\$NGINX_STATUS" != "000" ]; then
+              echo "✅ Nginx is responding (HTTP \$NGINX_STATUS)"
+            else
+              echo "⚠️ Nginx not responding on port 80 (non-blocking)"
+              docker compose logs --tail=10 nginx
             fi
 
             # Run database migrations (warn on failure, do not block deployment)

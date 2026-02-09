@@ -205,6 +205,75 @@ check_application() {
     echo ""
 }
 
+# Check nginx reverse proxy
+check_nginx() {
+    check_section "Nginx Reverse Proxy"
+
+    cd "$SCRIPT_DIR"
+
+    # Check if nginx container is running
+    if docker compose ps nginx --format '{{.State}}' 2>/dev/null | grep -q "running"; then
+        status_ok "Nginx container running"
+    else
+        status_warn "Nginx container not running (direct access on port 3000 still works)"
+        echo ""
+        return
+    fi
+
+    # Test HTTP through nginx
+    local nginx_http=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/ 2>/dev/null || echo "000")
+    if [[ "$nginx_http" != "000" ]]; then
+        status_ok "Nginx HTTP responding (status: $nginx_http)"
+    else
+        status_error "Nginx not responding on port 80"
+    fi
+
+    # Test HTTPS through nginx (if SSL is configured)
+    local nginx_https=$(curl -sk -o /dev/null -w "%{http_code}" https://localhost:443/ 2>/dev/null || echo "000")
+    if [[ "$nginx_https" != "000" ]]; then
+        status_ok "Nginx HTTPS responding (status: $nginx_https)"
+    else
+        status_info "HTTPS not configured (port 443 not responding)"
+    fi
+
+    echo ""
+}
+
+# Check SSL certificates
+check_ssl() {
+    check_section "SSL Certificates"
+
+    cd "$SCRIPT_DIR"
+
+    # Check if certbot container exists
+    if ! docker compose ps certbot &>/dev/null; then
+        status_info "Certbot service not configured"
+        echo ""
+        return
+    fi
+
+    # Check if certificates exist in the volume
+    local cert_check=$(docker compose run --rm --entrypoint "" certbot sh -c \
+        "ls /etc/letsencrypt/live/ 2>/dev/null | head -1" 2>/dev/null || echo "")
+
+    if [[ -n "$cert_check" && "$cert_check" != "README" ]]; then
+        status_ok "SSL certificates found for: $cert_check"
+
+        # Check certificate expiry
+        local expiry=$(docker compose run --rm --entrypoint "" certbot sh -c \
+            "certbot certificates 2>/dev/null | grep 'Expiry Date' | head -1" 2>/dev/null || echo "")
+
+        if [[ -n "$expiry" ]]; then
+            status_info "$expiry"
+        fi
+    else
+        status_info "No SSL certificates provisioned yet"
+        status_info "Run: ./setup-ssl.sh <domain> to provision"
+    fi
+
+    echo ""
+}
+
 # Check system resources
 check_resources() {
     check_section "System Resources"
@@ -351,6 +420,8 @@ main() {
     check_containers
     check_database
     check_application
+    check_nginx
+    check_ssl
     check_resources
     check_docker_resources
     check_logs

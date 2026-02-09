@@ -245,14 +245,22 @@ run_health_check() {
         log_info "Check logs with: docker compose logs -f app"
         return 1
     fi
-    
+
+    # Check nginx reverse proxy
+    local nginx_status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/ 2>/dev/null || echo "000")
+    if [[ "$nginx_status" != "000" ]]; then
+        log_success "Nginx reverse proxy responding (HTTP $nginx_status)"
+    else
+        log_warn "Nginx not responding on port 80 (app still accessible on port 3000)"
+    fi
+
     # Check database connection
     if docker compose exec -T app npx prisma db pull --print 2>&1 | grep -q "success" || true; then
         log_success "Database connection verified"
     else
         log_warn "Could not verify database connection"
     fi
-    
+
     log_success "Health check completed"
 }
 
@@ -270,12 +278,15 @@ print_summary() {
     echo ""
     echo -e "${GREEN}Deployment completed successfully!${NC}"
     echo ""
-    echo "Application URL: http://localhost:3000"
+    echo "Application URL: http://localhost:3000 (direct)"
+    echo "Nginx URL:      http://localhost (via reverse proxy)"
     echo ""
     echo "Useful commands:"
     echo "  - View logs: docker compose logs -f app"
+    echo "  - View nginx logs: docker compose logs -f nginx"
     echo "  - Check status: docker compose ps"
     echo "  - Run health check: ./health-check.sh"
+    echo "  - Setup SSL: ./setup-ssl.sh <domain>"
     echo "  - Create backup: ./backup.sh"
     echo ""
     echo "Log file: $LOG_FILE"
