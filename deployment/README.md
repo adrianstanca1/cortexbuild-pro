@@ -100,6 +100,19 @@ nano .env
 chmod 600 .env
 ```
 
+You can also generate `deployment/.env` from exported credentials and verify base dependencies automatically:
+
+```bash
+export POSTGRES_USER=cortexbuild
+export POSTGRES_PASSWORD=<strong-password>
+export POSTGRES_DB=cortexbuild
+export NEXTAUTH_SECRET=<32+-char-secret>
+export NEXTAUTH_URL=https://your-domain.com
+./setup-env-and-deps.sh --skip-deps
+```
+
+> Remove `--skip-deps` when running directly on the VPS as root to install Docker and Compose prerequisites automatically.
+
 **Required settings in `.env`:**
 ```env
 # Database (generate password with: openssl rand -base64 24)
@@ -154,6 +167,7 @@ deployment/
 ├── deploy-from-github.sh # Deploy from GitHub repository
 ├── cleanup-repos.sh      # ⭐ Repository cleanup
 ├── health-check.sh       # ⭐ Health monitoring
+├── setup-env-and-deps.sh # Generate deployment/.env + install deps
 ├── rollback.sh           # ⭐ Deployment rollback
 ├── QUICKSTART.md         # ⭐ Quick start guide
 ├── setup-ssl.sh          # SSL certificate setup
