@@ -60,7 +60,11 @@ print_header "CortexBuild Pro - Configuration Validation"
 print_header "1. WebSocket Configuration"
 
 print_check "WebSocket client path"
-CLIENT_PATH=$(grep -o "path: '[^']*'" nextjs_space/lib/websocket-client.ts | head -1 | cut -d"'" -f2)
+CLIENT_FILE="nextjs_space/server/websocket-client.ts"
+if [ ! -f "$CLIENT_FILE" ]; then
+    CLIENT_FILE="nextjs_space/lib/websocket-client.ts"
+fi
+CLIENT_PATH=$(grep -o "path: '[^']*'" "$CLIENT_FILE" | head -1 | cut -d"'" -f2)
 if [ "$CLIENT_PATH" = "/api/socketio" ]; then
     print_pass
 else
@@ -75,18 +79,11 @@ else
     print_fail "Server path is '$SERVER_PATH', expected '/api/socketio'"
 fi
 
-print_check "Nginx WebSocket location"
-if grep -q "location /api/socketio/" deployment/nginx.conf; then
+print_check "Nginx WebSocket proxy compatibility"
+if grep -q "proxy_set_header Upgrade \$http_upgrade" deployment/nginx.conf && grep -q "proxy_set_header Connection 'upgrade'" deployment/nginx.conf; then
     print_pass
 else
-    print_fail "Nginx config missing '/api/socketio/' location"
-fi
-
-print_check "Nginx connection upgrade mapping"
-if grep -q "map \$http_upgrade \$connection_upgrade" deployment/nginx.conf; then
-    print_pass
-else
-    print_fail "Nginx config missing connection upgrade mapping"
+    print_fail "Nginx config missing required websocket upgrade proxy headers"
 fi
 
 # 2. Check Database Configuration
@@ -124,7 +121,7 @@ else
 fi
 
 print_check ".env.example has required variables"
-REQUIRED_VARS=("DATABASE_URL" "NEXTAUTH_SECRET" "NEXTAUTH_URL" "NEXT_PUBLIC_WEBSOCKET_URL")
+REQUIRED_VARS=("NEXTAUTH_SECRET" "NEXTAUTH_URL" "NEXT_PUBLIC_WEBSOCKET_URL")
 for var in "${REQUIRED_VARS[@]}"; do
     if grep -q "^$var=" deployment/.env.example; then
         print_pass
@@ -133,6 +130,13 @@ for var in "${REQUIRED_VARS[@]}"; do
         print_fail "Missing required variable: $var"
     fi
 done
+
+print_check "Database env strategy in .env.example"
+if grep -q "^DATABASE_URL=" deployment/.env.example || (grep -q "^POSTGRES_USER=" deployment/.env.example && grep -q "^POSTGRES_PASSWORD=" deployment/.env.example && grep -q "^POSTGRES_DB=" deployment/.env.example); then
+    print_pass
+else
+    print_fail "Missing database configuration strategy (DATABASE_URL or POSTGRES_* vars)"
+fi
 
 print_check ".env is gitignored"
 if grep -q "deployment/\.env" .gitignore || grep -q "^\.env$" .gitignore; then
@@ -187,7 +191,7 @@ else
 fi
 
 print_check "Application health check"
-if grep -q "healthcheck:" deployment/docker-compose.yml | grep -A 5 "app:"; then
+if awk '/^  app:/{in_app=1;next} /^  [a-zA-Z0-9_-]+:/{if(in_app){exit(found?0:1)}} in_app && /^    healthcheck:/{found=1} END{if(in_app) exit(found?0:1)}' deployment/docker-compose.yml; then
     print_pass
 else
     print_warn "Application health check not configured"

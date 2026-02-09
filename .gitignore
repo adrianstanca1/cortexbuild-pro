@@ -28,3 +28,7 @@ out
 
 # Deployment runtime logs
 deployment/production-deploy.log
+# Local deployment secrets
+deployment/.env
+
+deployment/.env.*
