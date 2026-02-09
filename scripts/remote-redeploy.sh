@@ -45,8 +45,8 @@ if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -x "$PACKAGE_SCRIPT" ]]; then
-  echo "Package script is missing or not executable: $PACKAGE_SCRIPT" >&2
+if [[ ! -f "$PACKAGE_SCRIPT" ]]; then
+  echo "Package script is missing: $PACKAGE_SCRIPT" >&2
   exit 1
 fi
 
@@ -88,7 +88,7 @@ REMOTE_APP_DIR="$VPS_DEPLOY_DIR/cortexbuild/deployment"
 
 if [[ "$SKIP_PACKAGE" != "true" ]]; then
   echo "[1/6] Creating deployment package..."
-  "$PACKAGE_SCRIPT"
+  bash "$PACKAGE_SCRIPT"
 fi
 
 echo "[2/6] Verifying local package..."

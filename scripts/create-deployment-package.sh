@@ -39,6 +39,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Validate required source directories
+if [[ ! -d "$ROOT_DIR/deployment" ]]; then
+  echo -e "${RED}Error: Missing deployment directory at $ROOT_DIR/deployment${NC}" >&2
+  exit 1
+fi
+if [[ ! -d "$ROOT_DIR/nextjs_space" ]]; then
+  echo -e "${RED}Error: Missing nextjs_space directory at $ROOT_DIR/nextjs_space${NC}" >&2
+  exit 1
+fi
+
 echo -e "${CYAN}[1/4] Preparing package directory...${NC}"
 echo ""
 
