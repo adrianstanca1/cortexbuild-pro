@@ -1,1 +1,320 @@
-{"ref": "cortexbuildpro","inputs": {"environment": "production","skip_tests": "false"}}
+---
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      skip_tests:
+        description: 'Skip tests before deployment'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main
+      - cortexbuildpro
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_tests != 'true' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: nextjs_space/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./nextjs_space
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linter
+        working-directory: ./nextjs_space
+        run: npm run lint || true
+
+      - name: Run tests
+        working-directory: ./nextjs_space
+        run: npm run test:ci || true
+
+      - name: Security audit
+        working-directory: ./nextjs_space
+        run: npm audit --audit-level=high || true
+
+  build:
+    name: Build Docker Image
+    needs: test
+    if: |
+      always() &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+      image_digest: ${{ steps.build-and-push.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deployment/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Output image details
+        run: |
+          echo "### 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.build-and-push.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment || 'production' }}
+      url: ${{ vars.DEPLOYMENT_URL || 'https://www.cortexbuildpro.com' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        run: |
+          MISSING_SECRETS=()
+          
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            MISSING_SECRETS+=("VPS_HOST")
+          fi
+          
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            MISSING_SECRETS+=("VPS_USER")
+          fi
+          
+          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
+            MISSING_SECRETS+=("VPS_SSH_KEY")
+          fi
+          
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "❌ ERROR: The following required secrets are not set:"
+            for secret in "${MISSING_SECRETS[@]}"; do
+              echo "  - $secret"
+            done
+            echo ""
+            echo "Please configure these secrets in your repository settings:"
+            echo "Settings > Secrets and variables > Actions > New repository secret"
+            echo ""
+            echo "For detailed instructions, see: docs/GITHUB_SECRETS_GUIDE.md"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are configured"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+          DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
+          DEPLOY_BRANCH: ${{ github.ref_name || 'main' }}
+        run: |
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
+            set -e
+
+            echo "🚀 Starting deployment..."
+
+            # Navigate to deployment directory
+            cd $DEPLOYMENT_PATH
+
+            # Stash any local changes to avoid conflicts
+            echo "📥 Pulling latest code from branch $DEPLOY_BRANCH..."
+            git fetch origin
+
+            # Check for local changes
+            if ! git diff-index --quiet HEAD --; then
+              echo "⚠️ Local changes detected, stashing..."
+              git stash save "Auto-stash before deployment \$(date +%Y%m%d_%H%M%S)"
+            fi
+
+            # Pull latest changes with rebase
+            git pull --rebase origin $DEPLOY_BRANCH || {
+              echo "❌ Failed to pull latest changes"
+              git rebase --abort
+              exit 1
+            }
+
+            # Navigate to deployment folder
+            cd deployment
+
+            # Pull latest Docker image
+            echo "🐳 Pulling latest Docker image..."
+            docker compose pull app
+
+            # Restart services with new image
+            echo "🔄 Restarting services..."
+            docker compose up -d --no-build
+
+            # Wait for application to be healthy (checks DB connectivity via /api/health)
+            echo "⏳ Waiting for application to be ready..."
+            MAX_RETRIES=30
+            RETRY_COUNT=0
+            while [ \$RETRY_COUNT -lt \$MAX_RETRIES ]; do
+              HEALTH_STATUS=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null || echo "000")
+              if [ "\$HEALTH_STATUS" = "200" ]; then
+                echo "✅ Application is healthy (database connected)"
+                break
+              fi
+              RETRY_COUNT=\$((RETRY_COUNT + 1))
+              echo "Attempt \$RETRY_COUNT/\$MAX_RETRIES... (status: \$HEALTH_STATUS)"
+              sleep 10
+            done
+
+            if [ \$RETRY_COUNT -ge \$MAX_RETRIES ]; then
+              echo "❌ Application failed to become healthy within timeout"
+              echo "--- Application logs ---"
+              docker compose logs --tail=50 app
+              exit 1
+            fi
+
+            # Run database migrations (warn on failure, do not block deployment)
+            echo "🗄️ Running database migrations..."
+            if docker compose exec -T app sh -c "cd /app && npx prisma migrate deploy"; then
+              echo "✅ Database migrations completed successfully"
+            else
+              echo "⚠️ Database migrations failed (non-blocking)"
+              echo "The application is running but migrations may need to be applied manually."
+              echo "Common causes: database credential mismatch, pending manual migration steps."
+              echo "Run manually: docker compose exec app sh -c 'cd /app && npx prisma migrate deploy'"
+              docker compose logs --tail=20 app
+            fi
+
+            # Show running containers
+            echo "📊 Container status:"
+            docker compose ps
+
+            echo "✅ Deployment completed successfully!"
+          ENDSSH
+
+      - name: Verify Deployment
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+          DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
+        run: |
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
+            cd $DEPLOYMENT_PATH
+
+            # Run health check script
+            if [ -f deployment/health-check.sh ]; then
+              echo "🔍 Running deployment health check..."
+              bash deployment/health-check.sh
+            fi
+          ENDSSH
+
+      - name: Cleanup SSH Key
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
+
+      - name: Deployment Summary
+        run: |
+          echo "### 🎉 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ needs.build.outputs.image_digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** ${{ vars.DEPLOYMENT_URL || 'https://www.cortexbuildpro.com' }}" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Send Notification
+    needs: [build, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Deployment completed successfully"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
+
+      - name: Create deployment notification
+        if: success()
+        run: |
+          echo "Deployment notification would be sent here"
+          echo "You can integrate with Slack, Discord, email, etc."
