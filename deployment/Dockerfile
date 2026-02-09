@@ -102,4 +102,7 @@ ENV HOSTNAME="0.0.0.0"
 # Runtime environment variables should be set via docker-compose or docker run
 # DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, etc.
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
 CMD ["node", "app/server.js"]
