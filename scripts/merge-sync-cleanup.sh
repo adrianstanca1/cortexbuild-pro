@@ -7,14 +7,14 @@ set -euo pipefail
 # - Deletes merged local branches
 # - Syncs to origin (if configured) and deletes merged remote branches
 
-TARGET_BRANCH="${TARGET_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
-COMMIT_MESSAGE="${COMMIT_MESSAGE:-chore: save pending changes before merge/sync/cleanup}"
-DO_PUSH="${DO_PUSH:-1}"
-
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "❌ Not inside a git repository"
   exit 1
 fi
+
+TARGET_BRANCH="${TARGET_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
+COMMIT_MESSAGE="${COMMIT_MESSAGE:-chore: save pending changes before merge/sync/cleanup}"
+DO_PUSH="${DO_PUSH:-1}"
 
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$current_branch" != "$TARGET_BRANCH" ]]; then
