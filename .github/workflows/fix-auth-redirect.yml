@@ -1,5 +1,3 @@
-# Workflow for Fixing Authentication Redirects
-
 name: Fix Auth Redirect
 
 on:
@@ -14,5 +12,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run fix-auth-redirect script
-        run: ./fix-auth-redirect.sh
+      - name: Run Fix Auth Redirect Script
+        run: scripts/fix-auth-redirect.sh
