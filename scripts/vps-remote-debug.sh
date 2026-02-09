@@ -27,8 +27,7 @@ if [[ -n "$VPS_SSH_KEY" ]]; then
   SSH_OPTS+=("-i" "$VPS_SSH_KEY")
 fi
 if [[ -n "$SSH_EXTRA_OPTS" ]]; then
-  # shellcheck disable=SC2206
-  EXTRA_ARR=($SSH_EXTRA_OPTS)
+  read -ra EXTRA_ARR <<< "$SSH_EXTRA_OPTS"
   SSH_OPTS+=("${EXTRA_ARR[@]}")
 fi
 
