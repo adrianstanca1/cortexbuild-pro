@@ -113,6 +113,34 @@ docker compose exec app sh -c "cd /app && npx prisma migrate deploy"
 
 ## 🌐 Application Startup Errors
 
+### Error: "No reachable network path to <VPS_IP>:22" during `remote-redeploy.sh`
+
+**Symptoms:**
+- `./scripts/remote-redeploy.sh` fails at SSH test step
+- Error output includes `Network is unreachable` or `No reachable network path`
+
+**Solutions:**
+
+```bash
+# 1. Verify route from your current machine
+ip route get <VPS_IP>
+
+# 2. Verify SSH connectivity directly
+ssh -o ConnectTimeout=10 <user>@<VPS_IP>
+
+# 3. If unreachable, run deploy from a host with route access
+# (same VPC/VPN, bastion, or a machine with public egress to the VPS)
+
+# 4. Retry remote redeploy once route/firewall is fixed
+./scripts/remote-redeploy.sh --host <VPS_IP> --user <user> --key ~/.ssh/<private_key>
+```
+
+**Checklist:**
+- Confirm VPS is powered on and SSH daemon is running.
+- Confirm inbound firewall/security group allows TCP 22 from your source IP.
+- Confirm outbound route from your runner/machine to the VPS subnet.
+- If using a private IP, connect over VPN or deploy from inside the same network.
+
 ### Error: "Module not found" or "Cannot find module"
 
 **Symptoms:**
