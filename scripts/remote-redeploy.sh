@@ -40,6 +40,7 @@ USAGE
 
 SKIP_PACKAGE="false"
 
+
 if ! command -v ssh >/dev/null 2>&1 || ! command -v scp >/dev/null 2>&1; then
   echo "ssh/scp commands are required but not available in PATH" >&2
   exit 1
@@ -49,6 +50,27 @@ if [[ ! -f "$PACKAGE_SCRIPT" ]]; then
   echo "Package script is missing: $PACKAGE_SCRIPT" >&2
   exit 1
 fi
+
+check_route_to_host() {
+  local host="$1"
+
+  # Skip route probing if `ip` is unavailable.
+  if ! command -v ip >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # For non-IP hosts we rely on SSH to resolve and report errors.
+  if [[ ! "$host" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    return 0
+  fi
+
+  if ! ip route get "$host" >/dev/null 2>&1; then
+    echo "No network route to $host from this machine." >&2
+    echo "Fix connectivity first (VPN/VPC route/security group/firewall), then rerun." >&2
+    echo "Tip: verify with: ip route get $host" >&2
+    exit 1
+  fi
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -98,7 +120,16 @@ if [[ ! -f "$PACKAGE_PATH" ]]; then
 fi
 
 echo "[3/6] Testing SSH connectivity to $REMOTE:$SSH_PORT..."
-ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'"
+check_route_to_host "$VPS_HOST"
+SSH_TEST_OUTPUT=""
+if ! SSH_TEST_OUTPUT=$(ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'" 2>&1); then
+  echo "$SSH_TEST_OUTPUT" >&2
+  if [[ "$SSH_TEST_OUTPUT" == *"Network is unreachable"* ]]; then
+    echo "No reachable network path to $VPS_HOST:$SSH_PORT from this machine." >&2
+    echo "Run this deploy from a host with route access (same VPC/VPN/public egress), or open firewall/route rules." >&2
+  fi
+  exit 1
+fi
 
 echo "[4/6] Uploading package to $VPS_DEPLOY_DIR..."
 ssh "${SSH_OPTS[@]}" "$REMOTE" "mkdir -p '$VPS_DEPLOY_DIR'"
