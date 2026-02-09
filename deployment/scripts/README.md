@@ -47,6 +47,15 @@ export DATABASE_URL="postgresql://user:password@localhost:5432/cortexbuild"
 npx tsx scripts/health-check.ts
 ```
 
+### Bootstrap Project Dependencies
+
+```bash
+# From repository root
+bash scripts/setup-dependencies.sh
+```
+
+This installs the `nextjs_space` Node dependencies with the lockfile (`npm ci --legacy-peer-deps`) so local lint/build and deployment checks can run consistently.
+
 ## Environment Variables
 
 All scripts require:

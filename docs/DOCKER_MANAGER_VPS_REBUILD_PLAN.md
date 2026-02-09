@@ -23,7 +23,9 @@
 4. Create deployment env:
    - `cp deployment/.env.example deployment/.env`
    - Fill secrets (`POSTGRES_PASSWORD`, `NEXTAUTH_SECRET`, `DATABASE_URL`, domains).
-5. Validate build prerequisites:
+5. Install project dependencies:
+   - `bash scripts/setup-dependencies.sh`
+6. Validate build prerequisites:
    - `bash deployment/scripts/verify-build.sh`
 
 ## Phase 2: Build Strategy
@@ -83,6 +85,7 @@
 ## Command Pack (copy/paste)
 ```bash
 # Preflight
+bash scripts/setup-dependencies.sh
 bash deployment/scripts/verify-build.sh
 
 # Deploy (compose)
