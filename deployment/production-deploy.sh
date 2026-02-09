@@ -17,6 +17,15 @@ APP_ROOT="$(dirname "$SCRIPT_DIR")"
 DEPLOYMENT_DIR="$SCRIPT_DIR"
 LOG_FILE="${DEPLOYMENT_DIR}/production-deploy.log"
 
+# Require command to exist before continuing
+require_command() {
+    local cmd="$1"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        log_error "Required command not found: $cmd"
+        return 1
+    fi
+}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -64,7 +73,7 @@ commit_changes() {
     # Check if there are changes to commit
     if [[ -n $(git status --porcelain) ]]; then
         log_info "Found uncommitted changes, committing..."
-        git add .
+        git add -A ':!deployment/production-deploy.log'
         git commit -m "Production deployment: $(date +'%Y-%m-%d %H:%M:%S')" || log_warn "Commit failed or nothing to commit"
         log_success "Changes committed successfully"
     else
@@ -76,6 +85,8 @@ commit_changes() {
 rebuild_production() {
     log_info "Step 2: Rebuilding application for production..."
     cd "$DEPLOYMENT_DIR"
+
+    require_command docker || return 1
     
     # Stop existing containers
     log_info "Stopping existing containers..."
@@ -99,6 +110,8 @@ rebuild_production() {
 deploy_to_vps() {
     log_info "Step 3: Deploying to VPS..."
     cd "$DEPLOYMENT_DIR"
+
+    require_command docker || return 1
     
     # Start containers
     log_info "Starting containers in production mode..."
@@ -153,6 +166,8 @@ clean_repositories() {
 # Health check
 run_health_check() {
     log_info "Running post-deployment health check..."
+
+    require_command curl || return 1
     
     # Wait for app to be fully ready
     sleep 10
@@ -213,6 +228,8 @@ error_handler() {
 # Main execution
 main() {
     print_header
+
+    require_command git || error_handler "require_command git"
     
     log_info "Starting production deployment workflow..."
     log_info "Log file: $LOG_FILE"
