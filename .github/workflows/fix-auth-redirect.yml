@@ -1,0 +1,18 @@
+# Workflow for Fixing Authentication Redirects
+
+name: Fix Auth Redirect
+
+on:
+  push:
+    branches:
+      - cortexbuildpro
+
+jobs:
+  fix-auth-redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run fix-auth-redirect script
+        run: ./fix-auth-redirect.sh
