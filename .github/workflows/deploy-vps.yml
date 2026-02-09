@@ -34,7 +34,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    if: ${{ !inputs.skip_tests }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_tests != 'true' }}
 
     steps:
       - name: Checkout repository
@@ -185,7 +185,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
           DEPLOYMENT_PATH: ${{ vars.DEPLOYMENT_PATH || '/var/www/cortexbuild-pro' }}
-          DEPLOY_BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.ref_name || 'cortexbuildpro' }}
+          DEPLOY_BRANCH: ${{ github.ref_name || 'main' }}
         run: |
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash -s" << ENDSSH
             set -e
