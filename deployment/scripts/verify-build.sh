@@ -30,10 +30,12 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 echo -e "${CYAN}[1/5] Checking Prerequisites...${NC}"
 echo ""
 
+DOCKER_AVAILABLE=true
+
 # Check Docker
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}✗ Docker is not installed${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠ Docker is not installed. Docker-specific validation will be skipped.${NC}"
+    DOCKER_AVAILABLE=false
 else
     echo -e "${GREEN}✓ Docker is installed${NC}"
     docker --version
@@ -89,11 +91,15 @@ echo ""
 echo -e "${CYAN}[4/5] Validating Dockerfile...${NC}"
 echo ""
 
-if docker build --help > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ Docker build command available${NC}"
+if [ "$DOCKER_AVAILABLE" = true ]; then
+    if docker build --help > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Docker build command available${NC}"
+    else
+        echo -e "${RED}✗ Docker build command failed${NC}"
+        exit 1
+    fi
 else
-    echo -e "${RED}✗ Docker build command failed${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠ Skipped: Docker build command validation (Docker unavailable)${NC}"
 fi
 
 echo ""
@@ -109,7 +115,11 @@ echo -e "${GREEN}║                                                           �
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-echo "✅ All prerequisites and files verified successfully!"
+if [ "$DOCKER_AVAILABLE" = true ]; then
+    echo "✅ All prerequisites and files verified successfully!"
+else
+    echo "⚠ Verification completed with warnings (Docker unavailable in this environment)."
+fi
 echo ""
 echo "Next Steps:"
 echo ""
