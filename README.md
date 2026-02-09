@@ -34,6 +34,18 @@ sudo bash quick-start.sh
 
 **See [deployment/QUICKSTART.md](deployment/QUICKSTART.md) for complete instructions.**
 
+
+**Option 3: Remote Docker Manager redeploy from your local machine**
+
+```bash
+# Build package, upload to VPS, rebuild image and redeploy via Docker Manager flow
+./scripts/remote-redeploy.sh --mode docker-manager --host <your-vps-ip> --user root --key ~/.ssh/<your-key>
+```
+
+Use `--skip-package` if `cortexbuild_vps_deploy.tar.gz` is already built locally.
+Use `--mode compose` to redeploy with standard Docker Compose.
+
+
 ## 📦 What's Included
 
 ### Core Features
