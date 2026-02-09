@@ -12,13 +12,13 @@ git clone https://github.com/yourusername/cortexbuild-pro.git /root/cortexbuild_
 cd /root/cortexbuild_pro/deployment
 
 # Run the deployment script (installs Docker, Portainer, Windmill, and deploys the app)
-sudo ./vps-public-deploy.sh
+sudo ./quick-start.sh
 ```
 
 ### With Custom Domain and SSL:
 
 ```bash
-sudo ./vps-public-deploy.sh --domain app.yourdomain.com --email admin@yourdomain.com --ssl
+sudo ./quick-start.sh --domain app.yourdomain.com --email admin@yourdomain.com --ssl
 ```
 
 ### Options:
