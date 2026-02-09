@@ -70,7 +70,17 @@ remote "set -e; cd '$APP_DIR'; if [ -f '$COMPOSE_FILE' ]; then docker compose -f
 
 echo
 echo "==> Recent container logs (last 120 lines per container)"
-remote "set -e; cd '$APP_DIR'; if [ -f '$COMPOSE_FILE' ]; then for c in \$(docker compose -f '$COMPOSE_FILE' ps -q); do n=\$(docker inspect --format='{{.Name}}' \"\$c\" | sed 's#^/##'); echo; echo '--- logs:' \$n '---'; docker logs --tail 120 \"\$c\" 2>&1 || true; done; else echo '⚠️ skipped: compose file not found'; fi"
+remote "set -e; cd '$APP_DIR';
+if [ -f '$COMPOSE_FILE' ]; then
+  for c in \$(docker compose -f '$COMPOSE_FILE' ps -q); do
+    n=\$(docker inspect --format='{{.Name}}' \"\$c\" | sed 's#^/##')
+    echo
+    echo \"--- logs: \$n ---\"
+    docker logs --tail 120 \"\$c\" 2>&1 || true
+  done
+else
+  echo '⚠️ skipped: compose file not found'
+fi"
 
 echo
 echo "==> HTTP health probes"
