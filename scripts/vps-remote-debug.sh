@@ -62,7 +62,7 @@ remote "set -e; cd '$APP_DIR'; if [ -f '$COMPOSE_FILE' ]; then for c in \$(docke
 
 echo
 echo "==> HTTP health probes"
-remote "set -e; for url in http://127.0.0.1:3000 http://127.0.0.1:4000/health http://127.0.0.1:8080/health; do echo \"Probing \$url\"; curl -fsS --max-time 5 \"\$url\" >/dev/null && echo '✅ OK' || echo '⚠️ no response'; done"
+remote "set -e; for url in $PROBE_URLS; do echo \"Probing \$url\"; curl -fsS --max-time 5 \"\$url\" >/dev/null && echo '✅ OK' || echo '⚠️ no response'; done"
 
 echo
 echo "==> Done. If issues were found, re-run with the same env vars and capture output for targeted fixes."
