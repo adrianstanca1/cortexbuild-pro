@@ -123,7 +123,7 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo -e "${CYAN}Current branch:${NC} $CURRENT_BRANCH"
 echo ""
 
-if [[ "$AUTO_CONFIRM" != "true" && "$ENVIRONMENT" == "production" && "$SKIP_TESTS" == "false" ]]; then
+if [[ "$AUTO_CONFIRM" != "true" && "$ENVIRONMENT" == "production" ]]; then
     # Ask for environment only in fully interactive default mode
     echo -e "${CYAN}Select deployment environment:${NC}"
     echo "  1) production"
