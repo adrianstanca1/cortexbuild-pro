@@ -76,13 +76,23 @@ echo ""
 echo -e "${YELLOW}Step 2: Building Docker image...${NC}"
 cd "$DEPLOYMENT_DIR"
 
-docker build -t cortexbuild-app:latest -f Dockerfile ..
+# Build using docker compose to ensure the image tag matches docker-compose.yml
+# This tags the image correctly for both 'docker compose up' and Portainer
+docker compose build --no-cache app
 
-# Tag with timestamp for backup
+# Also tag as cortexbuild-app:latest for docker-stack.yml / Portainer usage
+COMPOSE_IMAGE=$(docker compose config --images 2>/dev/null | grep -v postgres | grep -v nginx | grep -v certbot | head -1)
+if [ -n "$COMPOSE_IMAGE" ]; then
+    docker tag "$COMPOSE_IMAGE" cortexbuild-app:latest 2>/dev/null || true
+fi
+
+# Tag with timestamp for backup/rollback
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-docker tag cortexbuild-app:latest cortexbuild-app:$TIMESTAMP
+if docker image inspect cortexbuild-app:latest >/dev/null 2>&1; then
+    docker tag cortexbuild-app:latest "cortexbuild-app:$TIMESTAMP"
+fi
 
-echo -e "${GREEN}✓ Image built: cortexbuild-app:latest${NC}"
+echo -e "${GREEN}✓ Image built successfully${NC}"
 echo -e "${GREEN}✓ Backup tag: cortexbuild-app:$TIMESTAMP${NC}"
 echo ""
 
