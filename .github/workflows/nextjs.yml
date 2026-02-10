@@ -1,16 +1,8 @@
 name: Next.js Validation
 
+# DISABLED auto-triggers: This workflow is redundant with integration-check.yml
+# which already includes build validation. Kept for manual dispatch only.
 on:
-  push:
-    branches: ["main", "cortexbuildpro"]
-    paths:
-      - 'nextjs_space/**'
-      - '.github/workflows/nextjs.yml'
-  pull_request:
-    branches: ["main", "cortexbuildpro"]
-    paths:
-      - 'nextjs_space/**'
-      - '.github/workflows/nextjs.yml'
   workflow_dispatch:
 
 permissions:
