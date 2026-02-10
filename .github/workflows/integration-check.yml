@@ -16,35 +16,47 @@ permissions:
   contents: read
 
 jobs:
-  lint-and-typecheck:
-    name: Lint and Type Check
+  code-quality:
+    name: Lint, Type Check & Schema Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: nextjs_space/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: ./nextjs_space
         run: npm ci --legacy-peer-deps
-      
-      - name: Run ESLint
+
+      - name: Validate Prisma schema
         working-directory: ./nextjs_space
-        run: npm run lint
-      
+        run: npx prisma validate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
+      - name: Check Prisma schema formatting
+        working-directory: ./nextjs_space
+        run: npx prisma format --check
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
       - name: Generate Prisma Client
         working-directory: ./nextjs_space
         run: npx prisma generate
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
-      
+
+      - name: Run ESLint
+        working-directory: ./nextjs_space
+        run: npm run lint
+
       - name: Type check with TypeScript
         working-directory: ./nextjs_space
         run: npx tsc --noEmit
@@ -52,46 +64,48 @@ jobs:
   build-check:
     name: Build Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: nextjs_space/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: ./nextjs_space
         run: npm ci --legacy-peer-deps
-      
+
       - name: Generate Prisma Client
         working-directory: ./nextjs_space
         run: npx prisma generate
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/test
-      
+
       - name: Build Next.js application
         working-directory: ./nextjs_space
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: true
           DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: test-secret-for-ci-build-only
+          NEXTAUTH_URL: http://localhost:3000
 
   docker-build-check:
     name: Docker Build Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         working-directory: ./deployment
         run: docker compose build app
@@ -100,40 +114,3 @@ jobs:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
           POSTGRES_DB: test
-
-  prisma-validation:
-    name: Database Schema Validation
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: nextjs_space/package-lock.json
-      
-      - name: Install dependencies
-        working-directory: ./nextjs_space
-        run: npm ci --legacy-peer-deps
-      
-      - name: Validate Prisma schema
-        working-directory: ./nextjs_space
-        run: npx prisma validate
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/test
-      
-      - name: Generate Prisma Client
-        working-directory: ./nextjs_space
-        run: npx prisma generate
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/test
-      
-      - name: Check for schema drift
-        working-directory: ./nextjs_space
-        run: npx prisma format --check
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/test
