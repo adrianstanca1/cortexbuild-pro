@@ -40,6 +40,8 @@ sudo bash quick-start.sh
 ```bash
 # Build package, upload to VPS, rebuild image and redeploy via Docker Manager flow
 ./scripts/remote-redeploy.sh --mode docker-manager --host <your-vps-ip> --user root --key ~/.ssh/<your-key>
+# or password auth (requires sshpass)
+./scripts/remote-redeploy.sh --mode docker-manager --host <your-vps-ip> --user root --password <ssh-password>
 ```
 
 Use `--skip-package` if `cortexbuild_vps_deploy.tar.gz` is already built locally.

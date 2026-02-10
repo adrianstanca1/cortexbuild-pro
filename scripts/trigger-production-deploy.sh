@@ -9,6 +9,23 @@
 
 set -e
 
+show_help() {
+    cat << 'EOF'
+Usage: ./scripts/trigger-production-deploy.sh [options]
+
+Options:
+  -e, --environment <production|staging>  Deployment environment (default: production)
+      --skip-tests                         Skip tests before deployment
+      --watch                              Watch workflow progress after triggering
+  -y, --yes                               Non-interactive mode; skip confirmation prompts
+  -h, --help                              Show this help message
+
+Examples:
+  ./scripts/trigger-production-deploy.sh
+  ./scripts/trigger-production-deploy.sh --environment staging --skip-tests --yes --watch
+EOF
+}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -31,6 +48,55 @@ echo -e "${NC}"
 echo ""
 echo -e "${CYAN}This script will trigger automated deployment to production${NC}"
 echo ""
+
+ENVIRONMENT="production"
+SKIP_TESTS="false"
+WATCH_MODE="prompt"
+AUTO_CONFIRM="false"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -e|--environment)
+            if [[ -z "$2" ]]; then
+                echo -e "${RED}Error: --environment requires a value${NC}"
+                exit 1
+            fi
+
+            case "$2" in
+                production|staging)
+                    ENVIRONMENT="$2"
+                    ;;
+                *)
+                    echo -e "${RED}Error: invalid environment '$2'. Use production or staging.${NC}"
+                    exit 1
+                    ;;
+            esac
+            shift 2
+            ;;
+        --skip-tests)
+            SKIP_TESTS="true"
+            shift
+            ;;
+        --watch)
+            WATCH_MODE="always"
+            shift
+            ;;
+        -y|--yes)
+            AUTO_CONFIRM="true"
+            shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Error: unknown option '$1'${NC}"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+done
 
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
@@ -57,31 +123,33 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo -e "${CYAN}Current branch:${NC} $CURRENT_BRANCH"
 echo ""
 
-# Ask for environment
-echo -e "${CYAN}Select deployment environment:${NC}"
-echo "  1) production"
-echo "  2) staging"
-echo ""
-read -p "Enter choice (1 or 2, default: 1): " env_choice
+if [[ "$AUTO_CONFIRM" != "true" && "$ENVIRONMENT" == "production" ]]; then
+    # Ask for environment only in fully interactive default mode
+    echo -e "${CYAN}Select deployment environment:${NC}"
+    echo "  1) production"
+    echo "  2) staging"
+    echo ""
+    read -p "Enter choice (1 or 2, default: 1): " env_choice
 
-case $env_choice in
-    2)
-        ENVIRONMENT="staging"
-        ;;
-    *)
-        ENVIRONMENT="production"
-        ;;
-esac
+    case $env_choice in
+        2)
+            ENVIRONMENT="staging"
+            ;;
+        *)
+            ENVIRONMENT="production"
+            ;;
+    esac
+fi
 
 echo -e "${GREEN}✓ Environment: $ENVIRONMENT${NC}"
 echo ""
 
-# Ask about tests
-read -p "Skip tests before deployment? (y/N): " skip_tests
-if [[ $skip_tests =~ ^[Yy]$ ]]; then
-    SKIP_TESTS="true"
-else
-    SKIP_TESTS="false"
+if [[ "$AUTO_CONFIRM" != "true" && "$SKIP_TESTS" == "false" ]]; then
+    # Ask about tests only when not explicitly provided via args
+    read -p "Skip tests before deployment? (y/N): " skip_tests
+    if [[ $skip_tests =~ ^[Yy]$ ]]; then
+        SKIP_TESTS="true"
+    fi
 fi
 
 echo ""
@@ -93,10 +161,12 @@ echo -e "${YELLOW}  Branch:      $CURRENT_BRANCH${NC}"
 echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
 echo ""
 
-read -p "Proceed with deployment? (y/N): " confirm
-if [[ ! $confirm =~ ^[Yy]$ ]]; then
-    echo -e "${RED}Deployment cancelled${NC}"
-    exit 0
+if [[ "$AUTO_CONFIRM" != "true" ]]; then
+    read -p "Proceed with deployment? (y/N): " confirm
+    if [[ ! $confirm =~ ^[Yy]$ ]]; then
+        echo -e "${RED}Deployment cancelled${NC}"
+        exit 0
+    fi
 fi
 
 echo ""
@@ -129,8 +199,16 @@ if gh workflow run deploy-vps.yml \
     echo -e "   ${BLUE}gh run list --workflow=deploy-vps.yml --limit=5${NC}"
     echo ""
     
-    read -p "Watch deployment progress now? (Y/n): " watch_now
-    if [[ ! $watch_now =~ ^[Nn]$ ]]; then
+    if [[ "$WATCH_MODE" == "prompt" ]]; then
+        read -p "Watch deployment progress now? (Y/n): " watch_now
+        if [[ ! $watch_now =~ ^[Nn]$ ]]; then
+            WATCH_MODE="always"
+        else
+            WATCH_MODE="never"
+        fi
+    fi
+
+    if [[ "$WATCH_MODE" == "always" ]]; then
         echo ""
         echo -e "${CYAN}Watching deployment...${NC}"
         echo -e "${YELLOW}Press Ctrl+C to stop watching (deployment will continue)${NC}"

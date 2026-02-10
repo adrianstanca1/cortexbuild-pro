@@ -12,6 +12,7 @@ VPS_HOST="${VPS_HOST:-72.62.132.43}"
 VPS_USER="${VPS_USER:-root}"
 VPS_DEPLOY_DIR="${VPS_DEPLOY_DIR:-/root/cortexbuild}"
 SSH_KEY_PATH="${SSH_KEY_PATH:-}"
+SSH_PASSWORD="${SSH_PASSWORD:-}"
 SSH_PORT="${SSH_PORT:-22}"
 DEPLOY_MODE="${DEPLOY_MODE:-docker-manager}" # docker-manager|compose
 
@@ -24,17 +25,19 @@ Options:
   --user <user>         SSH user (default: root)
   --dir <remote_dir>    Remote deployment directory (default: /root/cortexbuild)
   --key <ssh_key>       SSH private key path
+  --password <pass>     SSH password (requires sshpass; alternative to --key)
   --port <ssh_port>     SSH port (default: 22)
   --mode <mode>         Deployment mode: docker-manager | compose (default: docker-manager)
   --skip-package        Skip creating package (requires local cortexbuild_vps_deploy.tar.gz)
   -h, --help            Show this help
 
 Environment overrides:
-  VPS_HOST, VPS_USER, VPS_DEPLOY_DIR, SSH_KEY_PATH, SSH_PORT, DEPLOY_MODE
+  VPS_HOST, VPS_USER, VPS_DEPLOY_DIR, SSH_KEY_PATH, SSH_PASSWORD, SSH_PORT, DEPLOY_MODE
 
 Examples:
   $(basename "$0") --host 203.0.113.10 --user root --key ~/.ssh/id_rsa
   $(basename "$0") --mode compose --host 203.0.113.10 --key ~/.ssh/prod
+  $(basename "$0") --host 203.0.113.10 --user root --password <ssh-password>
 USAGE
 }
 
@@ -78,6 +81,7 @@ while [[ $# -gt 0 ]]; do
     --user) VPS_USER="$2"; shift 2 ;;
     --dir) VPS_DEPLOY_DIR="$2"; shift 2 ;;
     --key) SSH_KEY_PATH="$2"; shift 2 ;;
+    --password) SSH_PASSWORD="$2"; shift 2 ;;
     --port) SSH_PORT="$2"; shift 2 ;;
     --mode) DEPLOY_MODE="$2"; shift 2 ;;
     --skip-package) SKIP_PACKAGE="true"; shift ;;
@@ -93,6 +97,25 @@ fi
 
 SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=20 -p "$SSH_PORT")
 SCP_OPTS=(-o BatchMode=yes -o ConnectTimeout=20 -P "$SSH_PORT")
+SSH_CMD=(ssh)
+SCP_CMD=(scp)
+
+if [[ -n "$SSH_KEY_PATH" && -n "$SSH_PASSWORD" ]]; then
+  echo "Use either --key or --password, not both." >&2
+  exit 1
+fi
+
+if [[ -n "$SSH_PASSWORD" ]]; then
+  if ! command -v sshpass >/dev/null 2>&1; then
+    echo "--password requires sshpass. Install with: apt-get install -y sshpass" >&2
+    exit 1
+  fi
+  SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o BatchMode=no -o ConnectTimeout=20 -p "$SSH_PORT")
+  SCP_OPTS=(-o StrictHostKeyChecking=accept-new -o BatchMode=no -o ConnectTimeout=20 -P "$SSH_PORT")
+  SSH_CMD=(sshpass -p "$SSH_PASSWORD" ssh)
+  SCP_CMD=(sshpass -p "$SSH_PASSWORD" scp)
+fi
+
 if [[ -n "$SSH_KEY_PATH" ]]; then
   if [[ ! -f "$SSH_KEY_PATH" ]]; then
     echo "SSH key file not found: $SSH_KEY_PATH" >&2
@@ -122,7 +145,7 @@ fi
 echo "[3/6] Testing SSH connectivity to $REMOTE:$SSH_PORT..."
 check_route_to_host "$VPS_HOST"
 SSH_TEST_OUTPUT=""
-if ! SSH_TEST_OUTPUT=$(ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'" 2>&1); then
+if ! SSH_TEST_OUTPUT=$("${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'" 2>&1); then
   echo "$SSH_TEST_OUTPUT" >&2
   if [[ "$SSH_TEST_OUTPUT" == *"Network is unreachable"* ]]; then
     echo "No reachable network path to $VPS_HOST:$SSH_PORT from this machine." >&2
@@ -132,15 +155,15 @@ if ! SSH_TEST_OUTPUT=$(ssh "${SSH_OPTS[@]}" "$REMOTE" "echo 'SSH connection OK'"
 fi
 
 echo "[4/6] Uploading package to $VPS_DEPLOY_DIR..."
-ssh "${SSH_OPTS[@]}" "$REMOTE" "mkdir -p '$VPS_DEPLOY_DIR'"
-scp "${SCP_OPTS[@]}" "$PACKAGE_PATH" "$REMOTE:$VPS_DEPLOY_DIR/cortexbuild_vps_deploy.tar.gz"
+"${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$REMOTE" "mkdir -p '$VPS_DEPLOY_DIR'"
+"${SCP_CMD[@]}" "${SCP_OPTS[@]}" "$PACKAGE_PATH" "$REMOTE:$VPS_DEPLOY_DIR/cortexbuild_vps_deploy.tar.gz"
 
 echo "[5/6] Extracting package on VPS..."
-ssh "${SSH_OPTS[@]}" "$REMOTE" "cd '$VPS_DEPLOY_DIR' && rm -rf cortexbuild && tar -xzf cortexbuild_vps_deploy.tar.gz"
+"${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$REMOTE" "cd '$VPS_DEPLOY_DIR' && rm -rf cortexbuild && tar -xzf cortexbuild_vps_deploy.tar.gz"
 
 echo "[6/6] Rebuilding and redeploying in $DEPLOY_MODE mode..."
 if [[ "$DEPLOY_MODE" == "docker-manager" ]]; then
-  ssh "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
+  "${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
 set -euo pipefail
 cd "$REMOTE_APP_DIR"
 
@@ -161,7 +184,7 @@ docker compose exec -T app npx prisma migrate deploy
 echo "Deployment complete."
 EOSSH
 else
-  ssh "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
+  "${SSH_CMD[@]}" "${SSH_OPTS[@]}" "$REMOTE" "REMOTE_APP_DIR='$REMOTE_APP_DIR' bash -s" <<'EOSSH'
 set -euo pipefail
 cd "$REMOTE_APP_DIR"
 
