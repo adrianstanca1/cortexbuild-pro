@@ -1,16 +1,43 @@
 name: Fix Auth Redirect
 
 on:
-  push:
-    branches:
-      - cortexbuildpro
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   fix-auth-redirect:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./nextjs_space
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: nextjs_space/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
       - name: Run Fix Auth Redirect Script
-        run: scripts/fix-auth-redirect.sh
+        run: bash ../scripts/fix-auth-redirect.sh
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+
+      - name: Verify auth configuration compiles
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NEXTAUTH_SECRET: test-secret-for-ci-build-only
+          NEXTAUTH_URL: http://localhost:3000
