@@ -58,6 +58,40 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60
   },
+  events: {
+    async createUser({ user }) {
+      // Ensure new OAuth users have a default organization and role
+      let org = await prisma.organization.findFirst({
+        where: { slug: "default" }
+      });
+      
+      if (!org) {
+        org = await prisma.organization.create({
+          data: {
+            name: "Default Organization",
+            slug: "default"
+          }
+        });
+      }
+      
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          role: "FIELD_WORKER",
+          organizationId: org.id
+        }
+      });
+
+      // Create team member record
+      await prisma.teamMember.create({
+        data: {
+          userId: user.id,
+          organizationId: org.id,
+          jobTitle: "Team Member"
+        }
+      });
+    }
+  },
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
@@ -66,8 +100,8 @@ export const authOptions: NextAuthOptions = {
         token.organizationId = (user as any).organizationId;
         token.avatarUrl = (user as any).avatarUrl;
       }
-      // For Google OAuth, fetch user data from database
-      if (account?.provider === "google" && token.email) {
+      // For Google OAuth, fetch user data from database if not present in token
+      if (account?.provider === "google" && token.email && !token.organizationId) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
           select: { id: true, role: true, organizationId: true, avatarUrl: true }
