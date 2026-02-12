@@ -1,0 +1,21 @@
+# ============================================================
+# CortexBuild Pro - Production Override (SSL enabled)
+# ============================================================
+# Use this after SSL certificates have been provisioned.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This override swaps nginx.conf for nginx-ssl.conf and removes
+# the direct port 3000 exposure so all traffic goes through nginx.
+# ============================================================
+
+services:
+  app:
+    ports: !override []
+
+  nginx:
+    volumes:
+      - ./nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+      - certbot_data:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
