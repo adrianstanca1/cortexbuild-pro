@@ -174,7 +174,7 @@ export function DashboardHeader({ user, userRole }: HeaderProps) {
 
   return (
     <>
-      <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/50 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
+      <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/50 flex items-center justify-between px-6 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-4">
           <MobileNav userRole={userRole || user?.role} />
           
