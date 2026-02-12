@@ -19,7 +19,7 @@ export function DashboardContent({ children, user, userRole }: DashboardContentP
     <motion.div
       className={cn(
         "transition-all duration-300 ease-in-out flex flex-col min-h-screen",
-        collapsed ? "lg:pl-20" : "lg:pl-72"
+        collapsed ? "lg:pl-20" : "lg:pl-72", "relative z-0"
       )}
       layout
       transition={{ duration: 0.3, ease: "easeInOut" }}
