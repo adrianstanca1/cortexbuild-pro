@@ -58,6 +58,7 @@ const DocumentsView = lazyWithReload(() => import('@/views/DocumentsView'));
 const SafetyView = lazyWithReload(() => import('@/views/SafetyView'));
 const EquipmentView = lazyWithReload(() => import('@/views/EquipmentView'));
 const FinancialsView = lazyWithReload(() => import('@/views/FinancialsView'));
+const AccountingHubView = lazyWithReload(() => import('@/views/AccountingHubView'));
 const TeamChatView = lazyWithReload(() => import('@/views/TeamChatView'));
 const MLInsightsView = lazyWithReload(() => import('@/views/MLInsightsView'));
 const ComplianceView = lazyWithReload(() => import('@/views/ComplianceView'));
@@ -184,6 +185,7 @@ const AuthenticatedApp: React.FC = () => {
       case '/schedule': return Page.SCHEDULE;
       case '/map': return Page.MAP_VIEW;
       case '/live-project-map': return Page.LIVE_PROJECT_MAP;
+      case '/accounting': return Page.ACCOUNTING_HUB;
       case '/analytics': return Page.ANALYTICS;
       case '/reports': return Page.REPORTS;
       case '/ml-insights': return Page.ML_INSIGHTS;
@@ -543,6 +545,7 @@ const AuthenticatedApp: React.FC = () => {
                 {page === Page.SAFETY && <SafetyView />}
                 {page === Page.EQUIPMENT && <EquipmentView />}
                 {page === Page.FINANCIALS && <FinancialsView />}
+                {page === Page.ACCOUNTING_HUB && <AccountingHubView />}
                 {page === Page.TEAM_CHAT && <TeamChatView />}
                 {page === Page.AI_TOOLS && <AIToolsView setPage={setPage} />}
                 {page === Page.ML_INSIGHTS && <MLInsightsView />}

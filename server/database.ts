@@ -2742,6 +2742,282 @@ async function initializeSchema(db: IDatabase) {
   await createIndexSafe('site_maps', 'idx_site_maps_company', 'companyId');
   await createIndexSafe('location_alerts', 'idx_location_alerts_company', 'companyId');
 
+  // ─── Accounting & Finance Module Tables ──────────────────────────────────
+
+  // General Ledger - Chart of Accounts
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS gl_accounts(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      code VARCHAR(50) NOT NULL,
+      name VARCHAR(500) NOT NULL,
+      type VARCHAR(50) NOT NULL,
+      category VARCHAR(100),
+      parentId VARCHAR(255),
+      description TEXT,
+      currency VARCHAR(10) DEFAULT 'GBP',
+      isActive INTEGER DEFAULT 1,
+      isSystem INTEGER DEFAULT 0,
+      balance DOUBLE PRECISION DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Journal Entries - Double-entry bookkeeping
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS journal_entries(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      entryNumber VARCHAR(100),
+      date TEXT NOT NULL,
+      description TEXT,
+      reference TEXT,
+      sourceType VARCHAR(50),
+      sourceId VARCHAR(255),
+      projectId VARCHAR(255),
+      costCodeId VARCHAR(255),
+      status VARCHAR(50) DEFAULT 'posted',
+      totalDebit DOUBLE PRECISION DEFAULT 0,
+      totalCredit DOUBLE PRECISION DEFAULT 0,
+      createdBy VARCHAR(255),
+      approvedBy VARCHAR(255),
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Journal Entry Lines - individual debit/credit lines
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS journal_entry_lines(
+      id VARCHAR(255) PRIMARY KEY,
+      journalEntryId VARCHAR(255) NOT NULL,
+      companyId VARCHAR(255) NOT NULL,
+      accountId VARCHAR(255) NOT NULL,
+      description TEXT,
+      debit DOUBLE PRECISION DEFAULT 0,
+      credit DOUBLE PRECISION DEFAULT 0,
+      projectId VARCHAR(255),
+      costCodeId VARCHAR(255),
+      FOREIGN KEY(journalEntryId) REFERENCES journal_entries(id) ON DELETE CASCADE,
+      FOREIGN KEY(accountId) REFERENCES gl_accounts(id),
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Bank Accounts - Open Banking integration
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS bank_accounts(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      bankName VARCHAR(255) NOT NULL,
+      accountName VARCHAR(255),
+      accountNumber VARCHAR(50),
+      sortCode VARCHAR(20),
+      iban VARCHAR(50),
+      currency VARCHAR(10) DEFAULT 'GBP',
+      currentBalance DOUBLE PRECISION DEFAULT 0,
+      availableBalance DOUBLE PRECISION DEFAULT 0,
+      lastSyncedAt TEXT,
+      connectionStatus VARCHAR(50) DEFAULT 'disconnected',
+      connectionProvider VARCHAR(50),
+      externalAccountId VARCHAR(255),
+      glAccountId VARCHAR(255),
+      isDefault INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Bank Transactions - imported from bank feeds
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS bank_transactions(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      bankAccountId VARCHAR(255) NOT NULL,
+      externalId VARCHAR(255),
+      date TEXT NOT NULL,
+      description TEXT,
+      amount DOUBLE PRECISION NOT NULL,
+      type VARCHAR(20) NOT NULL,
+      runningBalance DOUBLE PRECISION,
+      category VARCHAR(100),
+      counterparty VARCHAR(255),
+      reference VARCHAR(255),
+      matchedTransactionId VARCHAR(255),
+      matchedInvoiceId VARCHAR(255),
+      projectId VARCHAR(255),
+      costCodeId VARCHAR(255),
+      reconciliationStatus VARCHAR(50) DEFAULT 'unmatched',
+      aiSuggestedCategory VARCHAR(100),
+      aiSuggestedProject VARCHAR(255),
+      aiConfidence DOUBLE PRECISION,
+      importedAt TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE,
+      FOREIGN KEY(bankAccountId) REFERENCES bank_accounts(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Payroll Runs
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS payroll_runs(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      periodStart TEXT NOT NULL,
+      periodEnd TEXT NOT NULL,
+      payDate TEXT NOT NULL,
+      status VARCHAR(50) DEFAULT 'draft',
+      totalGross DOUBLE PRECISION DEFAULT 0,
+      totalDeductions DOUBLE PRECISION DEFAULT 0,
+      totalNet DOUBLE PRECISION DEFAULT 0,
+      totalEmployerNI DOUBLE PRECISION DEFAULT 0,
+      totalEmployeeNI DOUBLE PRECISION DEFAULT 0,
+      totalPAYE DOUBLE PRECISION DEFAULT 0,
+      totalCIS DOUBLE PRECISION DEFAULT 0,
+      totalPension DOUBLE PRECISION DEFAULT 0,
+      employeeCount INTEGER DEFAULT 0,
+      notes TEXT,
+      approvedBy VARCHAR(255),
+      approvedAt TEXT,
+      submittedToHMRC INTEGER DEFAULT 0,
+      hmrcSubmissionId VARCHAR(255),
+      createdBy VARCHAR(255),
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Payroll Items - individual employee pay lines
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS payroll_items(
+      id VARCHAR(255) PRIMARY KEY,
+      payrollRunId VARCHAR(255) NOT NULL,
+      companyId VARCHAR(255) NOT NULL,
+      employeeId VARCHAR(255) NOT NULL,
+      employeeName VARCHAR(255),
+      projectId VARCHAR(255),
+      hoursWorked DOUBLE PRECISION DEFAULT 0,
+      overtimeHours DOUBLE PRECISION DEFAULT 0,
+      hourlyRate DOUBLE PRECISION DEFAULT 0,
+      overtimeRate DOUBLE PRECISION DEFAULT 0,
+      grossPay DOUBLE PRECISION DEFAULT 0,
+      prevailingWageRate DOUBLE PRECISION,
+      basicPay DOUBLE PRECISION DEFAULT 0,
+      overtimePay DOUBLE PRECISION DEFAULT 0,
+      allowances DOUBLE PRECISION DEFAULT 0,
+      deductions DOUBLE PRECISION DEFAULT 0,
+      employeeNI DOUBLE PRECISION DEFAULT 0,
+      employerNI DOUBLE PRECISION DEFAULT 0,
+      paye DOUBLE PRECISION DEFAULT 0,
+      cisDeduction DOUBLE PRECISION DEFAULT 0,
+      pensionEmployee DOUBLE PRECISION DEFAULT 0,
+      pensionEmployer DOUBLE PRECISION DEFAULT 0,
+      studentLoan DOUBLE PRECISION DEFAULT 0,
+      netPay DOUBLE PRECISION DEFAULT 0,
+      taxCode VARCHAR(20),
+      niCategory VARCHAR(5) DEFAULT 'A',
+      isCIS INTEGER DEFAULT 0,
+      costCodeId VARCHAR(255),
+      notes TEXT,
+      FOREIGN KEY(payrollRunId) REFERENCES payroll_runs(id) ON DELETE CASCADE,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Tax Returns - HMRC submissions
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS tax_returns(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      type VARCHAR(50) NOT NULL,
+      periodStart TEXT NOT NULL,
+      periodEnd TEXT NOT NULL,
+      status VARCHAR(50) DEFAULT 'draft',
+      totalOutput DOUBLE PRECISION DEFAULT 0,
+      totalInput DOUBLE PRECISION DEFAULT 0,
+      netAmount DOUBLE PRECISION DEFAULT 0,
+      amountDue DOUBLE PRECISION DEFAULT 0,
+      boxes TEXT,
+      hmrcCorrelationId VARCHAR(255),
+      hmrcReceiptId VARCHAR(255),
+      submittedAt TEXT,
+      submittedBy VARCHAR(255),
+      dueDate TEXT,
+      notes TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Integration Credentials - Xero, QuickBooks, HMRC
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS integration_credentials(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      provider VARCHAR(50) NOT NULL,
+      accessToken TEXT,
+      refreshToken TEXT,
+      tokenExpiry TEXT,
+      tenantId VARCHAR(255),
+      organisationName VARCHAR(255),
+      scopes TEXT,
+      status VARCHAR(50) DEFAULT 'disconnected',
+      lastSyncAt TEXT,
+      syncErrors TEXT,
+      metadata TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Invoice Chasers / Reminders
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS invoice_reminders(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      invoiceId VARCHAR(255) NOT NULL,
+      reminderType VARCHAR(50) NOT NULL,
+      scheduledDate TEXT NOT NULL,
+      sentAt TEXT,
+      recipientEmail VARCHAR(255),
+      recipientName VARCHAR(255),
+      subject TEXT,
+      body TEXT,
+      status VARCHAR(50) DEFAULT 'scheduled',
+      daysOverdue INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE,
+      FOREIGN KEY(invoiceId) REFERENCES invoices(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Indexes for accounting tables
+  await createIndexSafe('gl_accounts', 'idx_gl_accounts_company', 'companyId');
+  await createIndexSafe('gl_accounts', 'idx_gl_accounts_code', 'code');
+  await createIndexSafe('journal_entries', 'idx_journal_entries_company', 'companyId');
+  await createIndexSafe('journal_entries', 'idx_journal_entries_date', 'date');
+  await createIndexSafe('journal_entry_lines', 'idx_jel_entry', 'journalEntryId');
+  await createIndexSafe('journal_entry_lines', 'idx_jel_account', 'accountId');
+  await createIndexSafe('bank_accounts', 'idx_bank_accounts_company', 'companyId');
+  await createIndexSafe('bank_transactions', 'idx_bank_txn_company', 'companyId');
+  await createIndexSafe('bank_transactions', 'idx_bank_txn_account', 'bankAccountId');
+  await createIndexSafe('bank_transactions', 'idx_bank_txn_date', 'date');
+  await createIndexSafe('bank_transactions', 'idx_bank_txn_reconciliation', 'reconciliationStatus');
+  await createIndexSafe('payroll_runs', 'idx_payroll_runs_company', 'companyId');
+  await createIndexSafe('payroll_items', 'idx_payroll_items_run', 'payrollRunId');
+  await createIndexSafe('payroll_items', 'idx_payroll_items_employee', 'employeeId');
+  await createIndexSafe('tax_returns', 'idx_tax_returns_company', 'companyId');
+  await createIndexSafe('tax_returns', 'idx_tax_returns_type', 'type');
+  await createIndexSafe('integration_credentials', 'idx_integrations_company', 'companyId');
+  await createIndexSafe('invoice_reminders', 'idx_invoice_reminders_invoice', 'invoiceId');
+
   logger.info('Database schema initialized successfully');
   await seedFeatureCatalog(db);
 }

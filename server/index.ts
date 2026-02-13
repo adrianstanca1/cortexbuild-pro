@@ -63,6 +63,7 @@ import * as marketplaceController from './controllers/marketplaceController.js';
 import * as rfiController from './controllers/rfiController.js';
 import * as safetyController from './controllers/safetyController.js';
 import * as liveMapController from './controllers/liveMapController.js';
+import * as accountingController from './controllers/accountingController.js';
 // import * as taskController from './controllers/taskController.js'; // Removed
 import * as commentController from './controllers/commentController.js';
 import * as rbacController from './controllers/rbacController.js';
@@ -775,6 +776,42 @@ protectedRouter.post('/site-maps/analyze-drawing', liveMapController.analyzeDraw
 protectedRouter.get('/site-maps/:mapId/zones', liveMapController.getMapZones);
 protectedRouter.post('/site-maps/:mapId/zones', liveMapController.createMapZone);
 protectedRouter.delete('/site-maps/:mapId/zones/:zoneId', liveMapController.deleteMapZone);
+
+// --- Accounting & Finance Module ---
+// General Ledger
+protectedRouter.get('/accounting/gl-accounts', accountingController.getGLAccounts);
+protectedRouter.post('/accounting/gl-accounts', accountingController.createGLAccount);
+protectedRouter.put('/accounting/gl-accounts/:id', accountingController.updateGLAccount);
+// Journal Entries
+protectedRouter.get('/accounting/journal-entries', accountingController.getJournalEntries);
+protectedRouter.post('/accounting/journal-entries', accountingController.createJournalEntry);
+protectedRouter.get('/accounting/journal-entries/:id/lines', accountingController.getJournalEntryLines);
+// Bank Accounts & Open Banking
+protectedRouter.get('/accounting/bank-accounts', accountingController.getBankAccounts);
+protectedRouter.post('/accounting/bank-accounts', accountingController.createBankAccount);
+protectedRouter.post('/accounting/bank-accounts/:id/import', accountingController.importBankTransactions);
+protectedRouter.get('/accounting/bank-transactions', accountingController.getBankTransactions);
+protectedRouter.put('/accounting/bank-transactions/:id/reconcile', accountingController.reconcileBankTransaction);
+// Payroll
+protectedRouter.get('/accounting/payroll-runs', accountingController.getPayrollRuns);
+protectedRouter.post('/accounting/payroll-runs', accountingController.createPayrollRun);
+protectedRouter.get('/accounting/payroll-runs/:id/items', accountingController.getPayrollItems);
+protectedRouter.post('/accounting/payroll-runs/:id/items', accountingController.addPayrollItem);
+protectedRouter.put('/accounting/payroll-runs/:id/approve', accountingController.approvePayrollRun);
+// Tax Compliance & HMRC
+protectedRouter.get('/accounting/tax-returns', accountingController.getTaxReturns);
+protectedRouter.post('/accounting/tax-returns/vat/calculate', accountingController.calculateVATReturn);
+protectedRouter.put('/accounting/tax-returns/:id/submit', accountingController.submitTaxReturn);
+// Integrations (Xero, QuickBooks)
+protectedRouter.get('/accounting/integrations', accountingController.getIntegrations);
+protectedRouter.post('/accounting/integrations', accountingController.createIntegration);
+protectedRouter.delete('/accounting/integrations/:id', accountingController.deleteIntegration);
+// Invoice Chasers
+protectedRouter.get('/accounting/invoice-chasers', accountingController.getInvoiceChasers);
+protectedRouter.post('/accounting/invoice-chasers/generate', accountingController.generateInvoiceChasers);
+// Job Costing & Profitability
+protectedRouter.get('/accounting/job-costing', accountingController.getJobCosting);
+protectedRouter.get('/accounting/job-costing/:projectId/breakdown', accountingController.getJobCostingBreakdown);
 
 protectedRouter.get('/comments', commentController.getComments);
 protectedRouter.post('/comments', apiLimiter as any, commentController.createComment);
