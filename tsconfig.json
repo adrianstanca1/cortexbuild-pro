@@ -60,6 +60,8 @@
     "exclude": [
         "node_modules",
         "dist",
-        "server"
+        "server",
+        "nextjs_space",
+        "deployment/scripts"
     ]
 }
