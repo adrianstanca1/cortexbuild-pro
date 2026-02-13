@@ -10,13 +10,16 @@ coverage/
 dist/
 build/
 
-# Environment variables
+# Environment variables (all .env files with real credentials)
 .env
 .env.local
 .env.development.local
 .env.test
 .env.test.local
 .env.production.local
+.env.production
+deployment/.env
+nextjs_space/.env
 
 # Production configuration files with credentials
 ecosystem.config.production.js
