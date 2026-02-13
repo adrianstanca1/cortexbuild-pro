@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Map as MapIcon, Layers, Upload, Crosshair, Users, Navigation,
     FileText, Loader2, ZoomIn, ZoomOut, Eye, CheckCircle2,
@@ -7,11 +7,16 @@ import {
     FolderOpen, Clock, X, Image as ImageIcon, Search, Briefcase, RefreshCw,
     PlusSquare, PenTool, Sparkles, ChevronDown, CheckSquare, MapPin,
     Video, Play, Pause, Square, Volume2, Volume1, Volume, VolumeX,
-    Wifi, WifiOff, MoreVertical, Settings, Download, Maximize2
+    Wifi, WifiOff, MoreVertical, Settings, Download, Maximize2,
+    AlertTriangle, Bell
 } from 'lucide-react';
 import * as L from 'leaflet';
 import { useProjects } from '@/contexts/ProjectContext';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { runRawPrompt } from '@/services/geminiService';
+import { liveMapApi, siteMapApi, startLocationTracking, stopLocationTracking } from '@/services/liveMapService';
+import type { UserLocation, LocationAlert } from '@/services/liveMapService';
 import { Zone, Task } from '@/types';
 
 // --- Types ---
@@ -74,12 +79,85 @@ interface LiveProjectMapViewProps {
 
 const LiveProjectMapView: React.FC<LiveProjectMapViewProps> = ({ projectId }) => {
     const { projects, addZone, tasks } = useProjects();
+    const { lastMessage } = useWebSocket();
+    const { user } = useAuth();
     const [mode, setMode] = useState<MapMode>('VIRTUAL_SITE');
 
     // Determine active project
     const activeProject = projectId
         ? projects.find(p => p.id === projectId)
         : (projects.length > 0 ? projects[0] : null);
+
+    // ─── Real-time API Data ─────────────────────────────────────────────────
+    const [liveUsers, setLiveUsers] = useState<MapUser[]>([]);
+    const [locationAlerts, setLocationAlerts] = useState<LocationAlert[]>([]);
+    const [showAlerts, setShowAlerts] = useState(false);
+    const [apiConnected, setApiConnected] = useState(false);
+
+    // Fetch live user locations from API
+    const fetchLiveLocations = useCallback(async () => {
+        try {
+            const data = await liveMapApi.getUserLocations(projectId);
+            if (Array.isArray(data) && data.length > 0) {
+                const mapped: MapUser[] = data.map((u: UserLocation) => ({
+                    id: u.id,
+                    name: u.name || u.email || 'Unknown',
+                    role: u.mapRole || 'Labor',
+                    lat: u.latitude,
+                    lng: u.longitude,
+                    lastActive: u.lastActive || 'Unknown',
+                    status: u.status || 'Active'
+                }));
+                setLiveUsers(mapped);
+                setApiConnected(true);
+            }
+        } catch {
+            // API not available, fall back to mock data
+            setApiConnected(false);
+        }
+    }, [projectId]);
+
+    // Fetch location alerts
+    const fetchAlerts = useCallback(async () => {
+        try {
+            const data = await liveMapApi.getLocationAlerts(projectId);
+            if (Array.isArray(data)) {
+                setLocationAlerts(data);
+            }
+        } catch { /* silent fallback */ }
+    }, [projectId]);
+
+    // Start background GPS tracking & periodic data refresh
+    useEffect(() => {
+        fetchLiveLocations();
+        fetchAlerts();
+        startLocationTracking();
+        const refreshInterval = setInterval(() => {
+            fetchLiveLocations();
+            fetchAlerts();
+        }, 30000); // Refresh every 30 seconds
+        return () => {
+            clearInterval(refreshInterval);
+            stopLocationTracking();
+        };
+    }, [fetchLiveLocations, fetchAlerts]);
+
+    // Listen for real-time WebSocket location updates
+    useEffect(() => {
+        if (lastMessage?.type === 'location_update' && lastMessage?.data) {
+            const loc = lastMessage.data;
+            setLiveUsers(prev => {
+                const existing = prev.find(u => u.id === loc.userId);
+                if (existing) {
+                    return prev.map(u => u.id === loc.userId ? { ...u, lat: loc.latitude, lng: loc.longitude, lastActive: 'Just now', status: 'Active' as const } : u);
+                }
+                return prev;
+            });
+        }
+        if (lastMessage?.type === 'location_alert') {
+            fetchAlerts();
+        }
+    }, [lastMessage, fetchAlerts]);
 
     // Processing State
     const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('IDLE');
@@ -123,14 +201,23 @@ const LiveProjectMapView: React.FC<LiveProjectMapViewProps> = ({ projectId }) =>
 
     // User & Filtering State
     const [roleFilter, setRoleFilter] = useState<string>('All');
-    const [users, setUsers] = useState<MapUser[]>([
+    // Mock data used as fallback when API data isn't available
+    const mockUsers: MapUser[] = [
         { id: '1', name: 'John Anderson', role: 'Manager', lat: 45, lng: 30, lastActive: 'Just now', status: 'Active' },
         { id: '2', name: 'Mike Thompson', role: 'Foreman', lat: 60, lng: 65, lastActive: '2m ago', status: 'Active' },
         { id: '3', name: 'David Chen', role: 'Foreman', lat: 25, lng: 80, lastActive: '5m ago', status: 'Active' },
         { id: '4', name: 'Team Alpha', role: 'Labor', lat: 70, lng: 20, lastActive: '1m ago', status: 'Active' },
         { id: '5', name: 'Team Beta', role: 'Labor', lat: 75, lng: 25, lastActive: '1m ago', status: 'Active' },
         { id: '6', name: 'Sarah Mitchell', role: 'Manager', lat: 15, lng: 15, lastActive: '10m ago', status: 'Idle' },
-    ]);
+    ];
+    const [users, setUsers] = useState<MapUser[]>(mockUsers);
+
+    // Merge live API users with local state when available
+    useEffect(() => {
+        if (liveUsers.length > 0) {
+            setUsers(liveUsers);
+        }
+    }, [liveUsers]);
 
     // Mock Previous Drawings
     const availableDrawings: Drawing[] = [
@@ -286,6 +373,18 @@ const LiveProjectMapView: React.FC<LiveProjectMapViewProps> = ({ projectId }) =>
             setProcessingSteps([]);
             setShowSuccessToast(true);
             setTimeout(() => setShowSuccessToast(false), 4000);
+
+            // Persist analysis to backend (non-blocking)
+            if (activeProject) {
+                const fileName = file?.name || drawing?.name || 'demo-blueprint.pdf';
+                siteMapApi.analyzeDrawing({
+                    projectId: activeProject.id,
+                    fileName,
+                    fileUrl: mapImage || undefined,
+                    analysisResult: { source: file ? 'upload' : drawing ? 'library' : 'demo', processedAt: new Date().toISOString() },
+                    zones: (activeProject.zones || []) as any
+                }).catch(err => console.warn('[LiveMap] Failed to persist analysis:', err));
+            }
 
         } catch (err) {
             console.error(err);
@@ -478,6 +577,20 @@ const LiveProjectMapView: React.FC<LiveProjectMapViewProps> = ({ projectId }) =>
                     </div>
 
                     <div className="flex gap-2">
+                        {locationAlerts.length > 0 && (
+                            <button
+                                onClick={() => setShowAlerts(!showAlerts)}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-sm font-medium text-red-700 hover:bg-red-100 shadow-sm relative"
+                            >
+                                <Bell size={16} /> Alerts
+                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{locationAlerts.length}</span>
+                            </button>
+                        )}
+                        {apiConnected && (
+                            <span className="flex items-center gap-1 px-3 py-2 bg-green-50 border border-green-200 rounded-lg text-xs font-medium text-green-700">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> GPS Active
+                            </span>
+                        )}
                         <button
                             onClick={() => setShowRecordings(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50 shadow-sm"
@@ -730,6 +843,29 @@ const LiveProjectMapView: React.FC<LiveProjectMapViewProps> = ({ projectId }) =>
                                         )}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Location Alerts Panel */}
+                    {showAlerts && locationAlerts.length > 0 && (
+                        <div className="absolute top-20 right-4 w-96 bg-white rounded-2xl shadow-2xl border border-zinc-200 z-50 overflow-hidden animate-in slide-in-from-right-4 fade-in">
+                            <div className="p-4 border-b border-zinc-100 flex justify-between items-center bg-red-50">
+                                <h3 className="font-bold text-zinc-900 flex items-center gap-2"><AlertTriangle size={18} className="text-red-500" /> Location Alerts</h3>
+                                <button onClick={() => setShowAlerts(false)} className="p-1 hover:bg-red-100 rounded text-zinc-500"><X size={18} /></button>
+                            </div>
+                            <div className="max-h-80 overflow-y-auto divide-y divide-zinc-100">
+                                {locationAlerts.slice(0, 20).map(alert => (
+                                    <div key={alert.id} className="p-3 hover:bg-zinc-50 transition-colors">
+                                        <div className="flex items-start gap-3">
+                                            <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${alert.severity === 'danger' ? 'bg-red-500' : alert.severity === 'warning' ? 'bg-orange-500' : 'bg-blue-500'}`} />
+                                            <div>
+                                                <p className="text-sm text-zinc-800 font-medium">{alert.message}</p>
+                                                <p className="text-[10px] text-zinc-400 mt-1">{alert.type} &middot; {new Date(alert.createdAt).toLocaleString()}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}

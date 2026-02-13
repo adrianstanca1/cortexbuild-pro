@@ -56,6 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
     {
       title: 'Construction',
       items: [
+        { id: Page.LIVE_PROJECT_MAP, label: 'Live Project Map', icon: Navigation, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['projects.view'] },
         { id: Page.INSPECTIONS, label: 'Site Inspections', icon: ClipboardCheck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['construction.inspections'] },
         { id: Page.MATERIALS, label: 'Materials', icon: Truck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.materials'] },
         { id: Page.CHANGE_ORDERS, label: 'Change Orders', icon: FileEdit, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.changeorders'] },

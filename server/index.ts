@@ -62,6 +62,7 @@ import * as dailyLogController from './controllers/dailyLogController.js';
 import * as marketplaceController from './controllers/marketplaceController.js';
 import * as rfiController from './controllers/rfiController.js';
 import * as safetyController from './controllers/safetyController.js';
+import * as liveMapController from './controllers/liveMapController.js';
 // import * as taskController from './controllers/taskController.js'; // Removed
 import * as commentController from './controllers/commentController.js';
 import * as rbacController from './controllers/rbacController.js';
@@ -760,6 +761,20 @@ protectedRouter.delete(
 protectedRouter.get('/safety_hazards', safetyController.getSafetyHazards);
 protectedRouter.post('/safety_hazards', requirePermission('safety', 'create'), safetyController.createSafetyHazard);
 protectedRouter.put('/safety_hazards/:id', requirePermission('safety', 'update'), safetyController.updateSafetyHazard);
+
+// --- Live Map & Location Tracking ---
+protectedRouter.post('/location/update', liveMapController.updateLocation);
+protectedRouter.get('/location/users', liveMapController.getUserLocations);
+protectedRouter.get('/location/history/:userId', liveMapController.getLocationHistory);
+protectedRouter.get('/location/alerts', liveMapController.getLocationAlerts);
+protectedRouter.post('/location/alerts', liveMapController.createLocationAlert);
+protectedRouter.get('/site-maps', liveMapController.getSiteMaps);
+protectedRouter.post('/site-maps', liveMapController.createSiteMap);
+protectedRouter.delete('/site-maps/:id', liveMapController.deleteSiteMap);
+protectedRouter.post('/site-maps/analyze-drawing', liveMapController.analyzeDrawing);
+protectedRouter.get('/site-maps/:mapId/zones', liveMapController.getMapZones);
+protectedRouter.post('/site-maps/:mapId/zones', liveMapController.createMapZone);
+protectedRouter.delete('/site-maps/:mapId/zones/:zoneId', liveMapController.deleteMapZone);
 
 protectedRouter.get('/comments', commentController.getComments);
 protectedRouter.post('/comments', apiLimiter as any, commentController.createComment);

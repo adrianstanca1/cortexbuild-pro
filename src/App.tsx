@@ -183,6 +183,7 @@ const AuthenticatedApp: React.FC = () => {
       case '/live': return Page.LIVE;
       case '/schedule': return Page.SCHEDULE;
       case '/map': return Page.MAP_VIEW;
+      case '/live-project-map': return Page.LIVE_PROJECT_MAP;
       case '/analytics': return Page.ANALYTICS;
       case '/reports': return Page.REPORTS;
       case '/ml-insights': return Page.ML_INSIGHTS;

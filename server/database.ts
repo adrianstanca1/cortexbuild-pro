@@ -2642,6 +2642,106 @@ async function initializeSchema(db: IDatabase) {
   await createIndexSafe('projects', 'idx_projects_archived', 'archived');
   await createIndexSafe('projects', 'idx_projects_lastActivity', 'lastActivity');
 
+  // ─── Live Map & Location Tracking Tables ──────────────────────────────────
+
+  // Location logs - GPS history for each user
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS location_logs(
+      id VARCHAR(255) PRIMARY KEY,
+      userId VARCHAR(255) NOT NULL,
+      companyId VARCHAR(255) NOT NULL,
+      latitude DOUBLE PRECISION NOT NULL,
+      longitude DOUBLE PRECISION NOT NULL,
+      accuracy DOUBLE PRECISION,
+      altitude DOUBLE PRECISION,
+      heading DOUBLE PRECISION,
+      speed DOUBLE PRECISION,
+      recordedAt TEXT NOT NULL,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Site maps - AI-generated from PDF drawings
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS site_maps(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      projectId VARCHAR(255) NOT NULL,
+      name VARCHAR(500) NOT NULL,
+      sourceFileUrl TEXT,
+      sourceFileName VARCHAR(500),
+      mapImageUrl TEXT,
+      boundaries TEXT,
+      metadata TEXT,
+      createdBy VARCHAR(255),
+      status VARCHAR(50) DEFAULT 'active',
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE,
+      FOREIGN KEY(projectId) REFERENCES projects(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Map zones - safety/info zones overlaid on site maps
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS map_zones(
+      id VARCHAR(255) PRIMARY KEY,
+      siteMapId VARCHAR(255) NOT NULL,
+      companyId VARCHAR(255) NOT NULL,
+      label VARCHAR(500) NOT NULL,
+      type VARCHAR(50) DEFAULT 'info',
+      top DOUBLE PRECISION DEFAULT 0,
+      "left" DOUBLE PRECISION DEFAULT 0,
+      width DOUBLE PRECISION DEFAULT 10,
+      height DOUBLE PRECISION DEFAULT 10,
+      protocol TEXT,
+      trigger VARCHAR(100) DEFAULT 'Entry',
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(siteMapId) REFERENCES site_maps(id) ON DELETE CASCADE,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Location alerts - zone breaches, inactivity, anomalies
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS location_alerts(
+      id VARCHAR(255) PRIMARY KEY,
+      companyId VARCHAR(255) NOT NULL,
+      userId VARCHAR(255),
+      projectId VARCHAR(255),
+      type VARCHAR(100) NOT NULL,
+      message TEXT NOT NULL,
+      severity VARCHAR(50) DEFAULT 'info',
+      zoneId VARCHAR(255),
+      latitude DOUBLE PRECISION,
+      longitude DOUBLE PRECISION,
+      acknowledged INTEGER DEFAULT 0,
+      createdAt TEXT NOT NULL,
+      FOREIGN KEY(companyId) REFERENCES companies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Add location columns to users table if not present
+  try {
+    await db.exec(`ALTER TABLE users ADD COLUMN currentLatitude DOUBLE PRECISION`);
+  } catch (e) { /* column may already exist */ }
+  try {
+    await db.exec(`ALTER TABLE users ADD COLUMN currentLongitude DOUBLE PRECISION`);
+  } catch (e) { /* column may already exist */ }
+  try {
+    await db.exec(`ALTER TABLE users ADD COLUMN lastLocationUpdate TEXT`);
+  } catch (e) { /* column may already exist */ }
+
+  // Indexes for location queries
+  await createIndexSafe('location_logs', 'idx_location_logs_user', 'userId');
+  await createIndexSafe('location_logs', 'idx_location_logs_company', 'companyId');
+  await createIndexSafe('location_logs', 'idx_location_logs_recorded', 'recordedAt');
+  await createIndexSafe('site_maps', 'idx_site_maps_project', 'projectId');
+  await createIndexSafe('site_maps', 'idx_site_maps_company', 'companyId');
+  await createIndexSafe('location_alerts', 'idx_location_alerts_company', 'companyId');
+
   logger.info('Database schema initialized successfully');
   await seedFeatureCatalog(db);
 }
