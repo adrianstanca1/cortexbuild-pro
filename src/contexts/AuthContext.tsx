@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { UserProfile, UserRole } from '@/types';
 import { db } from '@/services/db';
+import { startLocationTracking, stopLocationTracking } from '@/services/liveMapService';
 
 // Use VITE_API_URL from environment or default to current origin
 const VITE_API_URL = import.meta.env.VITE_API_URL || '';
@@ -68,6 +69,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('user_role', profile.role);
         localStorage.setItem('companyId', profile.companyId || '');
         localStorage.setItem('userId', profile.id || '');
+        // Start background GPS location tracking on login
+        startLocationTracking();
     };
 
     const clearSession = () => {
@@ -77,6 +80,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.removeItem('user_role');
         localStorage.removeItem('companyId');
         localStorage.removeItem('userId');
+        // Stop GPS tracking on logout
+        stopLocationTracking();
     };
 
     const hydrateFromApi = async (sessionToken: string) => {

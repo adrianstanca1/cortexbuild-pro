@@ -62,6 +62,9 @@ import * as dailyLogController from './controllers/dailyLogController.js';
 import * as marketplaceController from './controllers/marketplaceController.js';
 import * as rfiController from './controllers/rfiController.js';
 import * as safetyController from './controllers/safetyController.js';
+import * as liveMapController from './controllers/liveMapController.js';
+import * as accountingController from './controllers/accountingController.js';
+import * as aiAgentsController from './controllers/aiAgentsController.js';
 // import * as taskController from './controllers/taskController.js'; // Removed
 import * as commentController from './controllers/commentController.js';
 import * as rbacController from './controllers/rbacController.js';
@@ -760,6 +763,88 @@ protectedRouter.delete(
 protectedRouter.get('/safety_hazards', safetyController.getSafetyHazards);
 protectedRouter.post('/safety_hazards', requirePermission('safety', 'create'), safetyController.createSafetyHazard);
 protectedRouter.put('/safety_hazards/:id', requirePermission('safety', 'update'), safetyController.updateSafetyHazard);
+
+// --- Live Map & Location Tracking ---
+protectedRouter.post('/location/update', liveMapController.updateLocation);
+protectedRouter.get('/location/users', liveMapController.getUserLocations);
+protectedRouter.get('/location/history/:userId', liveMapController.getLocationHistory);
+protectedRouter.get('/location/alerts', liveMapController.getLocationAlerts);
+protectedRouter.post('/location/alerts', liveMapController.createLocationAlert);
+protectedRouter.get('/site-maps', liveMapController.getSiteMaps);
+protectedRouter.post('/site-maps', liveMapController.createSiteMap);
+protectedRouter.delete('/site-maps/:id', liveMapController.deleteSiteMap);
+protectedRouter.post('/site-maps/analyze-drawing', liveMapController.analyzeDrawing);
+protectedRouter.get('/site-maps/:mapId/zones', liveMapController.getMapZones);
+protectedRouter.post('/site-maps/:mapId/zones', liveMapController.createMapZone);
+protectedRouter.delete('/site-maps/:mapId/zones/:zoneId', liveMapController.deleteMapZone);
+
+// --- Accounting & Finance Module ---
+// General Ledger
+protectedRouter.get('/accounting/gl-accounts', accountingController.getGLAccounts);
+protectedRouter.post('/accounting/gl-accounts', accountingController.createGLAccount);
+protectedRouter.put('/accounting/gl-accounts/:id', accountingController.updateGLAccount);
+// Journal Entries
+protectedRouter.get('/accounting/journal-entries', accountingController.getJournalEntries);
+protectedRouter.post('/accounting/journal-entries', accountingController.createJournalEntry);
+protectedRouter.get('/accounting/journal-entries/:id/lines', accountingController.getJournalEntryLines);
+// Bank Accounts & Open Banking
+protectedRouter.get('/accounting/bank-accounts', accountingController.getBankAccounts);
+protectedRouter.post('/accounting/bank-accounts', accountingController.createBankAccount);
+protectedRouter.post('/accounting/bank-accounts/:id/import', accountingController.importBankTransactions);
+protectedRouter.get('/accounting/bank-transactions', accountingController.getBankTransactions);
+protectedRouter.put('/accounting/bank-transactions/:id/reconcile', accountingController.reconcileBankTransaction);
+// Payroll
+protectedRouter.get('/accounting/payroll-runs', accountingController.getPayrollRuns);
+protectedRouter.post('/accounting/payroll-runs', accountingController.createPayrollRun);
+protectedRouter.get('/accounting/payroll-runs/:id/items', accountingController.getPayrollItems);
+protectedRouter.post('/accounting/payroll-runs/:id/items', accountingController.addPayrollItem);
+protectedRouter.put('/accounting/payroll-runs/:id/approve', accountingController.approvePayrollRun);
+// Tax Compliance & HMRC
+protectedRouter.get('/accounting/tax-returns', accountingController.getTaxReturns);
+protectedRouter.post('/accounting/tax-returns/vat/calculate', accountingController.calculateVATReturn);
+protectedRouter.put('/accounting/tax-returns/:id/submit', accountingController.submitTaxReturn);
+// Integrations (Xero, QuickBooks)
+protectedRouter.get('/accounting/integrations', accountingController.getIntegrations);
+protectedRouter.post('/accounting/integrations', accountingController.createIntegration);
+protectedRouter.delete('/accounting/integrations/:id', accountingController.deleteIntegration);
+// Invoice Chasers
+protectedRouter.get('/accounting/invoice-chasers', accountingController.getInvoiceChasers);
+protectedRouter.post('/accounting/invoice-chasers/generate', accountingController.generateInvoiceChasers);
+// Job Costing & Profitability
+protectedRouter.get('/accounting/job-costing', accountingController.getJobCosting);
+protectedRouter.get('/accounting/job-costing/:projectId/breakdown', accountingController.getJobCostingBreakdown);
+// Bill-to-PO Matching
+protectedRouter.post('/accounting/bill-po-match', accountingController.matchBillToPO);
+protectedRouter.get('/accounting/po-billing-summary', accountingController.getPOBillingSummary);
+// Receivables Aging
+protectedRouter.get('/accounting/receivables-aging', accountingController.getReceivablesAging);
+// Financial Alerts
+protectedRouter.get('/accounting/financial-alerts', accountingController.getFinancialAlerts);
+// Default GL Accounts
+protectedRouter.post('/accounting/gl-accounts/seed-defaults', accountingController.seedDefaultGLAccounts);
+// AI Auto-Categorization
+protectedRouter.post('/accounting/bank-transactions/auto-categorize', accountingController.autoCategorizeTransactions);
+// Budget Sync
+protectedRouter.post('/accounting/sync-project-budgets', accountingController.syncProjectBudgets);
+
+// --- AI Agents & Advanced Features ---
+// Agent Sessions
+protectedRouter.get('/ai-agents/sessions', aiAgentsController.getAgentSessions);
+protectedRouter.post('/ai-agents/sessions', aiAgentsController.createAgentSession);
+protectedRouter.get('/ai-agents/sessions/:id/messages', aiAgentsController.getSessionMessages);
+protectedRouter.post('/ai-agents/sessions/:id/message', aiAgentsController.sendAgentMessage);
+// Compliance Task Scheduler
+protectedRouter.post('/ai-agents/compliance/generate-tasks', aiAgentsController.generateComplianceTasks);
+protectedRouter.get('/ai-agents/compliance/tasks', aiAgentsController.getComplianceTasks);
+protectedRouter.put('/ai-agents/compliance/tasks/:id/complete', aiAgentsController.completeComplianceTask);
+// Employee Salary Records & Payslips
+protectedRouter.get('/ai-agents/salary-records', aiAgentsController.getSalaryRecords);
+protectedRouter.post('/ai-agents/salary-records', aiAgentsController.createSalaryRecord);
+protectedRouter.post('/ai-agents/payslips/generate', aiAgentsController.generatePayslips);
+protectedRouter.get('/ai-agents/payslips', aiAgentsController.getPayslips);
+// Cash Flow Prediction & Grants
+protectedRouter.post('/ai-agents/cash-flow/predict', aiAgentsController.predictCashFlow);
+protectedRouter.get('/ai-agents/grants/eligibility', aiAgentsController.checkGrantEligibility);
 
 protectedRouter.get('/comments', commentController.getComments);
 protectedRouter.post('/comments', apiLimiter as any, commentController.createComment);

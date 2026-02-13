@@ -34,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
     [Page.IMAGINE]: CompanyModule.AI_TOOLS,
     [Page.PREDICTIVE_ANALYSIS]: CompanyModule.AI_TOOLS,
     [Page.FINANCIALS]: CompanyModule.FINANCIALS,
+    [Page.ACCOUNTING_HUB]: CompanyModule.FINANCIALS,
     [Page.TENANT_ANALYTICS]: CompanyModule.ANALYTICS,
     [Page.CLIENT_PORTAL]: CompanyModule.CLIENT_PORTAL,
     [Page.COMPLIANCE]: CompanyModule.COMPLIANCE_TRACKING,
@@ -56,14 +57,22 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
     {
       title: 'Construction',
       items: [
+        { id: Page.LIVE_PROJECT_MAP, label: 'Live Project Map', icon: Navigation, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['projects.view'] },
         { id: Page.INSPECTIONS, label: 'Site Inspections', icon: ClipboardCheck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['construction.inspections'] },
         { id: Page.MATERIALS, label: 'Materials', icon: Truck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.materials'] },
         { id: Page.CHANGE_ORDERS, label: 'Change Orders', icon: FileEdit, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.changeorders'] },
       ]
     },
     {
+      title: 'Finance',
+      items: [
+        { id: Page.ACCOUNTING_HUB, label: 'Accounting Hub', icon: Briefcase, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['financials.read'] },
+      ]
+    },
+    {
       title: 'Intelligence',
       items: [
+        { id: Page.AI_COMMAND_CENTRE, label: 'AI Command Centre', icon: Bot, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },
         { id: Page.PREDICTIVE_ANALYSIS, label: 'Predictive Risk', icon: Brain, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['analytics.predictive'] },
         { id: Page.IMAGINE, label: 'Imagine Studio', icon: Wand2, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['ai.imagine'] },
         { id: Page.AI_TOOLS, label: 'AI Synthesis', icon: Cpu, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },

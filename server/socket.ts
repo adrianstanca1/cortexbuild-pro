@@ -161,6 +161,41 @@ export const setupWebSocketServer = (server: HttpServer | any, app: Express | an
             });
         });
 
+        // Live location tracking - receive GPS updates via WebSocket
+        socket.on('location_update', (data: { latitude: number; longitude: number; accuracy?: number; altitude?: number; heading?: number; speed?: number }) => {
+            if (userId && companyId && data.latitude != null && data.longitude != null) {
+                // Broadcast to all company users on the live map
+                io.to(`company:${companyId}`).emit('message', {
+                    type: 'location_update',
+                    entityType: 'user_location',
+                    data: {
+                        userId,
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        accuracy: data.accuracy,
+                        altitude: data.altitude,
+                        heading: data.heading,
+                        speed: data.speed,
+                        recordedAt: new Date().toISOString()
+                    }
+                });
+            }
+        });
+
+        // Join live map room for a project
+        socket.on('join_live_map', (data: { projectId: string }) => {
+            if (data.projectId) {
+                socket.join(`livemap:${data.projectId}`);
+                logger.info(`[Socket.io] User ${userId} joined live map: ${data.projectId}`);
+            }
+        });
+
+        socket.on('leave_live_map', (data: { projectId: string }) => {
+            if (data.projectId) {
+                socket.leave(`livemap:${data.projectId}`);
+            }
+        });
+
         // Heartbeat handling
         socket.on('heartbeat', () => {
             heartbeatMonitor.recordHeartbeat(socket.id);
