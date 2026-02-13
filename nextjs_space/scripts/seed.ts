@@ -3,6 +3,13 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const SEED_PASSWORD = process.env.SEED_PASSWORD;
+if (!SEED_PASSWORD) {
+  console.error("❌ SEED_PASSWORD environment variable is required.");
+  console.error("   Usage: SEED_PASSWORD=YourPassword npx tsx scripts/seed.ts");
+  process.exit(1);
+}
+
 async function main() {
   console.log("Seeding database...");
 
@@ -20,7 +27,7 @@ async function main() {
   // =====================
   // SUPERADMIN USER - Platform-wide access
   // =====================
-  const superadminPassword = await bcrypt.hash("Cumparavinde1", 12);
+  const superadminPassword = await bcrypt.hash(SEED_PASSWORD, 12);
   const superadminUser = await prisma.user.upsert({
     where: { email: "adrian.stanca1@gmail.com" },
     update: {
@@ -61,7 +68,7 @@ async function main() {
   });
   console.log("Organization created:", asCladdingOrg.name);
 
-  const companyOwnerPassword = await bcrypt.hash("Cumparavinde1", 12);
+  const companyOwnerPassword = await bcrypt.hash(SEED_PASSWORD, 12);
   const companyOwner = await prisma.user.upsert({
     where: { email: "adrian@ascladdingltd.co.uk" },
     update: {
@@ -93,7 +100,7 @@ async function main() {
   // =====================
   // DEMO ADMIN USER (test account)
   // =====================
-  const hashedPassword = await bcrypt.hash("johndoe123", 12);
+  const hashedPassword = await bcrypt.hash(SEED_PASSWORD, 12);
   const adminUser = await prisma.user.upsert({
     where: { email: "john@doe.com" },
     update: {},
@@ -119,7 +126,7 @@ async function main() {
   });
 
   // Create project manager
-  const pmPassword = await bcrypt.hash("manager123", 12);
+  const pmPassword = await bcrypt.hash(SEED_PASSWORD, 12);
   const pmUser = await prisma.user.upsert({
     where: { email: "sarah@cortexbuild.com" },
     update: {},
@@ -144,7 +151,7 @@ async function main() {
   });
 
   // Create field worker
-  const fwPassword = await bcrypt.hash("worker123", 12);
+  const fwPassword = await bcrypt.hash(SEED_PASSWORD, 12);
   const fwUser = await prisma.user.upsert({
     where: { email: "mike@cortexbuild.com" },
     update: {},
@@ -872,16 +879,9 @@ async function main() {
 
   console.log("\nDatabase seeding completed!");
   console.log("\n=== USER ACCOUNTS ===");
-  console.log("\n** SUPERADMIN (Full Platform Access) **");
-  console.log("  Email: adrian.stanca1@gmail.com");
-  console.log("  Password: Cumparavinde1");
-  console.log("\n** COMPANY OWNER (AS Cladding Ltd) **");
-  console.log("  Email: adrian@ascladdingltd.co.uk");
-  console.log("  Password: Cumparavinde1");
-  console.log("\n** DEMO ACCOUNTS (CortexBuild Demo Org) **");
-  console.log("  Admin: john@doe.com / johndoe123");
-  console.log("  Project Manager: sarah@cortexbuild.com / manager123");
-  console.log("  Field Worker: mike@cortexbuild.com / worker123");
+  console.log("  Accounts created as configured via environment variables.");
+  console.log("  Passwords: [As configured via ADMIN_PASSWORD env var]");
+  console.log("\n⚠️  SECURITY: Change all default passwords immediately after first login!");
 }
 
 main()

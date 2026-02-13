@@ -11,7 +11,13 @@ const IS_STAGING = process.env.ENVIRONMENT === 'staging';
 
 // Configuration
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "adrian.stanca1@gmail.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_PASSWORD) {
+  console.error("❌ ADMIN_PASSWORD environment variable is required.");
+  console.error("   Usage: ADMIN_PASSWORD=YourSecurePassword npx tsx scripts/seed-production.ts");
+  process.exit(1);
+}
 
 /**
  * Seed production-safe baseline data
@@ -82,7 +88,7 @@ async function seedProduction() {
   console.log("\n✅ Production baseline data created successfully");
   console.log("\n📝 Login Credentials:");
   console.log(`   Email: ${ADMIN_EMAIL}`);
-  console.log(`   Password: ${ADMIN_PASSWORD === "ChangeMe123!" ? "ChangeMe123! (⚠️ CHANGE THIS NOW!)" : "[As configured]"}`);
+  console.log("   Password: [As configured via ADMIN_PASSWORD env var]");
   console.log("\n⚠️  SECURITY: Change the default password immediately after first login!\n");
 }
 
