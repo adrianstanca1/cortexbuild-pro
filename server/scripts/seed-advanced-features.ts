@@ -35,7 +35,7 @@ async function seedAdvancedFeatures() {
         await db.run(`INSERT INTO users (id, email, password, name, role, isActive, companyId) VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [userId, 'demo@buildpro.app', passwordHash, 'Demo User', 'ADMIN', 1, company?.id || 'c1']);
         user = { id: userId, email: 'demo@buildpro.app' };
-        console.log('✅ Created demo@buildpro.app with password: password');
+        console.log('✅ Created demo@buildpro.app (password set via hash)');
     }
 
     if (!company || !project) {
@@ -67,8 +67,7 @@ async function seedAdvancedFeatures() {
             [uuidv4(), project.id, company.id, token, expiresAt, user.id, new Date().toISOString(), 1]);
 
         console.log(`✅ Client Portal Link Created!`);
-        console.log(`🔗 Link Token: ${token}`);
-        console.log(`👉 Access via: /portal/share/${token} (Frontend construct)`);
+        console.log('🔗 Client Portal link created (check database for token)');
     } else {
         console.log(`ℹ️ Shared Link already exists on project.`);
     }

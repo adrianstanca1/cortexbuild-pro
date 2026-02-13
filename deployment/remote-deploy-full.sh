@@ -7,8 +7,8 @@
 #
 # Usage:
 #   ./remote-deploy-full.sh
-#   ./remote-deploy-full.sh --host 72.62.132.43 --user root --password 'YourPass'
-#   ./remote-deploy-full.sh --host 72.62.132.43 --domain cortexbuildpro.com --ssl
+#   ./remote-deploy-full.sh --host YOUR_VPS_IP --user root --password 'YourPass'
+#   ./remote-deploy-full.sh --host YOUR_VPS_IP --domain cortexbuildpro.com --ssl
 #
 # This script requires: sshpass (installed automatically if missing on macOS/Linux)
 # =============================================================================
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # --------------- configuration ------------------------------------------------
-VPS_HOST="${VPS_HOST:-72.62.132.43}"
+VPS_HOST="${VPS_HOST:?VPS_HOST is required. Set via --host flag or VPS_HOST env var}"
 VPS_USER="${VPS_USER:-root}"
 VPS_PASS="${VPS_PASS:-}"
 VPS_PORT="${VPS_PORT:-22}"
@@ -50,7 +50,7 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --host HOST        VPS IP or hostname (default: 72.62.132.43)"
+            echo "  --host HOST        VPS IP or hostname (required)"
             echo "  --user USER        SSH user (default: root)"
             echo "  --password PASS    SSH password (or set VPS_PASS env var)"
             echo "  --port PORT        SSH port (default: 22)"

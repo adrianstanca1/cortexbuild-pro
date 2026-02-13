@@ -436,7 +436,11 @@ export const getTaxReturns = async (req: any, res: Response, next: NextFunction)
         if (type) { sql += ` AND type = ?`; params.push(type); }
         sql += ` ORDER BY periodEnd DESC LIMIT 50`;
         const returns = await db.all(sql, params);
-        const parsed = returns.map((r: any) => ({ ...r, boxes: r.boxes ? JSON.parse(r.boxes) : null }));
+        const parsed = returns.map((r: any) => {
+            let boxes = null;
+            if (r.boxes) { try { boxes = JSON.parse(r.boxes); } catch { /* malformed JSON */ } }
+            return { ...r, boxes };
+        });
         res.json(parsed);
     } catch (error) { next(error); }
 };

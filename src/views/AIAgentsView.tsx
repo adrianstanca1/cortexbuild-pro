@@ -5,7 +5,6 @@ import {
     TrendingUp, PoundSterling, Award, Bell, Clipboard, BarChart3, Wallet,
     ArrowRight, Calendar, Download, Info, HardHat, Wrench, Flame
 } from 'lucide-react';
-import { useProjects } from '@/contexts/ProjectContext';
 import { useToast } from '@/contexts/ToastContext';
 import { apiClient } from '@/services/apiClient';
 

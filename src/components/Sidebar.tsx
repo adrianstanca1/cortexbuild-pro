@@ -61,12 +61,30 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
         { id: Page.INSPECTIONS, label: 'Site Inspections', icon: ClipboardCheck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['construction.inspections'] },
         { id: Page.MATERIALS, label: 'Materials', icon: Truck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.materials'] },
         { id: Page.CHANGE_ORDERS, label: 'Change Orders', icon: FileEdit, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.changeorders'] },
+        { id: Page.DAILY_LOGS, label: 'Daily Logs', icon: FileText, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['construction.dailylogs'] },
+        { id: Page.RFI, label: 'RFIs', icon: FileBarChart, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.rfis'] },
+        { id: Page.SUBMITTALS, label: 'Submittals', icon: ClipboardCheck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.submittals'] },
+        { id: Page.SAFETY, label: 'Safety', icon: Shield, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['safety.view'] },
+        { id: Page.SUBCONTRACTORS, label: 'Subcontractors', icon: HardHat, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['construction.subcontractors'] },
+        { id: Page.EQUIPMENT, label: 'Equipment', icon: Wrench, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['equipment.view'] },
+      ]
+    },
+    {
+      title: 'Operations',
+      items: [
+        { id: Page.DOCUMENTS, label: 'Documents', icon: FileText, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['documents.view'] },
+        { id: Page.TIMESHEETS, label: 'Timesheets', icon: Clock, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR, UserRole.OPERATIVE], permissions: ['timesheets.view'] },
+        { id: Page.WORKFORCE, label: 'Workforce', icon: UserCog, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['workforce.view'] },
+        { id: Page.PROCUREMENT, label: 'Procurement', icon: ShoppingCart, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['procurement.view'] },
+        { id: Page.INVENTORY, label: 'Inventory', icon: Package, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['inventory.view'] },
+        { id: Page.COMPLIANCE, label: 'Compliance', icon: Shield, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['compliance.view'] },
       ]
     },
     {
       title: 'Finance',
       items: [
         { id: Page.ACCOUNTING_HUB, label: 'Accounting Hub', icon: Briefcase, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['financials.read'] },
+        { id: Page.FINANCIALS, label: 'Financials', icon: PoundSterling, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['financials.read'] },
       ]
     },
     {
@@ -76,6 +94,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
         { id: Page.PREDICTIVE_ANALYSIS, label: 'Predictive Risk', icon: Brain, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['analytics.predictive'] },
         { id: Page.IMAGINE, label: 'Imagine Studio', icon: Wand2, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['ai.imagine'] },
         { id: Page.AI_TOOLS, label: 'AI Synthesis', icon: Cpu, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },
+        { id: Page.ML_INSIGHTS, label: 'ML Insights', icon: BrainCircuit, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },
+        { id: Page.REPORTS, label: 'Reports', icon: PieChart, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['reports.view'] },
+      ]
+    },
+    {
+      title: 'Management',
+      items: [
+        { id: Page.CLIENTS, label: 'Clients', icon: UserCheck, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['clients.view'] },
+        { id: Page.INTEGRATIONS, label: 'Integrations', icon: Code, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['integrations.manage'] },
+        { id: Page.EXECUTIVE, label: 'Executive View', icon: Monitor, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['executive.view'] },
       ]
     }
   ];

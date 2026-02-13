@@ -119,11 +119,13 @@ export const getSessionMessages = async (req: any, res: Response, next: NextFunc
             [id, tenantId]
         );
 
-        const parsed = messages.map((m: any) => ({
-            ...m,
-            metadata: m.metadata ? JSON.parse(m.metadata) : null,
-            actions: m.actions ? JSON.parse(m.actions) : null
-        }));
+        const parsed = messages.map((m: any) => {
+            let metadata = null;
+            let actions = null;
+            if (m.metadata) { try { metadata = JSON.parse(m.metadata); } catch { /* malformed JSON */ } }
+            if (m.actions) { try { actions = JSON.parse(m.actions); } catch { /* malformed JSON */ } }
+            return { ...m, metadata, actions };
+        });
 
         res.json(parsed);
     } catch (error) { next(error); }
@@ -264,7 +266,7 @@ async function buildAgentContext(db: any, tenantId: string, tables: string[]): P
                     context.poSummary = await db.get(`SELECT COUNT(*) as total, COALESCE(SUM(amount),0) as totalValue FROM purchase_orders WHERE companyId = ?`, [tenantId]);
                     break;
             }
-        } catch { /* Table may not exist yet */ }
+        } catch (err: any) { /* Table may not exist yet - log for debugging */ if (err?.message && !err.message.includes('no such table')) console.warn(`[AI Agent Context] Failed to load ${table}:`, err.message); }
     }
 
     return context;
