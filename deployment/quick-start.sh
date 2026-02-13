@@ -172,7 +172,7 @@ main() {
     docker compose build --no-cache
     
     print_info "Starting database and application..."
-    docker compose up -d postgres app
+    docker compose up -d db app
     
     print_info "Waiting for services to be healthy..."
     sleep 30
