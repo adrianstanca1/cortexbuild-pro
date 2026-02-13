@@ -14,10 +14,11 @@ import { accountingApi } from '@/services/accountingService';
 import type {
     GLAccount, JournalEntry, BankAccount, BankTransaction,
     PayrollRun, PayrollItem, TaxReturn, IntegrationCredential,
-    InvoiceChaser, JobCostingProject, JobCostingSummary
+    InvoiceChaser, JobCostingProject, JobCostingSummary,
+    POBillingSummary, ReceivablesAgingReport, FinancialAlert
 } from '@/services/accountingService';
 
-type AccountingTab = 'LEDGER' | 'BANK_FEEDS' | 'PAYROLL' | 'TAX_HMRC' | 'JOB_COSTING' | 'INTEGRATIONS' | 'CHASERS';
+type AccountingTab = 'LEDGER' | 'BANK_FEEDS' | 'PAYROLL' | 'TAX_HMRC' | 'JOB_COSTING' | 'INTEGRATIONS' | 'CHASERS' | 'RECEIVABLES' | 'ALERTS' | 'PO_MATCHING';
 
 const AccountingHubView: React.FC = () => {
     const { projects, transactions, invoices, costCodes } = useProjects();
@@ -36,6 +37,9 @@ const AccountingHubView: React.FC = () => {
     const [integrations, setIntegrations] = useState<IntegrationCredential[]>([]);
     const [invoiceChasers, setInvoiceChasers] = useState<InvoiceChaser[]>([]);
     const [jobCostingData, setJobCostingData] = useState<{ summary: JobCostingSummary; projects: JobCostingProject[] } | null>(null);
+    const [poBillingSummary, setPOBillingSummary] = useState<POBillingSummary[]>([]);
+    const [receivablesAging, setReceivablesAging] = useState<ReceivablesAgingReport | null>(null);
+    const [financialAlerts, setFinancialAlerts] = useState<FinancialAlert[]>([]);
 
     // ─── UI State ───────────────────────────────────────────────────────────
     const [searchQuery, setSearchQuery] = useState('');
@@ -83,6 +87,18 @@ const AccountingHubView: React.FC = () => {
                 case 'JOB_COSTING':
                     const jcData = await accountingApi.getJobCosting().catch(() => null);
                     if (jcData) setJobCostingData(jcData);
+                    break;
+                case 'PO_MATCHING':
+                    const poData = await accountingApi.getPOBillingSummary().catch(() => []);
+                    if (Array.isArray(poData)) setPOBillingSummary(poData);
+                    break;
+                case 'RECEIVABLES':
+                    const agingData = await accountingApi.getReceivablesAging().catch(() => null);
+                    if (agingData) setReceivablesAging(agingData);
+                    break;
+                case 'ALERTS':
+                    const alertsData = await accountingApi.getFinancialAlerts().catch(() => ({ count: 0, alerts: [] }));
+                    if (alertsData) setFinancialAlerts((alertsData as any)?.alerts || []);
                     break;
             }
         } catch (err) {
@@ -141,14 +157,41 @@ const AccountingHubView: React.FC = () => {
         } catch { addToast('Reconciliation failed', 'error'); }
     };
 
+    const handleSeedAccounts = async () => {
+        try {
+            const result = await accountingApi.seedDefaultGLAccounts();
+            addToast(`${(result as any)?.accountsCreated || 0} construction GL accounts created`, 'success');
+            loadTabData('LEDGER');
+        } catch { addToast('Failed to seed accounts', 'error'); }
+    };
+
+    const handleAutoCategorize = async () => {
+        try {
+            const result = await accountingApi.autoCategorizeTransactions();
+            addToast(`AI categorized ${(result as any)?.categorized || 0} of ${(result as any)?.total || 0} transactions`, 'success');
+            loadTabData('BANK_FEEDS');
+        } catch { addToast('Auto-categorization failed', 'error'); }
+    };
+
+    const handleSyncBudgets = async () => {
+        try {
+            const result = await accountingApi.syncProjectBudgets();
+            addToast(`${(result as any)?.costCodesUpdated || 0} cost codes synced`, 'success');
+            loadTabData('JOB_COSTING');
+        } catch { addToast('Budget sync failed', 'error'); }
+    };
+
     // ─── Tab Config ─────────────────────────────────────────────────────────
     const tabs: { id: AccountingTab; label: string; icon: any; badge?: string }[] = [
         { id: 'JOB_COSTING', label: 'Job Costing', icon: BarChart3 },
         { id: 'LEDGER', label: 'General Ledger', icon: BookOpen },
         { id: 'BANK_FEEDS', label: 'Bank Feeds', icon: Landmark, badge: unmatchedCount > 0 ? `${unmatchedCount}` : undefined },
+        { id: 'RECEIVABLES', label: 'Receivables', icon: Receipt },
+        { id: 'PO_MATCHING', label: 'PO Matching', icon: FileText },
         { id: 'PAYROLL', label: 'Payroll', icon: Users },
         { id: 'TAX_HMRC', label: 'Tax & HMRC', icon: Shield },
         { id: 'CHASERS', label: 'Invoice Chasers', icon: Bell },
+        { id: 'ALERTS', label: 'Alerts', icon: AlertTriangle, badge: financialAlerts.filter(a => a.severity === 'critical').length > 0 ? `${financialAlerts.filter(a => a.severity === 'critical').length}` : undefined },
         { id: 'INTEGRATIONS', label: 'Integrations', icon: Link2 },
     ];
 
@@ -197,12 +240,15 @@ const AccountingHubView: React.FC = () => {
             )}
 
             {/* Tab Content */}
-            {!isLoading && activeTab === 'JOB_COSTING' && <JobCostingTab data={jobCostingData} projects={projects} fmt={fmt} fmtPct={fmtPct} />}
-            {!isLoading && activeTab === 'LEDGER' && <LedgerTab accounts={glAccounts} entries={journalEntries} fmt={fmt} />}
-            {!isLoading && activeTab === 'BANK_FEEDS' && <BankFeedsTab accounts={bankAccounts} transactions={bankTransactions} projects={projects} fmt={fmt} onReconcile={handleReconcile} />}
+            {!isLoading && activeTab === 'JOB_COSTING' && <JobCostingTab data={jobCostingData} projects={projects} fmt={fmt} fmtPct={fmtPct} onSyncBudgets={handleSyncBudgets} />}
+            {!isLoading && activeTab === 'LEDGER' && <LedgerTab accounts={glAccounts} entries={journalEntries} fmt={fmt} onSeedDefaults={handleSeedAccounts} />}
+            {!isLoading && activeTab === 'BANK_FEEDS' && <BankFeedsTab accounts={bankAccounts} transactions={bankTransactions} projects={projects} fmt={fmt} onReconcile={handleReconcile} onAutoCategorize={handleAutoCategorize} />}
+            {!isLoading && activeTab === 'RECEIVABLES' && <ReceivablesTab data={receivablesAging} fmt={fmt} />}
+            {!isLoading && activeTab === 'PO_MATCHING' && <POMatchingTab data={poBillingSummary} fmt={fmt} />}
             {!isLoading && activeTab === 'PAYROLL' && <PayrollTab runs={payrollRuns} selectedRun={selectedPayrollRun} items={payrollItems} fmt={fmt} onSelectRun={async (id) => { setSelectedPayrollRun(id); try { const items = await accountingApi.getPayrollItems(id); if (Array.isArray(items)) setPayrollItems(items); } catch { setPayrollItems([]); } }} />}
             {!isLoading && activeTab === 'TAX_HMRC' && <TaxHMRCTab returns={taxReturns} fmt={fmt} onCalculateVAT={handleCalculateVAT} onSubmit={handleSubmitTaxReturn} />}
             {!isLoading && activeTab === 'CHASERS' && <InvoiceChasersTab chasers={invoiceChasers} fmt={fmt} onGenerate={handleGenerateChasers} />}
+            {!isLoading && activeTab === 'ALERTS' && <AlertsTab alerts={financialAlerts} fmt={fmt} />}
             {!isLoading && activeTab === 'INTEGRATIONS' && <IntegrationsTab integrations={integrations} />}
         </div>
     );
@@ -230,7 +276,7 @@ const SummaryCard: React.FC<{ icon: React.ReactNode; label: string; value: strin
 
 // ─── Job Costing Tab ────────────────────────────────────────────────────────
 
-const JobCostingTab: React.FC<{ data: { summary: JobCostingSummary; projects: JobCostingProject[] } | null; projects: any[]; fmt: (n: number) => string; fmtPct: (n: number) => string }> = ({ data, projects, fmt, fmtPct }) => {
+const JobCostingTab: React.FC<{ data: { summary: JobCostingSummary; projects: JobCostingProject[] } | null; projects: any[]; fmt: (n: number) => string; fmtPct: (n: number) => string; onSyncBudgets: () => void }> = ({ data, projects, fmt, fmtPct, onSyncBudgets }) => {
     if (!data) return <EmptyState icon={<BarChart3 size={40} />} title="Job Costing" description="Financial data will appear here as projects and transactions are added." />;
     const { summary } = data;
     const jobProjects = data.projects.length > 0 ? data.projects : projects.map(p => ({
@@ -264,7 +310,10 @@ const JobCostingTab: React.FC<{ data: { summary: JobCostingSummary; projects: Jo
 
             {/* Project Table */}
             <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-                <div className="p-4 border-b border-zinc-100"><h3 className="font-bold text-zinc-900">Project Profitability</h3></div>
+                <div className="p-4 border-b border-zinc-100 flex items-center justify-between">
+                    <h3 className="font-bold text-zinc-900">Project Profitability</h3>
+                    <button onClick={onSyncBudgets} className="px-3 py-1.5 bg-zinc-100 text-zinc-700 rounded-lg text-xs font-medium hover:bg-zinc-200 flex items-center gap-1.5"><RefreshCw size={14} /> Sync Budgets</button>
+                </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead><tr className="bg-zinc-50 text-zinc-500 text-xs uppercase">
@@ -311,7 +360,7 @@ const JobCostingTab: React.FC<{ data: { summary: JobCostingSummary; projects: Jo
 
 // ─── General Ledger Tab ─────────────────────────────────────────────────────
 
-const LedgerTab: React.FC<{ accounts: GLAccount[]; entries: JournalEntry[]; fmt: (n: number) => string }> = ({ accounts, entries, fmt }) => {
+const LedgerTab: React.FC<{ accounts: GLAccount[]; entries: JournalEntry[]; fmt: (n: number) => string; onSeedDefaults: () => void }> = ({ accounts, entries, fmt, onSeedDefaults }) => {
     const accountTypes = ['asset', 'liability', 'equity', 'revenue', 'expense'];
     const typeColors: Record<string, string> = { asset: 'bg-blue-100 text-blue-700', liability: 'bg-red-100 text-red-700', equity: 'bg-purple-100 text-purple-700', revenue: 'bg-emerald-100 text-emerald-700', expense: 'bg-amber-100 text-amber-700' };
 
@@ -321,7 +370,10 @@ const LedgerTab: React.FC<{ accounts: GLAccount[]; entries: JournalEntry[]; fmt:
             <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
                 <div className="p-4 border-b border-zinc-100 flex justify-between items-center">
                     <h3 className="font-bold text-zinc-900">Chart of Accounts</h3>
-                    <span className="text-xs text-zinc-400">{accounts.length} accounts</span>
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs text-zinc-400">{accounts.length} accounts</span>
+                        {accounts.length === 0 && <button onClick={onSeedDefaults} className="px-3 py-1.5 bg-zinc-900 text-white rounded-lg text-xs font-bold hover:bg-zinc-800 flex items-center gap-1.5"><Plus size={14} /> Seed Construction Accounts</button>}
+                    </div>
                 </div>
                 {accounts.length > 0 ? (
                     <div className="divide-y divide-zinc-100">
@@ -372,7 +424,7 @@ const LedgerTab: React.FC<{ accounts: GLAccount[]; entries: JournalEntry[]; fmt:
 
 // ─── Bank Feeds Tab ─────────────────────────────────────────────────────────
 
-const BankFeedsTab: React.FC<{ accounts: BankAccount[]; transactions: BankTransaction[]; projects: any[]; fmt: (n: number) => string; onReconcile: (txnId: string, projectId: string) => void }> = ({ accounts, transactions, projects, fmt, onReconcile }) => {
+const BankFeedsTab: React.FC<{ accounts: BankAccount[]; transactions: BankTransaction[]; projects: any[]; fmt: (n: number) => string; onReconcile: (txnId: string, projectId: string) => void; onAutoCategorize: () => void }> = ({ accounts, transactions, projects, fmt, onReconcile, onAutoCategorize }) => {
     const [filterStatus, setFilterStatus] = useState('all');
     const filtered = transactions.filter(t => filterStatus === 'all' || t.reconciliationStatus === filterStatus);
 
@@ -409,6 +461,7 @@ const BankFeedsTab: React.FC<{ accounts: BankAccount[]; transactions: BankTransa
                 <div className="p-4 border-b border-zinc-100 flex items-center justify-between">
                     <h3 className="font-bold text-zinc-900">Bank Transactions</h3>
                     <div className="flex gap-2">
+                        <button onClick={onAutoCategorize} className="px-3 py-1.5 text-xs font-bold bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 flex items-center gap-1.5"><Zap size={14} /> AI Categorize</button>
                         {['all', 'unmatched', 'matched'].map(s => (
                             <button key={s} onClick={() => setFilterStatus(s)} className={`px-3 py-1.5 text-xs font-medium rounded-lg ${filterStatus === s ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'}`}>
                                 {s === 'all' ? 'All' : s === 'unmatched' ? 'Unmatched' : 'Matched'}
@@ -679,6 +732,193 @@ const IntegrationsTab: React.FC<{ integrations: IntegrationCredential[] }> = ({ 
                     );
                 })}
             </div>
+        </div>
+    );
+};
+
+// ─── Receivables Aging Tab ───────────────────────────────────────────────────
+
+const ReceivablesTab: React.FC<{ data: ReceivablesAgingReport | null; fmt: (n: number) => string }> = ({ data, fmt }) => {
+    if (!data) return <EmptyState icon={<Receipt size={40} />} title="Receivables Aging" description="Invoice data will populate the aging report as invoices are created." />;
+    const bucketLabels = [
+        { key: 'current', label: 'Current', color: 'bg-emerald-500' },
+        { key: '1-30', label: '1-30 Days', color: 'bg-blue-500' },
+        { key: '31-60', label: '31-60 Days', color: 'bg-amber-500' },
+        { key: '61-90', label: '61-90 Days', color: 'bg-orange-500' },
+        { key: '90+', label: '90+ Days', color: 'bg-red-500' },
+    ];
+    const maxBucket = Math.max(...Object.values(data.buckets), 1);
+
+    return (
+        <div className="space-y-6">
+            {/* Overview */}
+            <div className="bg-white p-6 rounded-xl border border-zinc-200">
+                <div className="flex justify-between items-start mb-6">
+                    <div>
+                        <p className="text-sm font-semibold text-zinc-500 uppercase">Total Outstanding</p>
+                        <p className="text-3xl font-black text-zinc-900 mt-1">{fmt(data.totalOutstanding)}</p>
+                        <p className="text-sm text-zinc-400 mt-1">{data.invoiceCount} unpaid invoices</p>
+                    </div>
+                </div>
+                {/* Aging Bars */}
+                <div className="space-y-3">
+                    {bucketLabels.map(b => {
+                        const val = data.buckets[b.key as keyof typeof data.buckets] || 0;
+                        const pct = maxBucket > 0 ? (val / maxBucket) * 100 : 0;
+                        return (
+                            <div key={b.key} className="flex items-center gap-4">
+                                <span className="text-xs font-medium text-zinc-500 w-20">{b.label}</span>
+                                <div className="flex-1 h-6 bg-zinc-100 rounded-lg overflow-hidden">
+                                    <div className={`h-full ${b.color} rounded-lg transition-all`} style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="text-sm font-bold text-zinc-900 w-28 text-right">{fmt(val)}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Invoice List */}
+            <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+                <div className="p-4 border-b border-zinc-100"><h3 className="font-bold text-zinc-900">Outstanding Invoices</h3></div>
+                {data.items.length > 0 ? (
+                    <div className="divide-y divide-zinc-100">
+                        {data.items.map(inv => (
+                            <div key={inv.invoiceId} className="flex items-center justify-between p-4 hover:bg-zinc-50">
+                                <div>
+                                    <span className="font-medium text-zinc-900">{inv.invoiceNumber || 'Invoice'}</span>
+                                    <span className="text-sm text-zinc-500 ml-3">{inv.vendor}</span>
+                                    <p className="text-xs text-zinc-400 mt-0.5">Due: {new Date(inv.dueDate).toLocaleDateString('en-GB')}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="font-bold text-zinc-900">{fmt(inv.amount)}</span>
+                                    {inv.daysOverdue > 0 && (
+                                        <span className={`px-2 py-1 text-[10px] font-bold rounded-full ${inv.daysOverdue > 60 ? 'bg-red-100 text-red-700' : inv.daysOverdue > 30 ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                                            {inv.daysOverdue}d overdue
+                                        </span>
+                                    )}
+                                    {inv.daysOverdue === 0 && <span className="px-2 py-1 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">CURRENT</span>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <EmptyState icon={<Receipt size={32} />} title="No Outstanding Invoices" description="All invoices are paid." />
+                )}
+            </div>
+        </div>
+    );
+};
+
+// ─── PO Matching Tab ────────────────────────────────────────────────────────
+
+const POMatchingTab: React.FC<{ data: POBillingSummary[]; fmt: (n: number) => string }> = ({ data, fmt }) => (
+    <div className="space-y-6">
+        <div>
+            <h3 className="text-lg font-bold text-zinc-900">Purchase Order Billing</h3>
+            <p className="text-sm text-zinc-500">Track vendor bills against POs to prevent overbilling</p>
+        </div>
+        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+            {data.length > 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead><tr className="bg-zinc-50 text-zinc-500 text-xs uppercase">
+                            <th className="text-left p-3 font-semibold">PO Number</th>
+                            <th className="text-left p-3 font-semibold">Vendor</th>
+                            <th className="text-right p-3 font-semibold">PO Amount</th>
+                            <th className="text-right p-3 font-semibold">Billed</th>
+                            <th className="text-right p-3 font-semibold">Remaining</th>
+                            <th className="text-right p-3 font-semibold">Utilization</th>
+                            <th className="text-center p-3 font-semibold">Status</th>
+                        </tr></thead>
+                        <tbody className="divide-y divide-zinc-100">
+                            {data.map(po => (
+                                <tr key={po.id} className="hover:bg-zinc-50">
+                                    <td className="p-3 font-mono font-medium text-zinc-900">{po.poNumber}</td>
+                                    <td className="p-3 text-zinc-700">{po.vendor}</td>
+                                    <td className="p-3 text-right text-zinc-900 font-medium">{fmt(po.poAmount)}</td>
+                                    <td className="p-3 text-right text-zinc-600">{fmt(po.totalBilled)}</td>
+                                    <td className={`p-3 text-right font-medium ${po.remaining >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{fmt(po.remaining)}</td>
+                                    <td className="p-3 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <div className="w-16 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                                                <div className={`h-full rounded-full ${po.utilizationPercent > 100 ? 'bg-red-500' : po.utilizationPercent > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${Math.min(po.utilizationPercent, 100)}%` }} />
+                                            </div>
+                                            <span className="text-xs text-zinc-500">{po.utilizationPercent.toFixed(0)}%</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-3 text-center">
+                                        {po.isOverbilled && <span className="px-2 py-1 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">OVERBILLED</span>}
+                                        {!po.isOverbilled && po.utilizationPercent > 80 && <span className="px-2 py-1 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">HIGH USAGE</span>}
+                                        {!po.isOverbilled && po.utilizationPercent <= 80 && <span className="px-2 py-1 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">OK</span>}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <EmptyState icon={<FileText size={32} />} title="No Purchase Orders" description="Create purchase orders to track vendor billing and prevent overbilling." />
+            )}
+        </div>
+    </div>
+);
+
+// ─── Financial Alerts Tab ───────────────────────────────────────────────────
+
+const AlertsTab: React.FC<{ alerts: FinancialAlert[]; fmt: (n: number) => string }> = ({ alerts, fmt }) => {
+    const severityConfig: Record<string, { bg: string; border: string; icon: string; text: string }> = {
+        critical: { bg: 'bg-red-50', border: 'border-red-200', icon: 'text-red-600', text: 'text-red-800' },
+        warning: { bg: 'bg-amber-50', border: 'border-amber-200', icon: 'text-amber-600', text: 'text-amber-800' },
+        info: { bg: 'bg-blue-50', border: 'border-blue-200', icon: 'text-blue-600', text: 'text-blue-800' },
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h3 className="text-lg font-bold text-zinc-900">Financial Alerts</h3>
+                    <p className="text-sm text-zinc-500">Real-time alerts for budget overruns, cost spikes, and cash flow issues</p>
+                </div>
+                <div className="flex gap-2">
+                    <span className="px-3 py-1.5 text-xs font-bold bg-red-100 text-red-700 rounded-lg">{alerts.filter(a => a.severity === 'critical').length} Critical</span>
+                    <span className="px-3 py-1.5 text-xs font-bold bg-amber-100 text-amber-700 rounded-lg">{alerts.filter(a => a.severity === 'warning').length} Warnings</span>
+                    <span className="px-3 py-1.5 text-xs font-bold bg-blue-100 text-blue-700 rounded-lg">{alerts.filter(a => a.severity === 'info').length} Info</span>
+                </div>
+            </div>
+            {alerts.length > 0 ? (
+                <div className="space-y-3">
+                    {alerts.map((alert, idx) => {
+                        const cfg = severityConfig[alert.severity] || severityConfig.info;
+                        return (
+                            <div key={idx} className={`p-4 rounded-xl border ${cfg.bg} ${cfg.border}`}>
+                                <div className="flex items-start gap-3">
+                                    <div className={`mt-0.5 ${cfg.icon}`}>
+                                        {alert.severity === 'critical' ? <XCircle size={20} /> : alert.severity === 'warning' ? <AlertTriangle size={20} /> : <Info size={20} />}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className={`font-medium ${cfg.text}`}>{alert.message}</p>
+                                        <div className="flex gap-4 mt-2 text-xs">
+                                            {alert.projectName && <span className="text-zinc-600">Project: {alert.projectName}</span>}
+                                            {alert.budget !== undefined && <span className="text-zinc-600">Budget: {fmt(alert.budget)}</span>}
+                                            {alert.spent !== undefined && <span className="text-zinc-600">Spent: {fmt(alert.spent)}</span>}
+                                            {alert.utilization !== undefined && <span className="text-zinc-600">Utilization: {alert.utilization.toFixed(1)}%</span>}
+                                            {alert.count !== undefined && <span className="text-zinc-600">Count: {alert.count}</span>}
+                                        </div>
+                                    </div>
+                                    <span className={`px-2 py-1 text-[10px] font-bold rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border}`}>{alert.severity.toUpperCase()}</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-8 text-center">
+                    <CheckCircle2 size={40} className="text-emerald-500 mx-auto mb-3" />
+                    <h4 className="font-bold text-emerald-800">All Clear</h4>
+                    <p className="text-sm text-emerald-600 mt-1">No financial alerts at this time. All projects are within budget.</p>
+                </div>
+            )}
         </div>
     );
 };

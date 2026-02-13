@@ -204,6 +204,56 @@ export interface JobCostingSummary {
     avgProfitMargin: number;
 }
 
+export interface POBillingSummary {
+    id: string;
+    poNumber: string;
+    vendor: string;
+    projectId?: string;
+    date: string;
+    poAmount: number;
+    totalBilled: number;
+    remaining: number;
+    utilizationPercent: number;
+    isOverbilled: boolean;
+    status: string;
+}
+
+export interface ReceivablesAgingReport {
+    totalOutstanding: number;
+    buckets: {
+        current: number;
+        '1-30': number;
+        '31-60': number;
+        '61-90': number;
+        '90+': number;
+    };
+    invoiceCount: number;
+    items: Array<{
+        invoiceId: string;
+        invoiceNumber: string;
+        vendor: string;
+        projectId?: string;
+        amount: number;
+        dueDate: string;
+        daysOverdue: number;
+        bucket: string;
+        status: string;
+    }>;
+}
+
+export interface FinancialAlert {
+    type: string;
+    severity: 'critical' | 'warning' | 'info';
+    message: string;
+    projectId?: string;
+    projectName?: string;
+    budget?: number;
+    spent?: number;
+    utilization?: number;
+    count?: number;
+    totalAmount?: number;
+}
+
 // ─── API Client ─────────────────────────────────────────────────────────────
 
 export const accountingApi = {
@@ -261,4 +311,30 @@ export const accountingApi = {
         apiClient.get<{ summary: JobCostingSummary; projects: JobCostingProject[] }>('/accounting/job-costing', { params: projectId ? { projectId } : {} }),
     getJobCostingBreakdown: (projectId: string) =>
         apiClient.get(`/accounting/job-costing/${projectId}/breakdown`),
+
+    // Bill-to-PO Matching
+    matchBillToPO: (invoiceId: string, purchaseOrderId: string) =>
+        apiClient.post('/accounting/bill-po-match', { invoiceId, purchaseOrderId }),
+    getPOBillingSummary: () =>
+        apiClient.get<POBillingSummary[]>('/accounting/po-billing-summary'),
+
+    // Receivables Aging
+    getReceivablesAging: () =>
+        apiClient.get<ReceivablesAgingReport>('/accounting/receivables-aging'),
+
+    // Financial Alerts
+    getFinancialAlerts: () =>
+        apiClient.get<{ count: number; alerts: FinancialAlert[] }>('/accounting/financial-alerts'),
+
+    // Default GL Accounts
+    seedDefaultGLAccounts: () =>
+        apiClient.post('/accounting/gl-accounts/seed-defaults', {}),
+
+    // AI Auto-Categorization
+    autoCategorizeTransactions: () =>
+        apiClient.post('/accounting/bank-transactions/auto-categorize', {}),
+
+    // Budget Sync
+    syncProjectBudgets: () =>
+        apiClient.post('/accounting/sync-project-budgets', {}),
 };

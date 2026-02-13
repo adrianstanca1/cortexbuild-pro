@@ -754,3 +754,497 @@ export const getJobCostingBreakdown = async (req: any, res: Response, next: Next
         res.json({ costCodes: breakdown, recentTransactions });
     } catch (error) { next(error); }
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  BILL-TO-PO MATCHING (Payables & Procurement)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /api/v1/accounting/bill-po-match */
+export const matchBillToPO = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+        const { invoiceId, purchaseOrderId } = req.body;
+
+        if (!invoiceId || !purchaseOrderId) {
+            res.status(400).json({ error: 'invoiceId and purchaseOrderId are required' });
+            return;
+        }
+
+        // Fetch the PO
+        const po = await db.get(`SELECT * FROM purchase_orders WHERE id = ? AND companyId = ?`, [purchaseOrderId, tenantId]);
+        if (!po) { res.status(404).json({ error: 'Purchase order not found' }); return; }
+
+        // Fetch the invoice/bill
+        const invoice = await db.get(`SELECT * FROM invoices WHERE id = ? AND companyId = ?`, [invoiceId, tenantId]);
+        if (!invoice) { res.status(404).json({ error: 'Invoice not found' }); return; }
+
+        // Sum all invoices already matched to this PO
+        const existingMatched = await db.get(
+            `SELECT COALESCE(SUM(amount), 0) as totalBilled FROM invoices WHERE companyId = ? AND id != ? AND id IN (
+                SELECT id FROM invoices WHERE companyId = ? AND vendorId = ? AND status IN ('Pending', 'Approved', 'Paid')
+            )`,
+            [tenantId, invoiceId, tenantId, po.vendor]
+        );
+
+        // Also check transactions linked to this PO
+        const linkedTransactions = await db.get(
+            `SELECT COALESCE(SUM(amount), 0) as totalLinked FROM transactions WHERE linkedPurchaseOrderId = ? AND companyId = ? AND type = 'expense'`,
+            [purchaseOrderId, tenantId]
+        );
+
+        const totalAlreadyBilled = (existingMatched?.totalBilled || 0) + (linkedTransactions?.totalLinked || 0);
+        const invoiceAmount = invoice.total || invoice.amount;
+        const poAmount = po.amount;
+        const newTotal = totalAlreadyBilled + invoiceAmount;
+
+        // Overbilling protection
+        const overbillThreshold = poAmount * 1.10; // Allow 10% tolerance
+        if (newTotal > overbillThreshold) {
+            res.status(400).json({
+                error: 'Overbilling detected',
+                details: {
+                    poAmount,
+                    totalAlreadyBilled: Math.round(totalAlreadyBilled * 100) / 100,
+                    thisInvoice: invoiceAmount,
+                    projectedTotal: Math.round(newTotal * 100) / 100,
+                    overageAmount: Math.round((newTotal - poAmount) * 100) / 100,
+                    overagePercent: Math.round(((newTotal - poAmount) / poAmount) * 10000) / 100
+                }
+            });
+            return;
+        }
+
+        // Link the invoice to the PO via a transaction record
+        const txnId = uuidv4();
+        const now = new Date().toISOString();
+        await db.run(
+            `INSERT INTO transactions (id, companyId, projectId, date, description, amount, type, category, status, costCodeId, linkedPurchaseOrderId, isExported)
+             VALUES (?, ?, ?, ?, ?, ?, 'expense', 'Vendor Bill', 'completed', ?, ?, 0)`,
+            [txnId, tenantId, po.projectId || invoice.projectId, now.split('T')[0], `Bill ${invoice.number} matched to PO ${po.poNumber}`, invoiceAmount, invoice.costCodeId || null, purchaseOrderId]
+        );
+
+        // Update cost code spent if applicable
+        if (invoice.costCodeId) {
+            await db.run(`UPDATE cost_codes SET spent = spent + ?, var = CASE WHEN budget > 0 THEN ((spent + ? - budget) / budget) * 100 ELSE 0 END WHERE id = ? AND companyId = ?`,
+                [invoiceAmount, invoiceAmount, invoice.costCodeId, tenantId]);
+        }
+
+        broadcastToCompany(tenantId, { type: 'bill_matched_to_po', data: { invoiceId, purchaseOrderId, amount: invoiceAmount } });
+
+        res.json({
+            success: true,
+            transactionId: txnId,
+            poAmount,
+            totalBilledAfterMatch: Math.round(newTotal * 100) / 100,
+            remainingOnPO: Math.round((poAmount - newTotal) * 100) / 100,
+            utilizationPercent: Math.round((newTotal / poAmount) * 10000) / 100
+        });
+    } catch (error) { next(error); }
+};
+
+/** GET /api/v1/accounting/po-billing-summary */
+export const getPOBillingSummary = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+
+        const purchaseOrders = await db.all(
+            `SELECT po.*,
+                COALESCE((SELECT SUM(t.amount) FROM transactions t WHERE t.linkedPurchaseOrderId = po.id AND t.companyId = ? AND t.type = 'expense'), 0) as totalBilled
+             FROM purchase_orders po WHERE po.companyId = ? ORDER BY po.date DESC`,
+            [tenantId, tenantId]
+        );
+
+        const result = purchaseOrders.map((po: any) => ({
+            id: po.id,
+            poNumber: po.poNumber,
+            vendor: po.vendor,
+            projectId: po.projectId,
+            date: po.date,
+            poAmount: po.amount,
+            totalBilled: Math.round(po.totalBilled * 100) / 100,
+            remaining: Math.round((po.amount - po.totalBilled) * 100) / 100,
+            utilizationPercent: po.amount > 0 ? Math.round((po.totalBilled / po.amount) * 10000) / 100 : 0,
+            isOverbilled: po.totalBilled > po.amount,
+            status: po.status
+        }));
+
+        res.json(result);
+    } catch (error) { next(error); }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RECEIVABLES AGING REPORT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /api/v1/accounting/receivables-aging */
+export const getReceivablesAging = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+
+        const unpaidInvoices = await db.all(
+            `SELECT * FROM invoices WHERE companyId = ? AND status IN ('Pending', 'Approved', 'Overdue') ORDER BY dueDate ASC`,
+            [tenantId]
+        );
+
+        const today = new Date();
+        const buckets = { current: 0, days1to30: 0, days31to60: 0, days61to90: 0, over90: 0 };
+        const items: any[] = [];
+
+        for (const inv of unpaidInvoices) {
+            const dueDate = new Date(inv.dueDate);
+            const daysOverdue = Math.max(0, Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
+            const amount = inv.total || inv.amount;
+
+            let bucket: string;
+            if (daysOverdue <= 0) { bucket = 'current'; buckets.current += amount; }
+            else if (daysOverdue <= 30) { bucket = '1-30'; buckets.days1to30 += amount; }
+            else if (daysOverdue <= 60) { bucket = '31-60'; buckets.days31to60 += amount; }
+            else if (daysOverdue <= 90) { bucket = '61-90'; buckets.days61to90 += amount; }
+            else { bucket = '90+'; buckets.over90 += amount; }
+
+            items.push({
+                invoiceId: inv.id,
+                invoiceNumber: inv.number,
+                vendor: inv.vendor,
+                projectId: inv.projectId,
+                amount,
+                dueDate: inv.dueDate,
+                daysOverdue,
+                bucket,
+                status: inv.status
+            });
+        }
+
+        const totalOutstanding = Object.values(buckets).reduce((s, v) => s + v, 0);
+
+        res.json({
+            totalOutstanding: Math.round(totalOutstanding * 100) / 100,
+            buckets: {
+                current: Math.round(buckets.current * 100) / 100,
+                '1-30': Math.round(buckets.days1to30 * 100) / 100,
+                '31-60': Math.round(buckets.days31to60 * 100) / 100,
+                '61-90': Math.round(buckets.days61to90 * 100) / 100,
+                '90+': Math.round(buckets.over90 * 100) / 100,
+            },
+            invoiceCount: items.length,
+            items
+        });
+    } catch (error) { next(error); }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  FINANCIAL ALERTS ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** GET /api/v1/accounting/financial-alerts */
+export const getFinancialAlerts = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+        const alerts: any[] = [];
+        const today = new Date().toISOString().split('T')[0];
+
+        // 1. Over-budget projects
+        const projects = await db.all(`SELECT id, name, budget FROM projects WHERE companyId = ? AND budget > 0`, [tenantId]);
+        for (const proj of projects) {
+            const spending = await db.get(
+                `SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE projectId = ? AND companyId = ? AND type = 'expense' AND status = 'completed'`,
+                [proj.id, tenantId]
+            );
+            const expenses = await db.get(
+                `SELECT COALESCE(SUM(amount), 0) as total FROM expense_claims WHERE projectId = ? AND companyId = ? AND status IN ('Approved', 'Paid')`,
+                [proj.id, tenantId]
+            );
+            const totalSpent = (spending?.total || 0) + (expenses?.total || 0);
+            const utilization = (totalSpent / proj.budget) * 100;
+
+            if (utilization > 100) {
+                alerts.push({ type: 'over_budget', severity: 'critical', projectId: proj.id, projectName: proj.name, message: `${proj.name} is ${(utilization - 100).toFixed(1)}% over budget`, budget: proj.budget, spent: totalSpent, utilization: Math.round(utilization * 100) / 100 });
+            } else if (utilization > 85) {
+                alerts.push({ type: 'budget_warning', severity: 'warning', projectId: proj.id, projectName: proj.name, message: `${proj.name} is at ${utilization.toFixed(1)}% of budget`, budget: proj.budget, spent: totalSpent, utilization: Math.round(utilization * 100) / 100 });
+            }
+        }
+
+        // 2. Cost code spikes (any code > 120% of budget)
+        const costCodes = await db.all(`SELECT * FROM cost_codes WHERE companyId = ? AND budget > 0`, [tenantId]);
+        for (const cc of costCodes) {
+            if (cc.spent > cc.budget * 1.2) {
+                alerts.push({ type: 'cost_spike', severity: 'critical', costCodeId: cc.id, code: cc.code, description: cc.description, message: `Cost code ${cc.code} has spiked ${((cc.spent / cc.budget - 1) * 100).toFixed(0)}% over budget`, budget: cc.budget, spent: cc.spent });
+            }
+        }
+
+        // 3. Overdue invoices older than 30 days
+        const overdueInvoices = await db.all(
+            `SELECT id, number, vendor, amount, total, dueDate FROM invoices WHERE companyId = ? AND status IN ('Pending', 'Approved') AND dueDate < ?`,
+            [tenantId, today]
+        );
+        const severelyOverdue = overdueInvoices.filter((i: any) => {
+            const days = Math.floor((Date.now() - new Date(i.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+            return days > 30;
+        });
+        if (severelyOverdue.length > 0) {
+            const totalOverdue = severelyOverdue.reduce((s: number, i: any) => s + (i.total || i.amount), 0);
+            alerts.push({ type: 'severe_overdue', severity: 'critical', message: `${severelyOverdue.length} invoices overdue by 30+ days totalling ${totalOverdue.toFixed(2)}`, count: severelyOverdue.length, totalAmount: totalOverdue });
+        }
+
+        // 4. Cash flow warning (more expenses than income in last 30 days)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const recentIncome = await db.get(`SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE companyId = ? AND type = 'income' AND date >= ?`, [tenantId, thirtyDaysAgo]);
+        const recentExpenses = await db.get(`SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE companyId = ? AND type = 'expense' AND date >= ?`, [tenantId, thirtyDaysAgo]);
+        if ((recentExpenses?.total || 0) > (recentIncome?.total || 0) * 1.5 && (recentExpenses?.total || 0) > 0) {
+            alerts.push({ type: 'cash_flow_warning', severity: 'warning', message: `Expenses (${(recentExpenses?.total || 0).toFixed(0)}) are 50%+ higher than income (${(recentIncome?.total || 0).toFixed(0)}) in the last 30 days`, income: recentIncome?.total || 0, expenses: recentExpenses?.total || 0 });
+        }
+
+        // 5. Unreconciled bank transactions warning
+        const unmatchedCount = await db.get(`SELECT COUNT(*) as count FROM bank_transactions WHERE companyId = ? AND reconciliationStatus = 'unmatched'`, [tenantId]);
+        if ((unmatchedCount?.count || 0) > 20) {
+            alerts.push({ type: 'unreconciled_transactions', severity: 'info', message: `${unmatchedCount.count} bank transactions need reconciliation`, count: unmatchedCount.count });
+        }
+
+        // Sort by severity
+        const severityOrder: Record<string, number> = { critical: 0, warning: 1, info: 2 };
+        alerts.sort((a, b) => (severityOrder[a.severity] || 2) - (severityOrder[b.severity] || 2));
+
+        res.json({ count: alerts.length, alerts });
+    } catch (error) { next(error); }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  DEFAULT CHART OF ACCOUNTS (Construction-Specific)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /api/v1/accounting/gl-accounts/seed-defaults */
+export const seedDefaultGLAccounts = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+
+        // Check if already seeded
+        const existing = await db.get(`SELECT COUNT(*) as count FROM gl_accounts WHERE companyId = ? AND isSystem = 1`, [tenantId]);
+        if (existing?.count > 0) { res.json({ message: 'Default accounts already exist', count: existing.count }); return; }
+
+        const now = new Date().toISOString();
+        const defaults = [
+            // Assets
+            { code: '1000', name: 'Cash at Bank', type: 'asset', category: 'Current Assets' },
+            { code: '1010', name: 'Petty Cash', type: 'asset', category: 'Current Assets' },
+            { code: '1100', name: 'Accounts Receivable', type: 'asset', category: 'Current Assets' },
+            { code: '1110', name: 'Retentions Receivable', type: 'asset', category: 'Current Assets' },
+            { code: '1200', name: 'Materials Inventory', type: 'asset', category: 'Current Assets' },
+            { code: '1300', name: 'Work in Progress', type: 'asset', category: 'Current Assets' },
+            { code: '1500', name: 'Plant & Equipment', type: 'asset', category: 'Fixed Assets' },
+            { code: '1510', name: 'Vehicles', type: 'asset', category: 'Fixed Assets' },
+            { code: '1520', name: 'Tools & Small Equipment', type: 'asset', category: 'Fixed Assets' },
+            { code: '1600', name: 'Accumulated Depreciation', type: 'asset', category: 'Fixed Assets' },
+            // Liabilities
+            { code: '2000', name: 'Accounts Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2010', name: 'Retentions Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2100', name: 'VAT Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2110', name: 'VAT Receivable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2200', name: 'PAYE & NI Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2210', name: 'CIS Tax Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2220', name: 'Pension Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2300', name: 'Corporation Tax Payable', type: 'liability', category: 'Current Liabilities' },
+            { code: '2400', name: 'Accruals', type: 'liability', category: 'Current Liabilities' },
+            { code: '2500', name: 'Bank Loans', type: 'liability', category: 'Long-term Liabilities' },
+            // Equity
+            { code: '3000', name: 'Share Capital', type: 'equity', category: 'Equity' },
+            { code: '3100', name: 'Retained Earnings', type: 'equity', category: 'Equity' },
+            { code: '3200', name: 'Dividends', type: 'equity', category: 'Equity' },
+            // Revenue
+            { code: '4000', name: 'Contract Revenue', type: 'revenue', category: 'Direct Income' },
+            { code: '4010', name: 'Variation Income', type: 'revenue', category: 'Direct Income' },
+            { code: '4020', name: 'Retention Releases', type: 'revenue', category: 'Direct Income' },
+            { code: '4030', name: 'Daywork Income', type: 'revenue', category: 'Direct Income' },
+            { code: '4100', name: 'Other Income', type: 'revenue', category: 'Other Income' },
+            // Direct Costs (Construction)
+            { code: '5000', name: 'Direct Labour', type: 'expense', category: 'Cost of Sales' },
+            { code: '5010', name: 'Subcontractor Costs', type: 'expense', category: 'Cost of Sales' },
+            { code: '5020', name: 'Materials - Concrete & Cement', type: 'expense', category: 'Cost of Sales' },
+            { code: '5030', name: 'Materials - Steel & Rebar', type: 'expense', category: 'Cost of Sales' },
+            { code: '5040', name: 'Materials - Timber', type: 'expense', category: 'Cost of Sales' },
+            { code: '5050', name: 'Materials - Electrical', type: 'expense', category: 'Cost of Sales' },
+            { code: '5060', name: 'Materials - Plumbing', type: 'expense', category: 'Cost of Sales' },
+            { code: '5070', name: 'Materials - General', type: 'expense', category: 'Cost of Sales' },
+            { code: '5100', name: 'Plant Hire', type: 'expense', category: 'Cost of Sales' },
+            { code: '5110', name: 'Scaffolding', type: 'expense', category: 'Cost of Sales' },
+            { code: '5120', name: 'Skip & Waste Disposal', type: 'expense', category: 'Cost of Sales' },
+            { code: '5200', name: 'Site Prelims', type: 'expense', category: 'Cost of Sales' },
+            { code: '5210', name: 'Site Security', type: 'expense', category: 'Cost of Sales' },
+            { code: '5220', name: 'Temporary Works', type: 'expense', category: 'Cost of Sales' },
+            // Overheads
+            { code: '6000', name: 'Salaries - Office Staff', type: 'expense', category: 'Overheads' },
+            { code: '6010', name: 'Employer NI Contributions', type: 'expense', category: 'Overheads' },
+            { code: '6020', name: 'Pension Contributions', type: 'expense', category: 'Overheads' },
+            { code: '6100', name: 'Office Rent & Rates', type: 'expense', category: 'Overheads' },
+            { code: '6110', name: 'Office Utilities', type: 'expense', category: 'Overheads' },
+            { code: '6200', name: 'Insurance - Employers Liability', type: 'expense', category: 'Overheads' },
+            { code: '6210', name: 'Insurance - Public Liability', type: 'expense', category: 'Overheads' },
+            { code: '6220', name: 'Insurance - Contractors All Risk', type: 'expense', category: 'Overheads' },
+            { code: '6300', name: 'Vehicle Running Costs', type: 'expense', category: 'Overheads' },
+            { code: '6400', name: 'Professional Fees', type: 'expense', category: 'Overheads' },
+            { code: '6500', name: 'IT & Software', type: 'expense', category: 'Overheads' },
+            { code: '6600', name: 'Marketing & Advertising', type: 'expense', category: 'Overheads' },
+            { code: '6700', name: 'Training & CPD', type: 'expense', category: 'Overheads' },
+            { code: '6800', name: 'Bank Charges & Interest', type: 'expense', category: 'Overheads' },
+            { code: '6900', name: 'Depreciation', type: 'expense', category: 'Overheads' },
+        ];
+
+        let count = 0;
+        for (const acc of defaults) {
+            const id = uuidv4();
+            await db.run(
+                `INSERT INTO gl_accounts (id, companyId, code, name, type, category, currency, isActive, isSystem, balance, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, 'GBP', 1, 1, 0, ?, ?)`,
+                [id, tenantId, acc.code, acc.name, acc.type, acc.category, now, now]
+            );
+            count++;
+        }
+
+        res.status(201).json({ success: true, accountsCreated: count });
+    } catch (error) { next(error); }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  AI BANK TRANSACTION CATEGORIZATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /api/v1/accounting/bank-transactions/auto-categorize */
+export const autoCategorizeTransactions = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+
+        // Get unmatched transactions
+        const unmatched = await db.all(
+            `SELECT * FROM bank_transactions WHERE companyId = ? AND reconciliationStatus = 'unmatched' LIMIT 100`,
+            [tenantId]
+        );
+
+        // Get known patterns from already-matched transactions
+        const knownPatterns = await db.all(
+            `SELECT counterparty, category, projectId, costCodeId, COUNT(*) as matchCount
+             FROM bank_transactions WHERE companyId = ? AND reconciliationStatus = 'matched' AND counterparty IS NOT NULL
+             GROUP BY counterparty, category, projectId, costCodeId ORDER BY matchCount DESC LIMIT 200`,
+            [tenantId]
+        );
+
+        // Get vendor names from invoices for cross-referencing
+        const vendors = await db.all(`SELECT DISTINCT vendor, vendorId, projectId FROM invoices WHERE companyId = ?`, [tenantId]);
+
+        // Rule-based categorization engine
+        const categoryRules: Array<{ pattern: RegExp; category: string; confidence: number }> = [
+            { pattern: /payroll|salary|wages|paye/i, category: 'Payroll', confidence: 0.95 },
+            { pattern: /hmrc|tax|vat|revenue.*customs/i, category: 'Tax & HMRC', confidence: 0.95 },
+            { pattern: /travis perkins|jewson|wickes|screwfix|toolstation|selco/i, category: 'Materials', confidence: 0.90 },
+            { pattern: /speedy|sunbelt|hewden|a-plant|coates/i, category: 'Plant Hire', confidence: 0.90 },
+            { pattern: /concrete|rmc|hanson|cemex|aggregate/i, category: 'Materials - Concrete', confidence: 0.85 },
+            { pattern: /scaffolding|scaffold|altrad/i, category: 'Scaffolding', confidence: 0.90 },
+            { pattern: /skip|waste|biffa|veolia|viridor/i, category: 'Waste Disposal', confidence: 0.90 },
+            { pattern: /insurance|zurich|aviva|hiscox|allianz/i, category: 'Insurance', confidence: 0.85 },
+            { pattern: /fuel|bp|shell|esso|texaco|diesel/i, category: 'Fuel & Vehicle', confidence: 0.85 },
+            { pattern: /electric|gas|water|utility|british gas|edf|eon/i, category: 'Utilities', confidence: 0.80 },
+            { pattern: /rent|lease|landlord/i, category: 'Rent', confidence: 0.80 },
+            { pattern: /phone|mobile|vodafone|ee|o2|bt/i, category: 'Telecoms', confidence: 0.80 },
+            { pattern: /amazon|office|stationery|ink|paper/i, category: 'Office Supplies', confidence: 0.75 },
+        ];
+
+        let categorized = 0;
+        const results: any[] = [];
+
+        for (const txn of unmatched) {
+            const desc = (txn.description || '') + ' ' + (txn.counterparty || '');
+            let bestCategory: string | null = null;
+            let bestProject: string | null = null;
+            let bestCostCode: string | null = null;
+            let bestConfidence = 0;
+
+            // 1. Try known pattern matching (historical data)
+            if (txn.counterparty) {
+                const knownMatch = knownPatterns.find((p: any) => p.counterparty && txn.counterparty?.toLowerCase().includes(p.counterparty.toLowerCase()));
+                if (knownMatch) {
+                    bestCategory = knownMatch.category;
+                    bestProject = knownMatch.projectId;
+                    bestCostCode = knownMatch.costCodeId;
+                    bestConfidence = Math.min(0.95, 0.70 + (knownMatch.matchCount * 0.05));
+                }
+            }
+
+            // 2. Try rule-based matching
+            if (bestConfidence < 0.80) {
+                for (const rule of categoryRules) {
+                    if (rule.pattern.test(desc) && rule.confidence > bestConfidence) {
+                        bestCategory = rule.category;
+                        bestConfidence = rule.confidence;
+                    }
+                }
+            }
+
+            // 3. Try vendor matching from invoices
+            if (!bestProject && txn.counterparty) {
+                const vendorMatch = vendors.find((v: any) => v.vendor && txn.counterparty?.toLowerCase().includes(v.vendor.toLowerCase()));
+                if (vendorMatch) {
+                    if (!bestCategory) bestCategory = 'Vendor Payment';
+                    bestProject = vendorMatch.projectId;
+                    bestConfidence = Math.max(bestConfidence, 0.75);
+                }
+            }
+
+            // Update transaction with AI suggestions
+            if (bestCategory && bestConfidence >= 0.60) {
+                await db.run(
+                    `UPDATE bank_transactions SET aiSuggestedCategory = ?, aiSuggestedProject = ?, aiConfidence = ? WHERE id = ? AND companyId = ?`,
+                    [bestCategory, bestProject, bestConfidence, txn.id, tenantId]
+                );
+                categorized++;
+                results.push({ id: txn.id, description: txn.description, suggestedCategory: bestCategory, suggestedProject: bestProject, confidence: Math.round(bestConfidence * 100) });
+            }
+        }
+
+        res.json({ total: unmatched.length, categorized, results });
+    } catch (error) { next(error); }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  AUTOMATED BUDGET UPDATES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/** POST /api/v1/accounting/sync-project-budgets */
+export const syncProjectBudgets = async (req: any, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const tenantId = req.tenantId || req.context?.tenantId;
+        const db = req.tenantDb;
+
+        // Recalculate all cost code spent amounts from source data
+        const costCodes = await db.all(`SELECT * FROM cost_codes WHERE companyId = ?`, [tenantId]);
+        let updated = 0;
+
+        for (const cc of costCodes) {
+            const txnSpent = await db.get(
+                `SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE costCodeId = ? AND companyId = ? AND type = 'expense' AND status = 'completed'`,
+                [cc.id, tenantId]
+            );
+            const invSpent = await db.get(
+                `SELECT COALESCE(SUM(COALESCE(total, amount)), 0) as total FROM invoices WHERE costCodeId = ? AND companyId = ? AND status IN ('Approved', 'Paid')`,
+                [cc.id, tenantId]
+            );
+            const expSpent = await db.get(
+                `SELECT COALESCE(SUM(amount), 0) as total FROM expense_claims WHERE costCodeId = ? AND companyId = ? AND status IN ('Approved', 'Paid')`,
+                [cc.id, tenantId]
+            );
+
+            const totalSpent = (txnSpent?.total || 0) + (invSpent?.total || 0) + (expSpent?.total || 0);
+            const variance = cc.budget > 0 ? ((totalSpent - cc.budget) / cc.budget) * 100 : 0;
+
+            await db.run(
+                `UPDATE cost_codes SET spent = ?, var = ? WHERE id = ? AND companyId = ?`,
+                [Math.round(totalSpent * 100) / 100, Math.round(variance * 100) / 100, cc.id, tenantId]
+            );
+            updated++;
+        }
+
+        res.json({ success: true, costCodesUpdated: updated });
+    } catch (error) { next(error); }
+};

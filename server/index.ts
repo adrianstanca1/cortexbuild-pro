@@ -812,6 +812,19 @@ protectedRouter.post('/accounting/invoice-chasers/generate', accountingControlle
 // Job Costing & Profitability
 protectedRouter.get('/accounting/job-costing', accountingController.getJobCosting);
 protectedRouter.get('/accounting/job-costing/:projectId/breakdown', accountingController.getJobCostingBreakdown);
+// Bill-to-PO Matching
+protectedRouter.post('/accounting/bill-po-match', accountingController.matchBillToPO);
+protectedRouter.get('/accounting/po-billing-summary', accountingController.getPOBillingSummary);
+// Receivables Aging
+protectedRouter.get('/accounting/receivables-aging', accountingController.getReceivablesAging);
+// Financial Alerts
+protectedRouter.get('/accounting/financial-alerts', accountingController.getFinancialAlerts);
+// Default GL Accounts
+protectedRouter.post('/accounting/gl-accounts/seed-defaults', accountingController.seedDefaultGLAccounts);
+// AI Auto-Categorization
+protectedRouter.post('/accounting/bank-transactions/auto-categorize', accountingController.autoCategorizeTransactions);
+// Budget Sync
+protectedRouter.post('/accounting/sync-project-budgets', accountingController.syncProjectBudgets);
 
 protectedRouter.get('/comments', commentController.getComments);
 protectedRouter.post('/comments', apiLimiter as any, commentController.createComment);
