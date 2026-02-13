@@ -74,22 +74,18 @@ fi
 if ! command -v sshpass >/dev/null 2>&1; then
     log_info "Installing sshpass..."
     if [[ "$(uname)" == "Darwin" ]]; then
-        brew install sshpass 2>/dev/null || brew install hudochenkov/sshpass/sshpass
+        brew install hudochenkov/sshpass/sshpass
     else
         sudo apt-get install -y sshpass 2>/dev/null || sudo yum install -y sshpass
     fi
 fi
 
-# --------------- SSH helpers --------------------------------------------------
-SSH_BASE="sshpass -p '${VPS_PASS}' ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -p ${VPS_PORT}"
-SSH_CMD="${SSH_BASE} ${VPS_USER}@${VPS_HOST}"
+# --------------- SSH helper using SSHPASS env var -----------------------------
+export SSHPASS="$VPS_PASS"
+SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -p ${VPS_PORT}"
 
-remote() {
-    eval "${SSH_CMD} 'bash -s'" <<< "$1"
-}
-
-remote_heredoc() {
-    eval "${SSH_CMD} 'bash -s'" << "$@"
+run_remote() {
+    sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "bash -s"
 }
 
 # --------------- step 1: test connectivity ------------------------------------
@@ -101,7 +97,7 @@ echo ""
 
 log_info "Step 1/7: Testing VPS connectivity..."
 
-if ! eval "${SSH_CMD} 'echo connected'" >/dev/null 2>&1; then
+if ! sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "echo connected" >/dev/null 2>&1; then
     log_error "Cannot connect to ${VPS_USER}@${VPS_HOST}:${VPS_PORT}"
     log_error "Check IP, credentials, and that SSH is enabled on the VPS."
     exit 1
@@ -111,7 +107,7 @@ log_success "Connected to ${VPS_USER}@${VPS_HOST}"
 # --------------- step 2: system setup & Docker install ------------------------
 log_info "Step 2/7: Installing system dependencies & Docker..."
 
-eval "${SSH_CMD}" << 'REMOTE_SETUP'
+run_remote << 'REMOTE_SETUP'
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
@@ -155,7 +151,7 @@ log_success "System dependencies & Docker ready"
 # --------------- step 3: clone / update repository ----------------------------
 log_info "Step 3/7: Cloning repository..."
 
-eval "${SSH_CMD}" << REMOTE_CLONE
+run_remote << REMOTE_CLONE
 set -e
 if [ ! -d "${INSTALL_DIR}" ]; then
     echo ">>> Cloning repository..."
@@ -180,7 +176,7 @@ log_success "Repository ready at ${INSTALL_DIR}"
 # --------------- step 4: configure environment --------------------------------
 log_info "Step 4/7: Configuring environment variables..."
 
-eval "${SSH_CMD}" << REMOTE_ENV
+run_remote << REMOTE_ENV
 set -e
 cd ${INSTALL_DIR}/deployment
 
@@ -218,7 +214,7 @@ log_success "Environment configured"
 # --------------- step 5: build & start database -------------------------------
 log_info "Step 5/7: Building Docker image & starting database..."
 
-eval "${SSH_CMD}" << REMOTE_BUILD
+run_remote << REMOTE_BUILD
 set -e
 cd ${INSTALL_DIR}/deployment
 
@@ -256,7 +252,7 @@ log_success "Docker image built & database running"
 # --------------- step 6: start app & nginx ------------------------------------
 log_info "Step 6/7: Starting application & nginx..."
 
-eval "${SSH_CMD}" << REMOTE_START
+run_remote << REMOTE_START
 set -e
 cd ${INSTALL_DIR}/deployment
 
@@ -307,7 +303,7 @@ log_success "Application & Nginx running"
 if [[ "$ENABLE_SSL" == true ]]; then
     log_info "Step 7/7: Setting up SSL for ${DOMAIN}..."
 
-    eval "${SSH_CMD}" << REMOTE_SSL
+    run_remote << REMOTE_SSL
 set -e
 cd ${INSTALL_DIR}/deployment
 
