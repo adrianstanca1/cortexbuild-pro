@@ -1,11 +1,11 @@
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
 import app, { serverPromise } from '../index.js';
 import { ensureDbInitialized, getDb } from '../database.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // --- Mocks ---
-vi.mock('../middleware/authMiddleware.js', () => ({
+jest.mock('../middleware/authMiddleware.js', () => ({
     authenticateToken: (req: any, res: any, next: any) => {
         const authHeader = req.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -25,7 +25,7 @@ vi.mock('../middleware/authMiddleware.js', () => ({
     }
 }));
 
-vi.mock('../middleware/contextMiddleware.js', () => ({
+jest.mock('../middleware/contextMiddleware.js', () => ({
     contextMiddleware: (req: any, res: any, next: any) => {
         if (req.user) {
             req.context = {
@@ -41,10 +41,10 @@ vi.mock('../middleware/contextMiddleware.js', () => ({
     }
 }));
 
-vi.mock('../services/permissionService.js', () => ({
+jest.mock('../services/permissionService.js', () => ({
     permissionService: {
-        checkPermission: vi.fn().mockReturnValue(true),
-        getUserPermissions: vi.fn().mockResolvedValue(['projects:read', 'projects:create', 'projects:update', 'projects:delete'])
+        checkPermission: jest.fn().mockReturnValue(true),
+        getUserPermissions: jest.fn().mockResolvedValue(['projects:read', 'projects:create', 'projects:update', 'projects:delete'])
     }
 }));
 

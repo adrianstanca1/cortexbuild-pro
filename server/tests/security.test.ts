@@ -1,12 +1,12 @@
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
 import app, { serverPromise } from '../index.js';
 import { ensureDbInitialized, getDb } from '../database.js';
 
 // --- Dynamic Mocks for Security Testing ---
 
 // 1. Mock Auth Middleware to parse "fake" tokens
-vi.mock('../middleware/authMiddleware.js', () => ({
+jest.mock('../middleware/authMiddleware.js', () => ({
     authenticateToken: (req: any, res: any, next: any) => {
         const authHeader = req.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -29,7 +29,7 @@ vi.mock('../middleware/authMiddleware.js', () => ({
 }));
 
 // 2. Mock Context Middleware to build context from req.user
-vi.mock('../middleware/contextMiddleware.js', () => ({
+jest.mock('../middleware/contextMiddleware.js', () => ({
     contextMiddleware: (req: any, res: any, next: any) => {
         if (req.user) {
             req.context = {
@@ -46,18 +46,18 @@ vi.mock('../middleware/contextMiddleware.js', () => ({
 }));
 
 // 3. Mock Permission Service (Allow all for now, we focus on Tenant Isolation)
-vi.mock('../services/permissionService.js', () => ({
+jest.mock('../services/permissionService.js', () => ({
     permissionService: {
-        hasPermission: vi.fn().mockResolvedValue(true),
-        getUserPermissions: vi.fn().mockResolvedValue(['*']),
-        checkPermission: vi.fn().mockResolvedValue(true)
+        hasPermission: jest.fn().mockResolvedValue(true),
+        getUserPermissions: jest.fn().mockResolvedValue(['*']),
+        checkPermission: jest.fn().mockResolvedValue(true)
     }
 }));
 
 // 4. Mock Membership Service
-vi.mock('../services/membershipService.js', () => ({
+jest.mock('../services/membershipService.js', () => ({
     membershipService: {
-        getMembership: vi.fn().mockImplementation(async (userId, companyId) => {
+        getMembership: jest.fn().mockImplementation(async (userId, companyId) => {
             // Mock strict membership check: only allow if matches token
             if (userId.includes('user-a') && companyId === 'company-a') return { status: 'active', role: 'admin' };
             if (userId.includes('user-b') && companyId === 'company-b') return { status: 'active', role: 'admin' };
@@ -68,9 +68,9 @@ vi.mock('../services/membershipService.js', () => ({
 }));
 
 // 5. Mock Tenant Service (For Quota Testing)
-vi.mock('../services/tenantService.js', () => ({
+jest.mock('../services/tenantService.js', () => ({
     TenantService: {
-        checkTenantLimits: vi.fn().mockImplementation(async (tenantId, resourceType) => {
+        checkTenantLimits: jest.fn().mockImplementation(async (tenantId, resourceType) => {
             if (tenantId === 'company-quota-exceeded') {
                 return {
                     current_users: 5,
@@ -90,42 +90,42 @@ vi.mock('../services/tenantService.js', () => ({
                 max_storage_mb: 1000
             };
         }),
-        getPlans: vi.fn().mockResolvedValue([]),
-        getTenantAnalytics: vi.fn().mockResolvedValue({}),
-        logUsage: vi.fn().mockResolvedValue(undefined),
-        getTenantUsage: vi.fn().mockResolvedValue({}),
-        getAllTenants: vi.fn().mockResolvedValue([]),
-        updateTenantStatus: vi.fn().mockResolvedValue(undefined),
-        createTenant: vi.fn().mockResolvedValue({}),
-        getTenantById: vi.fn().mockResolvedValue(null),
-        updateTenantSettings: vi.fn().mockResolvedValue(undefined),
-        addTenantFeature: vi.fn().mockResolvedValue(undefined),
-        removeTenantFeature: vi.fn().mockResolvedValue(undefined),
-        getProvisioningSteps: vi.fn().mockResolvedValue([]),
-        updateProvisioningStep: vi.fn().mockResolvedValue(undefined),
-        getSystemMetrics: vi.fn().mockResolvedValue({}),
-        getSystemAlerts: vi.fn().mockResolvedValue([]),
-        createSystemAlert: vi.fn().mockResolvedValue(undefined),
-        getTenantResourceAccess: vi.fn().mockResolvedValue([]),
-        checkResourceAccess: vi.fn().mockResolvedValue(true),
-        grantResourceAccess: vi.fn().mockResolvedValue(undefined),
-        removeResourceAccess: vi.fn().mockResolvedValue(undefined)
+        getPlans: jest.fn().mockResolvedValue([]),
+        getTenantAnalytics: jest.fn().mockResolvedValue({}),
+        logUsage: jest.fn().mockResolvedValue(undefined),
+        getTenantUsage: jest.fn().mockResolvedValue({}),
+        getAllTenants: jest.fn().mockResolvedValue([]),
+        updateTenantStatus: jest.fn().mockResolvedValue(undefined),
+        createTenant: jest.fn().mockResolvedValue({}),
+        getTenantById: jest.fn().mockResolvedValue(null),
+        updateTenantSettings: jest.fn().mockResolvedValue(undefined),
+        addTenantFeature: jest.fn().mockResolvedValue(undefined),
+        removeTenantFeature: jest.fn().mockResolvedValue(undefined),
+        getProvisioningSteps: jest.fn().mockResolvedValue([]),
+        updateProvisioningStep: jest.fn().mockResolvedValue(undefined),
+        getSystemMetrics: jest.fn().mockResolvedValue({}),
+        getSystemAlerts: jest.fn().mockResolvedValue([]),
+        createSystemAlert: jest.fn().mockResolvedValue(undefined),
+        getTenantResourceAccess: jest.fn().mockResolvedValue([]),
+        checkResourceAccess: jest.fn().mockResolvedValue(true),
+        grantResourceAccess: jest.fn().mockResolvedValue(undefined),
+        removeResourceAccess: jest.fn().mockResolvedValue(undefined)
     }
 }));
 
 // 6. Mock Realtime Service
-vi.mock('../services/realtimeService.js', () => ({
+jest.mock('../services/realtimeService.js', () => ({
     realtimeService: {
-        init: vi.fn(),
-        registerClient: vi.fn(),
-        unregisterClient: vi.fn(),
-        updateClientProject: vi.fn(),
-        notifySystemAlert: vi.fn(),
-        broadcastToUser: vi.fn(),
-        broadcastToProject: vi.fn(),
-        broadcastToCompany: vi.fn(),
-        broadcastToSuperAdmins: vi.fn(),
-        notifyEntityChanged: vi.fn()
+        init: jest.fn(),
+        registerClient: jest.fn(),
+        unregisterClient: jest.fn(),
+        updateClientProject: jest.fn(),
+        notifySystemAlert: jest.fn(),
+        broadcastToUser: jest.fn(),
+        broadcastToProject: jest.fn(),
+        broadcastToCompany: jest.fn(),
+        broadcastToSuperAdmins: jest.fn(),
+        notifyEntityChanged: jest.fn()
     }
 }));
 
@@ -325,7 +325,7 @@ describe('Security & Compliance Tests', () => {
 
     describe('ID Enumeration Prevention', () => {
         it('should handle rapid requests gracefully', async () => {
-            // Vitest might timeout if we do too many, let's do 3 to avoid hitting DB max_connections_per_hour
+            // Jest might timeout if we do too many, let's do 3 to avoid hitting DB max_connections_per_hour
             const requests = Array(3)
                 .fill(0)
                 .map((_, i) =>

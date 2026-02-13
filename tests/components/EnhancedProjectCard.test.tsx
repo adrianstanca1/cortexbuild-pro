@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+
 import { EnhancedProjectCard } from '@/components/EnhancedProjectCard';
 import { Project } from '@/types';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
 
 // Mock the Can component
-vi.mock('@/components/Can', () => ({
+jest.mock('@/components/Can', () => ({
     Can: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
@@ -13,12 +13,12 @@ vi.mock('@/components/Can', () => ({
 const mockWebSocketContext = {
     isConnected: true,
     socket: null,
-    joinRoom: vi.fn(),
-    leaveRoom: vi.fn(),
-    sendMessage: vi.fn()
+    joinRoom: jest.fn(),
+    leaveRoom: jest.fn(),
+    sendMessage: jest.fn()
 };
 
-vi.mock('@/contexts/WebSocketContext', () => ({
+jest.mock('@/contexts/WebSocketContext', () => ({
     WebSocketProvider: ({ children }: { children: React.ReactNode }) => children,
     useWebSocket: () => mockWebSocketContext
 }));
@@ -50,9 +50,7 @@ describe('EnhancedProjectCard', () => {
         archived: false,
         activeCollaborators: ['user1', 'user2'],
         recentComments: [],
-        customFields: {},
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-15'
+        customFields: {}
     };
 
     it('renders project card with basic information', () => {
@@ -131,7 +129,7 @@ describe('EnhancedProjectCard', () => {
     });
 
     it('calls onSelect when card is clicked', () => {
-        const onSelect = vi.fn();
+        const onSelect = jest.fn();
         render(<EnhancedProjectCard project={mockProject} onSelect={onSelect} />);
         
         const card = screen.getByText('Test Project').closest('div[role="generic"]');
@@ -142,7 +140,7 @@ describe('EnhancedProjectCard', () => {
     });
 
     it('shows quick action buttons on hover', async () => {
-        const onArchive = vi.fn();
+        const onArchive = jest.fn();
         render(<EnhancedProjectCard project={mockProject} onArchive={onArchive} />);
         
         const card = screen.getByText('Test Project').closest('div');
