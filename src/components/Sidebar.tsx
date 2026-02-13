@@ -72,6 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setPage, isOpen = false,
     {
       title: 'Intelligence',
       items: [
+        { id: Page.AI_COMMAND_CENTRE, label: 'AI Command Centre', icon: Bot, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },
         { id: Page.PREDICTIVE_ANALYSIS, label: 'Predictive Risk', icon: Brain, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['analytics.predictive'] },
         { id: Page.IMAGINE, label: 'Imagine Studio', icon: Wand2, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN, UserRole.SUPERVISOR], permissions: ['ai.imagine'] },
         { id: Page.AI_TOOLS, label: 'AI Synthesis', icon: Cpu, roles: [UserRole.SUPERADMIN, UserRole.COMPANY_ADMIN], permissions: ['ai.tools'] },

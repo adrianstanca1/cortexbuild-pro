@@ -64,6 +64,7 @@ import * as rfiController from './controllers/rfiController.js';
 import * as safetyController from './controllers/safetyController.js';
 import * as liveMapController from './controllers/liveMapController.js';
 import * as accountingController from './controllers/accountingController.js';
+import * as aiAgentsController from './controllers/aiAgentsController.js';
 // import * as taskController from './controllers/taskController.js'; // Removed
 import * as commentController from './controllers/commentController.js';
 import * as rbacController from './controllers/rbacController.js';
@@ -825,6 +826,25 @@ protectedRouter.post('/accounting/gl-accounts/seed-defaults', accountingControll
 protectedRouter.post('/accounting/bank-transactions/auto-categorize', accountingController.autoCategorizeTransactions);
 // Budget Sync
 protectedRouter.post('/accounting/sync-project-budgets', accountingController.syncProjectBudgets);
+
+// --- AI Agents & Advanced Features ---
+// Agent Sessions
+protectedRouter.get('/ai-agents/sessions', aiAgentsController.getAgentSessions);
+protectedRouter.post('/ai-agents/sessions', aiAgentsController.createAgentSession);
+protectedRouter.get('/ai-agents/sessions/:id/messages', aiAgentsController.getSessionMessages);
+protectedRouter.post('/ai-agents/sessions/:id/message', aiAgentsController.sendAgentMessage);
+// Compliance Task Scheduler
+protectedRouter.post('/ai-agents/compliance/generate-tasks', aiAgentsController.generateComplianceTasks);
+protectedRouter.get('/ai-agents/compliance/tasks', aiAgentsController.getComplianceTasks);
+protectedRouter.put('/ai-agents/compliance/tasks/:id/complete', aiAgentsController.completeComplianceTask);
+// Employee Salary Records & Payslips
+protectedRouter.get('/ai-agents/salary-records', aiAgentsController.getSalaryRecords);
+protectedRouter.post('/ai-agents/salary-records', aiAgentsController.createSalaryRecord);
+protectedRouter.post('/ai-agents/payslips/generate', aiAgentsController.generatePayslips);
+protectedRouter.get('/ai-agents/payslips', aiAgentsController.getPayslips);
+// Cash Flow Prediction & Grants
+protectedRouter.post('/ai-agents/cash-flow/predict', aiAgentsController.predictCashFlow);
+protectedRouter.get('/ai-agents/grants/eligibility', aiAgentsController.checkGrantEligibility);
 
 protectedRouter.get('/comments', commentController.getComments);
 protectedRouter.post('/comments', apiLimiter as any, commentController.createComment);
