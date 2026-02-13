@@ -2,19 +2,6 @@ import { Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { broadcastToCompany, broadcastToProject } from '../socket.js';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface AuthenticatedRequest extends Request {
-    userId?: string;
-    tenantId?: string;
-    tenantDb?: any;
-    context?: { tenantId: string; userId: string; role: string };
-    body: any;
-    params: any;
-    query: any;
-    file?: any;
-}
-
 // ─── Location Tracking ──────────────────────────────────────────────────────
 
 /**
@@ -196,11 +183,13 @@ export const getSiteMaps = async (req: any, res: Response, next: NextFunction): 
         sql += ` ORDER BY createdAt DESC`;
 
         const maps = await db.all(sql, params);
-        const parsed = maps.map((m: any) => ({
-            ...m,
-            boundaries: m.boundaries ? JSON.parse(m.boundaries) : null,
-            metadata: m.metadata ? JSON.parse(m.metadata) : null
-        }));
+        const parsed = maps.map((m: any) => {
+            let boundaries = null;
+            let metadata = null;
+            if (m.boundaries) { try { boundaries = JSON.parse(m.boundaries); } catch { /* malformed JSON */ } }
+            if (m.metadata) { try { metadata = JSON.parse(m.metadata); } catch { /* malformed JSON */ } }
+            return { ...m, boundaries, metadata };
+        });
 
         res.json(parsed);
     } catch (error) {
