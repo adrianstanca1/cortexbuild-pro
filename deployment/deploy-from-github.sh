@@ -16,7 +16,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 REPO_URL="https://github.com/adrianstanca1/cortexbuild-pro.git"
-BRANCH="copilot/merge-and-commit-recent-changes"
+BRANCH="${1:-main}"
 DEPLOY_DIR="/var/www/cortexbuild-pro"
 
 echo "Deployment Configuration:"
@@ -71,46 +71,43 @@ if [ ! -f .env ]; then
     echo "Creating .env file..."
     
     # Generate secure credentials
-    POSTGRES_PASSWORD=$(openssl rand -base64 32)
+    POSTGRES_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=')
     NEXTAUTH_SECRET=$(openssl rand -base64 32)
-    
+    ENCRYPTION_KEY=$(openssl rand -hex 32)
+
     # Get server IP
     SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || echo "localhost")
-    
+
     cat > .env << EOF
 # Database Configuration
 POSTGRES_USER=cortexbuild
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 POSTGRES_DB=cortexbuild
-DATABASE_URL=postgresql://cortexbuild:$POSTGRES_PASSWORD@postgres:5432/cortexbuild?schema=public
 
 # NextAuth Configuration
 NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-NEXTAUTH_URL=http://$SERVER_IP:3000
+NEXTAUTH_URL=https://www.cortexbuildpro.com
+ENCRYPTION_KEY=$ENCRYPTION_KEY
 
 # Domain Configuration
 DOMAIN=cortexbuildpro.com
 SSL_EMAIL=admin@cortexbuildpro.com
 
 # Real-time Communication
-NEXT_PUBLIC_WEBSOCKET_URL=http://$SERVER_IP:3000
+NEXT_PUBLIC_WEBSOCKET_URL=https://www.cortexbuildpro.com
 WEBSOCKET_PORT=3000
 
 # AWS S3 (Optional)
-AWS_PROFILE=
-AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=eu-west-2
 AWS_BUCKET_NAME=
-AWS_FOLDER_PREFIX=
+AWS_FOLDER_PREFIX=cortexbuild/
 
-# AbacusAI API (Optional)
+# AI Features (Optional)
 ABACUSAI_API_KEY=
-WEB_APP_ID=
-
-# Notification IDs
-NOTIF_ID_MILESTONE_DEADLINE_REMINDER=
-NOTIF_ID_TOOLBOX_TALK_COMPLETED=
-NOTIF_ID_MEWP_CHECK_COMPLETED=
-NOTIF_ID_TOOL_CHECK_COMPLETED=
+GEMINI_API_KEY=
+AI_PROVIDER=abacus
 
 # Google OAuth (Optional)
 GOOGLE_CLIENT_ID=
@@ -129,9 +126,10 @@ EOF
     echo "Server IP: $SERVER_IP"
     echo "Database Password: $POSTGRES_PASSWORD"
     echo "NextAuth Secret: $NEXTAUTH_SECRET"
+    echo "Encryption Key: $ENCRYPTION_KEY"
     echo "================================"
     echo ""
-    
+
     # Save to a backup file
     cat > "$DEPLOY_DIR/DEPLOYMENT_CREDENTIALS.txt" << EOF
 CortexBuild Pro - Deployment Credentials
@@ -139,16 +137,15 @@ Generated: $(date)
 Server IP: $SERVER_IP
 Database Password: $POSTGRES_PASSWORD
 NextAuth Secret: $NEXTAUTH_SECRET
+Encryption Key: $ENCRYPTION_KEY
 
-Application URL: http://$SERVER_IP:3000
+Application URL: https://www.cortexbuildpro.com
 
 Keep this file secure and delete after saving credentials elsewhere!
 EOF
     chmod 600 "$DEPLOY_DIR/DEPLOYMENT_CREDENTIALS.txt"
     
     echo "Credentials also saved to: $DEPLOY_DIR/DEPLOYMENT_CREDENTIALS.txt"
-    echo "Press ENTER to continue..."
-    read
 else
     echo "✓ Using existing .env file"
 fi
@@ -159,7 +156,7 @@ echo "[5/6] Building and starting services..."
 echo "This may take 5-10 minutes on first run..."
 
 # Pull base images
-docker compose pull postgres nginx certbot 2>/dev/null || true
+docker compose pull db nginx certbot 2>/dev/null || true
 
 # Build application
 docker compose build app
@@ -202,31 +199,26 @@ fi
 
 echo ""
 echo "================================================"
-echo "✓ DEPLOYMENT SUCCESSFUL!"
+echo "DEPLOYMENT SUCCESSFUL!"
 echo "================================================"
 echo ""
-echo "🌐 Access your application:"
-echo "   → http://$SERVER_IP:3000"
-echo "   → http://$SERVER_IP (via Nginx)"
+echo "Access your application:"
+echo "   HTTP:  http://$SERVER_IP"
+echo "   Direct: http://$SERVER_IP:3000"
 echo ""
-echo "📋 Next steps:"
-echo "   1. Open http://$SERVER_IP:3000 in your browser"
-echo "   2. Click 'Sign Up' to create your admin account"
-echo "   3. Configure optional services (AWS S3, SendGrid, etc.) in .env"
-echo "   4. Set up SSL if using a domain"
+echo "Next steps:"
+echo "   1. Set up SSL for HTTPS access:"
+echo "      cd $DEPLOY_DIR/deployment && ./setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com"
+echo "   2. Open https://www.cortexbuildpro.com in your browser"
+echo "   3. Click 'Sign Up' to create your admin account"
 echo ""
-echo "📁 Important files:"
+echo "Important files:"
 echo "   Credentials: $DEPLOY_DIR/DEPLOYMENT_CREDENTIALS.txt"
 echo "   Environment: $DEPLOY_DIR/deployment/.env"
-echo "   Logs: docker compose -f $DEPLOY_DIR/deployment/docker-compose.yml logs -f"
 echo ""
-echo "🔧 Useful commands:"
+echo "Useful commands:"
 echo "   View logs:     cd $DEPLOY_DIR/deployment && docker compose logs -f"
 echo "   Restart:       cd $DEPLOY_DIR/deployment && docker compose restart"
 echo "   Stop:          cd $DEPLOY_DIR/deployment && docker compose down"
-echo "   Update app:    cd $DEPLOY_DIR && git pull && cd deployment && docker compose up -d --build"
-echo ""
-echo "📚 Documentation:"
-echo "   $DEPLOY_DIR/README.md"
-echo "   $DEPLOY_DIR/deployment/PRODUCTION-DEPLOY-GUIDE.md"
+echo "   Update app:    cd $DEPLOY_DIR && git pull && cd deployment && docker compose up -d --build app"
 echo ""
