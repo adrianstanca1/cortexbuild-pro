@@ -105,7 +105,7 @@ echo "==> Uploading frontend dist/"
 run_cmd rsync -az --delete -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" dist/ "${VPS_USER}@${VPS_HOST}:${VPS_FRONTEND_PATH}"
 
 echo "==> Uploading backend server/dist/"
-run_cmd rsync -az --delete -e "ssh ${SSH_OPTS[*]}" server/dist/ "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}"
+run_cmd rsync -az --delete -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" server/dist/ "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}"
 
 if [[ -n "$BACKEND_ENV_FILE" ]]; then
   if [[ ! -f "$BACKEND_ENV_FILE" ]]; then
