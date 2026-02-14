@@ -114,7 +114,7 @@ if [[ -n "$BACKEND_ENV_FILE" ]]; then
   fi
 
   echo "==> Uploading backend environment file"
-  run_cmd rsync -az -e "ssh ${SSH_OPTS[*]}" "$BACKEND_ENV_FILE" "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}/../.env"
+run_cmd rsync -az -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" "$BACKEND_ENV_FILE" "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}/../.env"
 fi
 
 echo "==> Restarting PM2 process: ${VPS_PM2_PROCESS}"
