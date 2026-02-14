@@ -16,9 +16,10 @@
 set -euo pipefail
 
 # --------------- configuration ------------------------------------------------
-VPS_HOST="${VPS_HOST:?VPS_HOST is required. Set via --host flag or VPS_HOST env var}"
+VPS_HOST="${VPS_HOST:-}"
 VPS_USER="${VPS_USER:-root}"
 VPS_PASS="${VPS_PASS:-}"
+VPS_SSH_KEY="${VPS_SSH_KEY:-}"
 VPS_PORT="${VPS_PORT:-22}"
 INSTALL_DIR="/var/www/cortexbuild-pro"
 REPO_URL="https://github.com/adrianstanca1/cortexbuild-pro.git"
@@ -42,6 +43,7 @@ while [[ $# -gt 0 ]]; do
         --host)       VPS_HOST="$2"; shift 2 ;;
         --user)       VPS_USER="$2"; shift 2 ;;
         --password)   VPS_PASS="$2"; shift 2 ;;
+        --ssh-key)    VPS_SSH_KEY="$2"; shift 2 ;;
         --port)       VPS_PORT="$2"; shift 2 ;;
         --domain)     DOMAIN="$2"; shift 2 ;;
         --branch)     REPO_BRANCH="$2"; shift 2 ;;
@@ -53,6 +55,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --host HOST        VPS IP or hostname (required)"
             echo "  --user USER        SSH user (default: root)"
             echo "  --password PASS    SSH password (or set VPS_PASS env var)"
+            echo "  --ssh-key PATH     SSH private key path (key auth, no password prompt)"
             echo "  --port PORT        SSH port (default: 22)"
             echo "  --domain DOMAIN    Domain name (default: cortexbuildpro.com)"
             echo "  --branch BRANCH    Git branch to deploy (default: main)"
@@ -64,14 +67,24 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ -z "$VPS_HOST" ]]; then
+    log_error "VPS_HOST is required. Set via --host flag or VPS_HOST env var"
+    exit 1
+fi
+
 # --------------- prompt for password if not provided --------------------------
-if [[ -z "$VPS_PASS" ]]; then
-    read -rsp "SSH password for ${VPS_USER}@${VPS_HOST}: " VPS_PASS
-    echo ""
+if [[ -z "$VPS_PASS" && -z "$VPS_SSH_KEY" ]]; then
+    if [[ -t 0 ]]; then
+        read -rsp "SSH password for ${VPS_USER}@${VPS_HOST}: " VPS_PASS
+        echo ""
+    else
+        log_error "No authentication method provided in non-interactive mode. Set VPS_PASS or VPS_SSH_KEY."
+        exit 1
+    fi
 fi
 
 # --------------- install sshpass if needed ------------------------------------
-if ! command -v sshpass >/dev/null 2>&1; then
+if [[ -z "$VPS_SSH_KEY" ]] && ! command -v sshpass >/dev/null 2>&1; then
     log_info "Installing sshpass..."
     if [[ "$(uname)" == "Darwin" ]]; then
         brew install hudochenkov/sshpass/sshpass
@@ -81,11 +94,29 @@ if ! command -v sshpass >/dev/null 2>&1; then
 fi
 
 # --------------- SSH helper using SSHPASS env var -----------------------------
-export SSHPASS="$VPS_PASS"
+if [[ -n "$VPS_PASS" ]]; then
+    export SSHPASS="$VPS_PASS"
+fi
+
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -p ${VPS_PORT}"
+if [[ -n "$VPS_SSH_KEY" ]]; then
+    SSH_OPTS+=" -i ${VPS_SSH_KEY}"
+fi
+
+ssh_wrapper() {
+    if [[ -n "$VPS_SSH_KEY" ]]; then
+        ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "$@"
+    else
+        sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "$@"
+    fi
+}
 
 run_remote() {
-    sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "bash -s"
+    if [[ -n "$VPS_SSH_KEY" ]]; then
+        ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "bash -s"
+    else
+        sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "bash -s"
+    fi
 }
 
 # --------------- step 1: test connectivity ------------------------------------
@@ -97,7 +128,7 @@ echo ""
 
 log_info "Step 1/7: Testing VPS connectivity..."
 
-if ! sshpass -e ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" "echo connected" >/dev/null 2>&1; then
+if ! ssh_wrapper "echo connected" >/dev/null 2>&1; then
     log_error "Cannot connect to ${VPS_USER}@${VPS_HOST}:${VPS_PORT}"
     log_error "Check IP, credentials, and that SSH is enabled on the VPS."
     exit 1

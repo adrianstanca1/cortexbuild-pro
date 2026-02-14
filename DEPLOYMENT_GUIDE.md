@@ -97,7 +97,22 @@ npm run vercel:prod
 
 ```bash
 # Deploy using rsync (requires SSH access)
-npm run deploy:vps
+VPS_HOST=72.62.132.43 npm run deploy:vps
+
+# Dry-run with strict local artifact checks (default behavior)
+VPS_HOST=72.62.132.43 npm run deploy:vps -- --dry-run --skip-build
+
+# Dry-run and bypass missing local artifacts intentionally
+VPS_HOST=72.62.132.43 npm run deploy:vps -- --dry-run --skip-build --allow-missing-artifacts
+
+# Run SSH/PM2 preflight checks only (no upload/restart)
+VPS_HOST=72.62.132.43 npm run deploy:vps -- --preflight-only --skip-build
+
+# Sync backend environment before PM2 restart
+VPS_HOST=72.62.132.43 BACKEND_ENV_FILE=server/.env.production npm run deploy:vps -- --skip-build
+
+# Optional: customize remote backend env destination
+VPS_HOST=72.62.132.43 BACKEND_ENV_FILE=server/.env.production VPS_BACKEND_ENV_PATH=/home/deploy/apps/cortexbuild/server/.env npm run deploy:vps -- --skip-build
 ```
 
 ## Deployment Workflows

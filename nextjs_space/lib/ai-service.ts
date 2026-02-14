@@ -29,7 +29,7 @@ export interface AIResult {
  * Priority: User selection (AI_PROVIDER) > Abacus AI (if configured) > Gemini (if configured)
  */
 export async function generateAIResponse(options: AIOptions): Promise<AIResult> {
-  const provider = process.env.AI_PROVIDER || "abacus";
+  const provider = normalizeProvider(process.env.AI_PROVIDER);
   
   // Try user-selected provider first
   if (provider === "gemini" && process.env.GEMINI_API_KEY) {
@@ -118,9 +118,9 @@ async function callGeminiAPI(options: AIOptions): Promise<AIResult> {
   try {
     const model = options.model || "gemini-1.5-flash";
     const apiKey = process.env.GEMINI_API_KEY;
-    
+
     // Convert messages to Gemini format
-    const contents = convertMessagesToGeminiFormat(options.messages);
+    const { contents, systemInstruction } = convertMessagesToGeminiFormat(options.messages);
     
     const endpoint = options.stream 
       ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`
@@ -133,6 +133,13 @@ async function callGeminiAPI(options: AIOptions): Promise<AIResult> {
       },
       body: JSON.stringify({
         contents,
+        ...(systemInstruction
+          ? {
+              systemInstruction: {
+                parts: [{ text: systemInstruction }]
+              }
+            }
+          : {}),
         generationConfig: {
           temperature: options.temperature || 0.7,
           maxOutputTokens: options.maxTokens || 2000
@@ -179,7 +186,7 @@ async function callGeminiAPI(options: AIOptions): Promise<AIResult> {
 /**
  * Convert OpenAI-style messages to Gemini format
  */
-function convertMessagesToGeminiFormat(messages: AIMessage[]): any[] {
+function convertMessagesToGeminiFormat(messages: AIMessage[]): { contents: any[]; systemInstruction?: string } {
   const contents: any[] = [];
   let systemInstruction = "";
 
@@ -220,12 +227,22 @@ function convertMessagesToGeminiFormat(messages: AIMessage[]): any[] {
     }
   }
 
-  // Prepend system instruction to first user message
-  if (systemInstruction && contents.length > 0 && contents[0].role === "user") {
-    contents[0].parts.unshift({ text: systemInstruction });
+  // If every message was system-only, provide a noop user message.
+  if (contents.length === 0 && systemInstruction) {
+    contents.push({
+      role: "user",
+      parts: [{ text: "Continue." }]
+    });
   }
 
-  return contents;
+  return {
+    contents,
+    systemInstruction: systemInstruction.trim() || undefined
+  };
+}
+
+function normalizeProvider(provider?: string): "abacus" | "gemini" {
+  return provider === "gemini" ? "gemini" : "abacus";
 }
 
 /**
@@ -292,7 +309,7 @@ export function isAIConfigured(): boolean {
  * Get the active AI provider
  */
 export function getActiveAIProvider(): "abacus" | "gemini" | "none" {
-  const provider = process.env.AI_PROVIDER || "abacus";
+  const provider = normalizeProvider(process.env.AI_PROVIDER);
   
   if (provider === "gemini" && process.env.GEMINI_API_KEY) {
     return "gemini";

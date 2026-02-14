@@ -22,10 +22,11 @@ COPY nextjs_space/prisma ./prisma
 
 # Install dependencies using lock file for reproducible builds
 # Use --legacy-peer-deps for compatibility with some packages
-RUN npm ci --legacy-peer-deps
+# Falls back to npm install if ci fails (e.g. lock file version mismatch)
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Generate Prisma Client with correct output path for node_modules
-RUN ./node_modules/.bin/prisma generate
+RUN npx prisma generate
 
 # Rebuild the source code only when needed
 FROM base AS builder
