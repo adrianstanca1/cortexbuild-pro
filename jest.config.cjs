@@ -5,6 +5,7 @@ module.exports = {
             displayName: 'backend',
             preset: 'ts-jest/presets/default-esm',
             testEnvironment: 'node',
+            setupFiles: ['<rootDir>/jest.setup.js'],
             rootDir: './server',
             extensionsToTreatAsEsm: ['.ts'],
             moduleNameMapper: {
@@ -24,7 +25,6 @@ module.exports = {
         // Frontend tests (jsdom environment)
         {
             displayName: 'frontend',
-            preset: 'ts-jest',
             testEnvironment: 'jsdom',
             rootDir: './',
             moduleNameMapper: {
@@ -32,10 +32,21 @@ module.exports = {
                 '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
             },
             transform: {
-                '^.+\\.tsx?$': 'ts-jest',
+                '^.+\\.[tj]sx?$': [
+                    'babel-jest',
+                    {
+                        presets: [
+                            ['@babel/preset-env', { targets: { node: 'current' } }],
+                            ['@babel/preset-react', { runtime: 'automatic' }],
+                            '@babel/preset-typescript',
+                        ],
+                        plugins: ['babel-plugin-transform-import-meta'],
+                    },
+                ],
             },
             testMatch: ['<rootDir>/tests/**/*.test.ts', '<rootDir>/tests/**/*.test.tsx'],
-            setupFilesAfterEnv: ['<rootDir>/tests/setup.test.ts'],
+            setupFiles: ['<rootDir>/tests/jest.setup.ts'],
+            setupFilesAfterEnv: ['<rootDir>/tests/jest.after-env.ts', '<rootDir>/tests/setup.test.ts'],
             moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
         },
     ],

@@ -10,7 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": []
+    "types": ["node", "jest"],
+    "isolatedModules": true
   },
   "include": [
     "./**/*.ts"
