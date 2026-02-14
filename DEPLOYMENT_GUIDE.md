@@ -98,6 +98,12 @@ npm run vercel:prod
 ```bash
 # Deploy using rsync (requires SSH access)
 VPS_HOST=72.62.132.43 npm run deploy:vps
+
+# Preview commands only (no SSH / rsync execution)
+VPS_HOST=72.62.132.43 npm run deploy:vps -- --dry-run --skip-build
+
+# Sync backend environment before PM2 restart
+VPS_HOST=72.62.132.43 BACKEND_ENV_FILE=server/.env.production npm run deploy:vps -- --skip-build
 ```
 
 ## Deployment Workflows
