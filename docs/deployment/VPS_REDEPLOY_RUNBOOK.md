@@ -1,81 +1,91 @@
 # VPS Docker Redeploy Runbook (www.cortexbuildpro.com)
 
-This runbook provides a deterministic redeploy flow for the production stack on a VPS.
+Use this runbook to audit, rebuild, and redeploy the production Docker stack.
 
-## 1) Pre-deploy audit
-
-Run from repository root:
+## 1) Local audit before touching production
 
 ```bash
-./scripts/audit-repo-state.sh
+./scripts/audit-repo-state.sh --skip-build
 ```
 
-Optional validation:
+Before deployment, ensure the working tree is clean and all local branches are merged into your deploy branch:
 
 ```bash
-npm run build:frontend
-docker compose -f deployment/docker-compose.yml config
+git status --short
+git checkout work
+git fetch --all --prune
+git merge --ff-only origin/work
 ```
 
-## 2) Connect to VPS
+Use strict mode when you want warnings (like missing Docker) to fail CI checks:
 
 ```bash
-ssh <deploy-user>@<vps-host>
+./scripts/audit-repo-state.sh --strict
 ```
 
-## 3) Pull latest code
+Run a full production build locally to catch regressions early:
+
+```bash
+npm install
+npm run build:prod
+```
+
+## 2) One-command remote redeploy (recommended)
+
+From your local machine with SSH access to the VPS:
+
+```bash
+./scripts/redeploy-vps-docker.sh \
+  --host <vps-host> \
+  --user <vps-user> \
+  --ssh-key ~/.ssh/id_ed25519 \
+  --branch work \
+  --env-file deployment/.env \
+  --domain www.cortexbuildpro.com
+```
+
+What it does:
+
+1. uploads `.env` (if provided)
+2. checks out and fast-forwards the branch
+3. validates Docker compose config remotely
+4. rebuilds and restarts containers
+5. applies `docker-compose.prod.yml` SSL override
+6. retries public health checks on `https://<domain>` and `/api/health`
+
+## 3) Check-only mode (safe dry-run)
+
+```bash
+./scripts/redeploy-vps-docker.sh --host <vps-host> --user <vps-user> --check-only
+```
+
+This verifies git sync + compose config without restarting containers.
+
+## 4) Manual fallback commands on VPS
 
 ```bash
 cd /root/cortexbuild_pro
-git fetch --all
+git fetch --all --prune
 git checkout work
 git pull --ff-only
-```
 
-## 4) Configure runtime secrets
-
-Create or update `deployment/.env` with at least:
-
-- `POSTGRES_PASSWORD`
-- `NEXTAUTH_SECRET`
-- `ENCRYPTION_KEY`
-- `GEMINI_API_KEY` (if Gemini features are enabled)
-- Any OAuth, SMTP, or storage variables used in production.
-
-## 5) Rebuild and restart stack
-
-```bash
-cd /root/cortexbuild_pro/deployment
+cd deployment
 docker compose down
 docker compose build --no-cache app
 docker compose up -d
-```
-
-## 6) Enable SSL/public endpoint
-
-After certificates exist, use prod override:
-
-```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
 
-## 7) Verify health and public URL
-
-```bash
 docker compose ps
-docker compose logs --tail=100 app
 curl -I https://www.cortexbuildpro.com
 curl -s https://www.cortexbuildpro.com/api/health
 ```
 
-Expected: HTTP 200 responses and healthy containers.
+## 5) Rollback
 
-## 8) Rollback (if required)
+If needed, redeploy a previous image tag by pinning the image in `deployment/docker-compose.yml`, then:
 
 ```bash
+cd /root/cortexbuild_pro/deployment
 docker compose down
-docker image ls | head
 docker compose up -d
 ```
-
-If you use tagged images (`cortexbuild-app:<timestamp>`), pin the previous tag in compose and redeploy.
