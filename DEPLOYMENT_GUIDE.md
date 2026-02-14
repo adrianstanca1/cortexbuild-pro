@@ -97,7 +97,7 @@ npm run vercel:prod
 
 ```bash
 # Deploy using rsync (requires SSH access)
-npm run deploy:vps
+VPS_HOST=72.62.132.43 npm run deploy:vps
 ```
 
 ## Deployment Workflows
