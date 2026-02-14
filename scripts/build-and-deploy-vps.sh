@@ -102,7 +102,7 @@ echo "==> Ensuring remote deploy directories exist"
 run_cmd ssh "${SSH_OPTS[@]}" "${VPS_USER}@${VPS_HOST}" "mkdir -p '$VPS_FRONTEND_PATH' '$VPS_BACKEND_PATH'"
 
 echo "==> Uploading frontend dist/"
-run_cmd rsync -az --delete -e "ssh ${SSH_OPTS[*]}" dist/ "${VPS_USER}@${VPS_HOST}:${VPS_FRONTEND_PATH}"
+run_cmd rsync -az --delete -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" dist/ "${VPS_USER}@${VPS_HOST}:${VPS_FRONTEND_PATH}"
 
 echo "==> Uploading backend server/dist/"
 run_cmd rsync -az --delete -e "ssh ${SSH_OPTS[*]}" server/dist/ "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}"
