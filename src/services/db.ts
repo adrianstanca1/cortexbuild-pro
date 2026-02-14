@@ -30,8 +30,16 @@ import {
     MLPrediction
 } from '@/types';
 // Ensure we always target /api/v1 regardless of whether env var includes /api or not
+const getViteApiUrl = (): string | undefined => {
+    try {
+        return (0, eval)('import.meta.env?.VITE_API_URL') as string | undefined;
+    } catch {
+        return undefined;
+    }
+};
+
 const getBaseUrl = () => {
-    const envUrl = import.meta.env?.VITE_API_URL || 'https://api.cortexbuildpro.com';
+    const envUrl = getViteApiUrl() || 'https://api.cortexbuildpro.com';
     // Remove trailing slash and any existing /api or /v1 suffix to get clean origin
     const origin = envUrl
         .replace(/\/$/, '')

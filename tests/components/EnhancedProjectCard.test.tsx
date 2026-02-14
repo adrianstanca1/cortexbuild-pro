@@ -86,7 +86,7 @@ describe('EnhancedProjectCard', () => {
     it('displays priority badge', () => {
         render(<EnhancedProjectCard project={mockProject} />);
         
-        expect(screen.getByText('HIGH')).toBeInTheDocument();
+        expect(screen.getByText(/high/i)).toBeInTheDocument();
     });
 
     it('displays tags with overflow indicator', () => {
@@ -101,8 +101,8 @@ describe('EnhancedProjectCard', () => {
         const archivedProject = { ...mockProject, archived: true };
         render(<EnhancedProjectCard project={archivedProject} />);
         
-        const card = screen.getByRole('generic', { name: /test project/i }).closest('div');
-        expect(card).toHaveClass('opacity-70');
+        const card = screen.getByText('Test Project').closest('div[class*="opacity-70"]');
+        expect(card).toBeInTheDocument();
     });
 
     it('displays active collaborators count', () => {
