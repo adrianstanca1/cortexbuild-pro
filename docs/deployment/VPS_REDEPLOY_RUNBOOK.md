@@ -72,7 +72,6 @@ git pull --ff-only
 cd deployment
 docker compose down
 docker compose build --no-cache app
-docker compose up -d
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 docker compose ps
