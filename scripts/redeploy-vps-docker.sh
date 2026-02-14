@@ -106,9 +106,6 @@ if [[ "$SKIP_BUILD" == "true" ]]; then
 else
   docker compose build --no-cache app
 fi
-docker compose up -d
-
-echo "== SSL override =="
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 echo "== Health checks =="
