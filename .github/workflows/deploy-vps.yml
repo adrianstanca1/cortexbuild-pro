@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master-integrated
+      - claude/deploy-to-vps-*
   workflow_dispatch:
     inputs:
       branch:
