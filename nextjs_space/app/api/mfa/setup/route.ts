@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
-import crypto from 'crypto';
+import { generateQRCodeURI, generateTOTPSecret } from '@/lib/mfa';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -20,8 +20,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: 'No organization' }, { status: 403 });
     }
 
-    // Generate a random secret for TOTP
-    const secret = crypto.randomBytes(20).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    const secret = generateTOTPSecret();
 
     // Create a pending MFA method (not enabled until verified)
     const mfaMethod = await prisma.userMFA.create({
@@ -33,9 +32,7 @@ export async function POST(_request: NextRequest) {
       },
     });
 
-    // Generate QR code data (otpauth URI format)
-    const issuer = 'CortexBuild Pro';
-    const otpauthUri = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(user.email)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}`;
+    const otpauthUri = generateQRCodeURI(secret, user.email);
 
     return NextResponse.json({
       id: mfaMethod.id,

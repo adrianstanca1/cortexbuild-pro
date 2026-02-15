@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
+import { verifyTOTP } from '@/lib/mfa';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -34,9 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'MFA method not found' }, { status: 404 });
     }
 
-    // TODO: Implement actual TOTP verification
-    // For now, simulate verification
-    const isValid = code.length === 6; // Simple validation
+    const isValid = verifyTOTP(mfaMethod.secret, code);
 
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid verification code' }, { status: 400 });

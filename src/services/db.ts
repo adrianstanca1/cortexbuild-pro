@@ -50,6 +50,19 @@ const getBaseUrl = () => {
 
 const API_URL = getBaseUrl();
 
+type ResponseLike = Pick<Response, 'status' | 'statusText'> & Partial<Pick<Response, 'ok'>>;
+
+const normalizeHttpError = (response: ResponseLike) => {
+    const status = typeof response.status === 'number' && Number.isFinite(response.status)
+        ? response.status
+        : 500;
+    const statusText = response.statusText && response.statusText.trim().length > 0
+        ? response.statusText
+        : 'Unknown Error';
+
+    return { status, statusText };
+};
+
 export class DatabaseService {
     private useMock = false;
     private tenantId: string | null = null;
@@ -139,8 +152,9 @@ export class DatabaseService {
 
             if (!res.ok) {
                 const errorText = await res.text();
-                console.error(`[API Error] Fetch failed for ${endpoint}: ${res.status}`, errorText);
-                throw new Error(`API Fetch failed: ${res.status} ${res.statusText}`);
+                const { status, statusText } = normalizeHttpError(res);
+                console.error(`[API Error] Fetch failed for ${endpoint}: ${status}`, errorText);
+                throw new Error(`API Fetch failed: ${status} ${statusText}`);
             }
 
             const data = await res.json();
