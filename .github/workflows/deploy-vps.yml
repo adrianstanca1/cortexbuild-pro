@@ -1,6 +1,10 @@
 name: Deploy to VPS
 
 on:
+  push:
+    branches:
+      - master-integrated
+      - claude/deploy-to-vps-*
   workflow_dispatch:
     inputs:
       branch:
@@ -32,11 +36,11 @@ jobs:
             echo "========================================="
             echo "CortexBuild Pro - VPS Deployment"
             echo "========================================="
-            echo "Branch: ${{ github.event.inputs.branch }}"
+            BRANCH="${{ github.event.inputs.branch || 'master-integrated' }}"
+            echo "Branch: $BRANCH"
             echo ""
 
             REPO_URL="https://github.com/adrianstanca1/cortexbuild-pro.git"
-            BRANCH="${{ github.event.inputs.branch }}"
             DEPLOY_DIR="/var/www/cortexbuild-pro"
 
             # Step 1: Install dependencies if needed
@@ -184,7 +188,7 @@ jobs:
             echo "========================================="
 
       - name: Setup SSL
-        if: ${{ github.event.inputs.setup_ssl == 'true' }}
+        if: ${{ github.event.inputs.setup_ssl == 'true' || github.event_name == 'push' }}
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
