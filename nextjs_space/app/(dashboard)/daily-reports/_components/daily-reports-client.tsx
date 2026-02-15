@@ -265,7 +265,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
             <div className="text-2xl font-bold text-green-600">
               {reports.filter(r => r.reportDate && new Date(r.reportDate).toDateString() === new Date().toDateString()).length}
             </div>
-            <div className="text-sm text-gray-500">Today\'s Reports</div>
+            <div className="text-sm text-gray-500">Today&apos;s Reports</div>
           </CardContent>
         </Card>
         <Card>

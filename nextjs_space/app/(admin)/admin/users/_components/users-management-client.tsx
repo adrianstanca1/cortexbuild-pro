@@ -952,7 +952,7 @@ export function UsersManagementClient() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-2">
-                  Select "No Organization" to remove users from their current organization.
+                  Select &quot;No Organization&quot; to remove users from their current organization.
                 </p>
               </div>
             )}

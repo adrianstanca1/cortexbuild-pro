@@ -2006,7 +2006,7 @@ export function ApiManagementClient() {
               Add Custom API
             </DialogTitle>
             <DialogDescription>
-              Configure a custom API integration that isn't part of the built-in services
+              Configure a custom API integration that isn&apos;t part of the built-in services
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
