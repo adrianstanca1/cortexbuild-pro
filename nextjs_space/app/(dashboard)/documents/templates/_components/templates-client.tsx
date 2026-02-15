@@ -348,7 +348,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
     setExpandedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
   };
 
-  const addSection = (setter: Function, currentSections: TemplateSection[]) => {
+  const addSection = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[]) => {
     const newSection: TemplateSection = {
       id: `section_${Date.now()}`,
       title: 'New Section',
@@ -357,15 +357,15 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
     setter([...currentSections, newSection]);
   };
 
-  const removeSection = (setter: Function, currentSections: TemplateSection[], sectionId: string) => {
+  const removeSection = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[], sectionId: string) => {
     setter(currentSections.filter(s => s.id !== sectionId));
   };
 
-  const updateSection = (setter: Function, currentSections: TemplateSection[], sectionId: string, updates: Partial<TemplateSection>) => {
+  const updateSection = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[], sectionId: string, updates: Partial<TemplateSection>) => {
     setter(currentSections.map(s => s.id === sectionId ? { ...s, ...updates } : s));
   };
 
-  const addField = (setter: Function, currentSections: TemplateSection[], sectionId: string) => {
+  const addField = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[], sectionId: string) => {
     const newField: TemplateField = {
       name: `field_${Date.now()}`,
       label: 'New Field',
@@ -377,13 +377,13 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
     ));
   };
 
-  const removeField = (setter: Function, currentSections: TemplateSection[], sectionId: string, fieldName: string) => {
+  const removeField = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[], sectionId: string, fieldName: string) => {
     setter(currentSections.map(s =>
       s.id === sectionId ? { ...s, fields: s.fields.filter(f => f.name !== fieldName) } : s
     ));
   };
 
-  const updateField = (setter: Function, currentSections: TemplateSection[], sectionId: string, fieldName: string, updates: Partial<TemplateField>) => {
+  const updateField = (setter: (sections: TemplateSection[]) => void, currentSections: TemplateSection[], sectionId: string, fieldName: string, updates: Partial<TemplateField>) => {
     setter(currentSections.map(s =>
       s.id === sectionId ? {
         ...s,
@@ -392,7 +392,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
     ));
   };
 
-  const renderSectionEditor = (sections: TemplateSection[], setter: Function) => (
+  const renderSectionEditor = (sections: TemplateSection[], setter: (sections: TemplateSection[]) => void) => (
     <div className="space-y-4">
       {sections.map((section, _idx) => (
         <Card key={section.id} className="border-slate-200 dark:border-slate-700">
@@ -416,7 +416,7 @@ export function DocumentTemplatesClient({ templates, stats, userRole }: Document
           </CardHeader>
           <CardContent className="py-2 px-4">
             {section.fields.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No fields yet. Click "+ Field" to add.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 py-2">No fields yet. Click &quot;+ Field&quot; to add.</p>
             ) : (
               <div className="space-y-2">
                 {section.fields.map((field, _fIdx) => (

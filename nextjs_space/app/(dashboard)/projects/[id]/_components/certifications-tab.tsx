@@ -334,7 +334,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Award className="h-5 w-5 text-primary" /> Add Certification</DialogTitle>
-            <DialogDescription>Record a worker's certification or training</DialogDescription>
+            <DialogDescription>Record a worker&apos;s certification or training</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>

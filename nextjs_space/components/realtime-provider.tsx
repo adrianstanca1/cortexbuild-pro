@@ -218,6 +218,5 @@ export function useRealtimeSubscription(
   useEffect(() => {
     const unsubscribe = subscribe(eventType, handler);
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribe, ...(Array.isArray(eventType) ? eventType : [eventType]), ...deps]);
 }

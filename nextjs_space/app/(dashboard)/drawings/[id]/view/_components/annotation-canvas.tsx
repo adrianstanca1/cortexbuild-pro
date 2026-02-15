@@ -203,13 +203,11 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       return () => {
         window.removeEventListener("resize", resizeCanvas);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         const frameId = animationFrameRef.current;
         if (frameId) {
           cancelAnimationFrame(frameId);
         }
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, selectedAnnotationId]);
 
     // Optimized render with requestAnimationFrame
@@ -269,7 +267,6 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       // Render overlay (selection handles, cursors)
       renderOverlay();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, isDrawing, currentPath, selectedAnnotationId, polygonPoints, color, strokeWidth, selectedTool, opacity]);
 
     useEffect(() => {
@@ -1142,13 +1139,14 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
           drawRoundedRect(ctx, start.x, start.y, width, height, 10, false);
           break;
         case "circle":
-        case "filledCircle":
+        case "filledCircle": {
           const radius = Math.sqrt(width * width + height * height);
           ctx.beginPath();
           ctx.arc(start.x, start.y, radius, 0, Math.PI * 2);
           if (selectedTool === "filledCircle") ctx.fill();
           ctx.stroke();
           break;
+        }
         case "ellipse":
           drawEllipse(ctx, start.x + width / 2, start.y + height / 2, Math.abs(width / 2), Math.abs(height / 2), false);
           break;
@@ -1163,10 +1161,11 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
         case "cloud":
           drawCloud(ctx, start.x, start.y, width, height);
           break;
-        case "measurement":
+        case "measurement": {
           const dist = Math.sqrt(width * width + height * height);
           drawMeasurement(ctx, start.x, start.y, end.x, end.y, dist, 'px');
           break;
+        }
         case "crosshatch":
           drawCrosshatch(ctx, { x: start.x, y: start.y, width, height });
           break;
@@ -1268,7 +1267,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
         case "brush":
         case "highlighter":
         case "marker":
-        case "spray":
+        case "spray": {
           if (!data.points || data.points.length === 0) return { x: 0, y: 0, width: 0, height: 0 };
           const xs = data.points.map((p: Point) => p.x);
           const ys = data.points.map((p: Point) => p.y);
@@ -1278,6 +1277,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
             width: Math.max(...xs) - Math.min(...xs),
             height: Math.max(...ys) - Math.min(...ys),
           };
+        }
         case "line":
         case "arrow":
         case "doubleArrow":
@@ -1313,7 +1313,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
           return { x: data.x, y: data.y, width: 100, height: 30 };
         case "polygon":
         case "areaMeasurement":
-        case "cloudRevision":
+        case "cloudRevision": {
           if (!data.points || data.points.length === 0) return { x: 0, y: 0, width: 0, height: 0 };
           const pxs = data.points.map((p: Point) => p.x);
           const pys = data.points.map((p: Point) => p.y);
@@ -1323,9 +1323,11 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
             width: Math.max(...pxs) - Math.min(...pxs),
             height: Math.max(...pys) - Math.min(...pys),
           };
-        case "stamp":
+        }
+        case "stamp": {
           const size = data.size || 50;
           return { x: data.x - size, y: data.y - size, width: size * 2, height: size * 2 };
+        }
         default:
           return { x: 0, y: 0, width: 0, height: 0 };
       }
@@ -1539,12 +1541,13 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
           };
           break;
         case "circle":
-        case "filledCircle":
+        case "filledCircle": {
           const radius = Math.sqrt(
             Math.pow(endPoint.x - startPoint!.x, 2) + Math.pow(endPoint.y - startPoint!.y, 2)
           );
           annotationData = { x: startPoint!.x, y: startPoint!.y, radius };
           break;
+        }
         case "ellipse":
           annotationData = {
             x: (startPoint!.x + endPoint.x) / 2,
@@ -1571,7 +1574,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
             height: Math.abs(endPoint.y - startPoint!.y),
           };
           break;
-        case "measurement":
+        case "measurement": {
           const distance = Math.sqrt(
             Math.pow(endPoint.x - startPoint!.x, 2) + Math.pow(endPoint.y - startPoint!.y, 2)
           );
@@ -1584,6 +1587,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
             unit: 'px',
           };
           break;
+        }
         case "crosshatch":
           annotationData = {
             x: Math.min(startPoint!.x, endPoint.x),

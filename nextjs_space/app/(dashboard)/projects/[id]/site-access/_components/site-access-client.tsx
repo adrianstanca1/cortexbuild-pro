@@ -194,7 +194,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
                 <ArrowDownToLine className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Today's Entries</p>
+                <p className="text-sm text-muted-foreground">Today&apos;s Entries</p>
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.entries}</p>
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
                 <ArrowUpFromLine className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Today's Exits</p>
+                <p className="text-sm text-muted-foreground">Today&apos;s Exits</p>
                 <p className="text-3xl font-bold text-red-600 dark:text-red-400">{stats.exits}</p>
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Today's Access Log
+            Today&apos;s Access Log
           </CardTitle>
         </CardHeader>
         <CardContent>

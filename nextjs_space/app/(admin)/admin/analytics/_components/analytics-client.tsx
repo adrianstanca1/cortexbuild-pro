@@ -139,7 +139,6 @@ export function AnalyticsClient() {
 
   useEffect(() => {
     fetchDashboards();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -149,7 +148,6 @@ export function AnalyticsClient() {
       }
     }, 300);
     return () => clearTimeout(debounce);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const handleCreate = async () => {

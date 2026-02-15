@@ -94,7 +94,6 @@ export function CustomReportsClient() {
 
   useEffect(() => {
     fetchReports();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -104,7 +103,6 @@ export function CustomReportsClient() {
       }
     }, 300);
     return () => clearTimeout(debounce);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const handleCreate = async () => {

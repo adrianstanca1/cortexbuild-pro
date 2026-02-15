@@ -337,8 +337,9 @@ export async function POST(req: NextRequest) {
           }
         });
         break;
+      }
 
-      case "export":
+      case "export": {
         if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
           return NextResponse.json({ error: "Missing or invalid userIds" }, { status: 400 });
         }
@@ -366,6 +367,7 @@ export async function POST(req: NextRequest) {
           count: exportUsers.length
         };
         break;
+      }
 
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
