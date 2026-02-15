@@ -40,11 +40,12 @@ describe('DatabaseService', () => {
         it('throws error on failed request', async () => {
             mockFetch.mockResolvedValueOnce({
                 ok: false,
+                status: 404,
                 statusText: 'Not Found',
                 text: () => Promise.resolve('Not Found')
             });
 
-            await expect(db.getProjects()).rejects.toThrow();
+            await expect(db.getProjects()).rejects.toThrow('API Fetch failed: 404 Not Found');
         });
     });
 
@@ -98,7 +99,7 @@ describe('DatabaseService', () => {
             // Note: Since we changed DatabaseService to throw on errors, 
             // this test should now expect a rejection OR be updated to match new behavior.
             // Following the 'throws error on failed request' pattern above:
-            await expect(db.getSafetyChecklists()).rejects.toThrow();
+            await expect(db.getSafetyChecklists()).rejects.toThrow('API Fetch failed: 500 Unknown Error');
         });
     });
 
