@@ -378,8 +378,8 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                     <SelectItem value="A1">A1</SelectItem>
                     <SelectItem value="A2">A2</SelectItem>
                     <SelectItem value="A3">A3</SelectItem>
-                    <SelectItem value="24x36">24"x36"</SelectItem>
-                    <SelectItem value="30x42">30"x42"</SelectItem>
+                    <SelectItem value="24x36">24&quot;x36&quot;</SelectItem>
+                    <SelectItem value="30x42">30&quot;x42&quot;</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

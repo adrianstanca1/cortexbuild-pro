@@ -6,6 +6,6 @@ if (typeof global.TextEncoder === 'undefined') {
 }
 
 if (typeof global.TextDecoder === 'undefined') {
-  // @ts-expect-error Node util implementation is compatible with browser API used in tests
-  global.TextDecoder = TextDecoder;
+  // Node util implementation is compatible with browser API used in tests
+  global.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 }

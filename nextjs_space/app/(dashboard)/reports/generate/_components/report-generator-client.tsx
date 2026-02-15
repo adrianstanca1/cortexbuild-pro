@@ -371,7 +371,7 @@ export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">Ready to Generate</h3>
                     <p className="text-slate-600 dark:text-slate-400 max-w-md">
-                      Select a project and report type, then click "Generate Report" to create an AI-powered analysis.
+                      Select a project and report type, then click &quot;Generate Report&quot; to create an AI-powered analysis.
                     </p>
                   </div>
                 )}

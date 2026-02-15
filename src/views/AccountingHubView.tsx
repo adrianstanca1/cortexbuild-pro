@@ -52,7 +52,7 @@ const AccountingHubView: React.FC = () => {
         setIsLoading(true);
         try {
             switch (tab) {
-                case 'LEDGER':
+                case 'LEDGER': {
                     const [accounts, entries] = await Promise.all([
                         accountingApi.getGLAccounts().catch(() => []),
                         accountingApi.getJournalEntries().catch(() => [])
@@ -60,7 +60,8 @@ const AccountingHubView: React.FC = () => {
                     if (Array.isArray(accounts)) setGLAccounts(accounts);
                     if (Array.isArray(entries)) setJournalEntries(entries);
                     break;
-                case 'BANK_FEEDS':
+                }
+                case 'BANK_FEEDS': {
                     const [bAccounts, bTxns] = await Promise.all([
                         accountingApi.getBankAccounts().catch(() => []),
                         accountingApi.getBankTransactions().catch(() => [])
@@ -68,38 +69,47 @@ const AccountingHubView: React.FC = () => {
                     if (Array.isArray(bAccounts)) setBankAccounts(bAccounts);
                     if (Array.isArray(bTxns)) setBankTransactions(bTxns);
                     break;
-                case 'PAYROLL':
+                }
+                case 'PAYROLL': {
                     const runs = await accountingApi.getPayrollRuns().catch(() => []);
                     if (Array.isArray(runs)) setPayrollRuns(runs);
                     break;
-                case 'TAX_HMRC':
+                }
+                case 'TAX_HMRC': {
                     const returns = await accountingApi.getTaxReturns().catch(() => []);
                     if (Array.isArray(returns)) setTaxReturns(returns);
                     break;
-                case 'INTEGRATIONS':
+                }
+                case 'INTEGRATIONS': {
                     const ints = await accountingApi.getIntegrations().catch(() => []);
                     if (Array.isArray(ints)) setIntegrations(ints);
                     break;
-                case 'CHASERS':
+                }
+                case 'CHASERS': {
                     const chasers = await accountingApi.getInvoiceChasers().catch(() => []);
                     if (Array.isArray(chasers)) setInvoiceChasers(chasers);
                     break;
-                case 'JOB_COSTING':
+                }
+                case 'JOB_COSTING': {
                     const jcData = await accountingApi.getJobCosting().catch(() => null);
                     if (jcData) setJobCostingData(jcData);
                     break;
-                case 'PO_MATCHING':
+                }
+                case 'PO_MATCHING': {
                     const poData = await accountingApi.getPOBillingSummary().catch(() => []);
                     if (Array.isArray(poData)) setPOBillingSummary(poData);
                     break;
-                case 'RECEIVABLES':
+                }
+                case 'RECEIVABLES': {
                     const agingData = await accountingApi.getReceivablesAging().catch(() => null);
                     if (agingData) setReceivablesAging(agingData);
                     break;
-                case 'ALERTS':
+                }
+                case 'ALERTS': {
                     const alertsData = await accountingApi.getFinancialAlerts().catch(() => ({ count: 0, alerts: [] }));
                     if (alertsData) setFinancialAlerts((alertsData as any)?.alerts || []);
                     break;
+                }
             }
         } catch (err) {
             console.warn('[Accounting] Failed to load data:', err);

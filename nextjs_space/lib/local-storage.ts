@@ -41,7 +41,8 @@ export async function saveLocalFile(
   
   const timestamp = Date.now();
   // Remove only problematic characters: path separators, null bytes, and control characters
-  const safeName = fileName.replace(/[\/\\:*?"<>|\x00-\x1f\x7f]/g, "_");
+  // eslint-disable-next-line no-control-regex
+  const safeName = fileName.replace(/[/\\:*?"<>|\x00-\x1f\x7f]/g, "_");
   const relativePath = isPublic
     ? `public/${timestamp}-${safeName}`
     : `private/${timestamp}-${safeName}`;

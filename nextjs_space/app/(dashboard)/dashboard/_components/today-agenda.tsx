@@ -192,7 +192,7 @@ export function TodayAgenda() {
         <CardHeader className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-b border-slate-200 dark:border-slate-700">
           <CardTitle className="text-lg flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
-            Today's Agenda
+            Today&apos;s Agenda
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -215,7 +215,7 @@ export function TodayAgenda() {
             </div>
             <div>
               <CardTitle className="text-lg flex items-center gap-2">
-                Today's Agenda
+                Today&apos;s Agenda
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {format(new Date(), "EEEE, MMMM d, yyyy")}

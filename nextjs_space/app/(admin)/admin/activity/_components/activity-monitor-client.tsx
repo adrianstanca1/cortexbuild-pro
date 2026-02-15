@@ -271,7 +271,7 @@ export function ActivityMonitorClient() {
                           <span className="text-purple-600">{activity.user.name}</span>
                           {" "}{activity.action}
                           {activity.entityName && (
-                            <span className="font-semibold"> "{activity.entityName}"</span>
+                            <span className="font-semibold"> &quot;{activity.entityName}&quot;</span>
                           )}
                         </p>
                         <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">

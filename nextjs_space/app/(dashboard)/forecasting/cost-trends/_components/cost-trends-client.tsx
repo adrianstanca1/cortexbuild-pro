@@ -456,7 +456,7 @@ export default function CostTrendsClient({ projects, changeOrders, forecasts, me
             {!aiAnalysis && !analyzing && (
               <div className="text-center py-8 text-muted-foreground">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                <p>Select a project and click "Run Analysis" for AI insights</p>
+                <p>Select a project and click &quot;Run Analysis&quot; for AI insights</p>
               </div>
             )}
           </div>

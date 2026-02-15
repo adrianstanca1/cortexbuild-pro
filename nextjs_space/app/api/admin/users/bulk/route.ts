@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     let result: any;
 
     switch (action) {
-      case "delete":
+      case "delete": {
         if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
           return NextResponse.json({ error: "Missing or invalid userIds" }, { status: 400 });
         }
@@ -36,10 +36,10 @@ export async function POST(req: NextRequest) {
         const superAdmins = await prisma.user.count({
           where: { id: { in: userIds }, role: "SUPER_ADMIN" }
         });
-        
+
         if (superAdmins > 0) {
-          return NextResponse.json({ 
-            error: "Cannot bulk delete super admin users" 
+          return NextResponse.json({
+            error: "Cannot bulk delete super admin users"
           }, { status: 403 });
         }
 
@@ -59,22 +59,23 @@ export async function POST(req: NextRequest) {
           deleted: deleteResult.count,
           message: `Successfully deleted ${deleteResult.count} user(s)`
         };
-        
+
         // Log the action
         await prisma.activityLog.create({
           data: {
             action: "bulk_delete_users",
             entityType: "USER",
-            details: JSON.stringify({ 
-              deletedCount: deleteResult.count, 
-              userIds 
+            details: JSON.stringify({
+              deletedCount: deleteResult.count,
+              userIds
             }),
             userId: session.user.id
           }
         });
         break;
+      }
 
-      case "update_role":
+      case "update_role": {
         if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
           return NextResponse.json({ error: "Missing or invalid userIds" }, { status: 400 });
         }
@@ -86,17 +87,17 @@ export async function POST(req: NextRequest) {
         const existingSuperAdmins = await prisma.user.count({
           where: { id: { in: userIds }, role: "SUPER_ADMIN" }
         });
-        
+
         if (existingSuperAdmins > 0) {
-          return NextResponse.json({ 
-            error: "Cannot bulk change role of super admin users" 
+          return NextResponse.json({
+            error: "Cannot bulk change role of super admin users"
           }, { status: 403 });
         }
 
         // Prevent modifying the currently authenticated user's role
         if (userIds.includes(session.user.id)) {
-          return NextResponse.json({ 
-            error: "Cannot modify your own role" 
+          return NextResponse.json({
+            error: "Cannot modify your own role"
           }, { status: 403 });
         }
 
@@ -116,17 +117,18 @@ export async function POST(req: NextRequest) {
           data: {
             action: "bulk_update_user_roles",
             entityType: "USER",
-            details: JSON.stringify({ 
-              updatedCount: updateResult.count, 
+            details: JSON.stringify({
+              updatedCount: updateResult.count,
               userIds,
-              newRole: data.role 
+              newRole: data.role
             }),
             userId: session.user.id
           }
         });
         break;
+      }
 
-      case "update_organization":
+      case "update_organization": {
         if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
           return NextResponse.json({ error: "Missing or invalid userIds" }, { status: 400 });
         }
@@ -147,17 +149,18 @@ export async function POST(req: NextRequest) {
           data: {
             action: "bulk_update_user_organization",
             entityType: "USER",
-            details: JSON.stringify({ 
-              updatedCount: orgUpdateResult.count, 
+            details: JSON.stringify({
+              updatedCount: orgUpdateResult.count,
               userIds,
-              organizationId: data?.organizationId 
+              organizationId: data?.organizationId
             }),
             userId: session.user.id
           }
         });
         break;
+      }
 
-      case "import":
+      case "import": {
         if (!data?.users || !Array.isArray(data.users) || data.users.length === 0) {
           return NextResponse.json({ error: "Missing or invalid users array" }, { status: 400 });
         }
@@ -334,8 +337,9 @@ export async function POST(req: NextRequest) {
           }
         });
         break;
+      }
 
-      case "export":
+      case "export": {
         if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
           return NextResponse.json({ error: "Missing or invalid userIds" }, { status: 400 });
         }
@@ -363,6 +367,7 @@ export async function POST(req: NextRequest) {
           count: exportUsers.length
         };
         break;
+      }
 
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });

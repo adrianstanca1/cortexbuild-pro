@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         filename = 'projects-export';
         break;
 
-      case 'tasks':
+      case 'tasks': {
         const tasks = await prisma.task.findMany({
           where: { project: projectFilter },
           select: {
@@ -82,8 +82,9 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'tasks-export';
         break;
+      }
 
-      case 'rfis':
+      case 'rfis': {
         const rfis = await prisma.rFI.findMany({
           where: { project: projectFilter },
           select: {
@@ -108,8 +109,9 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'rfis-export';
         break;
+      }
 
-      case 'submittals':
+      case 'submittals': {
         const submittals = await prisma.submittal.findMany({
           where: { project: projectFilter },
           select: {
@@ -132,8 +134,9 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'submittals-export';
         break;
+      }
 
-      case 'budget':
+      case 'budget': {
         const costItems = await prisma.costItem.findMany({
           where: { project: projectFilter },
           select: {
@@ -160,8 +163,9 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'budget-export';
         break;
+      }
 
-      case 'safety':
+      case 'safety': {
         const incidents = await prisma.safetyIncident.findMany({
           where: { project: projectFilter },
           select: {
@@ -181,13 +185,14 @@ export async function GET(request: NextRequest) {
         headers = ['Description', 'Project', 'Severity', 'Status', 'Date', 'Location', 'Reported By', 'Injury Occurred', 'Root Cause'];
         data = incidents.map(i => ([
           i.description?.substring(0, 100) || '', i.project.name, i.severity, i.status,
-          formatDate(i.incidentDate), i.location || '', i.reportedBy?.name || '', 
+          formatDate(i.incidentDate), i.location || '', i.reportedBy?.name || '',
           i.injuryOccurred ? 'Yes' : 'No', i.rootCause || ''
         ]));
         filename = 'safety-incidents-export';
         break;
+      }
 
-      case 'time-entries':
+      case 'time-entries': {
         const timeEntries = await prisma.timeEntry.findMany({
           where: { project: projectFilter },
           select: {
@@ -209,8 +214,9 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'time-entries-export';
         break;
+      }
 
-      case 'team':
+      case 'team': {
         const teamMembers = await prisma.teamMember.findMany({
           where: { organizationId: user.organizationId },
           select: {
@@ -228,6 +234,7 @@ export async function GET(request: NextRequest) {
         ]));
         filename = 'team-export';
         break;
+      }
 
       default:
         return NextResponse.json({ error: 'Invalid export type' }, { status: 400 });

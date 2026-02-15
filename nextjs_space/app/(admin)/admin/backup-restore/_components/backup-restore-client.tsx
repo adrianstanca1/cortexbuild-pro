@@ -583,7 +583,7 @@ export function BackupRestoreClient() {
                 onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
                 placeholder="0 2 * * *"
               />
-              <p className="text-xs text-gray-500 mt-1">Example: "0 2 * * *" = Daily at 2 AM</p>
+              <p className="text-xs text-gray-500 mt-1">Example: &quot;0 2 * * *&quot; = Daily at 2 AM</p>
             </div>
             <div>
               <Label>Retention Period (Days)</Label>

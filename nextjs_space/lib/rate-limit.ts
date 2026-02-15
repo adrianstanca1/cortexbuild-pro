@@ -111,8 +111,8 @@ async function incrementUsage(rateLimitId: string, endpoint: string, userId?: st
   }
 }
 
-export function rateLimitMiddleware(handler: Function) {
-  return async (req: NextRequest, context?: any) => {
+export function rateLimitMiddleware(handler: (req: NextRequest, context?: unknown) => Promise<NextResponse>) {
+  return async (req: NextRequest, context?: unknown) => {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return handler(req, context);

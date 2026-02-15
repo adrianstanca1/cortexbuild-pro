@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
         let updated = 0;
 
         switch (entityType) {
-          case 'tasks':
+          case 'tasks': {
             const taskResult = await prisma.task.updateMany({
               where: { id: { in: ids } },
               data: { status: status as 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE' },
@@ -232,7 +232,8 @@ export async function POST(request: NextRequest) {
               payload: { count: updated, status, message: `${updated} tasks updated to ${status}` },
             });
             break;
-          case 'rfis':
+          }
+          case 'rfis': {
             const rfiResult = await prisma.rFI.updateMany({
               where: { id: { in: ids } },
               data: { status: status as 'DRAFT' | 'OPEN' | 'ANSWERED' | 'CLOSED' },
@@ -243,7 +244,8 @@ export async function POST(request: NextRequest) {
               payload: { count: updated, status },
             });
             break;
-          case 'submittals':
+          }
+          case 'submittals': {
             const submittalResult = await prisma.submittal.updateMany({
               where: { id: { in: ids } },
               data: { status: status as 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'REVISE_RESUBMIT' },
@@ -254,7 +256,8 @@ export async function POST(request: NextRequest) {
               payload: { count: updated, status },
             });
             break;
-          case 'punchLists':
+          }
+          case 'punchLists': {
             const punchResult = await prisma.punchList.updateMany({
               where: { id: { in: ids } },
               data: { status: status as 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'VERIFIED' },
@@ -265,7 +268,8 @@ export async function POST(request: NextRequest) {
               payload: { count: updated, status },
             });
             break;
-          case 'inspections':
+          }
+          case 'inspections': {
             const inspResult = await prisma.inspection.updateMany({
               where: { id: { in: ids } },
               data: { status: status as 'SCHEDULED' | 'IN_PROGRESS' | 'PASSED' | 'FAILED' | 'REQUIRES_REINSPECTION' },
@@ -276,6 +280,7 @@ export async function POST(request: NextRequest) {
               payload: { count: updated, status },
             });
             break;
+          }
         }
 
         return NextResponse.json({ success: true, updated });

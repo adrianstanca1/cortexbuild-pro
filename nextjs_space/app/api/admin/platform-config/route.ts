@@ -283,10 +283,11 @@ export async function POST(request: NextRequest) {
         });
         return NextResponse.json({ success: true, config: platformConfig });
 
-      case "validate":
+      case "validate": {
         // Validate config structure
         const isValid = validateConfig(data || platformConfig);
         return NextResponse.json({ valid: isValid.valid, errors: isValid.errors });
+      }
 
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
