@@ -78,22 +78,26 @@ const AIAgentsView: React.FC = () => {
         setIsLoading(true);
         try {
             switch (tab) {
-                case 'COMPLIANCE':
+                case 'COMPLIANCE': {
                     const tasks = await apiClient.get('/ai-agents/compliance/tasks');
                     if (Array.isArray(tasks)) setComplianceTasks(tasks);
                     break;
-                case 'PAYSLIPS':
+                }
+                case 'PAYSLIPS': {
                     const slips = await apiClient.get('/ai-agents/payslips');
                     if (Array.isArray(slips)) setPayslips(slips);
                     break;
-                case 'CASHFLOW':
+                }
+                case 'CASHFLOW': {
                     const cf = await apiClient.post('/ai-agents/cash-flow/predict', { months: 3 });
                     if (cf) setCashFlowData(cf);
                     break;
-                case 'GRANTS':
+                }
+                case 'GRANTS': {
                     const grants = await apiClient.get('/ai-agents/grants/eligibility');
                     if (grants) setGrantsData(grants);
                     break;
+                }
             }
         } catch (err) { console.warn('Failed to load tab data:', err); }
         setIsLoading(false);
