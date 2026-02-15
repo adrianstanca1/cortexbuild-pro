@@ -204,67 +204,83 @@ async function buildAgentContext(db: any, tenantId: string, tables: string[]): P
     for (const table of tables) {
         try {
             switch (table) {
-                case 'projects':
+                case 'projects': {
                     context.projects = await db.all(`SELECT id, name, status, health, progress, budget, spent, startDate, endDate FROM projects WHERE companyId = ? LIMIT 20`, [tenantId]);
                     break;
-                case 'transactions':
+                }
+                case 'transactions': {
                     const income = await db.get(`SELECT COALESCE(SUM(amount),0) as total FROM transactions WHERE companyId = ? AND type='income' AND status='completed'`, [tenantId]);
                     const expense = await db.get(`SELECT COALESCE(SUM(amount),0) as total FROM transactions WHERE companyId = ? AND type='expense' AND status='completed'`, [tenantId]);
                     context.financials = { totalIncome: income?.total || 0, totalExpenses: expense?.total || 0, netProfit: (income?.total || 0) - (expense?.total || 0) };
                     context.recentTransactions = await db.all(`SELECT date, description, amount, type, category FROM transactions WHERE companyId = ? ORDER BY date DESC LIMIT 15`, [tenantId]);
                     break;
-                case 'invoices':
+                }
+                case 'invoices': {
                     context.invoiceSummary = {
                         total: (await db.get(`SELECT COUNT(*) as c FROM invoices WHERE companyId = ?`, [tenantId]))?.c || 0,
                         paid: (await db.get(`SELECT COUNT(*) as c, COALESCE(SUM(total),0) as t FROM invoices WHERE companyId = ? AND status='Paid'`, [tenantId])),
                         overdue: (await db.get(`SELECT COUNT(*) as c, COALESCE(SUM(total),0) as t FROM invoices WHERE companyId = ? AND status IN ('Pending','Approved') AND dueDate < ?`, [tenantId, new Date().toISOString().split('T')[0]])),
                     };
                     break;
-                case 'expense_claims':
+                }
+                case 'expense_claims': {
                     context.expenseSummary = await db.get(`SELECT COUNT(*) as count, COALESCE(SUM(amount),0) as total FROM expense_claims WHERE companyId = ? AND status IN ('Approved','Paid')`, [tenantId]);
                     break;
-                case 'cost_codes':
+                }
+                case 'cost_codes': {
                     context.costCodes = await db.all(`SELECT code, description, budget, spent, var FROM cost_codes WHERE companyId = ? AND budget > 0 ORDER BY var DESC LIMIT 10`, [tenantId]);
                     break;
-                case 'tasks':
+                }
+                case 'tasks': {
                     context.taskSummary = {
                         total: (await db.get(`SELECT COUNT(*) as c FROM tasks WHERE projectId IN (SELECT id FROM projects WHERE companyId = ?)`, [tenantId]))?.c || 0,
                         overdue: (await db.get(`SELECT COUNT(*) as c FROM tasks WHERE projectId IN (SELECT id FROM projects WHERE companyId = ?) AND status != 'Done' AND dueDate < ?`, [tenantId, new Date().toISOString().split('T')[0]]))?.c || 0,
                         blocked: (await db.get(`SELECT COUNT(*) as c FROM tasks WHERE projectId IN (SELECT id FROM projects WHERE companyId = ?) AND status = 'Blocked'`, [tenantId]))?.c || 0,
                     };
                     break;
-                case 'equipment':
+                }
+                case 'equipment': {
                     context.equipmentOverdue = await db.all(`SELECT name, type, nextService FROM equipment WHERE companyId = ? AND nextService IS NOT NULL AND nextService < ? LIMIT 10`, [tenantId, new Date().toISOString().split('T')[0]]);
                     break;
-                case 'timesheets':
+                }
+                case 'timesheets': {
                     context.timesheetSummary = await db.get(`SELECT COUNT(DISTINCT employeeId) as workers, COALESCE(SUM(hoursWorked),0) as totalHours FROM timesheets WHERE companyId = ? AND date >= ?`, [tenantId, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]]);
                     break;
-                case 'gl_accounts':
+                }
+                case 'gl_accounts': {
                     context.glBalances = await db.all(`SELECT code, name, type, balance FROM gl_accounts WHERE companyId = ? AND isActive = 1 AND balance != 0 ORDER BY ABS(balance) DESC LIMIT 15`, [tenantId]);
                     break;
-                case 'tax_returns':
+                }
+                case 'tax_returns': {
                     context.taxReturns = await db.all(`SELECT type, periodStart, periodEnd, status, amountDue FROM tax_returns WHERE companyId = ? ORDER BY periodEnd DESC LIMIT 5`, [tenantId]);
                     break;
-                case 'payroll_runs':
+                }
+                case 'payroll_runs': {
                     context.payrollSummary = await db.get(`SELECT COUNT(*) as runs, COALESCE(SUM(totalNet),0) as totalPaid FROM payroll_runs WHERE companyId = ?`, [tenantId]);
                     break;
-                case 'safety_checklists':
+                }
+                case 'safety_checklists': {
                     context.safetyScore = await db.get(`SELECT AVG(score) as avgScore, COUNT(*) as total FROM safety_checklists WHERE companyId = ? AND score IS NOT NULL`, [tenantId]);
                     break;
-                case 'compliance_tasks':
+                }
+                case 'compliance_tasks': {
                     const overdueTasks = await db.all(`SELECT title, category, dueDate, priority FROM compliance_tasks WHERE companyId = ? AND status = 'pending' AND dueDate < ? LIMIT 10`, [tenantId, new Date().toISOString().split('T')[0]]);
                     context.overdueComplianceTasks = overdueTasks;
                     break;
-                case 'certification_tracker':
+                }
+                case 'certification_tracker': {
                     const expiringCerts = await db.all(`SELECT employeeName, certName, expiryDate FROM certification_tracker WHERE companyId = ? AND expiryDate <= ? AND status != 'expired' LIMIT 10`, [tenantId, new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]]);
                     context.expiringCertifications = expiringCerts;
                     break;
-                case 'bank_transactions':
+                }
+                case 'bank_transactions': {
                     context.unreconciledCount = (await db.get(`SELECT COUNT(*) as c FROM bank_transactions WHERE companyId = ? AND reconciliationStatus = 'unmatched'`, [tenantId]))?.c || 0;
                     break;
-                case 'purchase_orders':
+                }
+                case 'purchase_orders': {
                     context.poSummary = await db.get(`SELECT COUNT(*) as total, COALESCE(SUM(amount),0) as totalValue FROM purchase_orders WHERE companyId = ?`, [tenantId]);
                     break;
+                }
             }
         } catch (err: any) { /* Table may not exist yet - log for debugging */ if (err?.message && !err.message.includes('no such table')) console.warn(`[AI Agent Context] Failed to load ${table}:`, err.message); }
     }
