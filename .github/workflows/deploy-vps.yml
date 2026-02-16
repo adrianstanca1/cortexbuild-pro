@@ -3,6 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
+      - Cortexbuildpro
       - master-integrated
       - claude/deploy-to-vps-*
   workflow_dispatch:
@@ -10,7 +11,7 @@ on:
       branch:
         description: 'Branch to deploy'
         required: true
-        default: 'master-integrated'
+        default: 'Cortexbuildpro'
       setup_ssl:
         description: 'Set up SSL after deployment?'
         required: false
@@ -26,7 +27,8 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: root
+          username: ${{ secrets.VPS_USER || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           timeout: 600s
@@ -36,7 +38,7 @@ jobs:
             echo "========================================="
             echo "CortexBuild Pro - VPS Deployment"
             echo "========================================="
-            BRANCH="${{ github.event.inputs.branch || 'master-integrated' }}"
+            BRANCH="${{ github.event.inputs.branch || 'Cortexbuildpro' }}"
             echo "Branch: $BRANCH"
             echo ""
 
@@ -192,7 +194,8 @@ ENVEOF
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: root
+          username: ${{ secrets.VPS_USER || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
           timeout: 300s
