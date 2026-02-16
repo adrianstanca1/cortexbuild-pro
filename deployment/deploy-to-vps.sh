@@ -222,15 +222,21 @@ log_success "Environment configured"
 # --------------- step 5: deploy on VPS ---------------------------------------
 log_info "Step 5/6: Starting services on VPS..."
 
+# Resolve image reference used by docker compose on VPS
+if [[ "$USE_REGISTRY" == true ]]; then
+    APP_IMAGE="${REGISTRY_IMAGE}:${IMAGE_TAG}"
+elif [[ "$SKIP_BUILD" == true ]]; then
+    APP_IMAGE="${REGISTRY_IMAGE}:${IMAGE_TAG}"
+else
+    APP_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+fi
+
 $SSH_CMD "bash -s" <<REMOTE_DEPLOY
 set -e
 cd ${VPS_DEPLOY_PATH}/deployment
 
-# Update image reference if using local build
-if [ "${USE_REGISTRY}" = "false" ] && [ "${SKIP_BUILD}" = "false" ]; then
-    # Override the image in compose to use the locally loaded image
-    export DOCKER_IMAGE_TAG="${IMAGE_TAG}"
-fi
+# Ensure docker compose points to the intended app image
+export APP_IMAGE="${APP_IMAGE}"
 
 # Stop existing services gracefully
 echo "Stopping existing services..."
@@ -239,6 +245,8 @@ docker compose down --remove-orphans 2>/dev/null || true
 if [ "${USE_REGISTRY}" = "true" ]; then
     echo "Pulling latest image from registry..."
     docker compose pull app
+elif [ "${SKIP_BUILD}" = "true" ]; then
+    echo "Skip-build requested. Expecting image '${APP_IMAGE}' to already exist on VPS..."
 fi
 
 # Start the stack
