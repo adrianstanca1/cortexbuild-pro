@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { generateAIResponse } from "@/lib/ai-service";
 
 // AI-Powered Report Generation API
 // Generates comprehensive project reports with AI insights
@@ -198,39 +199,31 @@ Data:\n${reportDataSummary}\n\nProvide commercial insights for financial stakeho
 Data:\n${reportDataSummary}`;
     }
 
-    const aiResponse = await fetch("https://routellm.abacus.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are a professional construction project manager and report writer with expertise in UK construction practices, CDM 2015 regulations, and stakeholder communication. Generate clear, professional reports with actionable insights."
-          },
-          {
-            role: "user",
-            content: aiPrompt
-          }
-        ],
-        temperature: 0.4,
-        max_tokens: 3000
-      })
+    const aiResult = await generateAIResponse({
+      model: process.env.AI_PROVIDER === "gemini" ? "gemini-1.5-pro" : "gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional construction project manager and report writer with expertise in UK construction practices, CDM 2015 regulations, and stakeholder communication. Generate clear, professional reports with actionable insights."
+        },
+        {
+          role: "user",
+          content: aiPrompt
+        }
+      ],
+      temperature: 0.4,
+      maxTokens: 3000
     });
 
-    if (!aiResponse.ok) {
-      console.error("AI API error:", await aiResponse.text());
+    if (!aiResult.success || !aiResult.response) {
+      console.error("AI API error:", aiResult.error || "Unknown error");
       return NextResponse.json(
-        { error: "Failed to generate report" },
+        { error: "Failed to generate report", provider: aiResult.provider },
         { status: 500 }
       );
     }
 
-    const aiData = await aiResponse.json();
-    const reportContent = aiData.choices[0]?.message?.content || "Report generation failed";
+    const reportContent = aiResult.response;
 
     // Log activity
     await prisma.activityLog.create({
@@ -274,7 +267,8 @@ Data:\n${reportDataSummary}`;
           progress: projectData.progress || 0
         },
         generatedAt: new Date().toISOString(),
-        generatedBy: session.user.name || session.user.email
+        generatedBy: session.user.name || session.user.email,
+        aiProvider: aiResult.provider
       }
     });
   } catch (error) {
