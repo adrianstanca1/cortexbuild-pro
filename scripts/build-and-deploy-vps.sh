@@ -167,7 +167,7 @@ if $PREFLIGHT_ONLY; then
 fi
 
 echo "==> Ensuring remote deploy directories exist"
-REMOTE_BACKEND_ENV_DIR="$(dirname \"$VPS_BACKEND_ENV_PATH\")"
+REMOTE_BACKEND_ENV_DIR="$(dirname "$VPS_BACKEND_ENV_PATH")"
 run_cmd ssh "${SSH_OPTS[@]}" "${VPS_USER}@${VPS_HOST}" "mkdir -p '$VPS_FRONTEND_PATH' '$VPS_BACKEND_PATH' '$REMOTE_BACKEND_ENV_DIR'"
 
 echo "==> Uploading frontend dist/"
