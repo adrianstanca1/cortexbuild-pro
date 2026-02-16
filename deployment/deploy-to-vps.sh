@@ -78,7 +78,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --port PORT        SSH port (default: 22)"
             echo "  --path PATH        Deploy path on VPS (default: /var/www/cortexbuild-pro)"
             echo "  --domain DOMAIN    Domain name for SSL"
-            echo "  --password PASS    SSH password (uses sshpass; key auth is preferred)"
+            echo "  --password PASS    SSH password (key auth is preferred). WARNING: Using this flag may expose the password in your shell history. Prefer setting the SSH_PASSWORD environment variable."
             echo "  --registry         Pull image from GHCR instead of local build + transfer"
             echo "  --ssl              Enable SSL via Let's Encrypt after deploy"
             echo "  --skip-build       Skip building, use existing image on VPS"
