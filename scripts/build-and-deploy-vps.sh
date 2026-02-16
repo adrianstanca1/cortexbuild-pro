@@ -167,7 +167,8 @@ if $PREFLIGHT_ONLY; then
 fi
 
 echo "==> Ensuring remote deploy directories exist"
-run_cmd ssh "${SSH_OPTS[@]}" "${VPS_USER}@${VPS_HOST}" "mkdir -p '$VPS_FRONTEND_PATH' '$VPS_BACKEND_PATH'"
+REMOTE_BACKEND_ENV_DIR="$(dirname \"$VPS_BACKEND_ENV_PATH\")"
+run_cmd ssh "${SSH_OPTS[@]}" "${VPS_USER}@${VPS_HOST}" "mkdir -p '$VPS_FRONTEND_PATH' '$VPS_BACKEND_PATH' '$REMOTE_BACKEND_ENV_DIR'"
 
 echo "==> Uploading frontend dist/"
 run_cmd rsync -az --delete -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" dist/ "${VPS_USER}@${VPS_HOST}:${VPS_FRONTEND_PATH}"
@@ -182,7 +183,7 @@ if [[ -n "$BACKEND_ENV_FILE" ]]; then
   fi
 
   echo "==> Uploading backend environment file"
-run_cmd rsync -az -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" "$BACKEND_ENV_FILE" "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_PATH}/../.env"
+  run_cmd rsync -az -e "$(printf '%q ' ssh "${SSH_OPTS[@]}")" "$BACKEND_ENV_FILE" "${VPS_USER}@${VPS_HOST}:${VPS_BACKEND_ENV_PATH}"
 fi
 
 echo "==> Restarting PM2 process: ${VPS_PM2_PROCESS}"
