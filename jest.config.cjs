@@ -46,7 +46,7 @@ module.exports = {
             },
             testMatch: ['<rootDir>/tests/**/*.test.ts', '<rootDir>/tests/**/*.test.tsx'],
             setupFiles: ['<rootDir>/tests/jest.setup.ts'],
-            setupFilesAfterEnv: ['<rootDir>/tests/jest.after-env.ts', '<rootDir>/tests/setup.test.ts'],
+            setupFilesAfterEnv: ['<rootDir>/tests/jest.after-env.ts'],
             moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
         },
     ],
