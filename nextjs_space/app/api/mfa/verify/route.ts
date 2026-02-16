@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       where: { id: methodId, userId: user.id },
     });
 
-    if (!mfaMethod) {
+    if (!mfaMethod || !mfaMethod.secret) {
       return NextResponse.json({ error: 'MFA method not found' }, { status: 404 });
     }
 

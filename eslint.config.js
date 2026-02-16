@@ -14,6 +14,8 @@ export default [{
             '**/server/ecosystem.config*.js', // PM2 config files
             '**/server/remote_restart.js', // Server utilities
             '**/*-env.js', // Environment test files
+            'nextjs_space/**', // Next.js app has its own ESLint config
+            'server/**', // Backend has its own TypeScript build
         ],
     },
     js.configs.recommended,
