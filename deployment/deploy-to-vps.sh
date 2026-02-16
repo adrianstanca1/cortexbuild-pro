@@ -121,8 +121,8 @@ if [[ -n "$SSH_PASSWORD" ]]; then
     fi
 
     log_warn "Using password-based SSH auth. Key-based auth is strongly recommended for production."
-    SSH_CMD="SSHPASS='${SSH_PASSWORD}' sshpass -e ssh -o StrictHostKeyChecking=accept-new -p ${VPS_PORT} ${VPS_USER}@${VPS_HOST}"
-    SCP_CMD="SSHPASS='${SSH_PASSWORD}' sshpass -e scp -o StrictHostKeyChecking=accept-new -P ${VPS_PORT}"
+    SSH_CMD="SSHPASS=$(printf %q "${SSH_PASSWORD}") sshpass -e ssh -o StrictHostKeyChecking=accept-new -p ${VPS_PORT} ${VPS_USER}@${VPS_HOST}"
+    SCP_CMD="SSHPASS=$(printf %q "${SSH_PASSWORD}") sshpass -e scp -o StrictHostKeyChecking=accept-new -P ${VPS_PORT}"
 fi
 
 log "Deploying to ${VPS_USER}@${VPS_HOST}:${VPS_DEPLOY_PATH}"
