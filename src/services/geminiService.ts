@@ -47,6 +47,12 @@ export const streamChatResponse = async (
     configOverride?: ChatConfig
 ): Promise<GenerateContentResponse> => {
     try {
+        const normalizedInlineData = imageData
+            ? imageData.includes(',')
+                ? imageData.split(',')[1]
+                : imageData
+            : undefined;
+
         // Prepare payload
         const payload = {
             history: history
@@ -68,6 +74,7 @@ export const streamChatResponse = async (
                     ]
                 })),
             newMessage,
+            imageData: normalizedInlineData,
             mimeType,
             config: configOverride,
             projectId: configOverride?.projectId,
