@@ -15,6 +15,7 @@
 #   ./deploy-to-vps.sh --host 1.2.3.4           # specify VPS host
 #   ./deploy-to-vps.sh --host 1.2.3.4 --registry  # pull from GHCR instead of local build
 #   ./deploy-to-vps.sh --host 1.2.3.4 --ssl     # enable SSL after deploy
+#   ./deploy-to-vps.sh --host 1.2.3.4 --password 'your-password'  # password auth
 #
 # Environment variables (override flags):
 #   VPS_HOST, VPS_USER, VPS_PORT, VPS_DEPLOY_PATH, DOMAIN
@@ -39,6 +40,7 @@ USE_REGISTRY=false
 ENABLE_SSL=false
 SKIP_BUILD=false
 RUN_MIGRATIONS=true
+SSH_PASSWORD="${SSH_PASSWORD:-}"
 
 # --------------- colours ------------------------------------------------------
 RED='\033[0;31m'
@@ -62,6 +64,7 @@ while [[ $# -gt 0 ]]; do
         --port)       VPS_PORT="$2"; shift 2 ;;
         --path)       VPS_DEPLOY_PATH="$2"; shift 2 ;;
         --domain)     DOMAIN="$2"; shift 2 ;;
+        --password)   SSH_PASSWORD="$2"; shift 2 ;;
         --registry)   USE_REGISTRY=true; shift ;;
         --ssl)        ENABLE_SSL=true; shift ;;
         --skip-build) SKIP_BUILD=true; shift ;;
@@ -75,6 +78,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --port PORT        SSH port (default: 22)"
             echo "  --path PATH        Deploy path on VPS (default: /var/www/cortexbuild-pro)"
             echo "  --domain DOMAIN    Domain name for SSL"
+            echo "  --password PASS    SSH password (key auth is preferred). WARNING: Using this flag may expose the password in your shell history. Prefer setting the SSH_PASSWORD environment variable."
             echo "  --registry         Pull image from GHCR instead of local build + transfer"
             echo "  --ssl              Enable SSL via Let's Encrypt after deploy"
             echo "  --skip-build       Skip building, use existing image on VPS"
@@ -109,6 +113,17 @@ fi
 
 SSH_CMD="ssh -o StrictHostKeyChecking=accept-new -p ${VPS_PORT} ${VPS_USER}@${VPS_HOST}"
 SCP_CMD="scp -o StrictHostKeyChecking=accept-new -P ${VPS_PORT}"
+
+if [[ -n "$SSH_PASSWORD" ]]; then
+    if ! command -v sshpass >/dev/null 2>&1; then
+        log_error "sshpass is required for --password auth. Install it and retry."
+        exit 1
+    fi
+
+    log_warn "Using password-based SSH auth. Key-based auth is strongly recommended for production."
+    SSH_CMD="SSHPASS=$(printf %q "${SSH_PASSWORD}") sshpass -e ssh -o StrictHostKeyChecking=accept-new -p ${VPS_PORT} ${VPS_USER}@${VPS_HOST}"
+    SCP_CMD="SSHPASS=$(printf %q "${SSH_PASSWORD}") sshpass -e scp -o StrictHostKeyChecking=accept-new -P ${VPS_PORT}"
+fi
 
 log "Deploying to ${VPS_USER}@${VPS_HOST}:${VPS_DEPLOY_PATH}"
 

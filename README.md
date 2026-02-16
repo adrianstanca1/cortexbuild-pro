@@ -45,6 +45,8 @@ cd deployment
 # Option 2: Deploy from local machine to VPS
 cd deployment
 ./deploy-to-vps.sh --host YOUR_VPS_IP --domain cortexbuildpro.com --ssl
+# Optional: use password auth when no SSH key is available
+./deploy-to-vps.sh --host YOUR_VPS_IP --user root --password 'your-password'
 
 # Option 3: Docker Compose directly on server
 cd deployment
