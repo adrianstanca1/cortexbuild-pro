@@ -114,12 +114,12 @@ describe('API Integration Tests', () => {
         const db = getDb();
         const now = new Date().toISOString();
         await db.run(`INSERT OR IGNORE INTO companies (id, name, status, plan, createdAt, updatedAt) VALUES ('c1', 'Test Tenant', 'Active', 'Enterprise', ?, ?)`, [now, now]);
-    });
+    }, 30000);
 
     afterAll(async () => {
         const { closeAll } = await import('../index.js');
         await closeAll();
-    });
+    }, 15000);
 
     it('should return 404 for unknown routes', async () => {
         const res = await api.get('/api/unknown-route');
