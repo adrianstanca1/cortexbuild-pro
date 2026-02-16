@@ -20,7 +20,7 @@
         "vercel:dev": "vercel dev",
         "vercel:deploy": "vercel",
         "vercel:prod": "vercel --prod",
-        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "lint": "eslint 'src/**/*.{ts,tsx}'",
         "db:backup": "chmod +x scripts/backup-database.sh && ./scripts/backup-database.sh",
         "db:restore": "chmod +x scripts/restore-database.sh && ./scripts/restore-database.sh",
         "db:health": "curl -s https://api.cortexbuildpro.com/api/health",

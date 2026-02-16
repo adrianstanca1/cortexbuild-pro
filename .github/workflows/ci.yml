@@ -2,9 +2,9 @@ name: CI - Build & Test
 
 on:
   push:
-    branches: [master, main, master-integrated]
+    branches: [Cortexbuildpro, master, main, master-integrated]
   pull_request:
-    branches: [master, main, master-integrated]
+    branches: [Cortexbuildpro, master, main, master-integrated]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

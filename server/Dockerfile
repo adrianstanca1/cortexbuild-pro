@@ -2,14 +2,18 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+ENV NODE_ENV=production
 
-# Build stage
+COPY package*.json ./
+RUN npm ci --omit=dev
+
 COPY . .
 RUN npm run build
 
-# Change port exposure to 8080 for Cloud Run
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+USER appuser
+
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
