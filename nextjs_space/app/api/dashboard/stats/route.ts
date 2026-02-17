@@ -159,6 +159,90 @@ export async function GET(_request: NextRequest) {
       },
     });
 
+    // Weekly trend data — tasks completed per day over last 7 days
+    const weeklyTrends = await Promise.all(
+      Array.from({ length: 7 }, (_, i) => {
+        const dayStart = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setHours(23, 59, 59, 999);
+        return Promise.all([
+          prisma.task.count({
+            where: {
+              project: { organizationId: orgId },
+              status: 'COMPLETE',
+              updatedAt: { gte: dayStart, lte: dayEnd },
+            },
+          }),
+          prisma.task.count({
+            where: {
+              project: { organizationId: orgId },
+              createdAt: { gte: dayStart, lte: dayEnd },
+            },
+          }),
+          prisma.activityLog.count({
+            where: {
+              project: { organizationId: orgId },
+              createdAt: { gte: dayStart, lte: dayEnd },
+            },
+          }),
+        ]).then(([completed, created, activities]) => ({
+          date: dayStart.toISOString().slice(0, 10),
+          dayLabel: dayStart.toLocaleDateString('en-GB', { weekday: 'short' }),
+          tasksCompleted: completed,
+          tasksCreated: created,
+          activities,
+        }));
+      })
+    );
+
+    // Previous week comparison for percentage change
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const [tasksCompletedThisWeek, tasksCompletedLastWeek] = await Promise.all([
+      prisma.task.count({
+        where: {
+          project: { organizationId: orgId },
+          status: 'COMPLETE',
+          updatedAt: { gte: sevenDaysAgo },
+        },
+      }),
+      prisma.task.count({
+        where: {
+          project: { organizationId: orgId },
+          status: 'COMPLETE',
+          updatedAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
+        },
+      }),
+    ]);
+
+    const productivityChange = tasksCompletedLastWeek > 0
+      ? Math.round(((tasksCompletedThisWeek - tasksCompletedLastWeek) / tasksCompletedLastWeek) * 100)
+      : tasksCompletedThisWeek > 0 ? 100 : 0;
+
+    // Budget utilization across all active projects
+    const projectBudgets = await prisma.project.findMany({
+      where: { organizationId: orgId, status: 'IN_PROGRESS' },
+      select: {
+        id: true,
+        name: true,
+        budget: true,
+        costItems: { select: { actualAmount: true } },
+      },
+    });
+
+    const budgetSummary = projectBudgets.map(p => {
+      const spent = p.costItems.reduce((sum, ci) => sum + (ci.actualAmount || 0), 0);
+      const budget = p.budget || 0;
+      return {
+        projectId: p.id,
+        projectName: p.name,
+        budget,
+        spent,
+        remaining: budget - spent,
+        utilization: budget > 0 ? Math.round((spent / budget) * 100) : 0,
+      };
+    });
+
     // Format response
     const stats = {
       overview: {
@@ -254,7 +338,25 @@ export async function GET(_request: NextRequest) {
       },
     };
 
-    return NextResponse.json(stats);
+    return NextResponse.json({
+      ...stats,
+      trends: {
+        weekly: weeklyTrends,
+        tasksCompletedThisWeek,
+        tasksCompletedLastWeek,
+        productivityChange,
+      },
+      budgetSummary: {
+        projects: budgetSummary,
+        totalBudget: budgetSummary.reduce((sum, p) => sum + p.budget, 0),
+        totalSpent: budgetSummary.reduce((sum, p) => sum + p.spent, 0),
+        overallUtilization: (() => {
+          const totalBudget = budgetSummary.reduce((sum, p) => sum + p.budget, 0);
+          const totalSpent = budgetSummary.reduce((sum, p) => sum + p.spent, 0);
+          return totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+        })(),
+      },
+    });
   } catch (error) {
     console.error('Dashboard stats error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
