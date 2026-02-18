@@ -89,6 +89,132 @@ export async function seedDatabase() {
     );
   }
 
+  // --- AS Cladding Ltd Company ---
+  const asCladdingCompany = {
+    id: 'c2',
+    name: 'AS Cladding Ltd',
+    subscriptionTier: 'PROFESSIONAL',
+    maxProjects: 50,
+    maxUsers: 25,
+    isActive: true,
+    createdAt: new Date().toISOString()
+  };
+
+  await db.run(
+    `INSERT INTO companies (id, name, subscriptionTier, maxProjects, maxUsers, isActive, createdAt, updatedAt, plan, status, slug)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [asCladdingCompany.id, asCladdingCompany.name, asCladdingCompany.subscriptionTier, asCladdingCompany.maxProjects, asCladdingCompany.maxUsers, asCladdingCompany.isActive ? 1 : 0, asCladdingCompany.createdAt, asCladdingCompany.createdAt, 'PROFESSIONAL', 'ACTIVE', 'as-cladding-ltd']
+  );
+
+  // --- AS Cladding Ltd Users ---
+  const asCladdingUsers = [
+    {
+      id: 'asc-owner',
+      email: 'adrian@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'Adrian Stanca',
+      role: 'COMPANY_ADMIN',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'asc-admin',
+      email: 'office@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'Laura Bennett',
+      role: 'COMPANY_ADMIN',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'asc-pm',
+      email: 'contracts@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'James Carter',
+      role: 'PROJECT_MANAGER',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'asc-supervisor',
+      email: 'site@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'Tom Davies',
+      role: 'OPERATIVE',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'asc-op1',
+      email: 'daniel@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'Daniel Murphy',
+      role: 'OPERATIVE',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'asc-op2',
+      email: 'ryan@ascladdingltd.co.uk',
+      password: await bcrypt.hash('Admin123!', 12),
+      name: 'Ryan Pearce',
+      role: 'OPERATIVE',
+      companyId: 'c2',
+      isActive: true,
+      createdAt: new Date().toISOString()
+    }
+  ];
+
+  for (const u of asCladdingUsers) {
+    await db.run(
+      `INSERT INTO users (id, email, password, name, role, companyId, status, isActive, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [u.id, u.email, u.password, u.name, u.role, u.companyId, 'active', u.isActive ? 1 : 0, u.createdAt, u.createdAt]
+    );
+  }
+
+  // --- AS Cladding Memberships ---
+  const asCladdingMemberships = [
+    { id: 'asc-m1', userId: 'asc-owner', companyId: 'c2', role: 'COMPANY_ADMIN', status: 'active' },
+    { id: 'asc-m2', userId: 'asc-admin', companyId: 'c2', role: 'COMPANY_ADMIN', status: 'active' },
+    { id: 'asc-m3', userId: 'asc-pm', companyId: 'c2', role: 'PROJECT_MANAGER', status: 'active' },
+    { id: 'asc-m4', userId: 'asc-supervisor', companyId: 'c2', role: 'SUPERVISOR', status: 'active' },
+    { id: 'asc-m5', userId: 'asc-op1', companyId: 'c2', role: 'OPERATIVE', status: 'active' },
+    { id: 'asc-m6', userId: 'asc-op2', companyId: 'c2', role: 'OPERATIVE', status: 'active' }
+  ];
+
+  for (const m of asCladdingMemberships) {
+    await db.run(
+      `INSERT INTO memberships (id, userId, companyId, role, status, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [m.id, m.userId, m.companyId, m.role, m.status, new Date().toISOString(), new Date().toISOString()]
+    );
+  }
+
+  // --- AS Cladding Team Members ---
+  const asCladdingTeam = [
+    { id: 'asc-owner', companyId: 'c2', name: 'Adrian Stanca', initials: 'AS', role: 'Company Owner / Director', status: 'On Site', projectId: null, projectName: null, phone: '+44 7700 900001', email: 'adrian@ascladdingltd.co.uk', color: 'bg-indigo-500', bio: 'Founder and director of AS Cladding Ltd.', location: 'Head Office', skills: '["Cladding", "Management", "Estimating"]', certifications: '["CSCS Black", "SMSTS"]', performanceRating: 98, completedProjects: 25, joinDate: '2018-01-01', hourlyRate: 95.00 },
+    { id: 'asc-admin', companyId: 'c2', name: 'Laura Bennett', initials: 'LB', role: 'Office Manager', status: 'Office', projectId: null, projectName: null, phone: '+44 7700 900002', email: 'office@ascladdingltd.co.uk', color: 'bg-pink-500', bio: 'Manages administration, accounts, and HR.', location: 'Head Office', skills: '["Administration", "Accounts", "Scheduling"]', certifications: '[]', performanceRating: 94, completedProjects: 0, joinDate: '2019-06-15', hourlyRate: 45.00 },
+    { id: 'asc-pm', companyId: 'c2', name: 'James Carter', initials: 'JC', role: 'Contracts Manager', status: 'On Site', projectId: null, projectName: null, phone: '+44 7700 900003', email: 'contracts@ascladdingltd.co.uk', color: 'bg-teal-500', bio: 'Manages contracts, procurement, and client relations.', location: 'Site Office', skills: '["Contracts", "Procurement", "QA/QC"]', certifications: '["CSCS Black", "SMSTS", "NVQ Level 6"]', performanceRating: 91, completedProjects: 18, joinDate: '2020-03-01', hourlyRate: 75.00 },
+    { id: 'asc-supervisor', companyId: 'c2', name: 'Tom Davies', initials: 'TD', role: 'Site Supervisor', status: 'On Site', projectId: null, projectName: null, phone: '+44 7700 900004', email: 'site@ascladdingltd.co.uk', color: 'bg-orange-500', bio: 'Leads site teams and ensures quality installation.', location: 'Active Site', skills: '["Rainscreen Cladding", "Curtain Walling", "Supervision"]', certifications: '["CSCS Gold", "SSSTS", "NVQ Level 3"]', performanceRating: 90, completedProjects: 15, joinDate: '2020-08-10', hourlyRate: 55.00 },
+    { id: 'asc-op1', companyId: 'c2', name: 'Daniel Murphy', initials: 'DM', role: 'Senior Cladding Operative', status: 'On Site', projectId: null, projectName: null, phone: '+44 7700 900005', email: 'daniel@ascladdingltd.co.uk', color: 'bg-cyan-500', bio: 'Experienced cladding installer specialising in rainscreen systems.', location: 'Active Site', skills: '["Rainscreen", "Composite Panels", "Working at Height"]', certifications: '["CSCS Blue", "IPAF", "Harness Training"]', performanceRating: 88, completedProjects: 12, joinDate: '2021-02-01', hourlyRate: 42.00 },
+    { id: 'asc-op2', companyId: 'c2', name: 'Ryan Pearce', initials: 'RP', role: 'Cladding Operative', status: 'On Site', projectId: null, projectName: null, phone: '+44 7700 900006', email: 'ryan@ascladdingltd.co.uk', color: 'bg-amber-500', bio: 'Skilled operative with aluminium and zinc cladding experience.', location: 'Active Site', skills: '["Aluminium Cladding", "Zinc Systems", "SFS Framing"]', certifications: '["CSCS Blue", "IPAF", "Asbestos Awareness"]', performanceRating: 85, completedProjects: 8, joinDate: '2022-05-15', hourlyRate: 38.00 }
+  ];
+
+  for (const m of asCladdingTeam) {
+    await db.run(
+      `INSERT INTO team (id, companyId, name, initials, role, status, projectId, projectName, phone, email, color, bio, location, skills, certifications, performanceRating, completedProjects, joinDate, hourlyRate)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [m.id, m.companyId, m.name, m.initials, m.role, m.status, m.projectId, m.projectName, m.phone, m.email, m.color, m.bio, m.location, m.skills, m.certifications, m.performanceRating, m.completedProjects, m.joinDate, m.hourlyRate]
+    );
+  }
+
+  logger.info('AS Cladding Ltd users and team seeded');
 
   const projects = [
     {

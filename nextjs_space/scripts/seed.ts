@@ -98,6 +98,131 @@ async function main() {
   });
 
   // =====================
+  // AS CLADDING LTD TEAM MEMBERS
+  // =====================
+  const asCladdingTeamPassword = await bcrypt.hash(SEED_PASSWORD, 12);
+
+  // Admin - Office Manager
+  const asCladdingAdmin = await prisma.user.upsert({
+    where: { email: "office@ascladdingltd.co.uk" },
+    update: { password: asCladdingTeamPassword, role: "ADMIN", organizationId: asCladdingOrg.id },
+    create: {
+      email: "office@ascladdingltd.co.uk",
+      password: asCladdingTeamPassword,
+      name: "Laura Bennett",
+      role: "ADMIN",
+      organizationId: asCladdingOrg.id
+    }
+  });
+  console.log("AS Cladding Admin created:", asCladdingAdmin.email);
+
+  await prisma.teamMember.upsert({
+    where: { userId_organizationId: { userId: asCladdingAdmin.id, organizationId: asCladdingOrg.id } },
+    update: {},
+    create: {
+      userId: asCladdingAdmin.id,
+      organizationId: asCladdingOrg.id,
+      jobTitle: "Office Manager"
+    }
+  });
+
+  // Project Manager - Contracts Manager
+  const asCladdingPM = await prisma.user.upsert({
+    where: { email: "contracts@ascladdingltd.co.uk" },
+    update: { password: asCladdingTeamPassword, role: "PROJECT_MANAGER", organizationId: asCladdingOrg.id },
+    create: {
+      email: "contracts@ascladdingltd.co.uk",
+      password: asCladdingTeamPassword,
+      name: "James Carter",
+      role: "PROJECT_MANAGER",
+      organizationId: asCladdingOrg.id
+    }
+  });
+  console.log("AS Cladding PM created:", asCladdingPM.email);
+
+  await prisma.teamMember.upsert({
+    where: { userId_organizationId: { userId: asCladdingPM.id, organizationId: asCladdingOrg.id } },
+    update: {},
+    create: {
+      userId: asCladdingPM.id,
+      organizationId: asCladdingOrg.id,
+      jobTitle: "Contracts Manager"
+    }
+  });
+
+  // Field Worker - Site Supervisor
+  const asCladdingSupervisor = await prisma.user.upsert({
+    where: { email: "site@ascladdingltd.co.uk" },
+    update: { password: asCladdingTeamPassword, role: "FIELD_WORKER", organizationId: asCladdingOrg.id },
+    create: {
+      email: "site@ascladdingltd.co.uk",
+      password: asCladdingTeamPassword,
+      name: "Tom Davies",
+      role: "FIELD_WORKER",
+      organizationId: asCladdingOrg.id
+    }
+  });
+  console.log("AS Cladding Supervisor created:", asCladdingSupervisor.email);
+
+  await prisma.teamMember.upsert({
+    where: { userId_organizationId: { userId: asCladdingSupervisor.id, organizationId: asCladdingOrg.id } },
+    update: {},
+    create: {
+      userId: asCladdingSupervisor.id,
+      organizationId: asCladdingOrg.id,
+      jobTitle: "Site Supervisor"
+    }
+  });
+
+  // Field Worker - Cladding Operative
+  const asCladdingOperative1 = await prisma.user.upsert({
+    where: { email: "daniel@ascladdingltd.co.uk" },
+    update: { password: asCladdingTeamPassword, role: "FIELD_WORKER", organizationId: asCladdingOrg.id },
+    create: {
+      email: "daniel@ascladdingltd.co.uk",
+      password: asCladdingTeamPassword,
+      name: "Daniel Murphy",
+      role: "FIELD_WORKER",
+      organizationId: asCladdingOrg.id
+    }
+  });
+  console.log("AS Cladding Operative created:", asCladdingOperative1.email);
+
+  await prisma.teamMember.upsert({
+    where: { userId_organizationId: { userId: asCladdingOperative1.id, organizationId: asCladdingOrg.id } },
+    update: {},
+    create: {
+      userId: asCladdingOperative1.id,
+      organizationId: asCladdingOrg.id,
+      jobTitle: "Senior Cladding Operative"
+    }
+  });
+
+  // Field Worker - Cladding Operative 2
+  const asCladdingOperative2 = await prisma.user.upsert({
+    where: { email: "ryan@ascladdingltd.co.uk" },
+    update: { password: asCladdingTeamPassword, role: "FIELD_WORKER", organizationId: asCladdingOrg.id },
+    create: {
+      email: "ryan@ascladdingltd.co.uk",
+      password: asCladdingTeamPassword,
+      name: "Ryan Pearce",
+      role: "FIELD_WORKER",
+      organizationId: asCladdingOrg.id
+    }
+  });
+  console.log("AS Cladding Operative created:", asCladdingOperative2.email);
+
+  await prisma.teamMember.upsert({
+    where: { userId_organizationId: { userId: asCladdingOperative2.id, organizationId: asCladdingOrg.id } },
+    update: {},
+    create: {
+      userId: asCladdingOperative2.id,
+      organizationId: asCladdingOrg.id,
+      jobTitle: "Cladding Operative"
+    }
+  });
+
+  // =====================
   // DEMO ADMIN USER (test account)
   // =====================
   const hashedPassword = await bcrypt.hash(SEED_PASSWORD, 12);
