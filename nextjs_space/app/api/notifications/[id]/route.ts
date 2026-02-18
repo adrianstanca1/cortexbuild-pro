@@ -17,18 +17,22 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify ownership before updating (userId is not a unique field, so findFirst is needed)
-    const existing = await prisma.notification.findFirst({
-      where: { id, userId: session.user.id },
+    // Atomically verify ownership and update in a single transaction
+    const notification = await prisma.$transaction(async (tx) => {
+      const existing = await tx.notification.findFirst({
+        where: { id, userId: session.user.id },
+      });
+      if (!existing) return null;
+
+      return tx.notification.update({
+        where: { id },
+        data: { read: true, readAt: new Date() },
+      });
     });
-    if (!existing) {
+
+    if (!notification) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
     }
-
-    const notification = await prisma.notification.update({
-      where: { id },
-      data: { read: true, readAt: new Date() },
-    });
 
     return NextResponse.json(notification);
   } catch (error) {
