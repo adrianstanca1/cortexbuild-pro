@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
+import { generateAIResponse } from "@/lib/ai-service";
 
 // AI-Powered Risk Prediction & Early Warning System
 // Analyzes project data to predict potential risks
@@ -115,73 +116,32 @@ Provide a comprehensive risk prediction analysis:
 
 Format as JSON with keys: scheduleRisks, costRisks, safetyRisks, qualityRisks, resourceRisks, earlyWarnings, recommendations, riskScore`;
 
-    const aiResponse = await fetch("https://routellm.abacus.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
+    const messages = [
+      {
+        role: "system",
+        content: "You are an expert construction project risk analyst with deep knowledge of UK construction practices, CDM 2015 regulations, and predictive analytics. Provide data-driven, actionable insights. Always respond with valid JSON."
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert construction project risk analyst with deep knowledge of UK construction practices, CDM 2015 regulations, and predictive analytics. Provide data-driven, actionable insights. Always respond with valid JSON."
-          },
-          {
-            role: "user",
-            content: riskAnalysisPrompt
-          }
-        ],
-        temperature: 0.2,
-        max_tokens: 2500
-      })
-    });
-
-    if (!aiResponse.ok) {
-      console.error("AI API error:", await aiResponse.text());
-      return NextResponse.json(
-        { error: "Failed to analyze risks" },
-        { status: 500 }
-      );
-    }
-
-    const aiData = await aiResponse.json();
-    const analysisText = aiData.choices[0]?.message?.content || "";
-
-    // Parse AI response
-    let riskPrediction;
-    try {
-      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        riskPrediction = JSON.parse(jsonMatch[0]);
-      } else {
-        riskPrediction = {
-          scheduleRisks: ["Unable to parse schedule risks"],
-          costRisks: ["Unable to parse cost risks"],
-          safetyRisks: ["Unable to parse safety risks"],
-          qualityRisks: ["Unable to parse quality risks"],
-          resourceRisks: ["Unable to parse resource risks"],
-          earlyWarnings: [],
-          recommendations: [],
-          riskScore: 50,
-          rawAnalysis: analysisText
-        };
+      {
+        role: "user",
+        content: riskAnalysisPrompt
       }
-    } catch (parseError) {
-      riskPrediction = {
-        scheduleRisks: [],
-        costRisks: [],
-        safetyRisks: [],
-        qualityRisks: [],
-        resourceRisks: [],
-        earlyWarnings: [],
-        recommendations: [],
-        riskScore: 50,
-        rawAnalysis: analysisText,
-        error: "Failed to parse AI response"
-      };
+    ];
+
+    const result = await generateAIResponse({ messages, maxTokens: 2000 });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
     }
+
+    let parsed: any = {};
+    try {
+      const jsonMatch = result.response?.match(/```json\n?([\s\S]*?)\n?```/) || [null, result.response];
+      parsed = JSON.parse(jsonMatch[1] || '{}');
+    } catch {
+      parsed = { rawResponse: result.response };
+    }
+
+    const riskPrediction = parsed;
 
     // Create predictive signal if high risk detected
     if (riskPrediction.riskScore < 70 || (riskPrediction.earlyWarnings && riskPrediction.earlyWarnings.length > 0)) {
