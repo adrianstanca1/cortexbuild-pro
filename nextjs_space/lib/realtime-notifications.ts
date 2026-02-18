@@ -49,7 +49,7 @@ export class RealTimeNotifications {
     );
 
     if (userIds.length > 0) {
-      broadcastEvent(userIds, { type: 'notification', payload: { title, message, projectId } });
+      broadcastEvent(userIds, { type: 'notification', payload: notifications });
     }
 
     return notifications;
@@ -74,7 +74,7 @@ export class RealTimeNotifications {
     );
 
     if (userIds.length > 0) {
-      broadcastEvent(userIds, { type: 'notification', payload: { title, message } });
+      broadcastEvent(userIds, { type: 'notification', payload: notifications });
     }
 
     return notifications;
