@@ -136,7 +136,7 @@ Provide practical insights useful for construction management.`;
       }
     ];
 
-    const result = await generateAIResponse({ messages, maxTokens: 1500 });
+    const result = await generateAIResponse({ messages: messages as any, maxTokens: 1500 });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });

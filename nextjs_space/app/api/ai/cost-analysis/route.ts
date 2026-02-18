@@ -154,7 +154,7 @@ Use UK construction terminology and £ currency.`;
       { role: 'user', content: prompt }
     ];
 
-    const result = await generateAIResponse({ messages, maxTokens: 2000 });
+    const result = await generateAIResponse({ messages: messages as any, maxTokens: 2000 });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });

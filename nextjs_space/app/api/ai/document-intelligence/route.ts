@@ -56,7 +56,7 @@ Format as JSON with these exact keys: summary, keyDates, budgetInfo, parties, ri
       }
     ];
 
-    const result = await generateAIResponse({ messages, maxTokens: 3000 });
+    const result = await generateAIResponse({ messages: messages as any, maxTokens: 3000 });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });

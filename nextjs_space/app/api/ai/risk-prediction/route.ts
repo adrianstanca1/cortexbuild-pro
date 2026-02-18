@@ -127,7 +127,7 @@ Format as JSON with keys: scheduleRisks, costRisks, safetyRisks, qualityRisks, r
       }
     ];
 
-    const result = await generateAIResponse({ messages, maxTokens: 2000 });
+    const result = await generateAIResponse({ messages: messages as any, maxTokens: 2000 });
 
     if (!result.success) {
       return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
