@@ -94,11 +94,12 @@ export function NotificationsDropdown() {
 
   const markAllAsRead = async () => {
     try {
-      await fetch('/api/notifications/read-all', { method: 'PATCH' });
-      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      const res = await fetch('/api/notifications/read-all', { method: 'PATCH' });
+      if (!res.ok) return;
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch {
-      // Optimistic update already done; silently ignore network errors
+      // Network-level failure; state unchanged
     }
   };
 
