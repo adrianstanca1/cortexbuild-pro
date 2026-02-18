@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
+import { generateAIResponse } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,52 +72,13 @@ export async function POST(request: NextRequest) {
       content: 'You are an AI assistant specializing in construction document analysis for CortexBuildPro. Analyze documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
     });
 
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        messages,
-        stream: true,
-        max_tokens: 3000
-      })
-    });
+    const result = await generateAIResponse({ messages, maxTokens: 4000 });
 
-    if (!response.ok) {
-      throw new Error(`LLM API error: ${response.status}`);
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
     }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            controller.enqueue(encoder.encode(chunk));
-          }
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.error(error);
-        } finally {
-          controller.close();
-        }
-      }
-    });
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      }
-    });
+    return NextResponse.json({ analysis: result.response });
   } catch (error) {
     console.error('Document analysis error:', error);
     return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });
