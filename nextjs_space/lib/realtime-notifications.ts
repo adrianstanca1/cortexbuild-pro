@@ -67,6 +67,8 @@ export class RealTimeNotifications {
 
     const userIds = activeUsers.map(u => u.id);
 
+    if (userIds.length === 0) return [];
+
     const notifications = await prisma.$transaction(
       userIds.map(uid =>
         prisma.notification.create({
