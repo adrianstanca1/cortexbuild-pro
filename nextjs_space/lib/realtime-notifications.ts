@@ -40,6 +40,8 @@ export class RealTimeNotifications {
 
     const userIds = projectUsers.map(ptm => ptm.teamMember.user.id);
 
+    if (userIds.length === 0) return [];
+
     const notifications = await prisma.$transaction(
       userIds.map(uid =>
         prisma.notification.create({
@@ -48,9 +50,9 @@ export class RealTimeNotifications {
       )
     );
 
-    if (userIds.length > 0) {
-      broadcastEvent(userIds, { type: 'notification', payload: notifications });
-    }
+    userIds.forEach((uid, i) => {
+      broadcastEvent([uid], { type: 'notification', payload: notifications[i] });
+    });
 
     return notifications;
   }
@@ -73,9 +75,9 @@ export class RealTimeNotifications {
       )
     );
 
-    if (userIds.length > 0) {
-      broadcastEvent(userIds, { type: 'notification', payload: notifications });
-    }
+    userIds.forEach((uid, i) => {
+      broadcastEvent([uid], { type: 'notification', payload: notifications[i] });
+    });
 
     return notifications;
   }
