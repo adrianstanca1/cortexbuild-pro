@@ -92,9 +92,14 @@ export function NotificationsDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
+  const markAllAsRead = async () => {
+    try {
+      await fetch('/api/notifications/read-all', { method: 'PATCH' });
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch {
+      // Optimistic update already done; silently ignore network errors
+    }
   };
 
   const getIcon = (type: string) => {
