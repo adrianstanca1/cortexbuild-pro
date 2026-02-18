@@ -6,9 +6,7 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
-
-const ABACUS_API_KEY = process.env.ABACUSAI_API_KEY;
-const ABACUS_API_URL = 'https://api.abacus.ai/api/v0/chat';
+import { generateAIResponse } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,64 +118,31 @@ ${projectContext}Provide a comprehensive analysis of this construction site imag
 Provide practical insights useful for construction management.`;
     }
 
-    // Call Abacus AI API with the image
-    const response = await fetch(ABACUS_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${ABACUS_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
+    const messages = [
+      {
+        role: 'user',
+        content: [
           {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: analysisPrompt
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageDataUrl
-                }
-              }
-            ]
+            type: 'text',
+            text: analysisPrompt
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: imageDataUrl
+            }
           }
-        ],
-        max_tokens: 2000
-      })
-    });
+        ]
+      }
+    ];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', errorText);
-      return NextResponse.json(
-        { error: 'AI analysis failed' },
-        { status: 500 }
-      );
+    const result = await generateAIResponse({ messages, maxTokens: 1500 });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
     }
 
-    const result = await response.json();
-    const analysis = result.choices?.[0]?.message?.content || 'Unable to analyze image';
-
-    // Extract risk level if safety analysis
-    let riskLevel: string | null = null;
-    if (analysisType === 'safety') {
-      if (analysis.includes('CRITICAL')) riskLevel = 'CRITICAL';
-      else if (analysis.includes('HIGH')) riskLevel = 'HIGH';
-      else if (analysis.includes('MEDIUM')) riskLevel = 'MEDIUM';
-      else if (analysis.includes('LOW')) riskLevel = 'LOW';
-    }
-
-    return NextResponse.json({
-      success: true,
-      analysis,
-      analysisType,
-      riskLevel,
-      timestamp: new Date().toISOString()
-    });
+    return NextResponse.json({ analysis: result.response });
   } catch (error) {
     console.error('Photo analysis error:', error);
     return NextResponse.json(
