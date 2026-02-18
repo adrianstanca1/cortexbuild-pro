@@ -6,9 +6,7 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
-
-const ABACUS_API_KEY = process.env.ABACUSAI_API_KEY;
-const ABACUS_API_URL = 'https://api.abacus.ai/api/v0/chat';
+import { generateAIResponse } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -152,46 +150,25 @@ Provide a cost trend analysis including:
 Use UK construction terminology and £ currency.`;
     }
 
-    // Call Abacus AI
-    const response = await fetch(ABACUS_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${ABACUS_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 2000
-      })
-    });
+    const messages = [
+      { role: 'user', content: prompt }
+    ];
 
-    if (!response.ok) {
-      console.error('AI API error:', await response.text());
-      return NextResponse.json({ error: 'AI analysis failed' }, { status: 500 });
+    const result = await generateAIResponse({ messages, maxTokens: 2000 });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
     }
 
-    const result = await response.json();
-    const analysis = result.choices?.[0]?.message?.content || 'Unable to generate analysis';
+    let parsed: any = {};
+    try {
+      const jsonMatch = result.response?.match(/```json\n?([\s\S]*?)\n?```/) || [null, result.response];
+      parsed = JSON.parse(jsonMatch[1] || '{}');
+    } catch {
+      parsed = { analysis: result.response };
+    }
 
-    return NextResponse.json({
-      success: true,
-      analysis,
-      metrics: {
-        originalBudget: project.budget || 0,
-        approvedChanges: totalChangeOrderValue,
-        pendingChanges: pendingChangeOrderValue,
-        currentBudget: (project.budget || 0) + totalChangeOrderValue,
-        cpi: latestForecast?.costPerformanceIndex,
-        spi: latestForecast?.schedulePerformanceIndex,
-        forecastAtCompletion: latestForecast?.forecastAtCompletion,
-        earnedValue: latestForecast?.earnedValue,
-        actualCost: latestForecast?.actualCost
-      },
-      timestamp: new Date().toISOString()
-    });
+    return NextResponse.json(parsed);
   } catch (error) {
     console.error('Cost analysis error:', error);
     return NextResponse.json(
