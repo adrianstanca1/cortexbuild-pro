@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { prisma } from "@/lib/db";
+import { generateAIResponse } from "@/lib/ai-service";
 
 // AI-Powered Document Intelligence API
 // Analyzes construction documents and extracts key information
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { documentId, documentText, documentType, projectId } = body;
+    const { documentText, documentType } = body;
 
     if (!documentText || !documentType) {
       return NextResponse.json(
@@ -45,96 +45,24 @@ Please provide:
 
 Format as JSON with these exact keys: summary, keyDates, budgetInfo, parties, risks, actionItems, complianceIssues`;
 
-    const aiResponse = await fetch("https://routellm.abacus.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
+    const messages = [
+      {
+        role: "system",
+        content: "You are an expert construction document analyst specializing in UK construction projects and CDM 2015 compliance. Provide detailed, actionable insights. Always respond with valid JSON."
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert construction document analyst specializing in UK construction projects and CDM 2015 compliance. Provide detailed, actionable insights. Always respond with valid JSON."
-          },
-          {
-            role: "user",
-            content: analysisPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000
-      })
-    });
-
-    if (!aiResponse.ok) {
-      console.error("AI API error:", await aiResponse.text());
-      return NextResponse.json(
-        { error: "Failed to analyze document" },
-        { status: 500 }
-      );
-    }
-
-    const aiData = await aiResponse.json();
-    const analysisText = aiData.choices[0]?.message?.content || "";
-
-    // Parse the AI response (handle both JSON and text responses)
-    let analysis;
-    try {
-      // Try to extract JSON from the response
-      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
-        // Fallback: create structured data from text
-        analysis = {
-          summary: analysisText.substring(0, 500),
-          keyDates: [],
-          budgetInfo: {},
-          parties: [],
-          risks: [],
-          actionItems: [],
-          complianceIssues: []
-        };
+      {
+        role: "user",
+        content: analysisPrompt
       }
-    } catch (parseError) {
-      analysis = {
-        summary: analysisText.substring(0, 500),
-        keyDates: [],
-        budgetInfo: {},
-        parties: [],
-        risks: [],
-        actionItems: [],
-        complianceIssues: [],
-        rawAnalysis: analysisText
-      };
+    ];
+
+    const result = await generateAIResponse({ messages, maxTokens: 3000 });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
     }
 
-    // Log activity
-    if (projectId) {
-      await prisma.activityLog.create({
-        data: {
-          action: "document_analyzed",
-          entityType: "Document",
-          entityId: documentId || "unknown",
-          entityName: documentType,
-          details: `AI document analysis completed. Risks found: ${analysis.risks?.length || 0}. Compliance issues: ${analysis.complianceIssues?.length || 0}`,
-          userId: session.user.id,
-          projectId
-        }
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      analysis,
-      metadata: {
-        analyzedAt: new Date().toISOString(),
-        documentType,
-        confidence: 0.85
-      }
-    });
+    return NextResponse.json({ intelligence: result.response });
   } catch (error) {
     console.error("Document intelligence error:", error);
     return NextResponse.json(
