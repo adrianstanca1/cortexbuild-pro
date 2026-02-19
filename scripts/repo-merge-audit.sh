@@ -22,8 +22,9 @@ echo
 
 echo "--- Working tree / stashes ---"
 git status --short --branch
-if git stash list | grep -q .; then
-  git stash list
+stashes=$(git stash list)
+if [ -n "$stashes" ]; then
+  echo "$stashes"
 else
   echo "No stashes"
 fi
