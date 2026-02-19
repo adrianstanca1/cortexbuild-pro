@@ -26,6 +26,7 @@
         "db:health": "curl -s https://api.cortexbuildpro.com/api/health",
         "db:optimize": "tsx server/apply-indexes.ts",
         "test": "NODE_OPTIONS=--experimental-vm-modules jest --forceExit",
+        "test:open-handles": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:headed": "playwright test --headed",
