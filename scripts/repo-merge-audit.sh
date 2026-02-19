@@ -40,7 +40,7 @@ git branch --no-merged --format='* %(refname:short)'
 echo
 
 echo "--- Duplicate tracked files (exact content hash) ---"
-python - <<'PY'
+python3 - <<'PY'
 import hashlib
 import subprocess
 from collections import defaultdict
