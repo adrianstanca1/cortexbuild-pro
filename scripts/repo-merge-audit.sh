@@ -10,8 +10,9 @@ echo "Repo: $ROOT_DIR"
 echo
 
 echo "--- Branches / remotes ---"
-if git remote -v | grep -q .; then
-  git remote -v
+remotes=$(git remote -v)
+if [ -n "$remotes" ]; then
+  echo "$remotes"
 else
   echo "No remotes configured"
 fi
