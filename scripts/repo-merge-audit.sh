@@ -33,7 +33,7 @@ echo
 
 echo "--- Merged / unmerged branches (against HEAD) ---"
 echo "Merged:"
-git branch --merged | sed 's/^..//' | sed 's/^/* /'
+git branch --merged --format='* %(refname:short)'
 echo "Unmerged:"
 git branch --no-merged | sed 's/^..//' | sed 's/^/* /'
 
