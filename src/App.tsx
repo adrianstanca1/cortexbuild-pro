@@ -25,11 +25,14 @@ import { TrialBanner } from '@/components/TrialBanner';
 // Utility to handle chunk load errors by reloading the page
 const lazyWithReload = (fn: () => Promise<any>) => React.lazy(() => {
   return fn().catch(error => {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
     // Check if it's a chunk load error
-    if (error.message.includes('Failed to fetch dynamically imported module') ||
-      error.message.includes('Importing a module script failed')) {
+    if (errorMessage.includes('Failed to fetch dynamically imported module') ||
+      errorMessage.includes('Importing a module script failed')) {
       window.location.reload();
     }
+
     throw error;
   });
 });
