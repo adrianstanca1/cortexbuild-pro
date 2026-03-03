@@ -1,0 +1,41 @@
+[DEFAULT]
+# Ban hosts for 1 hour
+bantime = 3600
+
+# Check for attacks over 10 minutes
+findtime = 600
+
+# Ban after 5 failures
+maxretry = 5
+
+# Email notifications
+destemail = admin@constructionapp.com
+sender = fail2ban@constructionapp.com
+mta = sendmail
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+[nginx-http-auth]
+enabled = true
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/error.log
+
+[nginx-limit-req]
+enabled = true
+filter = nginx-limit-req
+port = http,https
+logpath = /var/log/nginx/error.log
+maxretry = 10
+
+[nginx-botsearch]
+enabled = true
+filter = nginx-botsearch
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 2

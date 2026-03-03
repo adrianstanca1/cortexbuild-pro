@@ -1,0 +1,34 @@
+#!/usr/bin/expect -f
+
+set timeout 20
+set host "82.29.191.97"
+set port "65002"
+set user "u875310796"
+set password "Cumparavinde1."
+set pubkey [read [open "./hostinger_key.pub" r]]
+
+# 1. Create .ssh directory
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "mkdir -p .ssh && chmod 700 .ssh"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+
+wait
+
+# 2. Append key (using echo to avoid pipe complexity in spawn)
+# We send the command, WAIT for password, then send password.
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "echo \"$pubkey\" >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+
+wait
+puts "✅ SSH Key Installation Process Complete (Check exit codes if failed)"

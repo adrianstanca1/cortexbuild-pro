@@ -1,0 +1,18 @@
+#!/usr/bin/expect -f
+set timeout -1
+
+# Upload
+spawn sftp -P 65002 -o StrictHostKeyChecking=no u875310796@82.29.191.97
+expect "password:"
+send "Cumparavinde1.\r"
+expect "sftp>"
+send "put server/dist/scripts/seed-functional-data.js domains/cortexbuildpro.com/server_app/dist/scripts/\r"
+expect "sftp>"
+send "bye\r"
+expect eof
+
+# Execute
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u875310796@82.29.191.97 "cd domains/cortexbuildpro.com/server_app && /opt/alt/alt-nodejs20/root/usr/bin/node dist/scripts/seed-functional-data.js"
+expect "password:"
+send "Cumparavinde1.\r"
+expect eof

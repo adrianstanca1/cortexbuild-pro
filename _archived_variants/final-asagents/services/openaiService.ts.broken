@@ -1,0 +1,348 @@
+dd// OpenAI Service Integration
+// Comprehensive OpenAI API integration with GPT-4, Vision, and Embeddings
+
+export interface OpenAIConfig {
+  apiKey: string;
+  baseUrl: string;
+  organization?: string;
+  enabled: boolean;
+}
+
+export interface OpenAIMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string | Array<{
+    type: 'text' | 'image_url';
+    text?: string;
+    image_url?: {
+      url: string;
+      detail?: 'low' | 'high' | 'auto';
+    };
+  }>;
+}
+
+export interface OpenAICompletionRequest {
+  model: string;
+  messages: OpenAIMessage[];
+  temperature?: number;
+  max_tokens?: number;
+  top_p?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+  stream?: boolean;
+  functions?: Array<{
+    name: string;
+    description: string;
+    parameters: Record<string, any>;
+  }>;
+  function_call?: 'auto' | 'none' | { name: string };
+}
+
+export interface OpenAICompletionResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+      function_call?: {
+        name: string;
+        arguments: string;
+      };
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
+export interface OpenAIEmbeddingRequest {
+  model: string;
+  input: string | string[];
+  encoding_format?: 'float' | 'base64';
+  dimensions?: number;
+  user?: string;
+}
+
+export interface OpenAIEmbeddingResponse {
+  object: string;
+  data: Array<{
+    object: string;
+    embedding: number[];
+    index: number;
+  }>;
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    total_tokens: number;
+  };
+}
+
+class OpenAIService {
+  private config: OpenAIConfig;
+  private readonly defaultModel = 'gpt-4o';
+  private readonly embeddingModel = 'text-embedding-3-large';
+
+  constructor(config: OpenAIConfig) {
+    this.config = config;
+  }
+
+  /**
+   * Get OpenAI configuration
+   */
+  getConfig(): OpenAIConfig {
+    return this.config;
+  }
+
+  /**
+   * Check if OpenAI service is enabled
+   */
+  isEnabled(): boolean {
+    return this.config.enabled && !!this.config.apiKey;
+  }
+
+  /**
+   * Generate text completion using GPT models
+   */
+  async generateCompletion(
+    messages: OpenAIMessage[],
+    options: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+      stream?: boolean;
+    } = {}
+  ): Promise<string> {
+    if (!this.isEnabled()) {
+      throw new Error('OpenAI service is not configured');
+    }
+
+    const request: OpenAICompletionRequest = {
+      model: options.model || this.defaultModel,
+      messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.maxTokens ?? 1000,
+      stream: options.stream ?? false
+    };
+
+    try {
+      const response = await this.makeRequest<OpenAICompletionResponse>('/chat/completions', {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+
+      if (!response.choices || response.choices.length === 0) {
+        throw new Error('No response generated from OpenAI');
+      }
+
+      return response.choices[0].message.content;
+    } catch (error) {
+      console.error('OpenAI completion error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate completion with vision capabilities
+   */
+  async generateVisionCompletion(
+    prompt: string,
+    imageUrl: string,
+    options: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+      detail?: 'low' | 'high' | 'auto';
+    } = {}
+  ): Promise<string> {
+    if (!this.isEnabled()) {
+      throw new Error('OpenAI service is not configured');
+    }
+
+    const messages: OpenAIMessage[] = [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: prompt
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: imageUrl,
+              detail: options.detail || 'auto'
+            }
+          }
+        ]
+      }
+    ];
+
+    return this.generateCompletion(messages, {
+      model: options.model || 'gpt-4o',
+      temperature: options.temperature,
+      maxTokens: options.maxTokens
+    });
+  }
+
+  /**
+   * Generate embeddings for text
+   */
+  async generateEmbeddings(
+    input: string | string[],
+    options: {
+      model?: string;
+      dimensions?: number;
+    } = {}
+  ): Promise<number[][]> {
+    if (!this.isEnabled()) {
+      throw new Error('OpenAI service is not configured');
+    }
+
+    const request: OpenAIEmbeddingRequest = {
+      model: options.model || this.embeddingModel,
+      input,
+      encoding_format: 'float',
+      dimensions: options.dimensions
+    };
+
+    try {
+      const response = await this.makeRequest<OpenAIEmbeddingResponse>('/embeddings', {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+
+      return response.data.map(item => item.embedding);
+    } catch (error) {
+      console.error('OpenAI embeddings error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Function calling with OpenAI
+   */
+  async callFunction(
+    messages: OpenAIMessage[],
+    functions: Array<{
+      name: string;
+      description: string;
+      parameters: Record<string, any>;
+    }>,
+    options: {
+      model?: string;
+      temperature?: number;
+      functionCall?: 'auto' | 'none' | { name: string };
+    } = {}
+  ): Promise<{
+    content: string;
+    functionCall?: {
+      name: string;
+      arguments: Record<string, any>;
+    };
+  }> {
+    if (!this.isEnabled()) {
+      throw new Error('OpenAI service is not configured');
+    }
+
+    const request: OpenAICompletionRequest = {
+      model: options.model || this.defaultModel,
+      messages,
+      temperature: options.temperature ?? 0.7,
+      functions,
+      function_call: options.functionCall || 'auto'
+    };
+
+    try {
+      const response = await this.makeRequest<OpenAICompletionResponse>('/chat/completions', {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+
+      if (!response.choices || response.choices.length === 0) {
+        throw new Error('No response generated from OpenAI');
+      }
+
+      const choice = response.choices[0];
+      const result: any = {
+        content: choice.message.content || ''
+      };
+
+      if (choice.message.function_call) {
+        result.functionCall = {
+          name: choice.message.function_call.name,
+          arguments: JSON.parse(choice.message.function_call.arguments)
+        };
+      }
+
+      return result;
+    } catch (error) {
+      console.error('OpenAI function call error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Stream completion response
+   */
+  async *streamCompletion(
+    messages: OpenAIMessage[],
+    options: {
+      model?: string;
+      temperature?: number;
+      maxTokens?: number;
+    } = {}
+  ): AsyncGenerator<string, void, unknown> {
+    if (!this.isEnabled()) {
+      throw new Error('OpenAI service is not configured');
+    }
+
+    const request: OpenAICompletionRequest = {
+      model: options.model || this.defaultModel,
+      messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.maxTokens ?? 1000,
+      stream: true
+    };
+
+    try {
+      const response = await fetch(`${this.config.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(request)
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Failed to get response reader');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              
+              if;
+              }
+
+              try {

@@ -1,0 +1,25 @@
+version : '3.9'
+
+          services : mysql : image : mysql : 8.0 environment : MYSQL_ROOT_PASSWORD : ${MYSQL_ROOT_PASSWORD : -rootpassword} MYSQL_DATABASE : asagents_db
+                                                                                                                                                 MYSQL_USER : ${MYSQL_USER : -asagents} MYSQL_PASSWORD : ${MYSQL_PASSWORD : -asagents123} ports : -"3306:3306" volumes : -mysql_data : /
+                                                                                                                                                                                                                                                                                       var / lib / mysql healthcheck : test : [ "CMD", "mysqladmin", "ping", "-h", "localhost" ] interval : 10s timeout : 5s retries : 5 networks : -asagents -
+    net
+        restart : unless -
+                  stopped
+
+                      node -
+                  backend : build : context :./ backend
+                                                    dockerfile : Dockerfile.simple
+                                                                     environment : NODE_ENV : production
+                                                                                                  PORT : 5001 DATABASE_HOST : mysql
+                                                                                                                                  DATABASE_PORT : 3306 DATABASE_NAME : asagents_db
+                                                                                                                                                                           DATABASE_USER : ${MYSQL_USER : -asagents} DATABASE_PASSWORD : ${MYSQL_PASSWORD : -asagents123} JWT_SECRET : ${JWT_SECRET : -your - super - secret - jwt - key - change - in - production} ports : -"5001:5001" depends_on : mysql : condition : service_healthy
+                                                                                                                                                                                                                                                                                                                                                                                                                               healthcheck : test : [ "CMD", "curl", "-f", "http://localhost:5001/api/health" ] interval : 30s timeout : 10s retries : 3 networks : -asagents -
+                  net
+                      restart : unless -
+                                stopped
+
+                                    volumes : mysql_data : driver : local
+
+                                                                        networks : asagents -
+                                                                                   net : driver : bridge

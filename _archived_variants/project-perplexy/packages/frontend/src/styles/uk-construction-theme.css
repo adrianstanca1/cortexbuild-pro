@@ -1,0 +1,395 @@
+/* UK Construction Theme - Enhanced Styling for Live Project Map */
+
+:root {
+    /* UK Construction Color Palette */
+    --uk-blue: #012169;
+    --uk-red: #C8102E;
+    --pound-green: #006A4E;
+    --hse-orange: #FF6600;
+    --citb-blue: #004B87;
+
+    /* Teal Primary Colors (matching ConstructAI theme) */
+    --color-teal-300: rgba(50, 184, 198, 1);
+    --color-teal-400: rgba(45, 166, 178, 1);
+    --color-teal-500: rgba(33, 128, 141, 1);
+    --color-teal-600: rgba(29, 116, 128, 1);
+    --color-teal-700: rgba(26, 104, 115, 1);
+
+    /* Enhanced Background Colors */
+    --color-bg-1: rgba(59, 130, 246, 0.08);
+    --color-bg-2: rgba(245, 158, 11, 0.08);
+    --color-bg-3: rgba(34, 197, 94, 0.08);
+
+    /* Status Colors */
+    --color-success: var(--color-teal-500);
+    --color-success-light: rgba(33, 128, 141, 0.1);
+    --color-warning: rgba(230, 129, 97, 1);
+    --color-warning-light: rgba(230, 129, 97, 0.1);
+    --color-error: rgba(255, 84, 89, 1);
+    --color-error-light: rgba(255, 84, 89, 0.1);
+    --color-info: rgba(98, 108, 113, 1);
+    --color-info-light: rgba(98, 108, 113, 0.1);
+
+    /* Typography */
+    --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+        BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    --font-size-2xl: 20px;
+    --font-size-3xl: 24px;
+    --font-size-4xl: 30px;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 550;
+    --font-weight-bold: 600;
+
+    /* Spacing */
+    --space-4: 4px;
+    --space-8: 8px;
+    --space-12: 12px;
+    --space-16: 16px;
+    --space-20: 20px;
+    --space-24: 24px;
+    --space-32: 32px;
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-base: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+        0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+        0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    --shadow-elevated: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+    /* Animation */
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg-1: rgba(29, 78, 216, 0.15);
+        --color-bg-2: rgba(180, 83, 9, 0.15);
+        --color-bg-3: rgba(21, 128, 61, 0.15);
+    }
+}
+
+[data-color-scheme="dark"] {
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+}
+
+/* UK Region Indicator */
+.uk-region-indicator {
+    background: var(--uk-blue);
+    color: white;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+}
+
+/* GBP Currency Styling */
+.currency-gbp {
+    color: var(--pound-green);
+    font-weight: var(--font-weight-bold);
+}
+
+.currency-gbp::before {
+    content: '£';
+    margin-right: 2px;
+}
+
+/* HSE Compliance Badge */
+.hse-badge {
+    border-left: 4px solid var(--hse-orange);
+    background: rgba(255, 102, 0, 0.05);
+    padding: var(--space-8) var(--space-12);
+    border-radius: var(--radius-base);
+}
+
+/* CITB Certified Badge */
+.citb-badge {
+    border-left: 4px solid var(--citb-blue);
+    background: rgba(0, 75, 135, 0.05);
+    padding: var(--space-8) var(--space-12);
+    border-radius: var(--radius-base);
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+    background: var(--color-teal-500);
+    color: white;
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-base);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--duration-normal) var(--ease-standard);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.btn-primary:hover {
+    background: var(--color-teal-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+    background: var(--color-teal-700);
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(119, 124, 124, 0.15);
+    color: var(--color-text);
+    padding: var(--space-8) var(--space-16);
+    border-radius: var(--radius-base);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--duration-normal) var(--ease-standard);
+    border: 1px solid rgba(119, 124, 124, 0.2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.btn-secondary:hover {
+    background: rgba(119, 124, 124, 0.25);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-6) var(--space-12);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
+
+.status-badge.success {
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.status-badge.warning {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}
+
+.status-badge.error {
+    background: var(--color-error-light);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+
+.status-badge.info {
+    background: var(--color-info-light);
+    color: var(--color-info);
+    border: 1px solid var(--color-info);
+}
+
+/* Enhanced Card Styles */
+.card-enhanced {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(119, 124, 124, 0.2);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.card-enhanced:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Map Controls */
+.map-controls {
+    position: absolute;
+    top: var(--space-16);
+    right: var(--space-16);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+.map-control-btn {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-base);
+    padding: var(--space-8);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all var(--duration-fast) var(--ease-standard);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    color: #333;
+}
+
+.map-control-btn:hover {
+    background: var(--color-teal-500);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.map-control-btn:active {
+    transform: translateY(0);
+}
+
+/* Live Indicator */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-8);
+    background: var(--color-success-light);
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-success);
+}
+
+.live-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--color-success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* User Role Colors */
+.role-manager {
+    color: #000000;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.role-foreman {
+    color: #FF8C00;
+    background: rgba(255, 140, 0, 0.1);
+}
+
+.role-labour {
+    color: #00FF00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+/* UK Flag Icon */
+.uk-flag {
+    background: linear-gradient(to bottom,
+            var(--uk-blue) 33%,
+            white 33%,
+            white 66%,
+            var(--uk-red) 66%);
+    width: 20px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: var(--space-8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Form Controls */
+.form-control-enhanced {
+    padding: var(--space-8) var(--space-12);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    border: 1px solid rgba(119, 124, 124, 0.3);
+    border-radius: var(--radius-base);
+    transition: border-color var(--duration-fast) var(--ease-standard),
+        box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.form-control-enhanced:focus {
+    border-color: var(--color-teal-500);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 128, 141, 0.4);
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-standard);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-up {
+    animation: slideUp var(--duration-normal) var(--ease-standard);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .map-controls {
+        top: var(--space-8);
+        right: var(--space-8);
+    }
+
+    .map-control-btn {
+        width: 36px;
+        height: 36px;
+        padding: var(--space-6);
+    }
+}

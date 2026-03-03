@@ -1,0 +1,89 @@
+#!/usr/bin/expect -f
+
+set timeout 600
+set host "82.29.188.65"
+set port "65002"
+set user "u875310796"
+set password "Cumparavinde1@"
+set remote_path "/home/u875310796/domains/cortexbuildpro.com/api"
+
+puts "🚀 Starting backend deployment..."
+
+# Create remote directory
+puts "📁 Creating remote directory..."
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "mkdir -p $remote_path"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+wait
+
+# Upload backend archive
+puts "📤 Uploading backend archive..."
+spawn scp -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -P $port backend.tar.gz $user@$host:$remote_path/
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "\n❌ ERROR: Authentication failed"
+        exit 1
+    }
+    timeout {
+        puts "\n❌ ERROR: Upload timed out"
+        exit 1
+    }
+    eof
+}
+wait
+
+puts "\n📂 Extracting files on server..."
+
+# Extract archive
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "cd $remote_path && tar -xzf backend.tar.gz && rm backend.tar.gz"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    timeout {
+        puts "\n⚠️  Extraction may still be running..."
+        exp_continue
+    }
+    eof
+}
+wait
+
+puts "\n📦 Installing dependencies..."
+
+# Install dependencies
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "cd $remote_path && npm install --production --no-audit"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    timeout {
+        puts "\n⚠️  Installation may still be running..."
+        exp_continue
+    }
+    eof
+}
+wait
+
+puts "\n✅ Backend files deployed successfully!"
+puts "\n📝 Next steps to start the backend:"
+puts "1. Log into Hostinger hPanel: https://hpanel.hostinger.com"
+puts "2. Go to: Websites → Node.js"
+puts "3. Click 'Create Application'"
+puts "4. Configure:"
+puts "   - Application root: $remote_path"
+puts "   - Application URL: cortexbuildpro.com"
+puts "   - Application startup file: dist/index.js"
+puts "   - Node.js version: 18.x or higher"
+puts "5. Click 'Create'"
+puts "\n🌐 API will be at: https://cortexbuildpro.com/api/health"

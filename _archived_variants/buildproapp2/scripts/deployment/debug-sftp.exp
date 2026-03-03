@@ -1,0 +1,11 @@
+#!/usr/bin/expect -f
+exp_internal 1
+set timeout 30
+spawn sftp -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -P 65002 u875310796@82.29.191.97
+expect "password:"
+send "Cumparavinde1@\r"
+expect "sftp>"
+send "ls\r"
+expect "sftp>"
+send "bye\r"
+expect eof
