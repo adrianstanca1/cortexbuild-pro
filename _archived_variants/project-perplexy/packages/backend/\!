@@ -1,0 +1,26 @@
+2026-02-22 10:11:12 [[33mwarn[39m]: Google OAuth2 credentials not configured {
+  "service": "constructai-backend"
+}
+[33mwarn[39m: Google OAuth2 credentials not configured {"service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}
+2026-02-22 10:11:12 [[32minfo[39m]: 🚀 Server running on port 5012 {
+  "service": "constructai-backend"
+}
+[32minfo[39m: 🚀 Server running on port 5012 {"service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}
+2026-02-22 10:11:12 [[32minfo[39m]: 📡 API available at http://localhost:5012/api {
+  "service": "constructai-backend"
+}
+[32minfo[39m: 📡 API available at http://localhost:5012/api {"service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}
+2026-02-22 10:11:12 [[32minfo[39m]: 🔌 Socket.IO available at ws://localhost:5012 {
+  "service": "constructai-backend"
+}
+[32minfo[39m: 🔌 Socket.IO available at ws://localhost:5012 {"service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}
+2026-02-22 10:11:12 [[31merror[39m]: ❌ Redis error {
+  "service": "constructai-backend",
+  "error": ""
+}
+[31merror[39m: ❌ Redis error {"error":"","service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}
+2026-02-22 10:11:12 [[31merror[39m]: Failed to connect to database {
+  "service": "constructai-backend",
+  "error": "error: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:10\n   | \n 9 |   provider = \"mongodb\"\n10 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+}
+[31merror[39m: Failed to connect to database {"error":"error: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:10\n   | \n 9 |   provider = \"mongodb\"\n10 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1","service":"constructai-backend","timestamp":"2026-02-22 10:11:12"}

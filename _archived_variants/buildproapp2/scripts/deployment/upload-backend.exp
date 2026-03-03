@@ -1,0 +1,26 @@
+#!/usr/bin/expect -f
+# Upload backend files to Hostinger
+
+set timeout -1
+
+# Build and prepare backend
+spawn bash prepare-backend-deploy.sh
+expect eof
+
+# Upload to Hostinger
+puts "\n🚀 Uploading backend to Hostinger...\n"
+
+spawn scp -P 65002 -r /tmp/backend-deploy u875310796@82.29.188.65:/home/u875310796/domains/cortexbuildpro.com/
+expect "password:"
+send "Cumparavinde1@\r"
+expect eof
+
+puts "\n✅ Backend files uploaded!\n"
+puts "\n📋 FINAL STEP (Manual - 1 minute):\n"
+puts "1. Go to: https://hpanel.hostinger.com"
+puts "2. Click: Websites → Node.js → Create Application"
+puts "3. Set Application Root: /home/u875310796/domains/cortexbuildpro.com/backend-deploy"
+puts "4. Set Start Command: node dist/index.js"
+puts "5. Set Node Version: 22.x"
+puts "6. Click Create\n"
+puts "✅ Done!\n"

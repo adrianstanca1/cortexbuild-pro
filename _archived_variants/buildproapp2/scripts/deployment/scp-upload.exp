@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+set timeout 300
+set file [lindex $argv 0]
+set dest [lindex $argv 1]
+spawn scp -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -P 65002 -r $file u875310796@82.29.191.97:$dest
+expect "password:"
+send "Cumparavinde1@\r"
+expect eof

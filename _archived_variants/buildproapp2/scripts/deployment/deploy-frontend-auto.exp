@@ -1,0 +1,37 @@
+#!/usr/bin/expect -f
+
+set timeout 600
+set host "82.29.188.65"
+set port "65002"
+set user "u875310796"
+set password "Cumparavinde1@"
+set local_dist "dist"
+
+# Build batch file dynamically
+set batch_file "sftp_frontend_batch"
+set f [open $batch_file w]
+puts $f "cd domains/cortexbuildpro.com/public_html"
+puts $f "put -r dist/* ."
+puts $f "bye"
+close $f
+
+spawn sftp -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -P $port -b $batch_file $user@$host
+expect {
+    "*assword:*" {
+        sleep 2
+        send "$password\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "ERROR: Password rejected or Permission denied"
+        exit 1
+    }
+    timeout {
+        puts "Connection timed out"
+        exit 1
+    }
+    eof
+}
+
+wait
+exec rm $batch_file

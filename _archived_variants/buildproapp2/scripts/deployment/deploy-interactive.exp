@@ -1,0 +1,56 @@
+#!/usr/bin/expect -f
+
+# Automated deployment script using SFTP with password
+set timeout 600
+set host "82.29.188.65"
+set port "65002"
+set user "u875310796"
+
+# Prompt for password securely
+puts "Enter Hostinger password for $user@$host:"
+stty -echo
+expect_user -re "(.*)\n"
+set password $expect_out(1,string)
+stty echo
+puts ""
+
+# Create batch file for SFTP commands
+set batch_file "sftp_deploy_batch"
+set f [open $batch_file w]
+puts $f "cd domains/cortexbuildpro.com/public_html"
+puts $f "put -r dist/* ."
+puts $f "bye"
+close $f
+
+puts "Starting deployment to cortexbuildpro.com..."
+
+spawn sftp -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -P $port -b $batch_file $user@$host
+
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    "Permission denied" {
+        puts "\nERROR: Authentication failed"
+        exec rm $batch_file
+        exit 1
+    }
+    "Couldn't*" {
+        puts "\nERROR: Upload failed"
+        exec rm $batch_file
+        exit 1
+    }
+    timeout {
+        puts "\nERROR: Connection timed out"
+        exec rm $batch_file
+        exit 1
+    }
+    eof
+}
+
+wait
+exec rm $batch_file
+
+puts "\n✅ Deployment completed successfully!"
+puts "🌐 Your site: https://cortexbuildpro.com"

@@ -1,0 +1,3 @@
+cd domains/cortexbuildpro.com/public_html
+put -r dist/* .
+bye

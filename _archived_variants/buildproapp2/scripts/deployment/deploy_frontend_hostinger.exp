@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+set timeout -1
+spawn sftp -P 65002 -o StrictHostKeyChecking=no u875310796@82.29.191.97
+expect "password:"
+send "Cumparavinde1@\r"
+expect "sftp>"
+send "cd domains/cortexbuildpro.com/public_html\r"
+expect "sftp>"
+send "put -r dist/* .\r"
+expect "sftp>"
+send "put public_html/.htaccess .htaccess\r"
+expect "sftp>"
+send "bye\r"
+expect eof

@@ -1,0 +1,21 @@
+#!/usr/bin/expect -f
+set timeout -1
+
+# Upload part (unchanged, seems to work, but repeating ensures consistency)
+spawn sftp -P 65002 -o StrictHostKeyChecking=no u875310796@82.29.191.97
+expect "password:"
+send "Cumparavinde1.\r"
+expect "sftp>"
+# Ignore error if directory exists
+send "mkdir domains/cortexbuildpro.com/server_app/dist/scripts\r"
+expect "sftp>"
+send "put server/dist/scripts/check-db-stats.js domains/cortexbuildpro.com/server_app/dist/scripts/\r"
+expect "sftp>"
+send "bye\r"
+expect eof
+
+# Execute part - simplified to avoid flag issues
+spawn ssh -p 65002 -o StrictHostKeyChecking=no u875310796@82.29.191.97 "cd domains/cortexbuildpro.com/server_app && /opt/alt/alt-nodejs20/root/usr/bin/node dist/scripts/check-db-stats.js"
+expect "password:"
+send "Cumparavinde1.\r"
+expect eof

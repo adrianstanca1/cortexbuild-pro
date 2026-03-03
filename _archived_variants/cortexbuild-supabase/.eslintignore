@@ -1,0 +1,18 @@
+# Build outputs and deploy artifacts
+/dist/
+/.vercel/
+
+# Node modules
+/node_modules/
+
+# Generated service worker or public assets
+/public/sw.js
+
+# Compiled or vendored bundles (catch-all)
+**/assets/**
+
+# Tests (legacy or integration not maintained)
+/__tests__/**
+
+# Logs and misc
+*.log

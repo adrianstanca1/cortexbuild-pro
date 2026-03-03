@@ -1,0 +1,43 @@
+#!/usr/bin/expect -f
+
+set timeout 600
+set host "82.29.188.65"
+set port "65002"
+set user "u875310796"
+set password "Cumparavinde1@"
+set remote_path "/home/u875310796/domains/cortexbuildpro.com/api"
+
+puts "🚀 Attempting to start backend via SSH..."
+
+# Check if Node.js is available
+puts "🔍 Checking Node.js availability..."
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "which node || which nodejs"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+wait
+
+# Try to find and use Node.js
+puts "\n📦 Installing dependencies..."
+spawn ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p $port $user@$host "cd $remote_path && /usr/bin/node --version 2>/dev/null || /usr/local/bin/node --version 2>/dev/null || node --version 2>/dev/null"
+expect {
+    "*assword:*" {
+        send "$password\r"
+        exp_continue
+    }
+    eof
+}
+wait
+
+puts "\n⚠️  Note: Hostinger requires Node.js applications to be managed through hPanel"
+puts "The backend files are deployed and ready."
+puts "\nPlease complete setup in hPanel:"
+puts "1. Go to https://hpanel.hostinger.com"
+puts "2. Websites → Node.js → Create Application"
+puts "3. Set application root: $remote_path"
+puts "4. Set startup file: dist/index.js"
+puts "5. Click 'Start Application'"
