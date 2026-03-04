@@ -183,7 +183,8 @@
         "typescript": "5.9.3",
         "vercel": "^50.15.1",
         "vite": "^6.2.0",
-        "vite-bundle-visualizer": "1.2.1"
+        "vite-bundle-visualizer": "1.2.1",
+        "vite-plugin-pwa": "^1.2.0"
     },
     "overrides": {
         "rollup-plugin-visualizer": "5.12.0",
