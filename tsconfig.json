@@ -62,6 +62,7 @@
         "dist",
         "server",
         "nextjs_space",
-        "deployment/scripts"
+        "deployment/scripts",
+        "_archived_variants"
     ]
 }
