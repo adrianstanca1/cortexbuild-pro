@@ -6,6 +6,10 @@ export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
+import { generateAIResponse } from '@/lib/ai-service';
+
+// Main AI chat endpoint - supports Ollama (primary), Gemini, and Abacus AI
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,3 +112,4 @@ Provide helpful, accurate answers based on this data. If asked about something n
     return NextResponse.json({ error: 'Failed to process AI request' }, { status: 500 });
   }
 }
+

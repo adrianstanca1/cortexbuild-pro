@@ -10,7 +10,11 @@ import { generateAIResponse } from "@/lib/ai-service";
 
 // AI-Powered Risk Prediction & Early Warning System
 // Analyzes project data to predict potential risks
+// Supports Ollama (primary), Gemini, and Abacus AI
 
+// AI-Powered Risk Prediction & Early Warning System
+// Analyzes project data to predict potential risks
+// Supports Ollama (primary), Gemini, and Abacus AI
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -199,3 +203,4 @@ Format as JSON with keys: scheduleRisks, costRisks, safetyRisks, qualityRisks, r
     );
   }
 }
+

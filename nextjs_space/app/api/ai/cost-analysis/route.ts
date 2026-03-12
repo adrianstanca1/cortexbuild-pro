@@ -8,6 +8,10 @@ import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
 import { generateAIResponse } from '@/lib/ai-service';
 
+// Cost analysis endpoint - supports Ollama (primary), Gemini, and Abacus AI
+// Analyzes project costs, forecasts, and variances
+
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -177,3 +181,4 @@ Use UK construction terminology and £ currency.`;
     );
   }
 }
+

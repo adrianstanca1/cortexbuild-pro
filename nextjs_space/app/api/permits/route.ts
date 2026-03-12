@@ -6,7 +6,7 @@ import {
   parseQueryParams,
   buildOrgScopedWhere,
   successResponse,
-  withErrorHandler,
+  withAuthHandler,
   errorResponse,
 } from "@/lib/api-utils";
 
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 
 
-export const GET = withErrorHandler(async (request: NextRequest) => {
+export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
@@ -42,7 +42,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   return successResponse(permits);
 });
 
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
@@ -88,3 +88,4 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   return NextResponse.json(permit, { status: 201 });
 });
+

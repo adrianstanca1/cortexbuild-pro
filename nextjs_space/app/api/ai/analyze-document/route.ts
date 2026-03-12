@@ -7,6 +7,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { generateAIResponse } from '@/lib/ai-service';
 
+// Document analysis endpoint - supports Ollama (primary), Gemini, and Abacus AI
+// Analyzes PDFs, images, text files, and CSV data
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -84,3 +87,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });
   }
 }
+

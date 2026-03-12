@@ -6,7 +6,7 @@ import {
   parseQueryParams,
   buildOrgScopedWhere,
   errorResponse,
-  withErrorHandler,
+  withAuthHandler,
 } from "@/lib/api-utils";
 
 // Force dynamic rendering
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 
 
-export const GET = withErrorHandler(async (request: NextRequest) => {
+export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
@@ -54,7 +54,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   return NextResponse.json({ materials, summary });
 });
 
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
@@ -125,3 +125,4 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
   return NextResponse.json(material);
 });
+
