@@ -135,6 +135,7 @@ export function RiskRegisterClient({ projects, teamMembers }: Props) {
 
   useEffect(() => {
     fetchRisks();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterProject, filterStatus, filterLevel]);
 
   const handleCreate = async () => {

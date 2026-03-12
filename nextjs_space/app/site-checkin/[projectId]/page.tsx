@@ -58,6 +58,7 @@ export default function SiteCheckinPage() {
 
   useEffect(() => {
     fetchProjectInfo();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const fetchProjectInfo = async () => {

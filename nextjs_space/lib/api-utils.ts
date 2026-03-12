@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { z, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 import { PrismaClient } from '@prisma/client';
 
 // Helper to safely serialize data with BigInt values

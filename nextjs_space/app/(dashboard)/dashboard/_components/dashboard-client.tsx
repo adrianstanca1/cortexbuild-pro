@@ -325,7 +325,7 @@ function CommandCenter({
   constructionMetrics, 
   projectStatusCounts,
   tasks,
-  rfis,
+  rfis: _rfis,
 }: { 
   constructionMetrics?: ConstructionMetrics;
   projectStatusCounts: { PLANNING: number; IN_PROGRESS: number; ON_HOLD: number; COMPLETED: number };

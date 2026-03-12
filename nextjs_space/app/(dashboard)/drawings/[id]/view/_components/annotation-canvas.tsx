@@ -203,11 +203,13 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       return () => {
         window.removeEventListener("resize", resizeCanvas);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         const frameId = animationFrameRef.current;
         if (frameId) {
           cancelAnimationFrame(frameId);
         }
       };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, selectedAnnotationId]);
 
     // Optimized render with requestAnimationFrame
@@ -267,6 +269,7 @@ export const AnnotationCanvas = forwardRef<any, AnnotationCanvasProps>(
 
       // Render overlay (selection handles, cursors)
       renderOverlay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [image, annotations, zoom, rotation, showGrid, panOffset, isDrawing, currentPath, selectedAnnotationId, polygonPoints, color, strokeWidth, selectedTool, opacity]);
 
     useEffect(() => {

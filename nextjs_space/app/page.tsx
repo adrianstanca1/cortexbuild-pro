@@ -7,9 +7,9 @@ export const revalidate = 0;
 import {
   HardHat, ClipboardList, Users, FileText, BarChart3, ArrowRight, Zap, Shield, Clock,
   CheckCircle, Building2, TrendingUp, Globe, Layers, Lock, Smartphone, Star,
-  ChevronRight, Play, Award, Target, Workflow, BrainCircuit, Sparkles,
-  PoundSterling, Wrench, Activity, Gauge, CircleDot, MousePointerClick,
-  Rocket, Timer, PieChart, MessageSquare, ArrowUpRight, Bot
+  Play, Award, Target, Workflow, BrainCircuit, Sparkles,
+  PoundSterling, Gauge, CircleDot, MousePointerClick,
+  Rocket, ArrowUpRight, Bot
 } from "lucide-react";
 
 const features = [

@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, CheckCircle, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useRealtime } from '@/hooks/use-realtime';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

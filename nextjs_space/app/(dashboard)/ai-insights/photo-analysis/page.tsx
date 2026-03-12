@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useState, useRef } from 'react';
 import { 
   Camera, 
@@ -218,7 +219,7 @@ export default function PhotoAnalysisPage() {
             ) : (
               <div className="space-y-4">
                 <div className="relative rounded-xl overflow-hidden bg-black/5">
-                  <img
+                  <Image
                     src={imagePreview}
                     alt="Site photo"
                     className="w-full h-auto max-h-[400px] object-contain"

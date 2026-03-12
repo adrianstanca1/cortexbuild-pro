@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useRealtimeContext, useRealtimeSubscription } from '@/components/realtime-provider';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
@@ -19,7 +18,7 @@ interface Task {
 }
 
 const RealTimeDemoPage = () => {
-  const { data: session } = useSession();
+  const { data: _session } = useSession();
   const { isConnected, connectedClients } = useRealtimeContext();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [eventCount, setEventCount] = useState(0);

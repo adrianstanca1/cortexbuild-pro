@@ -4,9 +4,9 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import {
-  FolderKanban, ListTodo, Users, FileText, ClipboardList,
-  Calendar, Package, FileQuestion, Shield, Wrench,
-  Clock, Target, Search, Plus
+  FolderKanban, ListTodo, Users, FileText, 
+  FileQuestion, Shield, 
+  Clock, Search, Plus
 } from "lucide-react";
 
 interface EmptyStateProps {

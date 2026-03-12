@@ -50,7 +50,6 @@ interface ReportsClientProps {
   }[];
 }
 
-
 const STATUS_COLORS = {
   TODO: '#9ca3af',
   IN_PROGRESS: '#3b82f6',
@@ -85,7 +84,7 @@ export function ReportsClient({
     fill: PRIORITY_COLORS[name as keyof typeof PRIORITY_COLORS]
   }));
 
-  const projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
+  const _projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
     name: name.replace('_', ' '),
     value
   }));

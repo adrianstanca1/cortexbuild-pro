@@ -191,7 +191,8 @@ export function StorageOverviewClient() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Image className="h-4 w-4 text-green-500" />
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                     <Image className="h-4 w-4 text-green-500" />
                     <span className="font-medium">Photos</span>
                   </div>
                   <span className="text-gray-500">{stats.storage.totalPhotos}</span>

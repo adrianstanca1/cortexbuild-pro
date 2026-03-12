@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import {
-  format, differenceInDays, addDays, startOfMonth, endOfMonth,
-  eachDayOfInterval, isSameDay, isWeekend, parseISO, isBefore, isAfter
+  format, differenceInDays, addDays, startOfMonth, 
+  eachDayOfInterval, isSameDay, isWeekend, parseISO
 } from "date-fns";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface GanttItem {

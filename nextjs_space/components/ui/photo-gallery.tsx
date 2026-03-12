@@ -7,8 +7,8 @@ import {
   X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw,
   Download, Maximize2, Minimize2, Grid3X3, LayoutGrid,
   Camera, FileText, Shield, CheckSquare, ClipboardCheck,
-  Calendar, Filter, Search, Loader2, ImageOff, Info,
-  Eye, ExternalLink
+  Calendar, Filter, Search, Loader2, ImageOff, 
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +120,7 @@ export function PhotoGallery({ projectId, initialPhotos, onPhotoClick }: PhotoGa
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhoto, currentIndex]);
 
   const filteredPhotos = photos.filter(photo => {
@@ -542,7 +543,7 @@ export function PhotoGallery({ projectId, initialPhotos, onPhotoClick }: PhotoGa
                           actualIndex === currentIndex ? 'border-white' : 'border-transparent opacity-60 hover:opacity-100'
                         }`}
                       >
-                        <img
+                        <Image
                           src={photo.url}
                           alt=""
                           className="w-full h-full object-cover"

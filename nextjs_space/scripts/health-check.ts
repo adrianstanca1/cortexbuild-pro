@@ -203,7 +203,7 @@ async function checkDataIntegrity(): Promise<HealthCheckResult> {
         orphanedDocuments: orphanedDocs
       }
     };
-  } catch (error: any) {
+  } catch (_error: unknown) {
     return {
       component: 'Data Integrity',
       status: 'degraded',

@@ -100,6 +100,7 @@ export function OrganizationsClient() {
 
   useEffect(() => {
     fetchOrganizations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -110,6 +111,7 @@ export function OrganizationsClient() {
       }
     }, 300);
     return () => clearTimeout(debounce);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const handleCreateOrg = async () => {

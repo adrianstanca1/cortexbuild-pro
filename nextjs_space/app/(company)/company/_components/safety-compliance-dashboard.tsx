@@ -110,6 +110,7 @@ export function SafetyComplianceDashboard() {
 
   useEffect(() => {
     fetchAnalytics();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, selectedProject]);
 
   const fetchAnalytics = async () => {

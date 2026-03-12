@@ -18,7 +18,7 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
-  const { projectId, searchParams } = parseQueryParams(request);
+  const { projectId, searchParams: _searchParams } = parseQueryParams(request);
   const { page, limit, skip } = getPagination(request);
   const { startDate, endDate } = getDateRange(request);
 

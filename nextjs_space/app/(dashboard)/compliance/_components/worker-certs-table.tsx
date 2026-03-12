@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, addDays } from 'date-fns';
-import { Search, ShieldCheck, AlertTriangle, Plus, FileText } from 'lucide-react';
+import { Search, ShieldCheck, Plus, FileText } from 'lucide-react';
 
 interface WorkerCertsTableProps {
     data: any[];
@@ -31,7 +31,7 @@ interface WorkerCertsTableProps {
  * @param teamMembers - Array of team member objects available in the component context (currently used for UI operations like adding/assigning certifications).
  * @returns The rendered JSX element containing the certifications table and search UI.
  */
-export function WorkerCertsTable({ data, teamMembers }: WorkerCertsTableProps) {
+export function WorkerCertsTable({ data, teamMembers: _teamMembers }: WorkerCertsTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredData = data.filter(cert => {

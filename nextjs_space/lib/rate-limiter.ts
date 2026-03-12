@@ -38,8 +38,11 @@ export function createRateLimiter(config: RateLimitConfig) {
   const {
     windowMs,
     maxRequests,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     message = 'Too many requests, please try again later.',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipSuccessfulRequests = false,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipFailedRequests = false,
   } = config;
 

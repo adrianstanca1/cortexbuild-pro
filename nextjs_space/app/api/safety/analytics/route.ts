@@ -17,8 +17,6 @@ function groupByProjectId<T extends { projectId: string }>(items: T[]): Map<stri
   return map;
 }
 
-
-
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -289,9 +287,13 @@ export async function GET(request: NextRequest) {
 
     // Project breakdown - use Map for O(1) lookups instead of O(n) filters
     // Create index maps for each data type by projectId
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ToolboxTalk = typeof toolboxTalks[number];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type MewpCheck = typeof mewpChecks[number];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type ToolCheck = typeof toolChecks[number];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     type SafetyIncident = typeof safetyIncidents[number];
     
     const toolboxByProject = groupByProjectId(toolboxTalks);

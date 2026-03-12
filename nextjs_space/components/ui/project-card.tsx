@@ -4,14 +4,14 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  MapPin, Calendar, PoundSterling, ListTodo, FileText, Users,
-  TrendingUp, TrendingDown, AlertTriangle, Clock, CheckCircle,
-  AlertCircle, Zap, Cloud, Sun, CloudRain, Timer, Activity
+  MapPin, ListTodo, FileText, Users,
+  AlertTriangle, Clock, CheckCircle,
+  AlertCircle, Zap, Activity
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { differenceInDays, differenceInCalendarDays, isAfter, isBefore, format } from "date-fns";
+import { differenceInCalendarDays, isBefore } from "date-fns";
 
 interface ProjectCardProps {
   project: any;

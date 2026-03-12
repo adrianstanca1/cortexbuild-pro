@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import Link from 'next/link';
 import {
   Brain, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, 
-  Clock, PoundSterling, Users, Target, Zap, RefreshCw, ChevronRight,
-  Calendar, BarChart3, Loader2, Shield, FileQuestion, Gauge, Activity,
+  Zap, ChevronRight,
+  Calendar, Activity,
   AlertCircle
 } from 'lucide-react';
 
@@ -139,7 +137,7 @@ function calculateProjectMetrics(project: ProjectData): ProjectMetrics {
   const cpi = totalActual > 0 && totalEstimated > 0 ? totalEstimated / totalActual : 1;
 
   const changeOrders = project.changeOrders || [];
-  const approvedCOValue = changeOrders
+  const _approvedCOValue = changeOrders
     .filter(co => co.status === 'APPROVED')
     .reduce((acc, co) => acc + (co.costChange || 0), 0);
   const pendingCOValue = changeOrders

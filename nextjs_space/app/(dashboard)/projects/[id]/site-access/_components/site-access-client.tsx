@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useState } from 'react';
 import { 
   QrCode, 
@@ -47,7 +48,6 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
   const [stats, setStats] = useState(initialStats);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
 
   // Real-time updates
   useRealtime((event) => {
@@ -242,7 +242,7 @@ export default function SiteAccessClient({ project, accessLogs: initialLogs, sta
           <CardContent>
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="p-4 bg-white rounded-xl shadow-lg">
-                <img src={qrCodeUrl} alt="QR Code" className="w-64 h-64" />
+                <Image src={qrCodeUrl} alt="QR Code" className="w-64 h-64" />
               </div>
               <div className="flex-1 space-y-4">
                 <h3 className="text-lg font-semibold">How to use:</h3>

@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Play, ChevronRight, ChevronLeft, CheckCircle2, HardHat,
-  LayoutDashboard, FileText, Users, BarChart3, Shield, Clock,
+  ChevronRight, ChevronLeft, CheckCircle2, HardHat,
+  LayoutDashboard, FileText, Users, BarChart3, Shield, 
   Building2, ArrowRight, Star, Quote, Target, Sparkles,
-  Globe, Lock, Smartphone, BrainCircuit, TrendingUp, Zap,
-  Activity, Bot, AlertTriangle, CircleDot, Gauge, PoundSterling,
-  Wrench, Timer, CheckCircle, MousePointerClick
+  Globe, Lock, Smartphone, BrainCircuit, Zap,
+  Activity, 
+  Timer, CheckCircle, MousePointerClick
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

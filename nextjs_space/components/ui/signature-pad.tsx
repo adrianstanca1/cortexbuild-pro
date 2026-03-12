@@ -1,9 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
-import { Eraser, Check, Undo } from "lucide-react";
+import { Eraser, Check } from "lucide-react";
 
 interface SignaturePadProps {
   onSignature?: (signatureData: string) => void;
@@ -179,7 +180,7 @@ export function SignatureDisplay({
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="border border-border rounded-lg bg-white p-2">
-        <img
+        <Image
           src={signatureData}
           alt={name ? `Signature of ${name}` : "Signature"}
           className="max-h-20 w-auto"

@@ -87,6 +87,7 @@ export default function PredictiveSafetyDashboardPage() {
 
   useEffect(() => {
     fetchSafetyData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProject]);
 
   const fetchProjects = async () => {

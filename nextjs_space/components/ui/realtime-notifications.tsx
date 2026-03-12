@@ -69,7 +69,7 @@ const getNotificationColor = (type: string) => {
 const RealTimeNotifications: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isVisible, setIsVisible] = useState(false);
-  const { isConnected, sendNotification } = useWebSocket();
+  const { isConnected, sendNotification: _sendNotification } = useWebSocket();
   const { data: session } = useSession();
   const userId = (session?.user as any)?.id || session?.user?.id;
 
@@ -115,7 +115,7 @@ const RealTimeNotifications: React.FC = () => {
     }
   };
 
-  const handleNotificationReceived = (newNotification: Notification) => {
+  const _handleNotificationReceived = (newNotification: Notification) => {
     setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // Keep only the 10 most recent
     
     // Show notification toast

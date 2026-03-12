@@ -9,6 +9,7 @@ import { format, differenceInDays } from 'date-fns';
 
 const prisma = new PrismaClient();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ProjectReport {
   projectInfo: any;
   taskSummary: any;

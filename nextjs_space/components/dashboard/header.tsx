@@ -2,8 +2,7 @@
 
 import { signOut } from 'next-auth/react';
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, User, ChevronDown, Settings, Search, X, Keyboard, Cloud, Sun, CloudRain, Wind, Thermometer, CloudSnow, Loader2, MapPin, PanelLeft, PanelLeftClose } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { LogOut, ChevronDown, Settings, Search, X, Keyboard, Cloud, Sun, CloudRain, CloudSnow, Loader2, MapPin, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

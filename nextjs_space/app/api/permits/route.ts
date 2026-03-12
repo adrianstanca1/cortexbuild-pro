@@ -13,8 +13,6 @@ import {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-
-
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
@@ -43,7 +41,7 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
 });
 
 export const POST = withAuthHandler(async (request: NextRequest) => {
-  const { context, error } = await getOrganizationContext();
+  const { context: _context, error } = await getOrganizationContext();
   if (error) return error;
 
   const body = await request.json();

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { X, Download, ExternalLink, FileText, Image as ImageIcon, Loader2, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
       setZoom(100);
       setRotation(0);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, document?.id]);
 
   const isPDF = document?.mimeType?.includes("pdf") || document?.name?.toLowerCase().endsWith(".pdf");
@@ -159,7 +161,7 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
               className="flex items-center justify-center w-full h-full"
               style={{ overflow: 'auto' }}
             >
-              <img
+              <Image
                 src={fileUrl}
                 alt={document?.name || "Document"}
                 className="max-w-none shadow-lg rounded-lg"

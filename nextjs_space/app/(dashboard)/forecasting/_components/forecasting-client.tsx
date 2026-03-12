@@ -85,6 +85,7 @@ export function ForecastingClient({ projects }: Props) {
     scenarioName: ''
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchForecasts = async () => {
     if (!selectedProject) return;
     

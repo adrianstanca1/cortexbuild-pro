@@ -131,6 +131,7 @@ export function WorkPackagesClient({ projects, teamMembers, costCodes }: Props) 
 
   useEffect(() => {
     fetchWorkPackages();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterProject, filterStatus]);
 
   const handleCreate = async () => {

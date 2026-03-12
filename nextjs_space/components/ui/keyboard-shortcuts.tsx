@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import { cn } from "@/lib/utils";
 import { Keyboard } from "lucide-react";
 
 interface Shortcut {

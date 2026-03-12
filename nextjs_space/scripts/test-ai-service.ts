@@ -100,7 +100,7 @@ async function main() {
           console.log(`   Chunk ${chunkCount}: ${chunk.substring(0, 50)}...`);
         }
         reader.cancel();
-      } catch (e) {
+      } catch (_e) {
         // Stream reading might fail in test environment, that's ok
         console.log(`   ⚠️  Stream reading skipped (normal in test env)`);
       }

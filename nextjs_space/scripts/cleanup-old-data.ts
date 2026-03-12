@@ -82,7 +82,7 @@ async function cleanupOrphanedAttachments(options: CleanupOptions) {
   }
 }
 
-async function generateCleanupReport(options: CleanupOptions) {
+async function generateCleanupReport(_options: CleanupOptions) {
   console.log(`\n📊 Database Statistics`);
   
   const stats = await Promise.all([

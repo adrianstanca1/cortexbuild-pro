@@ -170,7 +170,7 @@ export function ReportGeneratorClient({ projects }: { projects: Project[] }) {
     }
   };
 
-  const selectedReportConfig = REPORT_TYPES.find(r => r.id === selectedReportType);
+  const _selectedReportConfig = REPORT_TYPES.find(r => r.id === selectedReportType);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">

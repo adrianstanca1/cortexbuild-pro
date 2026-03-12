@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Search, MapPin, UserCheck, Plus, LogOut } from 'lucide-react';
+import { Search, MapPin, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SiteAccessLogTableProps {
@@ -41,7 +41,7 @@ interface SiteAccessLogTableProps {
  * @param teamMembers - Array of team member objects (provided for context/use by the table).
  * @returns The rendered site access log table React element.
  */
-export function SiteAccessLogTable({ data, projects, teamMembers }: SiteAccessLogTableProps) {
+export function SiteAccessLogTable({ data, projects, teamMembers: _teamMembers }: SiteAccessLogTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [projectFilter, setProjectFilter] = useState('ALL');
 

@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCsrfTokenForClient } from '@/lib/csrf';
 import { logger } from '@/lib/logger';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const token = await getCsrfTokenForClient();
     

@@ -5,14 +5,11 @@ import {
   getOrganizationContext,
   parseQueryParams,
   errorResponse,
-  successResponse,
   withAuthHandler,
 } from '@/lib/api-utils';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
-
-
 
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();

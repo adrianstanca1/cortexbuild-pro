@@ -11,17 +11,18 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default [
+const eslintConfig = [
     {
         ignores: [".next/**", "node_modules/**", ".next-env.d.ts", "out/**", "build/**"],
     },
-    ...compat.extends("next/core-web-vitals", "next/typescript"), 
+    ...compat.extends("next/core-web-vitals", "next/typescript"),
     {
         rules: {
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/no-unused-vars": ["warn", {
                 argsIgnorePattern: "^_",
                 varsIgnorePattern: "^_",
+                caughtErrors: "none",
                 ignoreRestSiblings: true,
             }],
             "@typescript-eslint/no-empty-object-type": "warn",
@@ -35,3 +36,5 @@ export default [
         },
     }
 ];
+
+export default eslintConfig;

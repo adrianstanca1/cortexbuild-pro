@@ -143,6 +143,7 @@ export function UsersManagementClient() {
   useEffect(() => {
     fetchUsers();
     fetchOrganizations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -150,6 +151,7 @@ export function UsersManagementClient() {
       fetchUsers();
     }, 300);
     return () => clearTimeout(debounce);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, roleFilter, orgFilter]);
 
   const handleCreateUser = async () => {

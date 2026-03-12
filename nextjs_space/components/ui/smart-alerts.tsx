@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import {
   Bell,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   Calendar,
   TrendingUp,
   Users,
@@ -19,8 +18,6 @@ import {
   ChevronRight,
   X,
   Lightbulb,
-  Eye,
-  BarChart3,
   Flame,
   ThumbsUp,
   ArrowRight

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     const [
       organization,
       projectMetrics,
-      teamMembers,
+      _teamMembers,
       taskMetrics,
       rfiMetrics,
       submittalMetrics,
