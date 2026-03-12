@@ -74,6 +74,28 @@ export interface ChatCompletionResponse {
   };
 }
 
+// Streaming chunk type — uses `delta` instead of `message`
+interface ChatCompletionStreamChunk {
+  id: string;
+  object: 'chat.completion.chunk';
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    delta: {
+      role?: 'assistant';
+      content?: string | null;
+      tool_calls?: ToolCall[];
+    };
+    finish_reason: 'stop' | 'length' | 'tool_calls' | 'content_filter' | null;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 export interface ToolCall {
   id: string;
   type: 'function';
@@ -199,9 +221,10 @@ class LiteLLMError extends Error {
   }
 }
 
-const handleResponse = async (response: Response): Promise<unknown> => {
+// Generic typed response handler — avoids repeated unsafe casts at call sites
+const handleResponse = async <T = unknown>(response: Response): Promise<T> => {
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: { message?: string; code?: string } };
     throw new LiteLLMError(
       errorData.error?.message || response.statusText,
       response.status,
@@ -209,26 +232,26 @@ const handleResponse = async (response: Response): Promise<unknown> => {
       errorData
     );
   }
-  return response.json();
+  return response.json() as Promise<T>;
 };
 
 // Model Management
 export const listModels = async (): Promise<{ object: 'list'; data: ModelInfo[] }> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${LITELLM_BASE_URL}/v1/models`, { headers });
-  return handleResponse(response);
+  return handleResponse<{ object: 'list'; data: ModelInfo[] }>(response);
 };
 
 export const getModel = async (modelId: string): Promise<ModelInfo> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${LITELLM_BASE_URL}/v1/models/${modelId}`, { headers });
-  return handleResponse(response);
+  return handleResponse<ModelInfo>(response);
 };
 
 export const getModelInfo = async (): Promise<Record<string, unknown>> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${LITELLM_BASE_URL}/v1/model/info`, { headers });
-  return handleResponse(response);
+  return handleResponse<Record<string, unknown>>(response);
 };
 
 // Chat Completions
@@ -251,7 +274,7 @@ export const createChatCompletion = async (
       user: options.user,
     }),
   });
-  return handleResponse(response);
+  return handleResponse<ChatCompletionResponse>(response);
 };
 
 export const streamChatCompletion = async (
@@ -277,7 +300,7 @@ export const streamChatCompletion = async (
   });
 
   if (!response.ok) {
-    return handleResponse(response) as Promise<ChatCompletionResponse>;
+    return handleResponse<ChatCompletionResponse>(response);
   }
 
   const reader = response.body?.getReader();
@@ -285,7 +308,9 @@ export const streamChatCompletion = async (
 
   const decoder = new TextDecoder();
   let fullContent = '';
-  let fullResponse: Partial<ChatCompletionResponse> | null = null;
+  let firstChunk: ChatCompletionStreamChunk | null = null;
+  let lastUsage: ChatCompletionResponse['usage'] | undefined;
+  let lastFinishReason: ChatCompletionResponse['choices'][0]['finish_reason'] = 'stop';
   const toolCalls: Map<string, ToolCall> = new Map();
 
   try {
@@ -301,10 +326,10 @@ export const streamChatCompletion = async (
         if (data === '[DONE]') continue;
 
         try {
-          const parsed: ChatCompletionResponse = JSON.parse(data);
+          const parsed = JSON.parse(data) as ChatCompletionStreamChunk;
 
-          if (!fullResponse) {
-            fullResponse = { ...parsed, choices: [] };
+          if (!firstChunk) {
+            firstChunk = parsed;
           }
 
           const delta = parsed.choices?.[0]?.delta;
@@ -321,8 +346,13 @@ export const streamChatCompletion = async (
             }
           }
 
-          fullResponse.choices = parsed.choices;
-          fullResponse.usage = parsed.usage;
+          if (parsed.choices?.[0]?.finish_reason) {
+            lastFinishReason = parsed.choices[0].finish_reason as ChatCompletionResponse['choices'][0]['finish_reason'];
+          }
+
+          if (parsed.usage) {
+            lastUsage = parsed.usage;
+          }
         } catch {
           // Skip malformed JSON
         }
@@ -340,10 +370,10 @@ export const streamChatCompletion = async (
   }
 
   return {
-    id: fullResponse?.id || '',
+    id: firstChunk?.id || '',
     object: 'chat.completion',
-    created: fullResponse?.created || Date.now(),
-    model: fullResponse?.model || options.model || 'gpt-4',
+    created: firstChunk?.created || Date.now(),
+    model: firstChunk?.model || options.model || 'gpt-4',
     choices: [{
       index: 0,
       message: {
@@ -351,9 +381,9 @@ export const streamChatCompletion = async (
         content: fullContent || null,
         tool_calls: toolCalls.size > 0 ? Array.from(toolCalls.values()) : undefined,
       },
-      finish_reason: fullResponse?.choices?.[0]?.finish_reason || 'stop',
+      finish_reason: lastFinishReason,
     }],
-    usage: fullResponse?.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+    usage: lastUsage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
   };
 };
 
@@ -371,7 +401,7 @@ export const createEmbedding = async (
       input: Array.isArray(input) ? input : [input],
     }),
   });
-  return handleResponse(response);
+  return handleResponse<EmbeddingResponse>(response);
 };
 
 // Text-to-Speech
@@ -392,7 +422,7 @@ export const createSpeech = async (
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = await response.json().catch(() => ({})) as { error?: { message?: string; code?: string } };
     throw new LiteLLMError(
       errorData.error?.message || response.statusText,
       response.status,
@@ -425,7 +455,7 @@ export const createTranscription = async (
     headers: authHeaders,
     body: formData,
   });
-  return handleResponse(response);
+  return handleResponse<{ text: string }>(response);
 };
 
 // Batch Operations
@@ -450,7 +480,7 @@ export const createBatch = async (
     body: formData,
   });
 
-  const uploadData = await handleResponse(uploadResponse) as { id: string };
+  const uploadData = await handleResponse<{ id: string }>(uploadResponse);
 
   // Then, create the batch
   const batchResponse = await fetch(`${LITELLM_BASE_URL}/v1/batches`, {
@@ -463,13 +493,13 @@ export const createBatch = async (
     }),
   });
 
-  return handleResponse(batchResponse);
+  return handleResponse<BatchResponse>(batchResponse);
 };
 
 export const getBatch = async (batchId: string): Promise<BatchResponse> => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${LITELLM_BASE_URL}/v1/batches/${batchId}`, { headers });
-  return handleResponse(response);
+  return handleResponse<BatchResponse>(response);
 };
 
 export const cancelBatch = async (batchId: string): Promise<BatchResponse> => {
@@ -478,7 +508,7 @@ export const cancelBatch = async (batchId: string): Promise<BatchResponse> => {
     method: 'POST',
     headers,
   });
-  return handleResponse(response);
+  return handleResponse<BatchResponse>(response);
 };
 
 // Reranking
@@ -499,7 +529,7 @@ export const rerankDocuments = async (
       documents,
     }),
   });
-  return handleResponse(response);
+  return handleResponse<{ results: Array<{ index: number; relevance_score: number; document: { text: string } }> }>(response);
 };
 
 // Moderation
@@ -520,7 +550,15 @@ export const moderateContent = async (
     headers,
     body: JSON.stringify({ input: Array.isArray(input) ? input : [input] }),
   });
-  return handleResponse(response);
+  return handleResponse<{
+    id: string;
+    model: string;
+    results: Array<{
+      flagged: boolean;
+      categories: Record<string, boolean>;
+      category_scores: Record<string, number>;
+    }>;
+  }>(response);
 };
 
 // Token Counting
@@ -534,33 +572,33 @@ export const countTokens = async (
     headers,
     body: JSON.stringify({ model, messages }),
   });
-  return handleResponse(response);
+  return handleResponse<{ total_tokens: number; prompt_tokens: number }>(response);
 };
 
 // Public Endpoints
 export const getPublicModels = async (): Promise<unknown[]> => {
   const response = await fetch(`${LITELLM_BASE_URL}/public/model_hub`);
-  return handleResponse(response);
+  return handleResponse<unknown[]>(response);
 };
 
 export const getPublicAgents = async (): Promise<unknown[]> => {
   const response = await fetch(`${LITELLM_BASE_URL}/public/agent_hub`);
-  return handleResponse(response);
+  return handleResponse<unknown[]>(response);
 };
 
 export const getPublicMcpServers = async (): Promise<unknown[]> => {
   const response = await fetch(`${LITELLM_BASE_URL}/public/mcp_hub`);
-  return handleResponse(response);
+  return handleResponse<unknown[]>(response);
 };
 
 export const getProviders = async (): Promise<unknown[]> => {
   const response = await fetch(`${LITELLM_BASE_URL}/public/providers`);
-  return handleResponse(response);
+  return handleResponse<unknown[]>(response);
 };
 
 export const getModelPricing = async (): Promise<Record<string, unknown>> => {
   const response = await fetch(`${LITELLM_BASE_URL}/public/litellm_model_cost_map`);
-  return handleResponse(response);
+  return handleResponse<Record<string, unknown>>(response);
 };
 
 // Export error class

@@ -47,7 +47,11 @@ export function LiteLLMChatDemo() {
             <div className={`px-4 py-2 rounded-lg max-w-[80%] ${
               msg.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100'
             }`}>
-              {msg.content}
+              {typeof msg.content === 'string'
+                ? msg.content
+                : msg.content.map((part, pi) => (
+                    <span key={pi}>{part.text ?? part.input_text ?? ''}</span>
+                  ))}
             </div>
           </div>
         ))}
