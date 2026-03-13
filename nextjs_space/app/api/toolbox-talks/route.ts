@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       data: { toolboxTalk }
     });
 
-    return NextResponse.json(bigintSafe({ toolboxTalk }, { status: 201 }));
+    return NextResponse.json(bigintSafe({ toolboxTalk }), { status: 201 });
   } catch (error) {
     console.error("Error creating toolbox talk:", error);
     return NextResponse.json({ error: "Failed to create toolbox talk" }, { status: 500 });

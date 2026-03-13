@@ -152,7 +152,7 @@ export async function DELETE(
     if (existing._count.children > 0 || existing._count.workPackages > 0 || existing._count.costItems > 0) {
       return NextResponse.json(bigintSafe({ 
         error: 'Cannot delete cost code with children, work packages or cost items' 
-      }, { status: 400 }));
+      }), { status: 400 });
     }
 
     await prisma.costCode.delete({ where: { id } });

@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     if (organization._count.teamMembers + pendingCount >= entitlements.limits.maxUsers) {
       return NextResponse.json(bigintSafe({ 
         error: `User limit reached (${entitlements.limits.maxUsers}). Please upgrade your plan.` 
-      }, { status: 400 }));
+      }), { status: 400 });
     }
 
     // Validate role - non-owners can only invite roles below their level
@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json(bigintSafe({ invitation }, { status: 201 }));
+    return NextResponse.json(bigintSafe({ invitation }), { status: 201 });
   } catch (error) {
     console.error("Error creating team invitation:", error);
     return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });
