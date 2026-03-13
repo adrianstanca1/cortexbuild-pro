@@ -5,6 +5,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -36,7 +39,7 @@ export async function GET(request: NextRequest) {
       byResource[p.resource].push(p);
     }
 
-    return NextResponse.json({ byResource, roleCounts, permissions });
+    return NextResponse.json(bigintSafe({ byResource, roleCounts, permissions }));
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }

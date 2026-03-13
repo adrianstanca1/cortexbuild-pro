@@ -1,3 +1,11 @@
+// ─── Global BigInt serialisation fix ────────────────────────────────────────
+// Prisma v5 returns BigInt for _count and aggregate fields.
+// This patch makes JSON.stringify handle BigInt globally — fixes all routes.
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {

@@ -5,6 +5,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,7 +23,7 @@ export async function GET(request: NextRequest) {
       include: { _count: { select: { grants: true } } },
       orderBy: [{ resource: 'asc' }, { action: 'asc' }],
     });
-    return NextResponse.json({ permissions });
+    return NextResponse.json(bigintSafe({ permissions }));
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
@@ -34,13 +37,14 @@ export async function POST(request: NextRequest) {
     }
     const body = await request.json();
     const { name, resource, action, conditions, description } = body;
-    if (!name || !resource || !action) {
-      return NextResponse.json({ error: 'name, resource, action are required' }, { status: 400 });
+    if (!resource || !action) {
+      return NextResponse.json({ error: 'resource and action are required' }, { status: 400 });
     }
+    const permName = name || `${resource}:${action}`;
     const permission = await prisma.permission.create({
-      data: { name, resource, action, conditions: conditions || null, description: description || null, isSystem: false },
+      data: { name: permName, resource, action, conditions: conditions || null, description: description || null, isSystem: false },
     });
-    return NextResponse.json({ permission }, { status: 201 });
+    return NextResponse.json(bigintSafe({ permission }), { status: 201 });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });
