@@ -133,31 +133,33 @@ jobs:
             echo "  Waiting for database..."
             sleep 15
             docker compose -f docker-compose.vps.yml up -d app
-            echo "  Waiting for app to initialize..."
+            echo "  Waiting for app to initialize (up to 2 min)..."
             sleep 60
             echo "  Running database migrations..."
             docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || echo "  Migrations will run on first request"
-            docker compose -f docker-compose.vps.yml up -d nginx 2>/dev/null || echo "  Nginx will start after app is healthy"
+            echo "  Starting nginx (waits for app to be healthy)..."
+            docker compose -f docker-compose.vps.yml up -d nginx certbot
 
             echo "[7/7] Verifying deployment..."
-            sleep 10
+            sleep 15
             docker compose -f docker-compose.vps.yml ps
 
-            if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
-              echo "  Application is LIVE on port 3000"
-            elif curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "  Application health check passed"
+            # Check via nginx (port 80) first, fall back to direct app port (3010)
+            if curl -sf http://localhost/api/health > /dev/null 2>&1; then
+              echo "  Application is LIVE via nginx on port 80"
+            elif curl -sf http://localhost:3010/api/health > /dev/null 2>&1; then
+              echo "  Application health check passed on port 3010 (nginx still starting)"
             else
               echo "  Application may still be initializing..."
-              echo "  Check: cd $DEPLOY_DIR/deployment && docker compose -f docker-compose.vps.yml logs app"
+              echo "  Check: cd $DEPLOY_DIR/deployment && docker compose -f docker-compose.vps.yml logs app nginx"
             fi
 
             SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || echo "unknown")
             echo "========================================="
             echo "DEPLOYMENT COMPLETE!"
             echo "========================================="
-            echo "  HTTP: http://$SERVER_IP"
-            echo "  Direct: http://$SERVER_IP:3000"
+            echo "  HTTP:   http://$SERVER_IP"
+            echo "  Direct: http://$SERVER_IP:3010"
             echo "========================================="
 
       - name: Setup SSL
@@ -174,14 +176,34 @@ jobs:
           script: |
             echo "Setting up SSL..."
             cd /var/www/cortexbuildpro/deployment
-            docker compose -f docker-compose.vps.yml up -d nginx 2>/dev/null || true
+
+            # Ensure nginx is running (HTTP only at this stage for ACME challenge)
+            docker compose -f docker-compose.vps.yml up -d nginx
             sleep 5
-            docker compose -f docker-compose.vps.yml run --rm certbot certonly \
+
+            # Obtain certificate via webroot challenge
+            if docker compose -f docker-compose.vps.yml run --rm certbot certonly \
               --webroot \
               --webroot-path=/var/www/certbot \
               --email admin@cortexbuildpro.com \
               --agree-tos \
               --no-eff-email \
               -d cortexbuildpro.com \
-              -d www.cortexbuildpro.com 2>&1 || echo "SSL setup needs DNS configured first"
-            echo "SSL setup attempted. Configure DNS A record first if not done."
+              -d www.cortexbuildpro.com; then
+              echo "  SSL certificate obtained successfully!"
+              echo "  Restarting nginx to load SSL configuration..."
+              # Restart nginx so nginx-start.sh detects the certs and uses nginx-ssl.conf
+              docker compose -f docker-compose.vps.yml restart nginx
+              sleep 5
+              echo "  Nginx restarted with SSL configuration"
+              if curl -sk https://www.cortexbuildpro.com/api/health > /dev/null 2>&1; then
+                echo "  HTTPS is LIVE at https://www.cortexbuildpro.com"
+              else
+                echo "  HTTPS not yet responding (DNS propagation may take a few minutes)"
+              fi
+            else
+              echo "  SSL certificate request failed."
+              echo "  Ensure DNS A records for cortexbuildpro.com and www.cortexbuildpro.com"
+              echo "  point to this server IP before running SSL setup."
+              echo "  Then re-run with: Actions → Deploy to VPS → Run workflow (setup_ssl=true)"
+            fi
