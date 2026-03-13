@@ -40,7 +40,13 @@ export async function GET(request: NextRequest) {
       }),
       prisma.user.count({ where }),
     ]);
-    return NextResponse.json({ users, total, page, limit });
+    return NextResponse.json({ 
+      users: users.map(u => ({
+        ...u,
+        permissions: (u.permissionGrants || []).map((g: any) => g.permission?.id).filter(Boolean)
+      })), 
+      total, page, limit 
+    });
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
