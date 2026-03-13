@@ -58,6 +58,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       },
     ];
 
-    return NextResponse.json(bigintSafe({ charts, updatedAt: new Date().toISOString() });
-  } catch (e) { return NextResponse.json({ error: 'Server error' }, { status: 500 })); }
+    return NextResponse.json(bigintSafe({ charts, updatedAt: new Date().toISOString() }));
+  } catch (e) { return NextResponse.json({ error: 'Server error' }, { status: 500 }); }
 }
