@@ -193,7 +193,7 @@
     "debug": ">=4.3.6",
     "undici": ">=6.19.8",
     "ajv": ">=8.0.0",
-    "@tootallnate/once": "2.0.0",
+    "@tootallnate/once": "3.0.1",
     "flatted": "3.4.1",
     "minimatch": "10.2.4",
     "yauzl": "3.2.1"
