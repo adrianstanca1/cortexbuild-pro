@@ -8,6 +8,10 @@ import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
 import { generateAIResponse } from '@/lib/ai-service';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // Cost analysis endpoint - supports Ollama (primary), Gemini, and Abacus AI
 // Analyzes project costs, forecasts, and variances
 

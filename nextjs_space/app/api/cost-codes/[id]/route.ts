@@ -6,6 +6,10 @@ import { prisma } from '@/lib/db';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 
 
 export async function GET(
@@ -146,14 +150,14 @@ export async function DELETE(
 
     // Check for dependencies
     if (existing._count.children > 0 || existing._count.workPackages > 0 || existing._count.costItems > 0) {
-      return NextResponse.json({ 
+      return NextResponse.json(bigintSafe({ 
         error: 'Cannot delete cost code with children, work packages or cost items' 
-      }, { status: 400 });
+      }, { status: 400 }));
     }
 
     await prisma.costCode.delete({ where: { id } });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error('Error deleting cost code:', error);
     return NextResponse.json({ error: 'Failed to delete cost code' }, { status: 500 });

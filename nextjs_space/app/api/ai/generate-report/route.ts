@@ -8,6 +8,10 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { generateAIResponse } from "@/lib/ai-service";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // AI-Powered Report Generation API
 // Generates comprehensive project reports with AI insights
 
@@ -238,7 +242,7 @@ Data:\n${reportDataSummary}`;
       }
     });
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       success: true,
       report: {
         title: `${projectData.name} - ${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report`,
@@ -270,7 +274,7 @@ Data:\n${reportDataSummary}`;
         generatedBy: session.user.name || session.user.email,
         aiProvider: aiResult.provider
       }
-    });
+    }));
   } catch (error) {
     console.error("Report generation error:", error);
     return NextResponse.json(

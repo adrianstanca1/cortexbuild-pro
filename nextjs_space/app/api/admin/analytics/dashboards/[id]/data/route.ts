@@ -5,6 +5,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: _id } = await params;
@@ -54,6 +58,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       },
     ];
 
-    return NextResponse.json({ charts, updatedAt: new Date().toISOString() });
-  } catch (e) { return NextResponse.json({ error: 'Server error' }, { status: 500 }); }
+    return NextResponse.json(bigintSafe({ charts, updatedAt: new Date().toISOString() });
+  } catch (e) { return NextResponse.json({ error: 'Server error' }, { status: 500 })); }
 }

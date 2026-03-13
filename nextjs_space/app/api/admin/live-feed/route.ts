@@ -8,6 +8,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -52,7 +56,7 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       activities: activities.map(a => ({
         id: a.id,
         action: a.action,
@@ -69,7 +73,7 @@ export async function GET(request: NextRequest) {
         activeUsers: activeUsers.length
       },
       timestamp: new Date().toISOString()
-    });
+    }));
   } catch (error) {
     console.error("Error fetching live feed:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

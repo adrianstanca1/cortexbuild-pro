@@ -9,6 +9,10 @@ import { prisma } from "@/lib/db";
 import { parseEntitlements } from "@/lib/entitlements";
 import { sendTeamMemberInvitationNotification } from "@/lib/email-notifications";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // GET - List team invitations for the organization
 export async function GET(req: NextRequest) {
   try {
@@ -64,7 +68,7 @@ export async function GET(req: NextRequest) {
       REVOKED: counts.find((c: any) => c.status === "REVOKED")?._count.status || 0,
     };
 
-    return NextResponse.json({ invitations, counts: statusCounts });
+    return NextResponse.json(bigintSafe({ invitations, counts: statusCounts }));
   } catch (error) {
     console.error("Error fetching team invitations:", error);
     return NextResponse.json({ error: "Failed to fetch invitations" }, { status: 500 });
@@ -140,9 +144,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (organization._count.teamMembers + pendingCount >= entitlements.limits.maxUsers) {
-      return NextResponse.json({ 
+      return NextResponse.json(bigintSafe({ 
         error: `User limit reached (${entitlements.limits.maxUsers}). Please upgrade your plan.` 
-      }, { status: 400 });
+      }, { status: 400 }));
     }
 
     // Validate role - non-owners can only invite roles below their level
@@ -218,7 +222,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ invitation }, { status: 201 });
+    return NextResponse.json(bigintSafe({ invitation }, { status: 201 }));
   } catch (error) {
     console.error("Error creating team invitation:", error);
     return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });

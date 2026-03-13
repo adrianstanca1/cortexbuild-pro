@@ -5,6 +5,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +26,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return NextResponse.json({ tasks });
+    return NextResponse.json(bigintSafe({ tasks }));
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
         status: 'ACTIVE',
       },
     });
-    return NextResponse.json({ task }, { status: 201 });
+    return NextResponse.json(bigintSafe({ task }), { status: 201 });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });

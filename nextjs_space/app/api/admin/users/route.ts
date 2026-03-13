@@ -9,6 +9,10 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -60,7 +64,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" }
     });
 
-    return NextResponse.json({ users });
+    return NextResponse.json(bigintSafe({ users }));
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -131,7 +135,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    return NextResponse.json(bigintSafe({ user }), { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -7,6 +7,10 @@ import { startOfMonth, endOfMonth, subMonths, format, startOfWeek, endOfWeek } f
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // Helper function to group items by projectId for O(1) lookups
 function groupByProjectId<T extends { projectId: string }>(items: T[]): Map<string, T[]> {
   const map = new Map<string, T[]>();
@@ -385,14 +389,14 @@ export async function GET(request: NextRequest) {
         }))
     ].sort((a, b) => new Date(b.checkDate).getTime() - new Date(a.checkDate).getTime());
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       summary,
       monthlyData,
       projectBreakdown,
       recentActivity,
       equipmentWithIssues,
       projects
-    });
+    }));
   } catch (error) {
     console.error('Error fetching safety analytics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

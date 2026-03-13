@@ -12,6 +12,10 @@ import {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export const GET = withAuthHandler(async (request: NextRequest, context) => {
   if (!context.organizationId) {
     return errorResponse("FORBIDDEN", "User must belong to an organization");
@@ -40,7 +44,7 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
     })
   ]);
 
-  return NextResponse.json({ 
+  return NextResponse.json(bigintSafe({ 
     projects,
     pagination: {
       page,
@@ -48,7 +52,7 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
       totalCount,
       totalPages: Math.ceil(totalCount / pageSize)
     }
-  });
+  }));
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {
@@ -115,5 +119,5 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
     context.userId
   );
 
-  return NextResponse.json({ project });
+  return NextResponse.json(bigintSafe({ project }));
 });

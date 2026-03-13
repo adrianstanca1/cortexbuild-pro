@@ -7,6 +7,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 
 
 export async function GET(
@@ -172,7 +176,7 @@ export async function DELETE(
       data: { id: id }
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error("Error deleting subcontractor:", error);
     return NextResponse.json({ error: "Failed to delete subcontractor" }, { status: 500 });

@@ -8,6 +8,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -50,7 +54,7 @@ export async function GET(
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ organization });
+    return NextResponse.json(bigintSafe({ organization }));
   } catch (error) {
     console.error("Error fetching organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -111,7 +115,7 @@ export async function PATCH(
       }
     });
 
-    return NextResponse.json({ organization });
+    return NextResponse.json(bigintSafe({ organization }));
   } catch (error) {
     console.error("Error updating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -159,7 +163,7 @@ export async function DELETE(
       }
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error("Error deleting organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

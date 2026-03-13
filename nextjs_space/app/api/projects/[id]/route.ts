@@ -6,6 +6,10 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -28,7 +32,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ project });
+    return NextResponse.json(bigintSafe({ project }));
   } catch (error) {
     console.error("Get project error:", error);
     return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
@@ -96,7 +100,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       });
     }
 
-    return NextResponse.json({ project });
+    return NextResponse.json(bigintSafe({ project }));
   } catch (error) {
     console.error("Update project error:", error);
     return NextResponse.json({ error: "Failed to update project" }, { status: 500 });

@@ -7,6 +7,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // CDM 2015 Compliance Checker API
 // Analyzes project data against UK Construction (Design and Management) Regulations 2015
 
@@ -240,7 +244,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       success: true,
       projectName: projectData.name,
       complianceResults,
@@ -267,7 +271,7 @@ export async function POST(req: NextRequest) {
         action: `Review and document compliance for: ${i.description}`
       })),
       checkedAt: new Date().toISOString()
-    });
+    }));
   } catch (error) {
     console.error("Compliance check error:", error);
     return NextResponse.json(

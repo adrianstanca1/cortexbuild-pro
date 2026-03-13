@@ -7,6 +7,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 
 
 export async function GET(request: NextRequest) {
@@ -49,14 +53,14 @@ export async function GET(request: NextRequest) {
       return acc + sub.contracts.filter(c => c.status === "ACTIVE").length;
     }, 0);
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       subcontractors,
       summary: {
         total: subcontractors.length,
         totalContractValue,
         activeContracts
       }
-    });
+    }));
   } catch (error) {
     console.error("Error fetching subcontractors:", error);
     return NextResponse.json({ error: "Failed to fetch subcontractors" }, { status: 500 });

@@ -5,6 +5,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 function serializeBigInt(obj: unknown): unknown {
   return JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? v.toString() : v));
 }
@@ -26,7 +30,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: [{ organizationId: 'asc' }, { quotaType: 'asc' }],
     });
-    return NextResponse.json({ quotas: serializeBigInt(quotas) });
+    return NextResponse.json(bigintSafe({ quotas }));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
         warningThreshold: warningThreshold ?? 0.8,
       },
     });
-    return NextResponse.json({ quota: serializeBigInt(quota) }, { status: 201 });
+    return NextResponse.json(bigintSafe({ quota: serializeBigInt(quota) }), { status: 201 });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });

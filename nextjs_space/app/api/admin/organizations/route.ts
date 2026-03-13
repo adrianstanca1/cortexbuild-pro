@@ -8,6 +8,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // Helper to safely serialize data with BigInt values
 function serializeData(data: any): any {
   return JSON.parse(JSON.stringify(data, (_, value) =>
@@ -152,7 +156,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({ organization }, { status: 201 });
+    return NextResponse.json(bigintSafe({ organization }), { status: 201 });
   } catch (error) {
     console.error("Error creating organization:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

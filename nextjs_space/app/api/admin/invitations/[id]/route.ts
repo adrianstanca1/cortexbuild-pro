@@ -10,6 +10,10 @@ import { prisma } from '@/lib/db';
 import { sendCompanyInvitationNotification } from '@/lib/email-notifications';
 import crypto from 'crypto';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 // GET /api/admin/invitations/[id] - Get invitation details
 export async function GET(
   request: NextRequest,
@@ -42,7 +46,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ invitation });
+    return NextResponse.json(bigintSafe({ invitation }));
   } catch (error) {
     console.error('Error fetching invitation:', error);
     return NextResponse.json({ error: 'Failed to fetch invitation' }, { status: 500 });
@@ -136,7 +140,7 @@ export async function PATCH(
         },
       });
 
-      return NextResponse.json({ invitation: updated, message: 'Invitation resent successfully' });
+      return NextResponse.json(bigintSafe({ invitation: updated, message: 'Invitation resent successfully' }));
     }
 
     if (action === 'revoke') {
@@ -164,7 +168,7 @@ export async function PATCH(
         },
       });
 
-      return NextResponse.json({ invitation: updated, message: 'Invitation revoked' });
+      return NextResponse.json(bigintSafe({ invitation: updated, message: 'Invitation revoked' }));
     }
 
     // Update entitlements only
@@ -173,7 +177,7 @@ export async function PATCH(
         where: { id },
         data: { entitlements },
       });
-      return NextResponse.json({ invitation: updated });
+      return NextResponse.json(bigintSafe({ invitation: updated }));
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -222,7 +226,7 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json({ message: 'Invitation deleted' });
+    return NextResponse.json(bigintSafe({ message: 'Invitation deleted' }));
   } catch (error) {
     console.error('Error deleting invitation:', error);
     return NextResponse.json({ error: 'Failed to delete invitation' }, { status: 500 });

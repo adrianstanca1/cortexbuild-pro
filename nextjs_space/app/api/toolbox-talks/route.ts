@@ -6,6 +6,10 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export const dynamic = "force-dynamic";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
-    return NextResponse.json({ toolboxTalks });
+    return NextResponse.json(bigintSafe({ toolboxTalks }));
   } catch (error) {
     console.error("Error fetching toolbox talks:", error);
     return NextResponse.json({ error: "Failed to fetch toolbox talks" }, { status: 500 });
@@ -131,7 +135,7 @@ export async function POST(request: NextRequest) {
       data: { toolboxTalk }
     });
 
-    return NextResponse.json({ toolboxTalk }, { status: 201 });
+    return NextResponse.json(bigintSafe({ toolboxTalk }, { status: 201 }));
   } catch (error) {
     console.error("Error creating toolbox talk:", error);
     return NextResponse.json({ error: "Failed to create toolbox talk" }, { status: 500 });

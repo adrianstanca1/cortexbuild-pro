@@ -5,6 +5,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.customReport.count({ where }),
     ]);
-    return NextResponse.json({ reports, total, page, limit });
+    return NextResponse.json(bigintSafe({ reports, total, page, limit }));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });
@@ -83,7 +87,7 @@ export async function POST(request: NextRequest) {
       },
       include: { organization: { select: { id: true, name: true } } },
     });
-    return NextResponse.json({ report }, { status: 201 });
+    return NextResponse.json(bigintSafe({ report }), { status: 201 });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: msg }, { status: 500 });

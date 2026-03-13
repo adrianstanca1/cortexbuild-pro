@@ -7,6 +7,10 @@ import { startOfDay, endOfDay, addDays, subDays } from "date-fns";
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 
 export async function GET(_request: NextRequest) {
   try {
@@ -409,14 +413,14 @@ export async function GET(_request: NextRequest) {
         safetyIncidents.filter(i => i.severity === "CRITICAL" || i.severity === "HIGH").length
     };
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       agenda: agendaItems,
       summary,
       recentChecks: {
         mewp: mewpChecks,
         tools: toolChecks
       }
-    });
+    }));
   } catch (error) {
     console.error("Error fetching agenda:", error);
     return NextResponse.json({ error: "Failed to fetch agenda" }, { status: 500 });

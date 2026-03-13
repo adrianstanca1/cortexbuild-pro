@@ -6,6 +6,10 @@ import { prisma } from '@/lib/db';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 
 
 export async function GET(request: NextRequest) {
@@ -101,7 +105,7 @@ export async function GET(request: NextRequest) {
         utilizationRate: Math.min(100, ((userTimeMap[member.user.id] || 0) / 160) * 100) // Assuming 160 hours/month capacity
       }));
 
-      return NextResponse.json({ allocation });
+      return NextResponse.json(bigintSafe({ allocation }));
     }
 
     if (type === 'budget-summary') {
@@ -145,7 +149,7 @@ export async function GET(request: NextRequest) {
         claimed: acc.claimed + p.claimed
       }), { originalBudget: 0, revisedBudget: 0, actualSpend: 0, claimed: 0 });
 
-      return NextResponse.json({ projects: summary, totals });
+      return NextResponse.json(bigintSafe({ projects: summary, totals }));
     }
 
     if (type === 'schedule-health') {
@@ -197,7 +201,7 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      return NextResponse.json({ projects: health });
+      return NextResponse.json(bigintSafe({ projects: health }));
     }
 
     // Default: overview stats
@@ -208,12 +212,12 @@ export async function GET(request: NextRequest) {
       prisma.safetyIncident.count({ where: { project: { organizationId }, status: { in: ['OPEN', 'INVESTIGATING'] } } })
     ]);
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       activeProjects: projectCount,
       pendingTasks: taskCount,
       openRFIs: rfiCount,
       openSafetyIncidents: safetyCount
-    });
+    }));
 
   } catch (error) {
     console.error('Dashboard analytics error:', error);

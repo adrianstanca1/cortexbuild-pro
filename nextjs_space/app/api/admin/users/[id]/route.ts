@@ -9,6 +9,10 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -52,7 +56,7 @@ export async function GET(
 
     // Don't return password
     const { password, ...userWithoutPassword } = user;
-    return NextResponse.json({ user: userWithoutPassword });
+    return NextResponse.json(bigintSafe({ user: userWithoutPassword }));
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -145,7 +149,7 @@ export async function PATCH(
       }
     });
 
-    return NextResponse.json({ user });
+    return NextResponse.json(bigintSafe({ user }));
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -190,7 +194,7 @@ export async function DELETE(
       }
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error("Error deleting user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

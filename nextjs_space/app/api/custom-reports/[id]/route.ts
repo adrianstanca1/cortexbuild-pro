@@ -6,6 +6,10 @@ import { prisma } from '@/lib/db';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -118,7 +122,7 @@ export async function DELETE(
 
     await prisma.customReport.delete({ where: { id: id } });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error('Delete custom report error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

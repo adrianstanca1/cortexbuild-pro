@@ -7,6 +7,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 
+const bigintSafe = (obj: any) =>
+  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+
+
 export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -124,7 +128,7 @@ export async function GET(_request: NextRequest) {
     const taskCompletionRate = totalTasksNum > 0 ? Math.round((completedTasksNum / totalTasksNum) * 100) : 0;
     const projectCompletionRate = totalProjectsNum > 0 ? Math.round((completedProjectsNum / totalProjectsNum) * 100) : 0;
 
-    return NextResponse.json({
+    return NextResponse.json(bigintSafe({
       overview: {
         totalMembers: totalMembersNum,
         totalProjects: totalProjectsNum,
@@ -160,7 +164,7 @@ export async function GET(_request: NextRequest) {
         taskCount: Number(p._count.tasks),
         teamSize: Number(p._count.teamMembers)
       }))
-    });
+    }));
   } catch (error) {
     console.error("Error fetching company stats:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
