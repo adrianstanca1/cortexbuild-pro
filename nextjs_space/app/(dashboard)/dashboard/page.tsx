@@ -6,6 +6,9 @@ import { DashboardClient } from "./_components/dashboard-client";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
@@ -170,18 +173,18 @@ export default async function DashboardPage() {
   return (
     <DashboardClient
       stats={stats}
-      projects={JSON.parse(JSON.stringify(projects ?? []))}
-      tasks={JSON.parse(JSON.stringify(tasks ?? []))}
-      activities={JSON.parse(JSON.stringify(activities ?? []))}
-      teamMembers={JSON.parse(JSON.stringify(teamMembers ?? []))}
+      projects={bigintSafe(projects ?? [])}
+      tasks={bigintSafe(tasks ?? [])}
+      activities={bigintSafe(activities ?? [])}
+      teamMembers={bigintSafe(teamMembers ?? [])}
       projectStatusCounts={projectStatusCounts}
       constructionMetrics={constructionMetrics}
-      rfis={JSON.parse(JSON.stringify(rfis ?? []))}
-      submittals={JSON.parse(JSON.stringify(submittals ?? []))}
-      safetyIncidents={JSON.parse(JSON.stringify(safetyIncidents ?? []))}
-      punchLists={JSON.parse(JSON.stringify(punchLists ?? []))}
-      upcomingMilestones={JSON.parse(JSON.stringify(milestones ?? []))}
-      changeOrders={JSON.parse(JSON.stringify(changeOrders ?? []))}
+      rfis={bigintSafe(rfis ?? [])}
+      submittals={bigintSafe(submittals ?? [])}
+      safetyIncidents={bigintSafe(safetyIncidents ?? [])}
+      punchLists={bigintSafe(punchLists ?? [])}
+      upcomingMilestones={bigintSafe(milestones ?? [])}
+      changeOrders={bigintSafe(changeOrders ?? [])}
     />
   );
 }

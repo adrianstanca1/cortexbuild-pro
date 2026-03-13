@@ -16,6 +16,9 @@ export const metadata = {
 };
 
 export default async function ReportGeneratorPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/login");
@@ -40,7 +43,7 @@ export default async function ReportGeneratorPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  const serializedProjects = JSON.parse(JSON.stringify(projects));
+  const serializedProjects = bigintSafe(projects);
 
   return (
     <Suspense fallback={<div className="p-8">Loading report generator...</div>}>

@@ -35,7 +35,9 @@ export async function GET(request: NextRequest) {
       orderBy: { scheduledDate: 'desc' }
     });
 
-    return NextResponse.json(inspections);
+    // Serialize BigInt from _count fields
+    const safe = JSON.parse(JSON.stringify(inspections, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+    return NextResponse.json(safe);
   } catch (error) {
     console.error('Error fetching inspections:', error);
     return NextResponse.json({ error: 'Failed to fetch inspections' }, { status: 500 });

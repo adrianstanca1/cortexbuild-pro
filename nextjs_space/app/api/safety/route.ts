@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       orderBy: { incidentDate: 'desc' }
     });
 
-    return NextResponse.json(incidents);
+    const _safe = JSON.parse(JSON.stringify(incidents, (_, v) => typeof v === "bigint" ? Number(v) : v)); return NextResponse.json(_safe);
   } catch (error) {
     console.error('Error fetching safety incidents:', error);
     return NextResponse.json({ error: 'Failed to fetch incidents' }, { status: 500 });

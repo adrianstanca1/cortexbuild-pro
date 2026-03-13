@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import { SubmittalsClient } from './_components/submittals-client';
 
 export default async function SubmittalsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/login');
 
@@ -42,9 +45,9 @@ export default async function SubmittalsPage() {
 
   return (
     <SubmittalsClient
-      initialSubmittals={JSON.parse(JSON.stringify(submittals))}
-      projects={JSON.parse(JSON.stringify(projects))}
-      teamMembers={JSON.parse(JSON.stringify(teamMembers))}
+      initialSubmittals={bigintSafe(submittals)}
+      projects={bigintSafe(projects)}
+      teamMembers={bigintSafe(teamMembers)}
     />
   );
 }

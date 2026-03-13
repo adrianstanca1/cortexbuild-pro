@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import { EquipmentClient } from './_components/equipment-client';
 
 export default async function EquipmentPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
     redirect('/login');
@@ -32,7 +35,7 @@ export default async function EquipmentPage() {
 
   return (
     <EquipmentClient
-      equipment={JSON.parse(JSON.stringify(equipment))}
+      equipment={bigintSafe(equipment)}
       projects={projects}
     />
   );

@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import { InspectionsClient } from './_components/inspections-client';
 
 export default async function InspectionsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
     redirect('/login');
@@ -33,7 +36,7 @@ export default async function InspectionsPage() {
 
   return (
     <InspectionsClient
-      inspections={JSON.parse(JSON.stringify(inspections))}
+      inspections={bigintSafe(inspections)}
       projects={projects}
     />
   );

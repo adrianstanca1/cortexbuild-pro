@@ -16,6 +16,9 @@ export const metadata = {
 };
 
 export default async function AIInsightsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     redirect("/login");
@@ -53,9 +56,9 @@ export default async function AIInsightsPage() {
     take: 50
   });
 
-  // Serialize data
-  const serializedProjects = JSON.parse(JSON.stringify(projects));
-  const serializedSignals = JSON.parse(JSON.stringify(signals));
+  // Serialize data (BigInt-safe)
+  const serializedProjects = bigintSafe(projects);
+  const serializedSignals = bigintSafe(signals);
 
   return (
     <Suspense fallback={<div>Loading AI Insights...</div>}>

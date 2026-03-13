@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import { RFIsClient } from './_components/rfis-client';
 
 export default async function RFIsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/login');
 
@@ -42,9 +45,9 @@ export default async function RFIsPage() {
 
   return (
     <RFIsClient
-      initialRFIs={JSON.parse(JSON.stringify(rfis))}
-      projects={JSON.parse(JSON.stringify(projects))}
-      teamMembers={JSON.parse(JSON.stringify(teamMembers))}
+      initialRFIs={bigintSafe(rfis)}
+      projects={bigintSafe(projects)}
+      teamMembers={bigintSafe(teamMembers)}
     />
   );
 }

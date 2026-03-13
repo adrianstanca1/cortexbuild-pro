@@ -15,8 +15,9 @@ export default async function AdminLayout({
     redirect("/login");
   }
   
-  // Only SUPER_ADMIN can access admin pages
-  if ((session.user as any).role !== "SUPER_ADMIN") {
+  // Only SUPER_ADMIN and COMPANY_OWNER can access admin pages
+  const allowedRoles = ["SUPER_ADMIN", "COMPANY_OWNER"];
+  if (!allowedRoles.includes((session.user as any).role)) {
     redirect("/dashboard");
   }
 

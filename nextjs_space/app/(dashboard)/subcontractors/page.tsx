@@ -10,6 +10,9 @@ import { prisma } from "@/lib/db";
 import { SubcontractorsClient } from "./_components/subcontractors-client";
 
 export default async function SubcontractorsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
     redirect("/login");
@@ -51,7 +54,7 @@ export default async function SubcontractorsPage() {
         <p className="text-gray-500">Manage subcontractors and their contracts</p>
       </div>
       <SubcontractorsClient
-        initialSubcontractors={JSON.parse(JSON.stringify(subcontractors))}
+        initialSubcontractors={bigintSafe(subcontractors)}
         initialSummary={summary}
       />
     </div>

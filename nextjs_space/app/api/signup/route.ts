@@ -4,9 +4,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .substring(0, 60);
+}
+
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, companyName, email, password } = await request.json();
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -28,26 +36,38 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Find or create default organization
-    let org = await prisma.organization.findFirst({
-      where: { slug: "default" }
-    });
+    // Create a unique organisation for this signup
+    const orgName = companyName?.trim() || `${name}'s Company`;
+    let baseSlug = slugify(orgName);
+    let slug = baseSlug;
+    let attempt = 1;
 
-    if (!org) {
-      org = await prisma.organization.create({
-        data: {
-          name: "Default Organization",
-          slug: "default"
-        }
-      });
+    // Ensure slug is unique
+    while (await prisma.organization.findFirst({ where: { slug } })) {
+      slug = `${baseSlug}-${attempt++}`;
     }
+
+    const org = await prisma.organization.create({
+      data: {
+        name: orgName,
+        slug,
+        entitlements: {
+          modules: {
+            projects: true, tasks: true, team: true, documents: true,
+            safety: true, reports: true, rfis: true, submittals: true,
+            changeOrders: true, dailyReports: true
+          },
+          limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 }
+        }
+      }
+    });
 
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: "FIELD_WORKER",
+        role: "COMPANY_OWNER",
         organizationId: org.id
       }
     });
@@ -57,7 +77,7 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         organizationId: org.id,
-        jobTitle: "Team Member"
+        jobTitle: "Owner"
       }
     });
 
@@ -66,7 +86,8 @@ export async function POST(request: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role
       }
     });
   } catch (error) {

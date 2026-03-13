@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import { CostCodesClient } from './_components/cost-codes-client';
 
 export default async function CostCodesPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   
   if (!session?.user?.organizationId) {
@@ -32,5 +35,5 @@ export default async function CostCodesPage() {
     orderBy: { code: 'asc' }
   });
 
-  return <CostCodesClient initialCostCodes={JSON.parse(JSON.stringify(costCodes))} />;
+  return <CostCodesClient initialCostCodes={bigintSafe(costCodes)} />;
 }

@@ -10,7 +10,10 @@ interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function ProjectDetailPage({
+ params }: ProjectDetailPageProps) {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
   const { id } = await params;
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
@@ -239,11 +242,11 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
   return (
     <ProjectDetailClient
-      project={JSON.parse(JSON.stringify(project))}
-      availableTeamMembers={JSON.parse(JSON.stringify(teamMembers ?? []))}
+      project={bigintSafe(project)}
+      availableTeamMembers={bigintSafe(teamMembers ?? [])}
       currentUserId={(session?.user as any)?.id ?? ""}
-      activities={JSON.parse(JSON.stringify(activities ?? []))}
-      certifications={JSON.parse(JSON.stringify(certifications ?? []))}
+      activities={bigintSafe(activities ?? [])}
+      certifications={bigintSafe(certifications ?? [])}
     />
   );
 }

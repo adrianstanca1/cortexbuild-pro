@@ -10,6 +10,9 @@ import { prisma } from '@/lib/db';
 import CertificationsClient from './_components/certifications-client';
 
 export default async function CertificationsPage() {
+  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
+
+
   const session = await getServerSession(authOptions);
   
   if (!session?.user) {
