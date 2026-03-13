@@ -39,7 +39,25 @@ export async function GET(request: NextRequest) {
       }),
       prisma.documentTemplate.count({ where }),
     ]);
-    return NextResponse.json({ templates, total, page, limit });
+    // Map DocumentTemplate to EmailTemplate interface
+    const mapped = templates.map((t: any) => {
+      const contentObj = (t.content && typeof t.content === 'object') ? t.content : {};
+      return {
+        id: t.id,
+        name: t.name,
+        subject: contentObj.subject || t.description || t.name,
+        body: contentObj.body || contentObj.content || t.description || '',
+        category: (['notification','alert','report','marketing','transactional'].includes(t.category?.toLowerCase())
+          ? t.category.toLowerCase()
+          : 'notification') as string,
+        variables: Array.isArray(contentObj.variables) ? contentObj.variables : [],
+        isActive: t.isActive ?? true,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt,
+        usageCount: t.usageCount || 0,
+      };
+    });
+    return NextResponse.json({ templates: mapped, total, page, limit });
   } catch (e: unknown) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
