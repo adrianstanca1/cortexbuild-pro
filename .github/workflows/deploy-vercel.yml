@@ -8,21 +8,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+          cache: npm
+          cache-dependency-path: nextjs_space/package-lock.json
+
       - name: Install dependencies
-        run: npm ci
-      
-      - name: Build
+        working-directory: nextjs_space
+        run: npm ci --legacy-peer-deps
+
+      - name: Generate Prisma client
+        working-directory: nextjs_space
+        run: npx prisma generate
+
+      - name: Build Next.js app
+        working-directory: nextjs_space
         run: npm run build
-      
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://user:pass@localhost:5432/db' }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'ci-placeholder' }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL || 'https://www.cortexbuildpro.com' }}
+          SKIP_ENV_VALIDATION: "1"
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
@@ -30,3 +43,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
+          working-directory: nextjs_space
