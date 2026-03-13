@@ -7,10 +7,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

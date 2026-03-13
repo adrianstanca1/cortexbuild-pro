@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  HardHat, ArrowRight, Target, Heart, Zap, CheckCircle,
+  HardHat, ArrowRight, Target, Heart, Zap,
   Building2, Users, Shield, Star, Globe, TrendingUp
 } from "lucide-react";
 

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {
-  HardHat, ClipboardList, Users, FileText, BarChart3, ArrowRight, Zap, Shield, Clock,
-  CheckCircle, Building2, BrainCircuit, Workflow, Smartphone, Globe, Lock,
-  Camera, Calendar, AlertTriangle, MessageSquare, PoundSterling, Layers, Target
+  HardHat, ClipboardList, Users, FileText, BarChart3, ArrowRight, Zap, Shield,
+  CheckCircle, BrainCircuit, Smartphone, Globe, Lock,
+  Calendar, MessageSquare, Layers
 } from "lucide-react";
 
 export const metadata = {

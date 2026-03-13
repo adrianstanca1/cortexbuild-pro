@@ -10,10 +10,6 @@ import { prisma } from "@/lib/db";
 import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/encryption";
 import { broadcastToAll } from "@/lib/realtime-clients";
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
 // GET - List all API connections
 export async function GET(req: NextRequest) {
   try {

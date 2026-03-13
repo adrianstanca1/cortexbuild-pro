@@ -7,12 +7,6 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
-
-
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

@@ -4,17 +4,16 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Users, Building2, FolderKanban, Clock, FileText, Activity,
-  Shield, Database, RefreshCw, ArrowUpRight, UserCheck,
+  Shield, Database, RefreshCw, UserCheck,
   ShieldAlert, Zap, AlertTriangle, CheckCircle2, XCircle,
   Radio, BarChart3, Terminal, HardHat, PoundSterling,
-  TrendingUp, Calendar, ClipboardCheck, Wrench, MapPin,
+  TrendingUp, Calendar, ClipboardCheck,
   ChevronRight, Eye, UserCog, Bell, Settings, Plus,
   FileCheck, AlertCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -87,9 +86,9 @@ function getInitials(name: string) {
 }
 
 // KPI tile
-function KPITile({ label, value, sub, icon: Icon, color, trend }: {
+function KPITile({ label, value, sub, icon: Icon, color, _trend }: {
   label: string; value: string | number; sub?: string;
-  icon: any; color: string; trend?: "up" | "down" | "neutral";
+  icon: any; color: string; _trend?: "up" | "down" | "neutral";
 }) {
   return (
     <Card className={`border-l-4 ${color}`}>

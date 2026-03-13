@@ -12,12 +12,6 @@ import {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
-
-
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;

@@ -3,10 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 
-// BigInt serializer
-const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === "bigint" ? Number(v) : v));
-
-
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 

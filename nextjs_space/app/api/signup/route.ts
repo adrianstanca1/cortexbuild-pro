@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     // Create a unique organisation for this signup
     const orgName = companyName?.trim() || `${name}'s Company`;
-    let baseSlug = slugify(orgName);
+    const baseSlug = slugify(orgName);
     let slug = baseSlug;
     let attempt = 1;
 
