@@ -49,6 +49,7 @@ const adminNavItems = [
   { href: "/admin/rate-limits", label: "Rate Limits", icon: Zap, description: "API throttling" },
   { href: "/admin/mfa", label: "MFA Management", icon: Fingerprint, description: "Security" },
   { href: "/admin/webhooks", label: "Webhooks", icon: Webhook, description: "Integrations" },
+  { href: "/admin/email-templates", label: "Email Templates", icon: Mail, description: "Notification emails" },
 ];
 
 export function AdminSidebar() {
