@@ -8,10 +8,10 @@ import { DashboardClient } from "./_components/dashboard-client";
 import { 
   LoadingSkeleton, 
   LoadingGrid, 
-  LoadingCard,
-  ErrorBoundary,
-  useAsyncData
-} from "./_components/ui";
+  LoadingCard
+} from "../_components/ui/loading-skeleton";
+import { ErrorBoundary } from "../_components/ui/error-boundary";
+import { useAsyncData } from "../_components/ui/use-async-data";
 
 export const dynamic = "force-dynamic";
 
