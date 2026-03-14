@@ -34,18 +34,19 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".build/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "scripts",
     "server",
     "__tests__",
+    "_archived_variants",
     "**/*.test.ts",
     "**/*.test.tsx",
     "jest.config.ts",
-    "jest.setup.ts"
+    "jest.setup.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts"
   ]
 }

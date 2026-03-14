@@ -23,6 +23,7 @@ import { SmartAlerts } from "@/components/ui/smart-alerts";
 import { ResourceIntelligence } from "@/components/ui/resource-intelligence";
 import { formatDistanceToNow, format, isToday, isPast, addDays } from "date-fns";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
+import { cn } from "@/lib/utils";
 
 interface ConstructionMetrics {
   openRFIs: number;
@@ -115,7 +116,7 @@ export function DashboardClient({
   const completionRate = totalProjects > 0 ? Math.round((projectStatusCounts.COMPLETED / totalProjects) * 100) : 0;
   
   // Check for critical alerts
-  const criticalAlerts = [];
+  const criticalAlerts: string[] = [];
   if (constructionMetrics?.criticalIncidents && constructionMetrics.criticalIncidents > 0) {
     criticalAlerts.push(`${constructionMetrics.criticalIncidents} critical safety incident(s)`);
   }

@@ -120,7 +120,7 @@ export default function DashboardPage() {
       include: { project: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
       take: 20
-    )
+    })
   );
 
   const {
@@ -134,7 +134,7 @@ export default function DashboardPage() {
       include: { project: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
       take: 20
-    )
+    })
   );
 
   const {
@@ -164,7 +164,7 @@ export default function DashboardPage() {
       include: { project: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
       take: 20
-    )
+    })
   );
 
   const {
@@ -178,7 +178,7 @@ export default function DashboardPage() {
       include: { project: { select: { name: true } } },
       orderBy: { scheduledDate: "asc" },
       take: 20
-    )
+    })
   );
 
   const {
