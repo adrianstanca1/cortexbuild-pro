@@ -1,0 +1,104 @@
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5555:64
+
+  5552         createdAt: "desc"
+  5553     }
+  5554 }),
+→ 5555 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async RFIsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5505:43)
+digest: "1257608284"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4476:61
+
+  4473     (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.redirect)("/login");
+  4474 }
+  4475 const [projects, inspections] = await Promise.all([
+→ 4476     _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 0)
+    at async InspectionsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4475:37)
+digest: "3148392986"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5712:68
+
+  5709         name: "asc"
+  5710     }
+  5711 }),
+→ 5712 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async SafetyPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5699:48)
+digest: "3196825522"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(company)/company/page.js:3254:61
+
+  3251         invitedAt: "desc"
+  3252     }
+  3253 }),
+→ 3254 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async CompanyDashboardPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(company)/company/page.js:3219:91)
+digest: "4050071768"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5555:64
+
+  5552         createdAt: "desc"
+  5553     }
+  5554 }),
+→ 5555 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async RFIsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5505:43)
+digest: "1257608284"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4476:61
+
+  4473     (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.redirect)("/login");
+  4474 }
+  4475 const [projects, inspections] = await Promise.all([
+→ 4476     _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 0)
+    at async InspectionsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4475:37)
+digest: "3148392986"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5712:68
+
+  5709         name: "asc"
+  5710     }
+  5711 }),
+→ 5712 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async SafetyPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5699:48)
+digest: "3196825522"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(company)/company/page.js:3254:61
+
+  3251         invitedAt: "desc"
+  3252     }
+  3253 }),
+→ 3254 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async CompanyDashboardPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(company)/company/page.js:3219:91)
+digest: "4050071768"

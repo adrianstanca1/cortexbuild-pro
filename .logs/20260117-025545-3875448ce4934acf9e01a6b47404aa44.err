@@ -1,0 +1,19 @@
+
+
+===== TS errors =====
+
+[Test Mode] app/api/realtime/route.ts
+Type error: Route "app/api/realtime/route.ts" does not match the required types of a Next.js Route.
+  "broadcastEvent" is not a valid Route export field.
+
+
+===== TS errors =====
+
+
+Failed to compile.
+
+app/api/realtime/route.ts
+Type error: Route "app/api/realtime/route.ts" does not match the required types of a Next.js Route.
+  "broadcastEvent" is not a valid Route export field.
+
+Next.js build worker exited with code: 1 and signal: null

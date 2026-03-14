@@ -1,0 +1,15 @@
+[Error: Unknown system error -116: Unknown system error -116, write] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'write'
+}
+ ⨯ uncaughtException: [Error: Unknown system error -116: Unknown system error -116, write] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'write'
+}
+ ⨯ uncaughtException: [Error: Unknown system error -116: Unknown system error -116, write] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'write'
+}

@@ -1,0 +1,6 @@
+[master ef5eef7] Added AI intelligence features dashboard
+ 6 files changed, 1232 insertions(+), 6 deletions(-)
+ create mode 100644 nextjs_space/components/ui/predictive-analytics.tsx
+ create mode 100644 nextjs_space/components/ui/resource-intelligence.tsx
+ create mode 100644 nextjs_space/components/ui/smart-alerts.tsx
+###ef5eef771eed89d389c2d20a73169505d1b1de69###

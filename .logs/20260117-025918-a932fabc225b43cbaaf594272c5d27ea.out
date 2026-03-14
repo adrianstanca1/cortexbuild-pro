@@ -1,0 +1,14 @@
+[master ba0af4c] Enhanced features with real-time, Kanban, reports
+ 16 files changed, 1609 insertions(+), 75 deletions(-)
+ create mode 100644 nextjs_space/app/(dashboard)/reports/_components/reports-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/reports/page.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/tasks/_components/kanban-board.tsx
+ create mode 100644 nextjs_space/app/api/activity/route.ts
+ create mode 100644 nextjs_space/app/api/realtime/route.ts
+ create mode 100644 nextjs_space/app/api/tasks/[id]/comments/route.ts
+ create mode 100644 nextjs_space/app/api/team/[id]/projects/route.ts
+ create mode 100644 nextjs_space/app/api/team/[id]/route.ts
+ create mode 100644 nextjs_space/hooks/use-realtime.ts
+ create mode 100644 nextjs_space/lib/realtime-clients.ts
+ create mode 100644 nextjs_space/lib/realtime.ts
+###ba0af4c0cb48cc0cf5eaeac4406b114ff139df73###

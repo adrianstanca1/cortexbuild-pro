@@ -1,0 +1,86 @@
+
+
+===== TS errors =====
+
+[Test Mode] ./app/api/dashboard/agenda/route.ts:220:21
+Type error: Property 'permitType' does not exist on type '{ project: { name: string; id: string; }; } & { number: number; status: PermitStatus; id: string; createdAt: Date; updatedAt: Date; description: string | null; notes: string | null; ... 11 more ...; feePaidDate: Date | null; }'.
+
+[0m [90m 218 |[39m         id[33m:[39m p[33m.[39mid[33m,[39m[0m
+[0m [90m 219 |[39m         type[33m:[39m [32m"permit_expiring"[39m [36mas[39m [36mconst[39m[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 220 |[39m         title[33m:[39m [32m`${p.permitType} Permit Expiring`[39m[33m,[39m[0m
+[0m [90m     |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 221 |[39m         time[33m:[39m p[33m.[39mexpirationDate[33m,[39m[0m
+[0m [90m 222 |[39m         project[33m:[39m p[33m.[39mproject[33m,[39m[0m
+[0m [90m 223 |[39m         permitNumber[33m:[39m p[33m.[39mpermitNumber[0m
+
+[Test Mode] ./app/api/mewp-checks/route.ts:176:9
+Type error: Type '{ equipment: any; status: $Enums.CheckStatus; safeToUse: boolean; }' is not assignable to type 'string'.
+
+[0m [90m 174 |[39m         userId[33m,[39m[0m
+[0m [90m 175 |[39m         projectId[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 176 |[39m         details[33m:[39m {[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 177 |[39m           equipment[33m:[39m equipmentName[33m,[39m[0m
+[0m [90m 178 |[39m           status[33m:[39m check[33m.[39moverallStatus[33m,[39m[0m
+[0m [90m 179 |[39m           safeToUse[33m:[39m check[33m.[39misSafeToUse[0m
+
+[Test Mode] ./app/api/tool-checks/route.ts:173:9
+Type error: Type '{ tool: any; type: any; status: $Enums.CheckStatus; safeToUse: boolean; }' is not assignable to type 'string'.
+
+[0m [90m 171 |[39m         userId[33m,[39m[0m
+[0m [90m 172 |[39m         projectId[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 173 |[39m         details[33m:[39m {[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 174 |[39m           tool[33m:[39m toolName[33m,[39m[0m
+[0m [90m 175 |[39m           type[33m:[39m toolType[33m,[39m[0m
+[0m [90m 176 |[39m           status[33m:[39m check[33m.[39moverallStatus[33m,[39m[0m
+
+[Test Mode] ./app/api/toolbox-talks/[id]/route.ts:107:9
+Type error: Type '{ title: string; status: $Enums.ToolboxTalkStatus; }' is not assignable to type 'string'.
+
+[0m [90m 105 |[39m         userId[33m,[39m[0m
+[0m [90m 106 |[39m         projectId[33m:[39m existing[33m.[39mprojectId[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 107 |[39m         details[33m:[39m { title[33m:[39m toolboxTalk[33m.[39mtitle[33m,[39m status[33m:[39m toolboxTalk[33m.[39mstatus }[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 108 |[39m       }[0m
+[0m [90m 109 |[39m     })[33m;[39m[0m
+[0m [90m 110 |[39m[0m
+
+[Test Mode] ./app/api/toolbox-talks/[id]/route.ts:155:9
+Type error: Type '{ title: string; }' is not assignable to type 'string'.
+
+[0m [90m 153 |[39m         userId[33m,[39m[0m
+[0m [90m 154 |[39m         projectId[33m:[39m existing[33m.[39mprojectId[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 155 |[39m         details[33m:[39m { title[33m:[39m existing[33m.[39mtitle }[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 156 |[39m       }[0m
+[0m [90m 157 |[39m     })[33m;[39m[0m
+[0m [90m 158 |[39m[0m
+
+[Test Mode] ./app/api/toolbox-talks/route.ts:124:9
+Type error: Type '{ title: string; topic: string; }' is not assignable to type 'string'.
+
+[0m [90m 122 |[39m         userId[33m,[39m[0m
+[0m [90m 123 |[39m         projectId[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 124 |[39m         details[33m:[39m { title[33m:[39m toolboxTalk[33m.[39mtitle[33m,[39m topic[33m:[39m toolboxTalk[33m.[39mtopic }[0m
+[0m [90m     |[39m         [31m[1m^[22m[39m[0m
+[0m [90m 125 |[39m       }[0m
+[0m [90m 126 |[39m     })[33m;[39m[0m
+[0m [90m 127 |[39m[0m
+
+===== TS errors =====
+
+
+Failed to compile.
+
+./app/api/dashboard/agenda/route.ts:220:21
+Type error: Property 'permitType' does not exist on type '{ project: { name: string; id: string; }; } & { number: number; status: PermitStatus; id: string; createdAt: Date; updatedAt: Date; description: string | null; notes: string | null; ... 11 more ...; feePaidDate: Date | null; }'.
+
+[0m [90m 218 |[39m         id[33m:[39m p[33m.[39mid[33m,[39m[0m
+[0m [90m 219 |[39m         type[33m:[39m [32m"permit_expiring"[39m [36mas[39m [36mconst[39m[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 220 |[39m         title[33m:[39m [32m`${p.permitType} Permit Expiring`[39m[33m,[39m[0m
+[0m [90m     |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 221 |[39m         time[33m:[39m p[33m.[39mexpirationDate[33m,[39m[0m
+[0m [90m 222 |[39m         project[33m:[39m p[33m.[39mproject[33m,[39m[0m
+[0m [90m 223 |[39m         permitNumber[33m:[39m p[33m.[39mpermitNumber[0m
+Next.js build worker exited with code: 1 and signal: null

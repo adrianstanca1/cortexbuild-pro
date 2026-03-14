@@ -1,0 +1,15 @@
+[master f7dd082] Construction modules: RFIs, Daily Reports, Safety
+ 16 files changed, 2791 insertions(+), 3 deletions(-)
+ create mode 100644 nextjs_space/app/(dashboard)/daily-reports/_components/daily-reports-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/daily-reports/page.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/rfis/_components/rfis-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/rfis/page.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/safety/_components/safety-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/safety/page.tsx
+ create mode 100644 nextjs_space/app/api/daily-reports/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/daily-reports/route.ts
+ create mode 100644 nextjs_space/app/api/rfis/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/rfis/route.ts
+ create mode 100644 nextjs_space/app/api/safety/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/safety/route.ts
+###f7dd0829ca120617fe12d99639dfeba993e541a1###

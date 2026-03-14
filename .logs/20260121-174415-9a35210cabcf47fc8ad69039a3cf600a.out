@@ -1,0 +1,71 @@
+➤ YN0000: · Yarn 4.12.0
+➤ YN0000: ┌ Resolution step
+➤ YN0085: │ - @azure/abort-controller@npm:2.1.2, @azure/core-auth@npm:1.10.1, @azure/core-client@npm:1.10.1, @azure/core-http-compat@npm:2.3.1, and 11 more.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @typescript-eslint/parser is listed by your project with version 7.0.0 (p6cb6c0), which doesn't satisfy what @typescript-eslint/eslint-plugin requests (^6.0.0-alpha).
+➤ YN0060: │ eslint is listed by your project with version 9.24.0 (pe6e000), which doesn't satisfy what @typescript-eslint/eslint-plugin and other dependencies request (^8.57.0).
+➤ YN0002: │ app@workspace:. doesn't provide prettier (pd88b5f), requested by eslint-plugin-prettier.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 0s 898ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 0s 442ms
+➤ YN0000: · Done with warnings in 1s 540ms
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.7.0) to ./node_modules/.prisma/client in 301ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+Starting server...
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 2.3s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.3s (596 modules)
+ HEAD / 200 in 2913ms
+ ✓ Compiled in 560ms (296 modules)
+ GET / 200 in 89ms
+ ✓ Compiled /api/auth/[...nextauth] in 475ms (541 modules)
+ GET /api/auth/session 200 in 986ms
+ GET /api/auth/session 200 in 77ms
+ GET / 200 in 138ms
+ GET / 200 in 144ms
+ GET / 200 in 126ms
+ GET / 200 in 75ms
+ GET /api/auth/session 200 in 81ms
+ GET /api/auth/session 200 in 96ms
+ GET / 200 in 100ms
+ GET / 200 in 117ms
+ GET / 200 in 125ms
+ GET / 200 in 102ms
+ GET / 200 in 93ms
+ GET / 200 in 90ms
+ GET / 200 in 114ms
+ GET / 200 in 102ms
+ GET / 200 in 96ms
+ GET / 200 in 95ms
+ GET / 200 in 94ms
+ GET / 200 in 78ms
+ GET / 200 in 69ms
+ GET / 200 in 65ms
+ GET / 200 in 70ms
+ GET / 200 in 69ms
+ GET / 200 in 64ms
+ GET / 200 in 69ms
+ GET / 200 in 67ms
+ GET / 200 in 78ms
+ GET / 200 in 75ms
+ GET / 200 in 72ms
+ GET / 200 in 88ms

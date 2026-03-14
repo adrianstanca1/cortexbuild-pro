@@ -1,0 +1,17 @@
+[master db0f113] Added construction management features
+ 18 files changed, 4096 insertions(+), 496 deletions(-)
+ create mode 100644 nextjs_space/app/(dashboard)/budget/_components/budget-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/budget/page.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/materials/_components/materials-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/materials/page.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/subcontractors/_components/subcontractors-client.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/subcontractors/page.tsx
+ create mode 100644 nextjs_space/app/api/budget/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/budget/route.ts
+ create mode 100644 nextjs_space/app/api/materials/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/materials/route.ts
+ create mode 100644 nextjs_space/app/api/milestones/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/milestones/route.ts
+ create mode 100644 nextjs_space/app/api/subcontractors/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/subcontractors/route.ts
+###db0f113f41f222239c741ff1c6c3f0244c361572###

@@ -1,0 +1,53 @@
+ ⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/home/ubuntu/cortexbuild_pro/nextjs_space'
+Error: Cannot find module '/opt/hostedapp/node/root/app/node_modules/@swc/helpers/package.json'
+    at createEsmNotFoundErr (node:internal/modules/cjs/loader:1261:15)
+    at finalizeEsmResolution (node:internal/modules/cjs/loader:1250:15)
+    at resolveExports (node:internal/modules/cjs/loader:639:14)
+    at Function._findPath (node:internal/modules/cjs/loader:728:31)
+    at Function.<anonymous> (node:internal/modules/cjs/loader:1211:27)
+    at /opt/hostedapp/node/root/app/node_modules/next/dist/server/require-hook.js:55:36
+    at Function.resolve (node:internal/modules/helpers:146:19)
+    at createWebpackAliases (/opt/hostedapp/node/root/app/node_modules/next/dist/build/create-compiler-aliases.js:129:76)
+    at getBaseWebpackConfig (/opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js:524:64)
+    at async HotReloaderWebpack.buildFallbackError (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/hot-reloader-webpack.js:553:32)
+    at async DevBundlerService.getFallbackErrorComponents (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/dev-bundler-service.js:25:9)
+    at async DevServer.getFallbackErrorComponents (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:593:9)
+    at async DevServer.renderErrorToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:2203:40)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/next-server.js:231:21)
+    at async DevServer.handleRequestImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  path: '/opt/hostedapp/node/root/app/node_modules/@swc/helpers'
+}
+Error: Cannot find module '/opt/hostedapp/node/root/app/node_modules/@swc/helpers/package.json'
+    at createEsmNotFoundErr (node:internal/modules/cjs/loader:1261:15)
+    at finalizeEsmResolution (node:internal/modules/cjs/loader:1250:15)
+    at resolveExports (node:internal/modules/cjs/loader:639:14)
+    at Function._findPath (node:internal/modules/cjs/loader:728:31)
+    at Function.<anonymous> (node:internal/modules/cjs/loader:1211:27)
+    at /opt/hostedapp/node/root/app/node_modules/next/dist/server/require-hook.js:55:36
+    at Function.resolve (node:internal/modules/helpers:146:19)
+    at createWebpackAliases (/opt/hostedapp/node/root/app/node_modules/next/dist/build/create-compiler-aliases.js:129:76)
+    at getBaseWebpackConfig (/opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js:524:64)
+    at async HotReloaderWebpack.buildFallbackError (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/hot-reloader-webpack.js:553:32)
+    at async DevBundlerService.getFallbackErrorComponents (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/dev-bundler-service.js:25:9)
+    at async DevServer.getFallbackErrorComponents (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:593:9)
+    at async DevServer.renderErrorToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:2203:40)
+    at async pipe.req.req (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:2056:30)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:391:24)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  path: '/opt/hostedapp/node/root/app/node_modules/@swc/helpers'
+}

@@ -1,0 +1,106 @@
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/@next-auth.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/@next-auth' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/@next-auth.js', but to 'Error: Can't resolve './vendor-chunks/@next-auth' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/@next-auth (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/@next-auth.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/lru-cache' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/lru-cache.js', but to 'Error: Can't resolve './vendor-chunks/lru-cache' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/lru-cache (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/lru-cache.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/oidc-token-hash' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/oidc-token-hash.js', but to 'Error: Can't resolve './vendor-chunks/oidc-token-hash' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/oidc-token-hash (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/oidc-token-hash.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/object-hash' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/object-hash.js', but to 'Error: Can't resolve './vendor-chunks/object-hash' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/object-hash (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/object-hash.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/preact' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/preact.js', but to 'Error: Can't resolve './vendor-chunks/preact' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/preact (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/preact.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/bcryptjs' in /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server for build dependencies doesn't lead to expected result '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/bcryptjs.js', but to 'Error: Can't resolve './vendor-chunks/bcryptjs' in '/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/bcryptjs (expected /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/bcryptjs.js)
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/webpack-runtime.js
+<w>  at file dependencies /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file /home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/pages/_error.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/require.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+[Error: Unknown system error -116: Unknown system error -116, close] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'close'
+}
+ ⨯ uncaughtException: [Error: Unknown system error -116: Unknown system error -116, close] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'close'
+}
+ ⨯ uncaughtException: [Error: Unknown system error -116: Unknown system error -116, close] {
+  errno: -116,
+  code: 'Unknown system error -116',
+  syscall: 'close'
+}

@@ -1,0 +1,67 @@
+app/api/batch/route.ts(73,19): error TS2322: Type '{ title: string; description: string; status: "TODO" | "IN_PROGRESS" | "REVIEW" | "COMPLETE"; priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"; projectId: string; assigneeId: string | null; dueDate: Date | null; createdById: string; }' is not assignable to type '(Without<TaskCreateInput, TaskUncheckedCreateInput> & TaskUncheckedCreateInput) | (Without<...> & TaskCreateInput)'.
+  Object literal may only specify known properties, and 'createdById' does not exist in type 'Without<TaskCreateInput, TaskUncheckedCreateInput> & TaskUncheckedCreateInput'.
+app/api/dashboard/stats/route.ts(86,9): error TS2322: Type '("status" | "type")[]' is not assignable to type 'InspectionScalarFieldEnum | InspectionScalarFieldEnum[]'.
+  Type '("status" | "type")[]' is not assignable to type 'InspectionScalarFieldEnum[]'.
+    Type '"status" | "type"' is not assignable to type 'InspectionScalarFieldEnum'.
+      Type '"type"' is not assignable to type 'InspectionScalarFieldEnum'.
+app/api/dashboard/stats/route.ts(118,18): error TS2322: Type '{ organizationId: string; }' is not assignable to type 'ActivityLogWhereInput'.
+  Object literal may only specify known properties, and 'organizationId' does not exist in type 'ActivityLogWhereInput'.
+app/api/dashboard/stats/route.ts(129,19): error TS2820: Type '"COMPLETED"' is not assignable to type 'TaskStatus | NestedEnumTaskStatusFilter<"Task"> | undefined'. Did you mean '"COMPLETE"'?
+app/api/dashboard/stats/route.ts(216,49): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/dashboard/stats/route.ts(216,55): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/dashboard/stats/route.ts(218,29): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/dashboard/stats/route.ts(218,52): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/dashboard/stats/route.ts(242,23): error TS2339: Property 'user' does not exist on type '{ id: string; projectId: string | null; entityType: string; action: string; createdAt: Date; userId: string; entityId: string | null; entityName: string | null; details: string | null; }'.
+app/api/dashboard/stats/route.ts(243,26): error TS2551: Property 'project' does not exist on type '{ id: string; projectId: string | null; entityType: string; action: string; createdAt: Date; userId: string; entityId: string | null; entityName: string | null; details: string | null; }'. Did you mean 'projectId'?
+app/api/projects/[id]/analytics/route.ts(97,9): error TS2322: Type '("status" | "type")[]' is not assignable to type 'InspectionScalarFieldEnum | InspectionScalarFieldEnum[]'.
+app/api/projects/[id]/analytics/route.ts(104,55): error TS2322: Type '{ name: true; type: true; }' is not assignable to type 'EquipmentSelect<DefaultArgs>'.
+  Object literal may only specify known properties, and 'type' does not exist in type 'EquipmentSelect<DefaultArgs>'.
+app/api/projects/[id]/analytics/route.ts(144,35): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+app/api/projects/[id]/analytics/route.ts(233,17): error TS2538: Type 'null' cannot be used as an index type.
+app/api/projects/[id]/analytics/route.ts(233,36): error TS2538: Type 'null' cannot be used as an index type.
+app/api/projects/[id]/analytics/route.ts(238,53): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/projects/[id]/analytics/route.ts(238,59): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/projects/[id]/analytics/route.ts(239,89): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/projects/[id]/analytics/route.ts(239,95): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/projects/[id]/analytics/route.ts(240,89): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/projects/[id]/analytics/route.ts(240,95): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/projects/[id]/analytics/route.ts(241,49): error TS2339: Property 'type' does not exist on type 'PickEnumerable<InspectionGroupByOutputType, InspectionScalarFieldEnum | InspectionScalarFieldEnum[]> & { ...; }'.
+app/api/projects/[id]/analytics/route.ts(242,19): error TS2339: Property 'type' does not exist on type 'PickEnumerable<InspectionGroupByOutputType, InspectionScalarFieldEnum | InspectionScalarFieldEnum[]> & { ...; }'.
+app/api/projects/[id]/analytics/route.ts(242,27): error TS2365: Operator '+' cannot be applied to types 'number' and 'boolean | { id?: number | undefined; number?: number | undefined; title?: number | undefined; inspectionType?: number | undefined; description?: number | undefined; status?: number | undefined; ... 10 more ...; _all?: number | undefined; }'.
+app/api/projects/[id]/analytics/route.ts(242,34): error TS2339: Property 'type' does not exist on type 'PickEnumerable<InspectionGroupByOutputType, InspectionScalarFieldEnum | InspectionScalarFieldEnum[]> & { ...; }'.
+app/api/projects/[id]/analytics/route.ts(242,48): error TS18048: 'i._count' is possibly 'undefined'.
+app/api/projects/[id]/analytics/route.ts(249,28): error TS2551: Property 'equipment' does not exist on type '{ id: string; projectId: string; createdAt: Date; notes: string | null; equipmentId: string; checkOutDate: Date; checkInDate: Date | null; checkedOutById: string; }'. Did you mean 'equipmentId'?
+app/api/projects/[id]/analytics/route.ts(250,28): error TS2551: Property 'equipment' does not exist on type '{ id: string; projectId: string; createdAt: Date; notes: string | null; equipmentId: string; checkOutDate: Date; checkInDate: Date | null; checkedOutById: string; }'. Did you mean 'equipmentId'?
+app/api/projects/[id]/export/route.ts(91,67): error TS2322: Type '{ id: true; number: true; title: true; description: true; amount: true; status: true; reason: true; createdAt: true; requestedBy: { select: { name: true; }; }; }' is not assignable to type 'ChangeOrderSelect<DefaultArgs>'.
+  Object literal may only specify known properties, and 'amount' does not exist in type 'ChangeOrderSelect<DefaultArgs>'.
+app/api/projects/[id]/export/route.ts(103,11): error TS2322: Type '{ id: true; reportDate: true; weather: true; temperature: true; workersOnSite: true; workPerformed: true; materials: true; delays: true; createdBy: { select: { name: true; }; }; }' is not assignable to type 'DailyReportSelect<DefaultArgs>'.
+  Object literal may only specify known properties, and 'workersOnSite' does not exist in type 'DailyReportSelect<DefaultArgs>'.
+app/api/projects/[id]/export/route.ts(113,21): error TS2322: Type '{ id: true; title: true; description: true; severity: true; incidentDate: true; location: true; actionsTaken: true; reportedBy: { select: { name: true; }; }; }' is not assignable to type 'SafetyIncidentSelect<DefaultArgs>'.
+  Object literal may only specify known properties, and 'title' does not exist in type 'SafetyIncidentSelect<DefaultArgs>'.
+app/api/projects/[id]/team/route.ts(45,16): error TS2339: Property 'role' does not exist on type '{ teamMember: { user: { id: string; name: string; email: string; role: UserRole; avatarUrl: string | null; }; } & { id: string; organizationId: string; userId: string; jobTitle: string | null; department: string | null; invitedAt: Date; }; } & { ...; }'.
+app/api/projects/[id]/team/route.ts(46,19): error TS2339: Property 'createdAt' does not exist on type '{ teamMember: { user: { id: string; name: string; email: string; role: UserRole; avatarUrl: string | null; }; } & { id: string; organizationId: string; userId: string; jobTitle: string | null; department: string | null; invitedAt: Date; }; } & { ...; }'.
+app/api/projects/[id]/team/route.ts(111,9): error TS2322: Type '{ projectId: string; teamMemberId: any; role: any; }' is not assignable to type '(Without<ProjectTeamMemberCreateInput, ProjectTeamMemberUncheckedCreateInput> & ProjectTeamMemberUncheckedCreateInput) | (Without<...> & ProjectTeamMemberCreateInput)'.
+  Object literal may only specify known properties, and 'role' does not exist in type 'Without<ProjectTeamMemberCreateInput, ProjectTeamMemberUncheckedCreateInput> & ProjectTeamMemberUncheckedCreateInput'.
+app/api/projects/[id]/team/route.ts(124,39): error TS2551: Property 'teamMember' does not exist on type '{ id: string; projectId: string; teamMemberId: string; assignedAt: Date; }'. Did you mean 'teamMemberId'?
+app/api/projects/[id]/team/route.ts(126,9): error TS2322: Type '{ action: string; details: string; userId: string; organizationId: string; projectId: string; }' is not assignable to type '(Without<ActivityLogCreateInput, ActivityLogUncheckedCreateInput> & ActivityLogUncheckedCreateInput) | (Without<...> & ActivityLogCreateInput)'.
+  Object literal may only specify known properties, and 'organizationId' does not exist in type 'Without<ActivityLogCreateInput, ActivityLogUncheckedCreateInput> & ActivityLogUncheckedCreateInput'.
+app/api/projects/[id]/team/route.ts(136,39): error TS2551: Property 'teamMember' does not exist on type '{ id: string; projectId: string; teamMemberId: string; assignedAt: Date; }'. Did you mean 'teamMemberId'?
+app/api/reports/generate/route.ts(64,21): error TS2322: Type '{ amount: true; }' is not assignable to type 'ChangeOrderSumAggregateInputType'.
+  Object literal may only specify known properties, and 'amount' does not exist in type 'ChangeOrderSumAggregateInputType'.
+app/api/reports/generate/route.ts(78,68): error TS18048: 'changeOrders._sum' is possibly 'undefined'.
+app/api/reports/generate/route.ts(78,86): error TS2339: Property 'amount' does not exist on type '{ number?: number | null | undefined; costChange?: number | null | undefined; scheduleChange?: number | null | undefined; originalBudget?: number | null | undefined; revisedBudget?: number | ... 1 more ... | undefined; }'.
+app/api/reports/generate/route.ts(118,72): error TS2339: Property 'role' does not exist on type '{ teamMember: { user: { name: string; }; } & { id: string; organizationId: string; userId: string; jobTitle: string | null; department: string | null; invitedAt: Date; }; } & { id: string; projectId: string; teamMemberId: string; assignedAt: Date; }'.
+app/api/reports/generate/route.ts(169,19): error TS2322: Type '{ amount: true; }' is not assignable to type 'ChangeOrderSumAggregateInputType'.
+  Object literal may only specify known properties, and 'amount' does not exist in type 'ChangeOrderSumAggregateInputType'.
+app/api/reports/generate/route.ts(179,69): error TS2339: Property 'amount' does not exist on type '{ project: { name: string; }; } & { number: number; status: ChangeOrderStatus; id: string; title: string; description: string | null; projectId: string; createdAt: Date; ... 9 more ...; executedAt: Date | null; }'.
+app/api/reports/generate/route.ts(181,33): error TS2322: Type 'true | { id?: number | undefined; number?: number | undefined; title?: number | undefined; description?: number | undefined; status?: number | undefined; reason?: number | undefined; ... 11 more ...; _all?: number | undefined; } | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+app/api/reports/generate/route.ts(181,58): error TS18048: 's._sum' is possibly 'undefined'.
+app/api/reports/generate/route.ts(181,65): error TS2339: Property 'amount' does not exist on type '{ number?: number | null | undefined; costChange?: number | null | undefined; scheduleChange?: number | null | undefined; originalBudget?: number | null | undefined; revisedBudget?: number | ... 1 more ... | undefined; }'.
+exit_code=2

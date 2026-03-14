@@ -1,0 +1,3 @@
+app/api/export/route.ts(130,13): error TS2339: Property 'title' does not exist on type '{ project: { name: string; }; reportedBy: { name: string; }; } & { status: IncidentStatus; id: string; createdAt: Date; updatedAt: Date; description: string; location: string | null; ... 10 more ...; reportedById: string; }'.
+app/api/export/route.ts(130,60): error TS2551: Property 'incidentType' does not exist on type '{ project: { name: string; }; reportedBy: { name: string; }; } & { status: IncidentStatus; id: string; createdAt: Date; updatedAt: Date; description: string; location: string | null; ... 10 more ...; reportedById: string; }'. Did you mean 'incidentDate'?
+exit_code=2

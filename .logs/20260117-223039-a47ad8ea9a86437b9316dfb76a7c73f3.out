@@ -1,0 +1,3 @@
+app/api/invitations/accept/route.ts(100,11): error TS2322: Type 'Record<string, unknown>' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'readonly (InputJsonValue | null)[]': length, concat, join, slice, and 20 more.
+exit_code=2

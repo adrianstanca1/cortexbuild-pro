@@ -1,0 +1,4 @@
+ ⨯ Error: [next-auth]: `useSession` must be wrapped in a <SessionProvider />
+    at useSession (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/vendor-chunks/next-auth.js:489:11)
+    at DashboardSidebar (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/dashboard/page.js:2568:90)
+digest: "567267694"

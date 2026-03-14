@@ -1,0 +1,22 @@
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/opt/hostedapp/node/root/app/node_modules/styled-jsx'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'styled-jsx/package.json' in /opt/hostedapp/node/root/app/node_modules/next/dist/build for build dependencies doesn't lead to expected result '/opt/hostedapp/node/root/app/node_modules/styled-jsx/package.json', but to 'Error: Can't resolve 'styled-jsx/package.json' in '/opt/hostedapp/node/root/app/node_modules/next/dist/build'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 styled-jsx/package.json
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'source-map-js/package.json' in /opt/hostedapp/node/root/app/node_modules/next/dist/build for build dependencies doesn't lead to expected result '/opt/hostedapp/node/root/app/node_modules/source-map-js/package.json', but to 'Error: Can't resolve 'source-map-js/package.json' in '/opt/hostedapp/node/root/app/node_modules/next/dist/build'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 source-map-js/package.json
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'picocolors/package.json' in /opt/hostedapp/node/root/app/node_modules/next/dist/build for build dependencies doesn't lead to expected result '/opt/hostedapp/node/root/app/node_modules/picocolors/package.json', but to 'Error: Can't resolve 'picocolors/package.json' in '/opt/hostedapp/node/root/app/node_modules/next/dist/build'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 picocolors/package.json
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack-config.js
+<w>  at file dependencies /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /opt/hostedapp/node/root/app/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
