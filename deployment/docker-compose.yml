@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # ── PostgreSQL Database ────────────────────────────────
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: cortexbuild-db
@@ -13,9 +13,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
-    # FIX: port NOT exposed externally in production (internal network only)
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
     networks:
       - cortexbuild-network
     healthcheck:
@@ -24,61 +23,58 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Next.js Application ───────────────────────────────
+  # Next.js Application
   app:
     build:
       context: ..
       dockerfile: deployment/Dockerfile
     container_name: cortexbuild-app
     restart: unless-stopped
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-cortexbuild}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-cortexbuild}?schema=public
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://cortexbuildpro.com}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      # Google OAuth
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-      # AWS S3 (use access keys — AWS_PROFILE does not work in containers)
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
-      - AWS_REGION=${AWS_REGION:-us-west-2}
+      # AWS S3 Configuration
+      - AWS_PROFILE=${AWS_PROFILE:-}
+      - AWS_REGION=${AWS_REGION:-}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME:-}
       - AWS_FOLDER_PREFIX=${AWS_FOLDER_PREFIX:-}
-      # Ollama AI (local AI service — runs on host or separate container)
-      - OLLAMA_API_URL=${OLLAMA_API_URL:-http://host.docker.internal:11434}
-      # SendGrid Email
-      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
-      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@cortexbuildpro.com}
-      - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-CortexBuild Pro}
-      # Real-time / WebSocket
-      - NEXT_PUBLIC_WEBSOCKET_URL=${NEXT_PUBLIC_WEBSOCKET_URL:-https://cortexbuildpro.com}
-      - WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}
+      # AbacusAI API
+      - ABACUSAI_API_KEY=${ABACUSAI_API_KEY:-}
+      - WEB_APP_ID=${WEB_APP_ID:-}
       # Notification IDs
       - NOTIF_ID_MILESTONE_DEADLINE_REMINDER=${NOTIF_ID_MILESTONE_DEADLINE_REMINDER:-}
       - NOTIF_ID_TOOLBOX_TALK_COMPLETED=${NOTIF_ID_TOOLBOX_TALK_COMPLETED:-}
       - NOTIF_ID_MEWP_CHECK_COMPLETED=${NOTIF_ID_MEWP_CHECK_COMPLETED:-}
       - NOTIF_ID_TOOL_CHECK_COMPLETED=${NOTIF_ID_TOOL_CHECK_COMPLETED:-}
+      # Google OAuth (Optional)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      # Real-time Communication
+      - NEXT_PUBLIC_WEBSOCKET_URL=${NEXT_PUBLIC_WEBSOCKET_URL:-https://www.cortexbuildpro.com}
+      - WEBSOCKET_PORT=${WEBSOCKET_PORT:-3000}
+      # SendGrid Email Service
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@cortexbuildpro.com}
+      - SENDGRID_FROM_NAME=${SENDGRID_FROM_NAME:-CortexBuild Pro}
     volumes:
-      - uploads_data:/app/uploads
       - nextjs_static:/app/.next/static
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - cortexbuild-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/auth/providers"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 60s
 
-  # ── Nginx Reverse Proxy ───────────────────────────────
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: cortexbuild-nginx
@@ -88,23 +84,23 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
       - certbot-webroot:/var/www/certbot:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - nextjs_static:/var/www/_next/static:ro
-      - uploads_data:/var/www/uploads:ro
+      - nextjs_static:/var/www/_next/static
     depends_on:
       - app
     networks:
       - cortexbuild-network
 
-  # ── Certbot SSL Auto-Renewal ──────────────────────────
+  # Certbot for SSL
   certbot:
     image: certbot/certbot:latest
     container_name: cortexbuild-certbot
     volumes:
       - certbot-webroot:/var/www/certbot
       - certbot-etc:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     networks:
       - cortexbuild-network
 
@@ -114,7 +110,6 @@ networks:
 
 volumes:
   postgres_data:
-  uploads_data:
   certbot-webroot:
   certbot-etc:
   nextjs_static:

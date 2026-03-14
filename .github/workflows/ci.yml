@@ -2,9 +2,9 @@ name: CI/CD Pipeline - Build, Test & Deploy
 
 on:
   push:
-    branches: [Cortexbuildpro, master, main, master-integrated, dashboard-enhancements-fix]
+    branches: [Cortexbuildpro, master, main, master-integrated]
   pull_request:
-    branches: [Cortexbuildpro, master, main, master-integrated, dashboard-enhancements-fix]
+    branches: [Cortexbuildpro, master, main, master-integrated]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

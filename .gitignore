@@ -32,3 +32,8 @@ build/
 # Debug
 npm-debug.log*
 .pnpm-debug.log*
+
+# Temp sync artifacts
+*.bundle
+push-sync.sh
+nextjs_space/.yarn/install-state*.gz
