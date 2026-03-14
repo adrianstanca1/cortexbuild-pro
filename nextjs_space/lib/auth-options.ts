@@ -70,24 +70,39 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
-      // Ensure new OAuth users have a default organization and role
-      let org = await prisma.organization.findFirst({
-        where: { slug: "default" }
-      });
-      
-      if (!org) {
-        org = await prisma.organization.create({
-          data: {
-            name: "Default Organization",
-            slug: "default"
-          }
-        });
+      // Create a unique organization for each new OAuth user
+      const userName = user.name || user.email?.split("@")[0] || "User";
+      const orgName = `${userName}'s Company`;
+      const baseSlug = orgName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .substring(0, 60);
+      let slug = baseSlug;
+      let attempt = 1;
+      while (await prisma.organization.findFirst({ where: { slug } })) {
+        slug = `${baseSlug}-${attempt++}`;
       }
-      
+
+      const org = await prisma.organization.create({
+        data: {
+          name: orgName,
+          slug,
+          entitlements: {
+            modules: {
+              projects: true, tasks: true, team: true, documents: true,
+              safety: true, reports: true, rfis: true, submittals: true,
+              changeOrders: true, dailyReports: true
+            },
+            limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 }
+          }
+        }
+      });
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          role: "FIELD_WORKER",
+          role: "COMPANY_OWNER",
           organizationId: org.id
         }
       });
@@ -97,7 +112,7 @@ export const authOptions: NextAuthOptions = {
         data: {
           userId: user.id,
           organizationId: org.id,
-          jobTitle: "Team Member"
+          jobTitle: "Owner"
         }
       });
     }
@@ -145,7 +160,7 @@ export const authOptions: NextAuthOptions = {
       name: '__Secure-next-auth.pkce.code_verifier',
       options: {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: 'lax',
         path: '/',
         secure: true
       }
@@ -154,7 +169,7 @@ export const authOptions: NextAuthOptions = {
       name: '__Secure-next-auth.state',
       options: {
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: 'lax',
         path: '/',
         secure: true,
         maxAge: 900
@@ -163,7 +178,8 @@ export const authOptions: NextAuthOptions = {
     callbackUrl: {
       name: '__Secure-next-auth.callback-url',
       options: {
-        sameSite: 'none',
+        httpOnly: true,
+        sameSite: 'lax',
         path: '/',
         secure: true
       }
