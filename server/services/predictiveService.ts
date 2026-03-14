@@ -1,9 +1,7 @@
 import { getDb } from '../database.js';
 import { AppError } from '../utils/AppError.js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateCompletion, isOllamaAvailable } from './ollamaService.js';
 import { logger } from '../utils/logger.js';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export class PredictiveService {
     /**
@@ -29,44 +27,46 @@ export class PredictiveService {
         const completionRate = completedTasks.length / tasks.length;
         const safetyIncidentCount = safety.length;
 
-        // 3. AI Reasoning (Gemini)
-        let aiReasoning = "AI analysis skipped (API key missing).";
+        // 3. AI Reasoning (Ollama)
+        let aiReasoning = "AI analysis skipped (Ollama unavailable).";
         let predictedDelayDays = 0;
 
-        if (process.env.GEMINI_API_KEY) {
+        const ollamaAvailable = await isOllamaAvailable();
+        
+        if (ollamaAvailable) {
             try {
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const prompt = `
-                    Act as an expert Construction Risk Analyst. Analyze the following project data to predict delays and identify risks.
-                    
-                    **Project Data:**
-                    - Name: ${project.name} (Status: ${project.status})
-                    - Schedule: Start ${project.startDate || 'N/A'}, End ${project.endDate || 'N/A'}
-                    - Financials: Budget ${project.budget}, Spent ${project.spent}
-                    - Velocity: ${tasks.length} total tasks, ${overdueTasks.length} overdue
-                    - Completion Rate: ${(completionRate * 100).toFixed(1)}%
-                    - Safety Record: ${safetyIncidentCount} incidents
-                    - Recent Weather (last 7 days): ${JSON.stringify(weather.map(w => w.weather || 'Clear'))}
+Act as an expert Construction Risk Analyst. Analyze the following project data to predict delays and identify risks.
 
-                    **Output Requirement:**
-                    Provide valid JSON strictly adhering to this schema (no markdown formatting):
-                    {
-                        "delayProbability": number (0-100),
-                        "predictedDelayDays": number (estimate based on overdue tasks),
-                        "reasoning": "string (concise 2-sentence explanation of primary risks)",
-                        "riskFactors": ["string", "string", "string"] (top 3 specific risk vectors),
-                        "riskScore": number (0-100, >70 is critical),
-                        "recommendations": ["string", "string", "string"] (3 actionable mitigation steps),
-                        "confidenceLevel": "HIGH" | "MEDIUM" | "LOW"
-                    }
-                `;
+**Project Data:**
+- Name: ${project.name} (Status: ${project.status})
+- Schedule: Start ${project.startDate || 'N/A'}, End ${project.endDate || 'N/A'}
+- Financials: Budget ${project.budget}, Spent ${project.spent}
+- Velocity: ${tasks.length} total tasks, ${overdueTasks.length} overdue
+- Completion Rate: ${(completionRate * 100).toFixed(1)}%
+- Safety Record: ${safetyIncidentCount} incidents
+- Recent Weather (last 7 days): ${JSON.stringify(weather.map(w => w.weather || 'Clear'))}
 
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
+**Output Requirement:**
+Provide valid JSON strictly adhering to this schema (no markdown formatting):
+{
+    "delayProbability": number (0-100),
+    "predictedDelayDays": number (estimate based on overdue tasks),
+    "reasoning": "string (concise 2-sentence explanation of primary risks)",
+    "riskFactors": ["string", "string", "string"] (top 3 specific risk vectors),
+    "riskScore": number (0-100, >70 is critical),
+    "recommendations": ["string", "string", "string"] (3 actionable mitigation steps),
+    "confidenceLevel": "HIGH" | "MEDIUM" | "LOW"
+}
+`;
 
-                // Clean-up potential markdown code blocks if the model ignores checking
-                const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                const messages = [
+                    { role: 'system' as const, content: 'You are a construction risk analyst. Respond only with valid JSON.' },
+                    { role: 'user' as const, content: prompt }
+                ];
+
+                const response = await generateCompletion(messages, { temperature: 0.1 });
+                const cleanJson = response.replace(/```json/g, '').replace(/```/g, '').trim();
 
                 try {
                     const aiData = JSON.parse(cleanJson);
@@ -79,21 +79,14 @@ export class PredictiveService {
                     aiReasoning = "AI analysis failed (invalid format). Using statistical fallback.";
                 }
             } catch (error: any) {
-                logger.error("[Predictive] Gemini API Error:", error);
-
-                if (error.message?.includes('SAFETY')) {
-                    aiReasoning = "AI analysis blocked by safety filters.";
-                } else {
-                    aiReasoning = "AI service temporarily unavailable.";
-                }
+                logger.error("[Predictive] Ollama API Error:", error);
+                aiReasoning = "AI service temporarily unavailable.";
             }
+        } else {
+            logger.warn('[PredictiveService] Ollama unavailable. Using heuristic fallback.');
         }
 
         // Fallback simple logic
-        if (!process.env.GEMINI_API_KEY) {
-            logger.warn('[PredictiveService] GEMINI_API_KEY missing. Using heuristic fallback.');
-        }
-
         predictedDelayDays = overdueTasks.length * 1.5 + (safetyIncidentCount * 2);
         const delayProbability = Math.min(100, (overdueTasks.length / tasks.length) * 100 + (safetyIncidentCount * 5));
 

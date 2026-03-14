@@ -3,7 +3,7 @@
  * Comprehensive tests for API endpoints and connectivity
  */
 
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeAll } from 'vitest';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';

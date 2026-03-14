@@ -1,13 +1,5 @@
-import { GoogleGenAI } from '@google/genai';
 import { logger } from '../utils/logger.js';
-
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    logger.error('GEMINI_API_KEY is not configured!');
-}
-
-const ai = new GoogleGenAI({ apiKey: apiKey || '' });
+import { generateStructured, generateWithImage, OLLAMA_MODEL } from './ollamaService.js';
 
 // Schema for phase extraction
 const phaseHandlerSchema = {
@@ -37,51 +29,44 @@ const phaseHandlerSchema = {
 
 export const analyzeProjectDocument = async (fileBuffer: Buffer, mimeType: string, projectContext: any = {}) => {
     try {
-        if (!apiKey) throw new Error("Gemini API Key missing");
-
-        const model = "gemini-2.0-flash-exp";
-
         const prompt = `
-        Analyze this project document (schedule, gantt chart, or plan).
-        Context: Project "${projectContext.name || 'Unknown'}" (${projectContext.type || 'General'}).
-        
-        Extract the distinct project phases, their dates, and status.
-        If specific dates aren't visible, estimate reasonable logical dates based on standard construction timelines relative to the start date.
-        Assess risk level based on the complexity or tight deadlines visible.
-        `;
+Analyze this project document (schedule, gantt chart, or plan).
+Context: Project "${projectContext.name || 'Unknown'}" (${projectContext.type || 'General'}).
 
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: [
-                {
-                    role: 'user',
-                    parts: [
-                        { text: prompt },
-                        {
-                            inlineData: {
-                                mimeType: mimeType,
-                                data: fileBuffer.toString('base64')
-                            }
-                        }
-                    ]
+Extract the distinct project phases, their dates, and status.
+If specific dates aren't visible, estimate reasonable logical dates based on standard construction timelines relative to the start date.
+Assess risk level based on the complexity or tight deadlines visible.
+
+Return a JSON object with:
+- phases: array of phase objects with name, startDate (YYYY-MM-DD), endDate (YYYY-MM-DD), status (Pending/In Progress/Completed/Delayed/On Hold), riskLevel (Low/Medium/High), description, and keyDependencies
+- summary: brief summary of the project
+- confidenceScore: number between 0-1
+`;
+
+        // Check if it's an image
+        if (mimeType.startsWith('image/')) {
+            const response = await generateWithImage(prompt, fileBuffer, mimeType, { temperature: 0.1 });
+            
+            // Try to parse JSON from the response
+            try {
+                return JSON.parse(response);
+            } catch {
+                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    return JSON.parse(jsonMatch[0]);
                 }
-            ],
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: phaseHandlerSchema,
-                temperature: 0.1,
+                throw new Error('Could not parse JSON from image analysis response');
             }
-        });
-
-        // The SDK might return parsed object directly if responseMimeType is json? 
-        // Or we access part.text and JSON.parse.
-        // Let's check the response structure safely.
-        const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!text) throw new Error("No response from AI");
-
-        return JSON.parse(text);
-
+        } else {
+            // For non-image files, convert to text and use structured generation
+            const textContent = fileBuffer.toString('utf-8');
+            const messages = [
+                { role: 'system' as const, content: 'You are a construction project document analyzer. Extract structured data from documents.' },
+                { role: 'user' as const, content: `${prompt}\n\nDocument content:\n${textContent.substring(0, 10000)}` }
+            ];
+            
+            return await generateStructured(messages, phaseHandlerSchema, { temperature: 0.1 });
+        }
     } catch (error: any) {
         logger.error("AI Analysis Failed:", error);
         throw error;
