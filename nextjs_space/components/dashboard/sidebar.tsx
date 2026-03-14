@@ -149,7 +149,7 @@ const navigationFolders = [
     color: 'red',
     gradient: 'from-red-500 to-rose-600',
     items: [
-      { href: '/risk-register', label: 'Risk Register', icon: AlertTriangle, fileType: 'warning' },
+      { href: '/risk-assessments', label: 'Risk Register', icon: AlertTriangle, fileType: 'warning' },
       { href: '/safety', label: 'Safety Hub', icon: Shield, fileType: 'shield' },
       { href: '/safety/predictive-dashboard', label: 'Predictive Safety', icon: Brain, fileType: 'predict', badge: 'AI' },
       { href: '/inspections', label: 'Inspections', icon: Eye, fileType: 'inspect' },
