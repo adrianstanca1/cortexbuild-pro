@@ -1,0 +1,5 @@
+[master 2489bb8] Enhanced project cards and intelligence dashboard
+ 7 files changed, 1213 insertions(+), 81 deletions(-)
+ create mode 100644 nextjs_space/components/ui/project-card.tsx
+ create mode 100644 nextjs_space/components/ui/project-intelligence.tsx
+###2489bb884766d1b7e6d4b085bc374d3232e8077b###

@@ -1,0 +1,22 @@
+[master 15d9384] Complete SUPER_ADMIN dashboard with full platform control
+ 22 files changed, 3414 insertions(+), 4 deletions(-)
+ create mode 100644 nextjs_space/app/(admin)/_components/admin-header.tsx
+ create mode 100644 nextjs_space/app/(admin)/_components/admin-sidebar.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/_components/admin-dashboard-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/activity/_components/activity-monitor-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/activity/page.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/organizations/_components/organizations-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/organizations/page.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/page.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/storage/_components/storage-overview-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/storage/page.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/users/_components/users-management-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/users/page.tsx
+ create mode 100644 nextjs_space/app/(admin)/layout.tsx
+ create mode 100644 nextjs_space/app/api/admin/activity/route.ts
+ create mode 100644 nextjs_space/app/api/admin/organizations/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/admin/organizations/route.ts
+ create mode 100644 nextjs_space/app/api/admin/stats/route.ts
+ create mode 100644 nextjs_space/app/api/admin/users/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/admin/users/route.ts
+###15d9384ed06ecf0017918fcc8b9308c095ded1cf###

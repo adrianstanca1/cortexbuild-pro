@@ -1,0 +1,4 @@
+[master 9490627] Enhanced dashboard with construction KPIs
+ 4 files changed, 726 insertions(+), 111 deletions(-)
+ create mode 100644 nextjs_space/app/(dashboard)/dashboard/_components/project-health-summary.tsx
+###9490627f9901ac4d856871c693c3f9c52f68cc26###

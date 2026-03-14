@@ -1,0 +1,22 @@
+app/api/projects/[id]/analytics/route.ts(143,35): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'Date | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+app/api/projects/[id]/analytics/route.ts(232,17): error TS2538: Type 'null' cannot be used as an index type.
+app/api/projects/[id]/analytics/route.ts(232,36): error TS2538: Type 'null' cannot be used as an index type.
+app/api/reports/generate/route.ts(64,21): error TS2322: Type '{ amount: true; }' is not assignable to type 'ChangeOrderSumAggregateInputType'.
+  Object literal may only specify known properties, and 'amount' does not exist in type 'ChangeOrderSumAggregateInputType'.
+app/api/reports/generate/route.ts(78,68): error TS18048: 'changeOrders._sum' is possibly 'undefined'.
+app/api/reports/generate/route.ts(78,86): error TS2339: Property 'amount' does not exist on type '{ number?: number | null | undefined; costChange?: number | null | undefined; scheduleChange?: number | null | undefined; originalBudget?: number | null | undefined; revisedBudget?: number | ... 1 more ... | undefined; }'.
+app/api/reports/generate/route.ts(118,72): error TS2339: Property 'role' does not exist on type '{ teamMember: { user: { name: string; }; } & { id: string; organizationId: string; userId: string; jobTitle: string | null; department: string | null; invitedAt: Date; }; } & { id: string; projectId: string; teamMemberId: string; assignedAt: Date; }'.
+app/api/reports/generate/route.ts(169,19): error TS2322: Type '{ amount: true; }' is not assignable to type 'ChangeOrderSumAggregateInputType'.
+  Object literal may only specify known properties, and 'amount' does not exist in type 'ChangeOrderSumAggregateInputType'.
+app/api/reports/generate/route.ts(179,69): error TS2339: Property 'amount' does not exist on type '{ project: { name: string; }; } & { number: number; status: ChangeOrderStatus; id: string; title: string; description: string | null; projectId: string; createdAt: Date; ... 9 more ...; executedAt: Date | null; }'.
+app/api/reports/generate/route.ts(181,33): error TS2322: Type 'true | { id?: number | undefined; number?: number | undefined; title?: number | undefined; description?: number | undefined; status?: number | undefined; reason?: number | undefined; ... 11 more ...; _all?: number | undefined; } | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+app/api/reports/generate/route.ts(181,58): error TS18048: 's._sum' is possibly 'undefined'.
+app/api/reports/generate/route.ts(181,65): error TS2339: Property 'amount' does not exist on type '{ number?: number | null | undefined; costChange?: number | null | undefined; scheduleChange?: number | null | undefined; originalBudget?: number | null | undefined; revisedBudget?: number | ... 1 more ... | undefined; }'.
+exit_code=2

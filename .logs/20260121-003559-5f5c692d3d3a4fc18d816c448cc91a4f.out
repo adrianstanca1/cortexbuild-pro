@@ -1,0 +1,84 @@
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s (596 modules)
+ ✓ Compiled in 569ms (296 modules)
+ GET / 200 in 2704ms
+ GET / 200 in 117ms
+ GET / 200 in 108ms
+ GET / 200 in 108ms
+ ✓ Compiled /api/auth/[...nextauth] in 425ms (541 modules)
+ GET /api/auth/session 200 in 907ms
+ GET /api/auth/session 200 in 72ms
+ GET / 200 in 113ms
+ GET / 200 in 67ms
+ GET / 200 in 75ms
+ GET / 200 in 74ms
+ GET / 200 in 68ms
+ GET /api/auth/session 200 in 66ms
+ GET / 200 in 68ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 666ms (871 modules)
+ GET /api/auth/providers 200 in 96ms
+ GET /api/auth/csrf 200 in 75ms
+ POST /api/auth/callback/credentials 200 in 540ms
+ GET /api/auth/session 200 in 103ms
+ ✓ Compiled /middleware in 317ms (174 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 2s (2881 modules)
+ GET /dashboard?_rsc=iqngu 200 in 175ms
+ ✓ Compiled /api/notifications in 228ms (1603 modules)
+ GET /api/notifications?limit=10 200 in 356ms
+ ✓ Compiled /api/realtime in 186ms (1606 modules)
+ GET /api/realtime 200 in 450ms
+ GET /api/notifications?limit=10 200 in 55ms
+ GET /api/realtime 200 in 266ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 219ms
+ GET /api/realtime 200 in 253ms
+ GET /api/realtime 200 in 277ms
+ GET /api/realtime 200 in 281ms
+ GET / 200 in 104ms
+ GET /api/realtime 200 in 225ms
+ GET /api/realtime 200 in 245ms
+ GET /api/realtime 200 in 254ms
+ GET /api/realtime 200 in 256ms
+ GET /api/realtime 200 in 249ms
+ GET /api/realtime 200 in 272ms
+ GET /api/realtime 200 in 274ms
+ GET /api/realtime 200 in 253ms
+ GET /api/realtime 200 in 279ms
+ GET /api/realtime 200 in 238ms
+ GET /api/realtime 200 in 241ms
+ GET /api/realtime 200 in 431ms
+ ○ Compiling /submittals ...
+ ✓ Compiled /submittals in 1436ms (3055 modules)
+ GET /api/realtime 200 in 1280ms
+ GET /api/realtime 200 in 293ms
+ GET /submittals?_rsc=1l765 200 in 94ms
+ GET /api/realtime 200 in 236ms
+ GET /api/realtime 200 in 244ms
+ GET /api/realtime 200 in 241ms
+ GET /api/realtime 200 in 257ms
+ GET /api/realtime 200 in 224ms
+ GET /api/realtime 200 in 255ms
+ GET /api/realtime 200 in 242ms
+ GET /api/realtime 200 in 282ms
+ GET /api/realtime 200 in 218ms
+ GET /api/realtime 200 in 298ms
+ GET /api/realtime 200 in 23097ms
+ GET / 200 in 99ms
+ GET / 200 in 72ms
+ GET / 200 in 64ms
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+[?25h

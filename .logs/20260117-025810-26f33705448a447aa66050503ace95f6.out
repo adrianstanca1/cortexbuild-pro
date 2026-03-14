@@ -1,0 +1,52 @@
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 1839ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s (596 modules)
+ GET / 200 in 2546ms
+ ✓ Compiled in 376ms (296 modules)
+ GET / 200 in 53ms
+ GET / 200 in 45ms
+ ✓ Compiled /api/auth/[...nextauth] in 420ms (541 modules)
+ GET /api/auth/session 200 in 883ms
+ GET /api/auth/session 200 in 45ms
+ GET / 200 in 84ms
+ GET / 200 in 43ms
+ GET / 200 in 44ms
+ GET / 200 in 42ms
+ GET / 200 in 47ms
+ ○ Compiling /signup ...
+ ✓ Compiled /login in 960ms (640 modules)
+ ✓ Compiled /api/auth/[...nextauth] in 155ms (571 modules)
+ GET /api/auth/providers 200 in 291ms
+ GET /api/auth/csrf 200 in 29ms
+ POST /api/auth/callback/credentials 200 in 419ms
+ GET /api/auth/session 200 in 38ms
+ ✓ Compiled /middleware in 170ms (174 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1958ms (2738 modules)
+ GET /dashboard?_rsc=iqngu 200 in 62ms
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 752ms (2889 modules)
+ GET /projects?_rsc=x7vz2 200 in 42ms
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 540ms (2916 modules)
+ GET /projects/project-mall-renovation?_rsc=1o8h7 200 in 56ms
+ GET / 200 in 82ms
+ GET / 200 in 39ms
+ GET / 200 in 38ms
+ ✓ Compiled in 1086ms (1509 modules)
+ ✓ Compiled in 487ms (1335 modules)
+ ✓ Compiled in 326ms (1335 modules)
+ ✓ Compiled in 326ms (1335 modules)
+ ✓ Compiled in 559ms (1335 modules)
+ ✓ Compiled in 382ms (1357 modules)
+ ✓ Compiled in 305ms (1357 modules)
+ ✓ Compiled in 429ms (1357 modules)
+ ✓ Compiled in 314ms (1357 modules)
+[?25h

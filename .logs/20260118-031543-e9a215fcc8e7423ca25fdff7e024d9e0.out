@@ -1,0 +1,674 @@
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 1646ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1672ms (596 modules)
+ GET / 200 in 2184ms
+ ✓ Compiled in 492ms (296 modules)
+ ✓ Compiled /api/auth/[...nextauth] in 483ms (541 modules)
+ GET /api/auth/providers 200 in 971ms
+ GET / 200 in 110ms
+ GET / 200 in 69ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/session 200 in 49ms
+ ○ Compiling /signup ...
+ ✓ Compiled /signup in 879ms (881 modules)
+ GET /login 200 in 1082ms
+ GET /signup 200 in 1073ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 56ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 61ms
+ GET /api/auth/csrf 200 in 63ms
+ ✓ Compiled /api/signup in 147ms (597 modules)
+ POST /api/signup 200 in 630ms
+ GET / 200 in 94ms
+ GET /api/auth/signin 302 in 76ms
+ GET /login?callbackUrl=https://7d9c4eb47.preview.abacusai.app 200 in 67ms
+ GET /api/auth/csrf 200 in 50ms
+ POST /api/auth/callback/credentials 302 in 346ms
+ ✓ Compiled /middleware in 202ms (174 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1515ms (2849 modules)
+ GET /dashboard 200 in 1857ms
+ GET / 200 in 115ms
+ GET /dashboard 200 in 98ms
+ GET /api/auth/session 200 in 82ms
+ ✓ Compiled /api/realtime in 424ms (1577 modules)
+ ✓ Compiled (1580 modules)
+ GET /api/auth/session 200 in 820ms
+ GET /api/notifications?limit=10 200 in 854ms
+ GET /api/realtime 200 in 846ms
+ GET /api/realtime 200 in 847ms
+ GET /api/realtime 200 in 820ms
+ GET /api/realtime 200 in 795ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/notifications?limit=10 200 in 107ms
+ GET /api/auth/session 200 in 68ms
+ GET /api/notifications?limit=10 200 in 90ms
+ GET /api/auth/session 200 in 72ms
+ GET /api/notifications?limit=10 200 in 140ms
+ GET /api/realtime 200 in 139ms
+ GET /api/auth/session 200 in 128ms
+ GET /api/realtime 200 in 94ms
+ GET /api/realtime 200 in 83ms
+ ○ Compiling /settings ...
+ ✓ Compiled /settings in 3.2s (3352 modules)
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.submittal.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/submittals/page.js:5008:63
+
+  5005         name: "asc"
+  5006     }
+  5007 }),
+→ 5008 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.submittal.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.dailyReport.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/daily-reports/page.js:5233:65
+
+  5230         name: "asc"
+  5231     }
+  5232 }),
+→ 5233 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.dailyReport.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/punch-lists/page.js:4733:64
+
+  4730         createdAt: "desc"
+  4731     }
+  4732 }),
+→ 4733 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.meetingMinutes.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/meetings/page.js:4528:68
+
+  4525         name: true
+  4526     }
+  4527 }),
+→ 4528 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.meetingMinutes.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5689:68
+
+  5686         name: "asc"
+  5687     }
+  5688 }),
+→ 5689 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.safetyIncident.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/safety/page.js:5719:64
+
+  5716         incidentDate: "desc"
+  5717     }
+  5718 }),
+→ 5719 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_6__.prisma.organization.findUnique()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(company)/company/page.js:3370:115
+
+  3367     (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.redirect)("/dashboard");
+  3368 }
+  3369 // Fetch organization details
+→ 3370 const organizationData = user.organizationId ? await _lib_db__WEBPACK_IMPORTED_MODULE_6__.prisma.organization.findUnique(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+ GET /change-orders 200 in 4417ms
+ GET /equipment 200 in 4383ms
+ GET /inspections 200 in 4383ms
+ GET /documents 200 in 4384ms
+ GET /projects 200 in 4453ms
+ GET /projects/new 200 in 4351ms
+ GET /daily-reports 500 in 4418ms
+ GET /submittals 500 in 4406ms
+ GET /punch-lists 500 in 4403ms
+ GET /tasks 200 in 4447ms
+ GET /meetings 500 in 4404ms
+ GET /safety 500 in 4405ms
+ GET /settings 200 in 4371ms
+ GET /reports 200 in 4374ms
+ GET /team 200 in 4377ms
+ GET /rfis 200 in 4480ms
+ GET /company 500 in 4414ms
+ GET /api/notifications?limit=10 200 in 288ms
+ GET /api/realtime 200 in 317ms
+ GET /api/realtime 200 in 398ms
+ GET /api/realtime 200 in 399ms
+ GET /api/auth/session 200 in 523ms
+ GET /api/realtime 200 in 477ms
+ GET /api/realtime 200 in 429ms
+ GET /api/realtime 200 in 616ms
+ GET /api/notifications?limit=10 200 in 612ms
+ GET /api/realtime 200 in 482ms
+ GET /api/realtime 200 in 483ms
+ GET /api/realtime 200 in 492ms
+ GET /api/realtime 200 in 408ms
+ GET /api/realtime 200 in 426ms
+ GET /api/realtime 200 in 427ms
+ GET /api/auth/session 200 in 507ms
+ GET /api/realtime 200 in 346ms
+ GET /api/notifications?limit=10 200 in 256ms
+ GET /api/realtime 200 in 285ms
+ GET /api/realtime 200 in 188ms
+ GET /api/auth/session 200 in 260ms
+ GET /api/notifications?limit=10 200 in 279ms
+ GET /api/auth/session 200 in 167ms
+ GET /api/realtime 200 in 148ms
+ GET /api/notifications?limit=10 200 in 196ms
+ GET /api/auth/session 200 in 181ms
+ GET /api/notifications?limit=10 200 in 213ms
+ GET /api/auth/session 200 in 124ms
+ GET /api/notifications?limit=10 200 in 179ms
+ GET /api/auth/session 200 in 187ms
+ GET /api/notifications?limit=10 200 in 269ms
+ GET /api/auth/session 200 in 162ms
+ GET /api/notifications?limit=10 200 in 179ms
+ GET /api/auth/session 200 in 214ms
+ GET /api/realtime 200 in 234ms
+ GET /api/notifications?limit=10 200 in 266ms
+ GET /api/auth/session 200 in 190ms
+ GET /api/realtime 200 in 204ms
+ GET /api/notifications?limit=10 200 in 216ms
+ GET /api/auth/session 200 in 231ms
+ GET /api/realtime 200 in 231ms
+ GET /api/notifications?limit=10 200 in 246ms
+ GET /api/auth/session 200 in 181ms
+ GET /api/realtime 200 in 183ms
+ GET /api/notifications?limit=10 200 in 389ms
+ GET /api/auth/session 200 in 531ms
+ GET /api/notifications?limit=10 200 in 414ms
+ GET /api/auth/session 200 in 186ms
+ GET /api/notifications?limit=10 200 in 180ms
+ GET /api/auth/session 200 in 211ms
+ GET /api/realtime 200 in 221ms
+ GET /api/realtime 200 in 219ms
+ GET /api/realtime 200 in 221ms
+ GET /api/realtime 200 in 225ms
+ GET /api/notifications?limit=10 200 in 266ms
+ GET /api/realtime 200 in 224ms
+ GET /api/auth/session 200 in 249ms
+ GET /api/realtime 200 in 231ms
+ GET /api/realtime 200 in 231ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 180ms
+ GET /api/auth/session 200 in 232ms
+ GET /api/notifications?limit=10 200 in 198ms
+ GET /api/auth/session 200 in 154ms
+ GET /api/notifications?limit=10 200 in 157ms
+ GET /api/auth/session 200 in 172ms
+ GET /api/notifications?limit=10 200 in 172ms
+ GET /api/realtime 200 in 122ms
+ GET /api/auth/session 200 in 170ms
+ GET /api/notifications?limit=10 200 in 155ms
+ GET /api/realtime 200 in 152ms
+ GET /api/auth/session 200 in 203ms
+ GET /api/notifications?limit=10 200 in 183ms
+ GET /api/realtime 200 in 157ms
+ GET /api/realtime 200 in 163ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/notifications?limit=10 200 in 118ms
+ GET /api/auth/session 200 in 151ms
+ GET /api/notifications?limit=10 200 in 153ms
+ GET /api/realtime 200 in 144ms
+ GET /api/auth/session 200 in 102ms
+ GET /api/notifications?limit=10 200 in 126ms
+ GET /api/realtime 200 in 129ms
+ GET /api/auth/session 200 in 67ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/realtime 200 in 64ms
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 1606ms (3420 modules)
+prisma:error 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/projects/[id]/page.js:9055:64
+
+  9052     (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.notFound)();
+  9053 }
+  9054 const [teamMembers, activities] = await Promise.all([
+→ 9055     _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+ GET /projects/project-mall-renovation 200 in 2285ms
+ GET /projects/project-downtown-office 500 in 2283ms
+ GET /projects/project-riverside-homes 200 in 2286ms
+ GET /api/notifications?limit=10 200 in 186ms
+ GET /api/realtime 200 in 184ms
+ GET /api/realtime 200 in 185ms
+ GET /api/realtime 200 in 192ms
+ GET /api/realtime 200 in 194ms
+ GET /api/realtime 200 in 165ms
+ GET /api/realtime 200 in 242ms
+ GET /api/auth/session 200 in 232ms
+ GET /api/realtime 200 in 145ms
+ GET /api/notifications?limit=10 200 in 166ms
+ GET /api/realtime 200 in 120ms
+ GET /api/auth/session 200 in 120ms
+ GET /api/notifications?limit=10 200 in 72ms
+ GET /api/auth/session 200 in 149ms
+ GET /api/notifications?limit=10 200 in 170ms
+ GET /api/auth/session 200 in 125ms
+ GET /api/notifications?limit=10 200 in 131ms
+ GET /api/auth/session 200 in 131ms
+ GET /api/realtime 200 in 134ms
+ GET /api/notifications?limit=10 200 in 152ms
+ GET /api/realtime 200 in 115ms
+ GET /api/notifications?limit=10 200 in 115ms
+ GET /api/realtime 200 in 111ms
+ GET /api/notifications?limit=10 200 in 100ms
+ GET /api/realtime 200 in 101ms
+ GET /api/realtime 200 in 30791ms
+ GET /api/realtime 200 in 30492ms
+ GET /api/realtime 200 in 30105ms
+ GET /api/realtime 200 in 30105ms
+ GET /api/realtime 200 in 30091ms
+ GET /api/realtime 200 in 30074ms
+ GET /api/realtime 200 in 30060ms
+ GET /api/realtime 200 in 30061ms
+ GET /api/realtime 200 in 30060ms
+ GET /api/realtime 200 in 30154ms
+ GET /api/realtime 200 in 30063ms
+ GET /api/realtime 200 in 30069ms
+ GET /api/realtime 200 in 30059ms
+ GET /api/realtime 200 in 30058ms
+ GET /api/realtime 200 in 30065ms
+ GET /api/realtime 200 in 30058ms
+ GET /api/realtime 200 in 30057ms
+ GET /api/realtime 200 in 30066ms
+ GET /api/realtime 200 in 30071ms
+ GET /api/realtime 200 in 30063ms
+ GET /api/realtime 200 in 30058ms
+ GET /api/realtime 200 in 30058ms
+ GET /api/realtime 200 in 30067ms
+ GET /api/realtime 200 in 30063ms
+ GET /api/realtime 200 in 30056ms
+ GET /api/realtime 200 in 30057ms
+ GET /api/realtime 200 in 30058ms
+ GET /api/realtime 200 in 30057ms
+ GET /api/realtime 200 in 29981ms
+ GET /api/realtime 200 in 27254ms
+ GET /api/realtime 200 in 28289ms
+ GET /api/realtime 200 in 29403ms
+ GET /api/realtime 200 in 29116ms
+ GET /api/realtime 200 in 29891ms
+ GET /api/realtime 200 in 29497ms
+ GET /api/realtime 200 in 20563ms
+ GET /api/realtime 200 in 27412ms
+ GET /api/realtime 200 in 19152ms
+ GET /api/realtime 200 in 20047ms
+ GET /api/realtime 200 in 29699ms
+ GET /api/realtime 200 in 28601ms
+ GET /api/realtime 200 in 27996ms
+ GET /api/realtime 200 in 19629ms
+ GET /api/realtime 200 in 28200ms
+ GET /api/realtime 200 in 19163ms
+ GET /api/realtime 200 in 29796ms
+ GET /api/realtime 200 in 27697ms
+ GET /api/realtime 200 in 27794ms
+ GET /api/realtime 200 in 28897ms
+ GET /api/realtime 200 in 28705ms
+ GET /api/realtime 200 in 28096ms
+ GET /api/realtime 200 in 29604ms
+ GET /api/realtime 200 in 28396ms
+ GET /api/realtime 200 in 19617ms
+ GET /api/realtime 200 in 20398ms
+ GET /api/realtime 200 in 19727ms
+ GET /api/realtime 200 in 29314ms
+ GET /api/realtime 200 in 27598ms
+ GET /api/realtime 200 in 28497ms
+ GET /api/realtime 200 in 4244ms
+ GET /api/realtime 200 in 3977ms
+ GET /api/realtime 200 in 350ms
+ GET /api/realtime 200 in 19418ms
+ GET /api/realtime 200 in 12040ms
+ GET /api/realtime 200 in 17129ms
+ GET /api/realtime 200 in 11644ms
+ GET /api/realtime 200 in 2457ms
+ GET /api/realtime 200 in 10379ms
+ GET /api/realtime 200 in 15869ms
+ GET /api/realtime 200 in 19435ms
+ GET /api/realtime 200 in 18463ms
+ GET /api/realtime 200 in 19742ms
+ GET /api/realtime 200 in 18465ms
+ GET /api/realtime 200 in 17706ms
+ GET /api/realtime 200 in 17140ms
+ GET /api/realtime 200 in 13886ms
+ GET /api/realtime 200 in 18900ms
+ GET /api/realtime 200 in 1702ms
+ GET /api/realtime 200 in 18933ms
+ GET /api/realtime 200 in 17133ms
+ GET /api/realtime 200 in 17569ms
+ GET /api/realtime 200 in 5453ms
+ GET /api/realtime 200 in 18009ms
+ GET /api/realtime 200 in 10871ms
+ GET /api/realtime 200 in 2053ms
+ GET /api/realtime 200 in 17373ms
+ GET /api/realtime 200 in 11746ms
+ GET /api/realtime 200 in 15878ms
+ GET /api/realtime 200 in 17926ms
+ GET /api/realtime 200 in 11453ms
+ GET /api/realtime 200 in 15983ms
+ GET /api/realtime 200 in 18672ms
+ GET /api/realtime 200 in 18012ms
+ GET /api/realtime 200 in 19100ms
+ GET /api/realtime 200 in 17689ms
+ GET /api/realtime 200 in 10486ms
+ GET /api/realtime 200 in 14615ms
+ GET /api/realtime 200 in 17713ms
+ GET /api/realtime 200 in 17271ms
+ GET /api/realtime 200 in 27063ms
+ GET /api/realtime 200 in 12241ms
+ GET /api/realtime 200 in 19399ms
+ GET /api/realtime 200 in 18940ms
+ GET /api/realtime 200 in 16897ms
+ GET /api/realtime 200 in 16365ms
+ GET /api/realtime 200 in 6329ms
+ GET /api/realtime 200 in 17881ms
+ GET /api/realtime 200 in 15241ms
+ GET /api/realtime 200 in 19943ms
+ GET /api/realtime 200 in 13658ms
+ GET /api/realtime 200 in 18473ms
+ GET /api/realtime 200 in 17720ms
+ GET /api/realtime 200 in 15418ms
+ GET /api/realtime 200 in 16083ms
+ GET /api/realtime 200 in 18023ms
+ GET /api/realtime 200 in 16128ms
+ GET /api/realtime 200 in 19753ms
+ GET /api/realtime 200 in 16063ms
+ GET /api/realtime 200 in 19482ms
+ GET /api/realtime 200 in 18473ms
+ GET /api/realtime 200 in 13445ms
+ GET /api/realtime 200 in 15913ms
+ GET /api/realtime 200 in 19347ms
+ GET /api/realtime 200 in 19798ms
+ GET /api/realtime 200 in 18254ms
+ GET /api/realtime 200 in 18026ms
+ GET /api/realtime 200 in 15042ms
+ GET /api/realtime 200 in 17458ms
+ GET /api/realtime 200 in 13353ms
+ GET /api/realtime 200 in 18176ms
+ GET /api/realtime 200 in 17493ms
+ GET /api/realtime 200 in 18078ms
+ GET /api/realtime 200 in 16886ms
+ GET /api/realtime 200 in 19159ms
+ GET /api/realtime 200 in 18486ms
+ GET /api/realtime 200 in 28836ms
+ GET /api/realtime 200 in 18694ms
+ GET /api/realtime 200 in 17482ms
+ GET /api/realtime 200 in 18251ms
+ GET /api/realtime 200 in 18689ms
+ GET /api/realtime 200 in 16100ms
+ GET /api/realtime 200 in 20597ms
+ GET /api/realtime 200 in 18690ms
+ GET /api/realtime 200 in 18002ms
+ GET /api/realtime 200 in 20706ms
+ GET /api/realtime 200 in 19438ms
+ GET /api/realtime 200 in 18490ms
+ GET /api/realtime 200 in 17707ms
+ GET /api/realtime 200 in 19164ms
+ GET /api/realtime 200 in 16871ms
+ GET /api/realtime 200 in 18950ms
+ GET /api/realtime 200 in 14873ms
+ GET /api/realtime 200 in 18957ms
+ GET /api/realtime 200 in 18256ms
+ GET /api/realtime 200 in 20463ms
+ GET /api/realtime 200 in 18693ms
+ GET /api/realtime 200 in 17710ms
+ GET /api/realtime 200 in 29072ms
+ GET /api/realtime 200 in 18487ms
+ GET /api/realtime 200 in 17192ms
+ GET /api/realtime 200 in 18696ms
+ GET /api/realtime 200 in 18696ms
+ GET /api/realtime 200 in 17160ms
+ GET /api/realtime 200 in 20093ms
+ GET /api/realtime 200 in 19772ms
+ GET /api/realtime 200 in 17469ms
+ GET /api/realtime 200 in 18954ms
+ GET /api/realtime 200 in 20283ms
+ GET /api/realtime 200 in 27945ms
+ GET /api/realtime 200 in 19581ms
+ GET /api/realtime 200 in 20318ms
+ GET /api/realtime 200 in 18866ms
+ GET /api/realtime 200 in 17043ms
+ GET /api/realtime 200 in 18956ms
+ GET /api/realtime 200 in 18189ms
+ GET /api/realtime 200 in 19968ms
+ GET /api/realtime 200 in 18700ms
+ GET /api/realtime 200 in 27208ms
+ GET /api/realtime 200 in 18965ms
+ GET /api/realtime 200 in 17740ms
+ GET /api/realtime 200 in 19173ms
+ GET /api/realtime 200 in 19781ms
+ GET /api/realtime 200 in 18618ms
+ GET /api/realtime 200 in 17719ms
+ GET /api/realtime 200 in 20285ms
+ GET /api/realtime 200 in 19094ms
+ GET /api/realtime 200 in 26987ms
+ GET /api/realtime 200 in 20825ms
+ GET /api/realtime 200 in 18968ms
+ GET /api/realtime 200 in 20119ms
+ GET /api/realtime 200 in 20670ms
+ GET /api/realtime 200 in 20287ms
+ GET /api/realtime 200 in 18502ms
+ GET /api/realtime 200 in 13079ms
+ GET /api/realtime 200 in 12764ms
+ GET /api/realtime 200 in 16910ms
+ GET /api/realtime 200 in 10718ms
+ GET /api/realtime 200 in 19515ms
+ GET /api/realtime 200 in 1546ms
+ GET /api/realtime 200 in 17970ms
+ GET /api/realtime 200 in 1298ms
+ GET /api/realtime 200 in 2996ms
+ GET /api/realtime 200 in 16407ms
+ GET /api/realtime 200 in 15280ms
+ GET /api/realtime 200 in 1422ms
+ GET /api/realtime 200 in 1041ms
+ GET /api/realtime 200 in 14453ms
+ GET /api/realtime 200 in 18207ms
+ GET /api/realtime 200 in 2728ms
+ GET /api/realtime 200 in 3456ms
+ GET /api/realtime 200 in 12189ms
+ GET /api/realtime 200 in 16274ms
+ GET /api/realtime 200 in 11406ms
+ GET /api/realtime 200 in 4825ms
+ GET /api/realtime 200 in 7058ms
+ GET /api/realtime 200 in 2395ms
+ GET /api/realtime 200 in 3820ms
+ GET /api/realtime 200 in 2072ms
+ GET /api/realtime 200 in 11119ms
+ GET /api/realtime 200 in 1786ms
+ GET /api/realtime 200 in 17537ms
+ GET /api/realtime 200 in 10824ms
+ GET /api/realtime 200 in 417ms
+ GET /api/realtime 200 in 12002ms
+ GET /api/realtime 200 in 11600ms
+ GET /api/realtime 200 in 15660ms
+ GET /api/realtime 200 in 16134ms
+ GET /api/realtime 200 in 5056ms
+ GET /api/realtime 200 in 1675ms
+ GET /api/realtime 200 in 2186ms
+ GET /api/realtime 200 in 4296ms
+ GET /api/realtime 200 in 19475ms
+ GET /api/realtime 200 in 20310ms
+ GET /api/realtime 200 in 2977ms
+ GET /api/realtime 200 in 4696ms
+ GET /api/realtime 200 in 5473ms
+ GET /api/realtime 200 in 552ms
+ GET /api/realtime 200 in 4952ms
+ GET /api/realtime 200 in 18299ms
+ GET /api/realtime 200 in 17389ms
+ GET /api/realtime 200 in 299ms
+ GET /api/realtime 200 in 11903ms
+ GET /api/realtime 200 in 16949ms
+ GET /api/realtime 200 in 19202ms
+ GET /api/realtime 200 in 1903ms
+ GET /api/realtime 200 in 4446ms
+ GET /api/realtime 200 in 17061ms
+ GET /api/realtime 200 in 15605ms
+ GET /api/realtime 200 in 2865ms
+ GET /api/realtime 200 in 7071ms
+ GET /api/realtime 200 in 2557ms
+ GET /api/realtime 200 in 16135ms
+ GET /api/realtime 200 in 15482ms
+ GET /api/realtime 200 in 4183ms
+ GET /api/realtime 200 in 19205ms
+ GET /api/realtime 200 in 547ms
+ GET /api/realtime 200 in 3330ms
+ GET /api/realtime 200 in 2644ms
+ GET /api/realtime 200 in 3955ms
+ GET /api/realtime 200 in 3101ms
+ GET /api/realtime 200 in 14852ms
+ GET /api/realtime 200 in 2784ms
+ GET /api/realtime 200 in 2300ms
+ GET /api/realtime 200 in 16290ms
+ GET /api/realtime 200 in 4443ms
+ GET /api/realtime 200 in 18736ms
+ GET /api/realtime 200 in 4823ms
+ GET /api/realtime 200 in 18300ms
+ GET /api/realtime 200 in 11036ms
+ GET /api/realtime 200 in 5378ms
+ GET /api/realtime 200 in 14067ms
+ GET /api/realtime 200 in 20321ms
+ GET /api/realtime 200 in 4707ms
+ GET /api/realtime 200 in 7067ms
+ GET /api/realtime 200 in 1046ms
+ GET /api/realtime 200 in 12885ms
+ GET /api/realtime 200 in 2344ms
+ GET /api/realtime 200 in 170ms
+ GET /api/realtime 200 in 17902ms
+ GET /api/realtime 200 in 6606ms
+ GET /api/realtime 200 in 3719ms
+ GET /api/realtime 200 in 6616ms
+ GET /api/realtime 200 in 6773ms
+ GET /api/realtime 200 in 843ms
+ GET /api/realtime 200 in 1189ms
+ GET /api/realtime 200 in 3585ms
+ GET /api/realtime 200 in 16827ms
+ GET /api/realtime 200 in 19467ms
+ GET /api/realtime 200 in 16810ms
+ GET /api/realtime 200 in 13832ms
+ GET /api/realtime 200 in 19717ms
+ GET /api/realtime 200 in 3222ms
+ GET /api/realtime 200 in 16640ms
+ GET /api/realtime 200 in 3260ms
+ GET /api/realtime 200 in 4579ms
+ GET /api/realtime 200 in 954ms
+ GET /api/realtime 200 in 16185ms
+ GET /api/realtime 200 in 17024ms
+ GET /api/realtime 200 in 29307ms
+ GET /api/realtime 200 in 13004ms
+ GET /api/realtime 200 in 209ms
+ GET /api/realtime 200 in 10654ms
+ GET /api/realtime 200 in 9973ms
+ GET /api/realtime 200 in 19243ms
+ GET /api/realtime 200 in 17528ms
+ GET /api/realtime 200 in 16302ms
+ GET /api/realtime 200 in 17706ms
+ GET /api/realtime 200 in 690ms
+ GET /api/realtime 200 in 17139ms
+ GET /api/realtime 200 in 3985ms
+ GET /api/realtime 200 in 16436ms
+ GET /api/realtime 200 in 1444ms
+ GET /api/realtime 200 in 19636ms
+ GET /api/realtime 200 in 12599ms
+ GET /api/realtime 200 in 17523ms
+ GET /api/realtime 200 in 11250ms
+ GET /api/realtime 200 in 709ms
+ GET /api/realtime 200 in 2243ms
+ GET /api/realtime 200 in 1995ms
+ GET /api/realtime 200 in 2908ms
+ GET /api/realtime 200 in 16973ms
+ GET /api/realtime 200 in 16063ms
+ GET /api/realtime 200 in 5616ms
+ GET /api/realtime 200 in 5647ms
+ GET /api/realtime 200 in 1894ms
+ GET /api/realtime 200 in 1564ms
+ GET /api/realtime 200 in 4183ms
+ GET /api/realtime 200 in 3151ms
+ GET /api/realtime 200 in 5843ms
+ GET /api/realtime 200 in 5273ms
+ GET /api/realtime 200 in 20027ms
+ GET /api/realtime 200 in 3723ms
+ GET /api/realtime 200 in 10172ms
+ GET /api/realtime 200 in 15697ms
+ GET /api/realtime 200 in 4948ms
+ GET /api/realtime 200 in 10268ms
+ GET /api/realtime 200 in 19020ms
+ GET /api/realtime 200 in 3463ms
+ GET /api/realtime 200 in 19220ms
+ GET /api/realtime 200 in 3865ms
+ GET /api/realtime 200 in 20770ms
+ GET /api/realtime 200 in 10080ms
+ GET /api/realtime 200 in 15415ms
+ GET /api/realtime 200 in 12418ms
+ GET /api/realtime 200 in 17546ms
+ GET /api/realtime 200 in 5720ms
+ GET /api/realtime 200 in 18013ms
+ GET /api/realtime 200 in 2699ms
+ GET /api/realtime 200 in 327ms
+ GET /api/realtime 200 in 1688ms
+ GET /api/realtime 200 in 17350ms
+ GET /api/realtime 200 in 830ms
+ GET /api/realtime 200 in 20602ms
+ GET /api/realtime 200 in 6230ms
+ GET /api/realtime 200 in 6525ms
+ GET /api/realtime 200 in 11354ms
+ GET /api/realtime 200 in 5322ms
+ GET /api/realtime 200 in 5177ms
+ GET /api/realtime 200 in 2475ms
+ GET /api/realtime 200 in 4607ms
+ GET /api/realtime 200 in 18561ms
+ GET /api/realtime 200 in 16317ms
+ GET /api/realtime 200 in 18018ms
+ GET /api/realtime 200 in 13619ms
+ GET /api/realtime 200 in 1328ms
+ GET /api/realtime 200 in 941ms
+ GET /api/realtime 200 in 3392ms
+ GET /api/realtime 200 in 17696ms
+ GET /api/realtime 200 in 5065ms
+ GET /api/realtime 200 in 18423ms
+ GET /api/realtime 200 in 17231ms
+ GET /api/realtime 200 in 6799ms
+ GET /api/realtime 200 in 16077ms
+ GET /api/realtime 200 in 5767ms
+ GET /api/realtime 200 in 18559ms
+ GET /api/realtime 200 in 6012ms
+ GET /api/realtime 200 in 2050ms
+ GET /api/realtime 200 in 16079ms
+ GET /api/realtime 200 in 12719ms
+ GET /api/realtime 200 in 17233ms
+ GET /api/realtime 200 in 15179ms
+ GET /api/realtime 200 in 5447ms
+ GET /api/realtime 200 in 6191ms
+ GET /api/realtime 200 in 1225ms
+ GET /api/realtime 200 in 14833ms
+ GET /api/realtime 200 in 5217ms
+ GET /api/realtime 200 in 18259ms
+ GET /api/realtime 200 in 3623ms
+ GET /api/realtime 200 in 18776ms
+ GET /api/realtime 200 in 7102ms
+ GET /api/realtime 200 in 16459ms
+ GET /api/realtime 200 in 13344ms
+ GET /api/realtime 200 in 12530ms
+ GET /api/realtime 200 in 13245ms
+ GET /api/realtime 200 in 18344ms
+ GET /api/realtime 200 in 6366ms
+ GET /api/realtime 200 in 19500ms
+[?25h

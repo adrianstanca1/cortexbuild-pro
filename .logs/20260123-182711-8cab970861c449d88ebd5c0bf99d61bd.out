@@ -1,0 +1,226 @@
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+  ▲ Next.js 14.2.28
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/118) ...
+   Generating static pages (29/118) 
+   Generating static pages (58/118) 
+   Generating static pages (88/118) 
+ ✓ Generating static pages (118/118)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                        Size     First Load JS
+┌ ƒ /                                              179 B          96.3 kB
+├ ƒ /_not-found                                    880 B          88.3 kB
+├ ƒ /admin                                         15.9 kB         156 kB
+├ ƒ /admin/activity                                5.2 kB          166 kB
+├ ƒ /admin/api-management                          18.9 kB         200 kB
+├ ƒ /admin/audit-logs                              9.63 kB         179 kB
+├ ƒ /admin/invitations                             8.5 kB          173 kB
+├ ƒ /admin/organizations                           6.76 kB         177 kB
+├ ƒ /admin/platform-settings                       12.9 kB         169 kB
+├ ƒ /admin/storage                                 7.51 kB         135 kB
+├ ƒ /admin/system-health                           6.46 kB         142 kB
+├ ƒ /admin/users                                   7.42 kB         185 kB
+├ ƒ /api/activity                                  0 B                0 B
+├ ƒ /api/admin/activity                            0 B                0 B
+├ ƒ /api/admin/api-connections                     0 B                0 B
+├ ƒ /api/admin/api-connections/[id]                0 B                0 B
+├ ƒ /api/admin/api-connections/[id]/credentials    0 B                0 B
+├ ƒ /api/admin/api-connections/[id]/rotate         0 B                0 B
+├ ƒ /api/admin/api-connections/[id]/test           0 B                0 B
+├ ƒ /api/admin/api-connections/analytics           0 B                0 B
+├ ƒ /api/admin/api-connections/dependencies        0 B                0 B
+├ ƒ /api/admin/api-connections/entitlements        0 B                0 B
+├ ƒ /api/admin/api-connections/export              0 B                0 B
+├ ƒ /api/admin/api-connections/health              0 B                0 B
+├ ƒ /api/admin/api-connections/health-history      0 B                0 B
+├ ƒ /api/admin/api-connections/import              0 B                0 B
+├ ƒ /api/admin/api-connections/logs                0 B                0 B
+├ ƒ /api/admin/api-connections/rate-limits         0 B                0 B
+├ ƒ /api/admin/api-connections/services            0 B                0 B
+├ ƒ /api/admin/api-connections/services/[id]/test  0 B                0 B
+├ ƒ /api/admin/audit-logs                          0 B                0 B
+├ ƒ /api/admin/invitations                         0 B                0 B
+├ ƒ /api/admin/invitations/[id]                    0 B                0 B
+├ ƒ /api/admin/live-feed                           0 B                0 B
+├ ƒ /api/admin/organizations                       0 B                0 B
+├ ƒ /api/admin/organizations/[id]                  0 B                0 B
+├ ƒ /api/admin/platform-config                     0 B                0 B
+├ ƒ /api/admin/stats                               0 B                0 B
+├ ƒ /api/admin/system-health                       0 B                0 B
+├ ƒ /api/admin/users                               0 B                0 B
+├ ƒ /api/admin/users/[id]                          0 B                0 B
+├ ƒ /api/ai                                        0 B                0 B
+├ ƒ /api/ai/analyze-document                       0 B                0 B
+├ ƒ /api/auth/[...nextauth]                        0 B                0 B
+├ ƒ /api/batch                                     0 B                0 B
+├ ƒ /api/budget                                    0 B                0 B
+├ ƒ /api/budget/[id]                               0 B                0 B
+├ ƒ /api/budget/forecast                           0 B                0 B
+├ ƒ /api/certifications                            0 B                0 B
+├ ƒ /api/certifications/[id]                       0 B                0 B
+├ ƒ /api/change-orders                             0 B                0 B
+├ ƒ /api/change-orders/[id]                        0 B                0 B
+├ ƒ /api/company/activity                          0 B                0 B
+├ ƒ /api/company/analytics                         0 B                0 B
+├ ƒ /api/company/invitations                       0 B                0 B
+├ ƒ /api/company/invitations/[id]                  0 B                0 B
+├ ƒ /api/company/invitations/accept                0 B                0 B
+├ ƒ /api/company/invitations/validate              0 B                0 B
+├ ƒ /api/company/settings                          0 B                0 B
+├ ƒ /api/company/stats                             0 B                0 B
+├ ƒ /api/company/team                              0 B                0 B
+├ ƒ /api/confined-space-permits                    0 B                0 B
+├ ƒ /api/confined-space-permits/[id]               0 B                0 B
+├ ƒ /api/daily-reports                             0 B                0 B
+├ ƒ /api/daily-reports/[id]                        0 B                0 B
+├ ƒ /api/daily-reports/[id]/photos                 0 B                0 B
+├ ƒ /api/dashboard/agenda                          0 B                0 B
+├ ƒ /api/dashboard/analytics                       0 B                0 B
+├ ƒ /api/dashboard/stats                           0 B                0 B
+├ ƒ /api/defects                                   0 B                0 B
+├ ƒ /api/defects/[id]                              0 B                0 B
+├ ƒ /api/documents                                 0 B                0 B
+├ ƒ /api/documents/[id]                            0 B                0 B
+├ ƒ /api/documents/[id]/download                   0 B                0 B
+├ ƒ /api/drawings                                  0 B                0 B
+├ ƒ /api/drawings/[id]                             0 B                0 B
+├ ƒ /api/equipment                                 0 B                0 B
+├ ƒ /api/equipment/[id]                            0 B                0 B
+├ ƒ /api/export                                    0 B                0 B
+├ ƒ /api/hot-work-permits                          0 B                0 B
+├ ƒ /api/hot-work-permits/[id]                     0 B                0 B
+├ ƒ /api/inspections                               0 B                0 B
+├ ƒ /api/inspections/[id]                          0 B                0 B
+├ ƒ /api/invitations/accept                        0 B                0 B
+├ ƒ /api/invitations/validate                      0 B                0 B
+├ ƒ /api/lifting-operations                        0 B                0 B
+├ ƒ /api/lifting-operations/[id]                   0 B                0 B
+├ ƒ /api/materials                                 0 B                0 B
+├ ƒ /api/materials/[id]                            0 B                0 B
+├ ƒ /api/meetings                                  0 B                0 B
+├ ƒ /api/meetings/[id]                             0 B                0 B
+├ ƒ /api/mewp-checks                               0 B                0 B
+├ ƒ /api/mewp-checks/[id]                          0 B                0 B
+├ ƒ /api/mewp-checks/[id]/pdf                      0 B                0 B
+├ ƒ /api/milestones                                0 B                0 B
+├ ƒ /api/milestones/[id]                           0 B                0 B
+├ ƒ /api/milestones/notify                         0 B                0 B
+├ ƒ /api/notifications                             0 B                0 B
+├ ƒ /api/permits                                   0 B                0 B
+├ ƒ /api/permits/[id]                              0 B                0 B
+├ ƒ /api/progress-claims                           0 B                0 B
+├ ƒ /api/progress-claims/[id]                      0 B                0 B
+├ ƒ /api/projects                                  0 B                0 B
+├ ƒ /api/projects/[id]                             0 B                0 B
+├ ƒ /api/projects/[id]/analytics                   0 B                0 B
+├ ƒ /api/projects/[id]/export                      0 B                0 B
+├ ƒ /api/projects/[id]/gallery                     0 B                0 B
+├ ƒ /api/projects/[id]/team                        0 B                0 B
+├ ƒ /api/projects/templates                        0 B                0 B
+├ ƒ /api/punch-lists                               0 B                0 B
+├ ƒ /api/punch-lists/[id]                          0 B                0 B
+├ ƒ /api/realtime                                  0 B                0 B
+├ ƒ /api/reports/generate                          0 B                0 B
+├ ƒ /api/reports/pdf                               0 B                0 B
+├ ƒ /api/rfis                                      0 B                0 B
+├ ƒ /api/rfis/[id]                                 0 B                0 B
+├ ƒ /api/rfis/[id]/attachments                     0 B                0 B
+├ ƒ /api/risk-assessments                          0 B                0 B
+├ ƒ /api/risk-assessments/[id]                     0 B                0 B
+├ ƒ /api/risk-assessments/[id]/acknowledge         0 B                0 B
+├ ƒ /api/safety                                    0 B                0 B
+├ ƒ /api/safety/[id]                               0 B                0 B
+├ ƒ /api/safety/[id]/photos                        0 B                0 B
+├ ƒ /api/safety/analytics                          0 B                0 B
+├ ƒ /api/search                                    0 B                0 B
+├ ƒ /api/signup                                    0 B                0 B
+├ ƒ /api/site-access                               0 B                0 B
+├ ƒ /api/site-access/[id]                          0 B                0 B
+├ ƒ /api/site-diary                                0 B                0 B
+├ ƒ /api/site-diary/[id]                           0 B                0 B
+├ ƒ /api/subcontractors                            0 B                0 B
+├ ƒ /api/subcontractors/[id]                       0 B                0 B
+├ ƒ /api/submittals                                0 B                0 B
+├ ƒ /api/submittals/[id]                           0 B                0 B
+├ ƒ /api/tasks                                     0 B                0 B
+├ ƒ /api/tasks/[id]                                0 B                0 B
+├ ƒ /api/tasks/[id]/comments                       0 B                0 B
+├ ƒ /api/team                                      0 B                0 B
+├ ƒ /api/team/[id]                                 0 B                0 B
+├ ƒ /api/team/[id]/projects                        0 B                0 B
+├ ƒ /api/time-entries                              0 B                0 B
+├ ƒ /api/time-entries/[id]                         0 B                0 B
+├ ƒ /api/time-entries/approve                      0 B                0 B
+├ ƒ /api/tool-checks                               0 B                0 B
+├ ƒ /api/tool-checks/[id]                          0 B                0 B
+├ ƒ /api/tool-checks/[id]/pdf                      0 B                0 B
+├ ƒ /api/toolbox-talks                             0 B                0 B
+├ ƒ /api/toolbox-talks/[id]                        0 B                0 B
+├ ƒ /api/toolbox-talks/[id]/pdf                    0 B                0 B
+├ ƒ /api/toolbox-talks/[id]/sign                   0 B                0 B
+├ ƒ /api/upload/file-url                           0 B                0 B
+├ ƒ /api/upload/presigned                          0 B                0 B
+├ ƒ /api/webhooks                                  0 B                0 B
+├ ƒ /api/webhooks/[id]                             0 B                0 B
+├ ƒ /api/webhooks/[id]/test                        0 B                0 B
+├ ƒ /budget                                        7.51 kB         144 kB
+├ ƒ /change-orders                                 11.3 kB         180 kB
+├ ƒ /company                                       14.1 kB         183 kB
+├ ƒ /company/invitations                           6.88 kB         182 kB
+├ ƒ /company/settings                              5.23 kB         108 kB
+├ ƒ /company/team                                  10.4 kB         191 kB
+├ ƒ /company/usage                                 6.2 kB          101 kB
+├ ƒ /daily-reports                                 10.1 kB         181 kB
+├ ƒ /dashboard                                     17.7 kB         136 kB
+├ ƒ /defects                                       8.94 kB         144 kB
+├ ƒ /documents                                     10.7 kB         143 kB
+├ ƒ /drawings                                      9.06 kB         138 kB
+├ ƒ /equipment                                     4.79 kB         147 kB
+├ ƒ /inspections                                   10.2 kB         178 kB
+├ ƒ /invitation/accept/[token]                     6.37 kB         142 kB
+├ ƒ /login                                         4.95 kB         126 kB
+├ ƒ /materials                                     5.26 kB         180 kB
+├ ƒ /meetings                                      7.57 kB         147 kB
+├ ƒ /milestones                                    7.96 kB         190 kB
+├ ƒ /permits                                       9.02 kB         144 kB
+├ ƒ /progress-claims                               8.74 kB         144 kB
+├ ƒ /projects                                      7.97 kB         146 kB
+├ ƒ /projects/[id]                                 51.4 kB         239 kB
+├ ƒ /projects/new                                  3.95 kB         174 kB
+├ ƒ /punch-lists                                   10.3 kB         178 kB
+├ ƒ /reports                                       112 kB          207 kB
+├ ƒ /rfis                                          8.24 kB         152 kB
+├ ƒ /safety                                        12.3 kB         150 kB
+├ ƒ /settings                                      8.72 kB         111 kB
+├ ƒ /signup                                        5.3 kB          127 kB
+├ ƒ /site-diary                                    9.33 kB         144 kB
+├ ƒ /subcontractors                                9.31 kB         180 kB
+├ ƒ /submittals                                    9.23 kB         150 kB
+├ ƒ /tasks                                         10.8 kB         190 kB
+├ ƒ /team                                          12.9 kB         142 kB
+├ ƒ /team-invite/accept/[token]                    5.95 kB         142 kB
+└ ƒ /time-tracking                                 6.47 kB         155 kB
++ First Load JS shared by all                      87.4 kB
+  ├ chunks/2117-724f64343f9d9767.js                31.8 kB
+  ├ chunks/fd9d1056-efbb5f4a710e7b0a.js            53.6 kB
+  └ other shared chunks (total)                    2.01 kB
+
+
+ƒ Middleware                                       49.6 kB
+
+ƒ  (Dynamic)  server-rendered on demand
+
+Successfully built app artifact
