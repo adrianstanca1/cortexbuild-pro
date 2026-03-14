@@ -46,12 +46,15 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        working-directory: ./nextjs_space
         run: npm ci --legacy-peer-deps
 
       - name: Run lint
+        working-directory: ./nextjs_space
         run: npm run lint || true
 
       - name: Run tests
+        working-directory: ./nextjs_space
         run: npm test -- --passWithNoTests || true
 
   # ============================================
