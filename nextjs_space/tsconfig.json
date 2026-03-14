@@ -42,8 +42,6 @@
     "node_modules",
     "scripts",
     "server",
-    "contexts/WebSocketContext.tsx",
-    "components/ui/realtime-notifications.tsx",
     "__tests__",
     "**/*.test.ts",
     "**/*.test.tsx",

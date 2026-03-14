@@ -8,7 +8,7 @@ import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/e
 // POST - Rotate/Replace API credentials
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,8 +16,9 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await context.params;
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!connection) {
@@ -26,7 +27,7 @@ export async function POST(
 
     const body = await req.json();
     const { newCredentials, credentials, reason } = body;
-    
+
     // Accept either newCredentials or credentials field
     const credsToUse = newCredentials || credentials;
 
@@ -42,7 +43,7 @@ export async function POST(
 
     // Update connection with new credentials
     const updated = await prisma.apiConnection.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         credentials: encryptedCredentials,
         status: "ACTIVE",

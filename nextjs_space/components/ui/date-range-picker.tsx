@@ -17,6 +17,9 @@ interface DateRangePickerProps {
   className?: string;
 }
 
+// Alias for backward compatibility
+export const DatePickerWithRange = DateRangePicker;
+
 export function DateRangePicker({
   value,
   onChange,
