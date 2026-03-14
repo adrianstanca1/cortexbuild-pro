@@ -51,13 +51,11 @@ export interface OllamaChatResponse {
 
 class OllamaClient {
   private baseUrl: string;
-  private defaultModel: string = "qwen3.5:latest";
-  
+  private defaultModel: string;
+
   constructor(baseUrl?: string, defaultModel?: string) {
     this.baseUrl = baseUrl || process.env.OLLAMA_URL || "http://host.docker.internal:11434";
-    if (defaultModel) {
-      this.defaultModel = defaultModel;
-    }
+    this.defaultModel = defaultModel || process.env.OLLAMA_MODEL || "glm-5:cloud";
   }
 
   /**
