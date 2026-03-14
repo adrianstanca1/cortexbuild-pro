@@ -37,3 +37,5 @@ npm-debug.log*
 *.bundle
 push-sync.sh
 nextjs_space/.yarn/install-state*.gz
+nextjs_space/tsconfig 2.tsbuildinfo
+*.tsbuildinfo
