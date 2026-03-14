@@ -7,7 +7,7 @@ import { broadcastToOrganization } from '@/lib/realtime-clients';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function GET(
     }
 
     const certification = await prisma.workerCertification.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         worker: { select: { id: true, name: true, email: true } },
         verifiedBy: { select: { id: true, name: true } }
@@ -36,7 +36,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -47,7 +47,7 @@ export async function PATCH(
     const data = await request.json();
 
     const existing = await prisma.workerCertification.findUnique({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     if (!existing) {
@@ -66,7 +66,7 @@ export async function PATCH(
     if (data.expiryDate) updateData.expiryDate = new Date(data.expiryDate);
 
     const certification = await prisma.workerCertification.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data: updateData,
       include: {
         worker: { select: { id: true, name: true, email: true } },
@@ -88,7 +88,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -97,18 +97,18 @@ export async function DELETE(
     }
 
     const existing = await prisma.workerCertification.findUnique({
-      where: { id: params.id }
+      where: { id: (await params).id }
     });
 
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
-    await prisma.workerCertification.delete({ where: { id: params.id } });
+    await prisma.workerCertification.delete({ where: { id: (await params).id } });
 
     broadcastToOrganization(existing.organizationId, {
       type: 'certification_deleted',
-      data: { id: params.id }
+      data: { id: (await params).id }
     });
 
     return NextResponse.json({ success: true });

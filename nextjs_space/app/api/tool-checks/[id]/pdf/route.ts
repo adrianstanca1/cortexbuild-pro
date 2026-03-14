@@ -79,9 +79,10 @@ export async function GET(
 
       if (status === 'SUCCESS' && result?.result) {
         const pdfBuffer = Buffer.from(result.result, 'base64');
+        const pdfArray = new Uint8Array(pdfBuffer);
         const filename = `tool-check-${toolCheck.toolName?.replace(/[^a-zA-Z0-9]/g, '-') || 'tool'}-${format(new Date(toolCheck.checkDate), 'yyyy-MM-dd')}.pdf`;
         
-        return new NextResponse(pdfBuffer, {
+        return new NextResponse(pdfArray, {
           headers: {
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename="${filename}"`,

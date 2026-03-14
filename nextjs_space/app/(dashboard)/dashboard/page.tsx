@@ -55,7 +55,7 @@ export default function DashboardPage() {
     data: projects,
     isLoading: projectsLoading,
     isError: projectsError,
-    retry: retryProjects
+    refetch: refetchProjects
   } = useAsyncData(() => 
     prisma.project.findMany({
       where: { organizationId: orgId },
@@ -72,7 +72,7 @@ export default function DashboardPage() {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-    retry: retryTasks
+    refetch: refetchTasks
   } = useAsyncData(() => 
     prisma.task.findMany({
       where: { project: { organizationId: orgId } },
@@ -86,7 +86,7 @@ export default function DashboardPage() {
     data: teamMembers,
     isLoading: teamMembersLoading,
     isError: teamMembersError,
-    retry: retryTeamMembers
+    refetch: refetchTeamMembers
   } = useAsyncData(() => 
     prisma.teamMember.findMany({
       where: { organizationId: orgId },
@@ -99,7 +99,7 @@ export default function DashboardPage() {
     data: activities,
     isLoading: activitiesLoading,
     isError: activitiesError,
-    retry: retryActivities
+    refetch: refetchActivities
   } = useAsyncData(() => 
     prisma.activityLog.findMany({
       where: { project: { organizationId: orgId } },
@@ -113,7 +113,7 @@ export default function DashboardPage() {
     data: rfis,
     isLoading: rfisLoading,
     isError: rfisError,
-    retry: retryRfis
+    refetch: refetchRfis
   } = useAsyncData(() => 
     prisma.rFI.findMany({
       where: { project: { organizationId: orgId } },
@@ -127,7 +127,7 @@ export default function DashboardPage() {
     data: submittals,
     isLoading: submittalsLoading,
     isError: submittalsError,
-    retry: retrySubmittals
+    refetch: refetchSubmittals
   } = useAsyncData(() => 
     prisma.submittal.findMany({
       where: { project: { organizationId: orgId } },
@@ -141,7 +141,7 @@ export default function DashboardPage() {
     data: safetyIncidents,
     isLoading: safetyIncidentsLoading,
     isError: safetyIncidentsError,
-    retry: retrySafetyIncidents
+    refetch: refetchSafetyIncidents
   } = useAsyncData(() => 
     prisma.safetyIncident.findMany({
       where: {
@@ -157,7 +157,7 @@ export default function DashboardPage() {
     data: punchLists,
     isLoading: punchListsLoading,
     isError: punchListsError,
-    retry: retryPunchLists
+    refetch: refetchPunchLists
   } = useAsyncData(() => 
     prisma.punchList.findMany({
       where: { project: { organizationId: orgId } },
@@ -319,17 +319,17 @@ export default function DashboardPage() {
               </button>
             </div>
             <div className="space-x-3">
-              {projectsError && <button onClick={retryProjects} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Projects</button>}
-              {tasksError && <button onClick={retryTasks} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Tasks</button>}
-              {teamMembersError && <button onClick={retryTeamMembers} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Team</button>}
-              {activitiesError && <button onClick={retryActivities} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Activities</button>}
-              {rfisError && <button onClick={retryRfis} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">RFIs</button>}
-              {submittalsError && <button onClick={retrySubmittals} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Submittals</button>}
-              {safetyIncidentsError && <button onClick={retrySafetyIncidents} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Safety</button>}
-              {punchListsError && <button onClick={retryPunchLists} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Punch Lists</button>}
-              {inspectionsError && <button onClick={retryInspections} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Inspections</button>}
-              {milestonesError && <button onClick={retryMilestones} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Milestones</button>}
-              {changeOrdersError && <button onClick={retryChangeOrders} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Change Orders</button>}
+              {projectsError && <button onClick={refetchProjects} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Projects</button>}
+              {tasksError && <button onClick={refetchTasks} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Tasks</button>}
+              {teamMembersError && <button onClick={refetchTeamMembers} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Team</button>}
+              {activitiesError && <button onClick={refetchActivities} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Activities</button>}
+              {rfisError && <button onClick={refetchRfis} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">RFIs</button>}
+              {submittalsError && <button onClick={refetchSubmittals} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Submittals</button>}
+              {safetyIncidentsError && <button onClick={refetchSafetyIncidents} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Safety</button>}
+              {punchListsError && <button onClick={refetchPunchLists} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Punch Lists</button>}
+              {inspectionsError && <button onClick={refetchInspections} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Inspections</button>}
+              {milestonesError && <button onClick={refetchMilestones} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Milestones</button>}
+              {changeOrdersError && <button onClick={refetchChangeOrders} className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded">Change Orders</button>}
             </div>
           </div>
         )}
@@ -600,7 +600,7 @@ export default function DashboardPage() {
               <div key={activity.id} className="p-3 border-l-4 border-blue-500 pl-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium">{activity.description}</p>
+                    <p className="font-medium">{activity.action} {activity.entityName}</p>
                     <p className="text-sm text-muted-foreground">
                       {activity.project?.name} • {new Date(activity.createdAt).toLocaleString()}
                     </p>

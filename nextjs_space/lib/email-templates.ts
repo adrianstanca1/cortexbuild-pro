@@ -3,14 +3,27 @@
 export interface CompanyInvitationTemplateParams {
   companyName: string;
   ownerEmail: string;
+  ownerName?: string;
   inviteUrl?: string;
+  acceptUrl?: string;
+  expiresAt?: Date;
+  enabledModules?: string[];
+  storageGB?: number;
+  maxUsers?: number;
 }
 
 export interface TeamInvitationTemplateParams {
   organizationName: string;
   memberEmail: string;
+  memberName?: string;
+  inviterName?: string;
+  role?: string;
+  jobTitle?: string;
+  department?: string;
   teamName?: string;
   inviteUrl?: string;
+  acceptUrl?: string;
+  expiresAt?: Date;
 }
 
 /**

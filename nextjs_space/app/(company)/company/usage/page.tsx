@@ -66,7 +66,6 @@ export default async function CompanyUsagePage() {
             projects: true,
           }
         },
-        subscription: true,
       }
     });
 
@@ -75,14 +74,8 @@ export default async function CompanyUsagePage() {
     }
 
     // Fetch usage metrics
-    const apiCalls = await prisma.apiCall.count({
-      where: {
-        organizationId: user.organizationId,
-        createdAt: {
-          gte: new Date(new Date().setDate(new Date().getDate() - 30)) // Last 30 days
-        }
-      }
-    });
+    // TODO: Implement apiCall tracking when the model is available
+    const apiCalls = 0; // await prisma.apiCall.count({...}) - model not yet available
 
     const storageUsed = await prisma.document.aggregate({
       where: {
@@ -94,18 +87,8 @@ export default async function CompanyUsagePage() {
     });
 
     // Fetch historical usage data
-    const historicalData = await prisma.apiCall.groupBy({
-      by: ['createdAt'],
-      where: {
-        organizationId: user.organizationId
-      },
-      _count: {
-        id: true
-      },
-      orderBy: {
-        createdAt: 'asc'
-      }
-    });
+    // TODO: Implement when apiCall tracking is available
+    const historicalData: any[] = []; // await prisma.apiCall.groupBy({...}) - model not yet available
 
     // Parse entitlements
     const entitlements = parseEntitlements(organizationData.entitlements || '{}');
@@ -126,19 +109,19 @@ export default async function CompanyUsagePage() {
         projectsCreated: organizationData._count.projects,
       },
       subscription: {
-        name: organizationData.subscription?.planName || 'Free',
-        maxApiCalls: entitlements.limits?.maxApiCalls || 1000,
-        maxStorageMB: entitlements.limits?.maxStorageMB || 1024,
-        maxUsers: entitlements.limits?.maxUsers || 5,
-        maxProjects: entitlements.limits?.maxProjects || 10,
-        price: organizationData.subscription?.price || 0,
-        billingCycle: organizationData.subscription?.billingCycle as 'monthly' | 'annual' || 'monthly',
+        name: (entitlements as any).planName || 'Free',
+        maxApiCalls: (entitlements as any).limits?.maxApiCalls || 1000,
+        maxStorageMB: (entitlements as any).limits?.maxStorageMB || 1024,
+        maxUsers: (entitlements as any).limits?.maxUsers || 5,
+        maxProjects: (entitlements as any).limits?.maxProjects || 10,
+        price: (entitlements as any).price || 0,
+        billingCycle: ((entitlements as any).billingCycle as 'monthly' | 'annual') || 'monthly',
       },
       billing: {
-        currentCycleStart: organizationData.subscription?.currentCycleStart || new Date(),
-        currentCycleEnd: organizationData.subscription?.currentCycleEnd || new Date(),
-        paymentMethod: organizationData.subscription?.paymentMethod || 'None',
-        nextPaymentDate: organizationData.subscription?.nextPaymentDate || new Date(),
+        currentCycleStart: new Date(),
+        currentCycleEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        paymentMethod: 'None',
+        nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
       historicalUsage: historicalDataFormatted,
     };

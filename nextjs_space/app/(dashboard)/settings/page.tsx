@@ -9,7 +9,7 @@ export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
   
-  let organization = null;
+  let organization: { id: string; name: string; slug: string; createdAt: Date } | null = null;
   if (orgId) {
     organization = await prisma.organization.findUnique({
       where: { id: orgId },

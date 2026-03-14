@@ -116,7 +116,7 @@ export function DashboardHeader({ user, userRole }: HeaderProps) {
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { showShortcuts, setShowShortcuts } = useKeyboardShortcuts();
-  const { collapsed, toggleSidebar } = useSidebar();
+  const { isCollapsed, toggleSidebar } = useSidebar();
 
   const roleLabel = roleLabelMap[user?.role ?? 'FIELD_WORKER'] ?? 'Member';
 
@@ -184,9 +184,9 @@ export function DashboardHeader({ user, userRole }: HeaderProps) {
                 <button
                   onClick={toggleSidebar}
                   className="hidden lg:flex p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all duration-200"
-                  aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                  aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
-                  {collapsed ? (
+                  {isCollapsed ? (
                     <PanelLeft className="h-5 w-5" />
                   ) : (
                     <PanelLeftClose className="h-5 w-5" />
@@ -194,7 +194,7 @@ export function DashboardHeader({ user, userRole }: HeaderProps) {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <span>{collapsed ? 'Expand Menu' : 'Collapse Menu'}</span>
+                <span>{isCollapsed ? 'Expand Menu' : 'Collapse Menu'}</span>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

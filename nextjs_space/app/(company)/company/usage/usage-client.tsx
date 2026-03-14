@@ -126,10 +126,9 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
         </div>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
           <DatePickerWithRange
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
+            value={dateRange}
+            onChange={setDateRange}
             className="w-full md:w-auto"
-            aria-label="Select date range for usage history"
           />
           <Select value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
             <SelectTrigger className="w-[180px]" aria-label="Select view mode">

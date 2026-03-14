@@ -263,7 +263,7 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const { collapsed, setCollapsed } = useSidebar();
+  const { isCollapsed: collapsed, toggleSidebar } = useSidebar();
   const [mounted, setMounted] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
   const [hoverFolder, setHoverFolder] = useState<string | null>(null);
@@ -506,7 +506,7 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
             )}
           </Link>
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => toggleSidebar()}
             className={cn(
               "p-2 rounded-xl transition-all duration-200",
               "hover:bg-slate-100 dark:hover:bg-slate-800",

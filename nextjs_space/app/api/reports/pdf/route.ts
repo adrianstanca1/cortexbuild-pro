@@ -112,7 +112,8 @@ export async function POST(request: NextRequest) {
 
       if (statusResult?.status === "SUCCESS" && statusResult?.result?.result) {
         const pdfBuffer = Buffer.from(statusResult.result.result, "base64");
-        return new NextResponse(pdfBuffer, {
+        const pdfArray = new Uint8Array(pdfBuffer);
+        return new NextResponse(pdfArray, {
           headers: {
             "Content-Type": "application/pdf",
             "Content-Disposition": `attachment; filename="report-${format(new Date(), "yyyy-MM-dd")}.pdf"`

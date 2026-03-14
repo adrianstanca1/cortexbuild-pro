@@ -125,7 +125,7 @@ const RealTimeDemoPage = () => {
                 onlineUsers.map((user, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                    <span>User {user.substring(0, 8)}...</span>
+                    <span>User {user.id?.substring(0, 8) ?? 'Unknown'}...</span>
                   </div>
                 ))
               ) : (

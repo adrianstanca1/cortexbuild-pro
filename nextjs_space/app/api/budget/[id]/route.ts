@@ -7,7 +7,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function GET(
 
     const costItem = await prisma.costItem.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: {
@@ -40,7 +40,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -50,7 +50,7 @@ export async function PATCH(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -64,7 +64,7 @@ export async function PATCH(
     const { description, category, status, estimatedAmount, actualAmount, committedAmount, vendor, notes, subcontractorId, invoiceNumber, invoiceDate, paidDate } = body;
 
     const costItem = await prisma.costItem.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data: {
         ...(description && { description }),
         ...(category && { category }),
@@ -113,7 +113,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -123,7 +123,7 @@ export async function DELETE(
 
     const existing = await prisma.costItem.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         project: { organizationId: session.user.organizationId ?? "" }
       },
       include: { project: true }
@@ -133,13 +133,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
     }
 
-    await prisma.costItem.delete({ where: { id: params.id } });
+    await prisma.costItem.delete({ where: { id: (await params).id } });
 
     await prisma.activityLog.create({
       data: {
         action: "cost_item_deleted",
         entityType: "CostItem",
-        entityId: params.id,
+        entityId: (await params).id,
         entityName: existing.description,
         details: `Deleted cost item: ${existing.description}`,
         userId: session.user.id,
@@ -149,7 +149,7 @@ export async function DELETE(
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_deleted",
-      data: { id: params.id, projectId: existing.projectId }
+      data: { id: (await params).id, projectId: existing.projectId }
     });
 
     return NextResponse.json({ success: true });
