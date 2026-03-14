@@ -125,6 +125,23 @@ export const rateLimiters = {
  * Get rate limit identifier from request
  * Uses IP address or user ID for authenticated requests
  */
+/**
+ * Get rate limit statistics for monitoring
+ */
+export function getRateLimitStats(): { totalEntries: number; activeLimits: number } {
+  const now = Date.now();
+  let activeLimits = 0;
+  for (const entry of rateLimitStore.values()) {
+    if (entry.resetTime > now) {
+      activeLimits++;
+    }
+  }
+  return {
+    totalEntries: rateLimitStore.size,
+    activeLimits,
+  };
+}
+
 export function getRateLimitIdentifier(req: Request, userId?: string): string {
   // Prefer user ID for authenticated requests
   if (userId) {

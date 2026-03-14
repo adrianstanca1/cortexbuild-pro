@@ -1,27 +1,26 @@
 import { getServerSession } from 'next-auth';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-import { authOptions } from '@/lib/auth-options';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
-import { ForecastingClient } from './_components/forecasting-client';
+import { authOptions } from '@/lib/auth-options';
+import { ComingSoon } from '@/components/ui/coming-soon';
+import { TrendingUp } from 'lucide-react';
 
 export default async function ForecastingPage() {
   const session = await getServerSession(authOptions);
-  
-  if (!session?.user?.organizationId) {
-    redirect('/login');
-  }
+  if (!session?.user) redirect('/login');
 
-  // Fetch projects for the dropdown
-  const projects = await prisma.project.findMany({
-    where: { organizationId: session.user.organizationId },
-    select: { id: true, name: true, budget: true, startDate: true, endDate: true },
-    orderBy: { name: 'asc' }
-  });
-
-  return <ForecastingClient projects={JSON.parse(JSON.stringify(projects))} />;
+  return (
+    <ComingSoon
+      title="AI Forecasting"
+      icon={<TrendingUp className="w-full h-full" />}
+      badge="AI"
+      description="Predictive cost and schedule forecasting powered by machine learning. Spot overruns before they happen, model scenarios, and make data-driven decisions with confidence."
+      features={[
+        'EAC / ETC budget forecasting',
+        'Schedule completion predictions',
+        'Cost trend analysis over time',
+        'Weather impact modelling',
+        'Multi-scenario what-if analysis',
+      ]}
+    />
+  );
 }

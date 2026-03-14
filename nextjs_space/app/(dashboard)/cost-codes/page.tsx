@@ -1,39 +1,25 @@
 import { getServerSession } from 'next-auth';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-import { authOptions } from '@/lib/auth-options';
 import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db';
-import { CostCodesClient } from './_components/cost-codes-client';
+import { authOptions } from '@/lib/auth-options';
+import { ComingSoon } from '@/components/ui/coming-soon';
+import { Coins } from 'lucide-react';
 
 export default async function CostCodesPage() {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-
   const session = await getServerSession(authOptions);
-  
-  if (!session?.user?.organizationId) {
-    redirect('/login');
-  }
+  if (!session?.user) redirect('/login');
 
-  // Fetch organization cost codes (library)
-  const costCodes = await prisma.costCode.findMany({
-    where: { 
-      organizationId: session.user.organizationId,
-      projectId: null
-    },
-    include: {
-      parent: { select: { id: true, code: true, name: true } },
-      children: { select: { id: true, code: true, name: true, level: true } },
-      _count: {
-        select: { workPackages: true, costItems: true, budgetLines: true }
-      }
-    },
-    orderBy: { code: 'asc' }
-  });
-
-  return <CostCodesClient initialCostCodes={bigintSafe(costCodes)} />;
+  return (
+    <ComingSoon
+      title="Cost Codes"
+      icon={<Coins className="w-full h-full" />}
+      description="Define and manage your organisation's cost code structure. Standardise how costs are categorised across all projects for cleaner reporting and accurate budget allocation."
+      features={[
+        'Custom cost code hierarchy',
+        'Assign codes to tasks, materials, and labour',
+        'Export to accounting systems (Xero, QuickBooks)',
+        'Budget allocation by cost code',
+        'Real-time spend tracking per code',
+      ]}
+    />
+  );
 }

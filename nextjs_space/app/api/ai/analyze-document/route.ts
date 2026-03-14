@@ -1,14 +1,7 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { generateAIResponse } from '@/lib/ai-service';
-
-// Document analysis endpoint - supports Ollama (primary), Gemini, and Abacus AI
-// Analyzes PDFs, images, text files, and CSV data
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,16 +68,76 @@ export async function POST(request: NextRequest) {
       content: 'You are an AI assistant specializing in construction document analysis for CortexBuildPro. Analyze documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
     });
 
-    const result = await generateAIResponse({ messages, maxTokens: 4000 });
+    // MIGRATED TO OLLAMA API
+    const response = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+        // Note: Ollama doesn't require Authorization header for local requests
+      },
+      body: JSON.stringify({
+        model: 'nemotron-3-super:cloud',  // Changed from 'gpt-4.1-mini'
+        messages,
+        stream: true,
+        options: {
+          num_predict: 3000,  // Ollama equivalent of max_tokens
+          temperature: 0.7    // Add temperature for better control
+        }
+      })
+    });
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
+    if (!response.ok) {
+      throw new Error(`Ollama API error: ${response.status}`);
     }
 
-    return NextResponse.json({ analysis: result.response });
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        const encoder = new TextEncoder();
+        try {
+          while (true) {
+            const { done, value } = await reader!.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+            
+            // OLLAMA STREAMING FORMAT: Parse JSON lines to extract content
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            for (const line of lines) {
+              try {
+                const parsed = JSON.parse(line);
+                if (parsed.message?.content) {
+                  // Send just the content part, same as original Abacus AI behavior
+                  controller.enqueue(encoder.encode(parsed.message.content));
+                }
+                // Handle done signal if needed
+                if (parsed.done) {
+                  // Optional: could send a done signal or close gracefully
+                }
+              } catch (e) {
+                // Skip invalid JSON lines
+                console.warn('Failed to parse Ollama response line:', line);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Stream error:', error);
+          controller.error(error);
+        } finally {
+          controller.close();
+        }
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      }
+    });
   } catch (error) {
     console.error('Document analysis error:', error);
     return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });
   }
 }
-

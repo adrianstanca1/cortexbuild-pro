@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import {
-  FileImage, Plus, Search, Grid, List, Loader2,
-  Eye, Edit, Upload, History, CheckCircle, Clock
+  FileImage, Plus, Search, Filter, Grid, List, Loader2,
+  Eye, Edit, Upload, History, CheckCircle, Clock, XCircle
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const DISCIPLINES = [
   "ARCHITECTURAL", "STRUCTURAL", "MECHANICAL", "ELECTRICAL", "PLUMBING",
@@ -260,16 +261,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => window.location.href = `/drawings/${drawing.id}/view`}
-                      title="View & Annotate"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" title="Upload Revision"><Upload className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm" title="Edit Details"><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm"><Upload className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm"><Edit className="h-4 w-4" /></Button>
                   </div>
                 </div>
               </CardContent>
@@ -279,11 +273,7 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDrawings.map((drawing) => (
-            <Card 
-              key={drawing.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => window.location.href = `/drawings/${drawing.id}/view`}
-            >
+            <Card key={drawing.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <Badge className={getStatusColor(drawing.status)}>{drawing.status.replace("_", " ")}</Badge>
@@ -378,8 +368,8 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                     <SelectItem value="A1">A1</SelectItem>
                     <SelectItem value="A2">A2</SelectItem>
                     <SelectItem value="A3">A3</SelectItem>
-                    <SelectItem value="24x36">24&quot;x36&quot;</SelectItem>
-                    <SelectItem value="30x42">30&quot;x42&quot;</SelectItem>
+                    <SelectItem value="24x36">24"x36"</SelectItem>
+                    <SelectItem value="30x42">30"x42"</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

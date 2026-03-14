@@ -1,18 +1,10 @@
 import { getServerSession } from "next-auth";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { SubcontractorsClient } from "./_components/subcontractors-client";
 
 export default async function SubcontractorsPage() {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
     redirect("/login");
@@ -54,7 +46,7 @@ export default async function SubcontractorsPage() {
         <p className="text-gray-500">Manage subcontractors and their contracts</p>
       </div>
       <SubcontractorsClient
-        initialSubcontractors={bigintSafe(subcontractors)}
+        initialSubcontractors={JSON.parse(JSON.stringify(subcontractors))}
         initialSummary={summary}
       />
     </div>

@@ -1,18 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
-import { sendCompanyInvitationNotification } from '@/lib/email-notifications';
 import crypto from 'crypto';
-
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
 
 // GET /api/admin/invitations/[id] - Get invitation details
 export async function GET(
@@ -46,7 +37,7 @@ export async function GET(
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
     }
 
-    return NextResponse.json(bigintSafe({ invitation }));
+    return NextResponse.json({ invitation });
   } catch (error) {
     console.error('Error fetching invitation:', error);
     return NextResponse.json({ error: 'Failed to fetch invitation' }, { status: 500 });
@@ -96,7 +87,7 @@ export async function PATCH(
         },
       });
 
-      // Resend email using notification API
+      // Resend email
       try {
         const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
         const acceptUrl = `${appUrl}/invitation/accept/${newToken}`;
@@ -114,15 +105,58 @@ export async function PATCH(
             return labels[key] || key;
           });
 
-        await sendCompanyInvitationNotification({
-          ownerName: updated.ownerName,
-          companyName: updated.companyName,
-          ownerEmail: updated.ownerEmail,
-          acceptUrl,
-          expiresAt: newExpiry,
-          enabledModules,
-          storageGB: (parsedEntitlements.limits as Record<string, number>)?.storageGB || 10,
-          maxUsers: (parsedEntitlements.limits as Record<string, number>)?.maxUsers || 50
+        const htmlBody = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #7c3aed; margin: 0;">CortexBuild Pro</h1>
+              <p style="color: #6b7280; margin: 5px 0;">Construction Management Platform</p>
+            </div>
+            
+            <h2 style="color: #1f2937; border-bottom: 2px solid #7c3aed; padding-bottom: 10px;">
+              Invitation Reminder
+            </h2>
+            
+            <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+              This is a reminder about your invitation to join <strong>CortexBuild Pro</strong> as the owner of <strong>${updated.companyName}</strong>.
+            </p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #374151; margin-top: 0;">Your Company Details</h3>
+              <p style="margin: 8px 0;"><strong>Company:</strong> ${updated.companyName}</p>
+              <p style="margin: 8px 0;"><strong>Your Name:</strong> ${updated.ownerName}</p>
+              <p style="margin: 8px 0;"><strong>Email:</strong> ${updated.ownerEmail}</p>
+            </div>
+            
+            <div style="background: #ede9fe; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #5b21b6; margin-top: 0;">Enabled Features</h3>
+              <ul style="color: #4b5563; padding-left: 20px;">
+                ${enabledModules.map(m => `<li style="margin: 5px 0;">${m}</li>`).join('')}
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${acceptUrl}" style="background: #7c3aed; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                Accept Invitation & Set Password
+              </a>
+            </div>
+            
+            <p style="color: #9ca3af; font-size: 14px; text-align: center;">
+              This invitation expires on ${newExpiry.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
+            </p>
+          </div>
+        `;
+
+        await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deployment_token: process.env.ABACUSAI_API_KEY,
+            subject: `Reminder: You're invited to join ${updated.companyName} on CortexBuild Pro`,
+            body: htmlBody,
+            is_html: true,
+            recipient_email: updated.ownerEmail,
+            sender_alias: 'CortexBuild Pro',
+          }),
         });
       } catch (emailError) {
         console.error('Failed to resend invitation email:', emailError);
@@ -140,7 +174,7 @@ export async function PATCH(
         },
       });
 
-      return NextResponse.json(bigintSafe({ invitation: updated, message: 'Invitation resent successfully' }));
+      return NextResponse.json({ invitation: updated, message: 'Invitation resent successfully' });
     }
 
     if (action === 'revoke') {
@@ -168,7 +202,7 @@ export async function PATCH(
         },
       });
 
-      return NextResponse.json(bigintSafe({ invitation: updated, message: 'Invitation revoked' }));
+      return NextResponse.json({ invitation: updated, message: 'Invitation revoked' });
     }
 
     // Update entitlements only
@@ -177,7 +211,7 @@ export async function PATCH(
         where: { id },
         data: { entitlements },
       });
-      return NextResponse.json(bigintSafe({ invitation: updated }));
+      return NextResponse.json({ invitation: updated });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -226,7 +260,7 @@ export async function DELETE(
       },
     });
 
-    return NextResponse.json(bigintSafe({ message: 'Invitation deleted' }));
+    return NextResponse.json({ message: 'Invitation deleted' });
   } catch (error) {
     console.error('Error deleting invitation:', error);
     return NextResponse.json({ error: 'Failed to delete invitation' }, { status: 500 });

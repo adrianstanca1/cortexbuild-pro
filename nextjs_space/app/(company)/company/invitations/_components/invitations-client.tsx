@@ -89,7 +89,6 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
 
   useEffect(() => {
     fetchInvitations();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleCreate = async () => {

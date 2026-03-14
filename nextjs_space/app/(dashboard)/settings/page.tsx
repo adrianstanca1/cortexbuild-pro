@@ -5,18 +5,11 @@ import { SettingsClient } from "./_components/settings-client";
 
 export const dynamic = "force-dynamic";
 
-type OrganizationData = {
-  id: string;
-  name: string;
-  slug: string;
-  createdAt: Date;
-} | null;
-
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
   
-  let organization: OrganizationData = null;
+  let organization = null;
   if (orgId) {
     organization = await prisma.organization.findUnique({
       where: { id: orgId },

@@ -2,23 +2,24 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   ClipboardCheck,
   Plus,
   Search,
-
+  Filter,
   MapPin,
   User,
   Calendar,
   CheckCircle2,
   Clock,
+  AlertTriangle,
   XCircle,
   Loader2
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

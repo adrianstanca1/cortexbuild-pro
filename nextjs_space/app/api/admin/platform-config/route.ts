@@ -1,17 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { broadcastToAll } from "@/lib/realtime-clients";
-
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
 
 // Default platform configuration
 const DEFAULT_CONFIG = {
@@ -117,7 +109,7 @@ function deepMerge(target: any, source: any): any {
   return output;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
@@ -159,7 +151,7 @@ export async function GET(_request: NextRequest) {
       prisma.document.aggregate({ _sum: { fileSize: true } })
     ]);
 
-    return NextResponse.json(bigintSafe({
+    return NextResponse.json({
       config: platformConfig,
       usage: {
         organizations: orgCount,
@@ -178,7 +170,7 @@ export async function GET(_request: NextRequest) {
       buildDate: "2026-01-20",
       environment: process.env.NODE_ENV || "development",
       serverTime: new Date().toISOString()
-    }));
+    });
   } catch (error) {
     console.error("Error fetching platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -235,7 +227,7 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(bigintSafe({ success: true, config: platformConfig }));
+    return NextResponse.json({ success: true, config: platformConfig });
   } catch (error) {
     console.error("Error updating platform config:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -263,14 +255,14 @@ export async function POST(request: NextRequest) {
             userId: session.user.id
           }
         });
-        return NextResponse.json(bigintSafe({ success: true, config: platformConfig }));
+        return NextResponse.json({ success: true, config: platformConfig });
 
       case "export":
-        return NextResponse.json(bigintSafe({
+        return NextResponse.json({
           config: platformConfig,
           exportedAt: new Date().toISOString(),
           exportedBy: session.user.email
-        }));
+        });
 
       case "import":
         if (!data) {
@@ -285,13 +277,12 @@ export async function POST(request: NextRequest) {
             userId: session.user.id
           }
         });
-        return NextResponse.json(bigintSafe({ success: true, config: platformConfig }));
+        return NextResponse.json({ success: true, config: platformConfig });
 
-      case "validate": {
+      case "validate":
         // Validate config structure
         const isValid = validateConfig(data || platformConfig);
-        return NextResponse.json(bigintSafe({ valid: isValid.valid, errors: isValid.errors }));
-      }
+        return NextResponse.json({ valid: isValid.valid, errors: isValid.errors });
 
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });

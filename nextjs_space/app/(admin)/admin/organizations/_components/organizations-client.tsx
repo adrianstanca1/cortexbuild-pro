@@ -11,13 +11,13 @@ import {
   MoreVertical,
   Edit,
   Trash2,
+  PoundSterling,
   FileText,
   ListTodo,
   RefreshCw,
   Check,
-  CheckCircle,
   Eye,
-  XCircle
+  X
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,6 @@ interface Organization {
   name: string;
   slug: string;
   logoUrl: string | null;
-  isActive: boolean;
   createdAt: string;
   users: { id: string; name: string; email: string; role: string }[];
   projects: { id: string; name: string; status: string; budget: number | null }[];
@@ -100,7 +99,7 @@ export function OrganizationsClient() {
 
   useEffect(() => {
     fetchOrganizations();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -111,7 +110,7 @@ export function OrganizationsClient() {
       }
     }, 300);
     return () => clearTimeout(debounce);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const handleCreateOrg = async () => {
@@ -198,31 +197,6 @@ export function OrganizationsClient() {
     }
   };
 
-  const handleToggleActive = async (org: Organization) => {
-    const action = org.isActive ? "suspend" : "activate";
-    if (!confirm(`Are you sure you want to ${action} ${org.name}? ${org.isActive ? 'Users will not be able to access this organization.' : 'Users will regain access to this organization.'}`)) {
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/admin/organizations/${org.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !org.isActive })
-      });
-
-      if (res.ok) {
-        toast.success(`Organization ${action}d successfully`);
-        fetchOrganizations();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || `Failed to ${action} organization`);
-      }
-    } catch (error) {
-      toast.error(`Failed to ${action} organization`);
-    }
-  };
-
   const openEditModal = (org: Organization) => {
     setSelectedOrg(org);
     setFormData({
@@ -297,12 +271,7 @@ export function OrganizationsClient() {
                       <Building2 className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg">{org.name}</CardTitle>
-                        <Badge className={org.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                          {org.isActive ? "Active" : "Suspended"}
-                        </Badge>
-                      </div>
+                      <CardTitle className="text-lg">{org.name}</CardTitle>
                       <p className="text-sm text-gray-500">{org.slug}</p>
                     </div>
                   </div>
@@ -320,20 +289,6 @@ export function OrganizationsClient() {
                       <DropdownMenuItem onClick={() => openEditModal(org)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleToggleActive(org)}>
-                        {org.isActive ? (
-                          <>
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Suspend
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Activate
-                          </>
-                        )}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

@@ -23,8 +23,22 @@ A comprehensive multi-tenant construction management platform built with Next.js
 - System health monitoring
 - User management
 
+### Authentication & Security
+- Role-based authentication (NextAuth.js)
+- Google OAuth integration
+- Multi-factor authentication support
+- Secure session management
+
+### Real-time Collaboration
+- WebSocket-based real-time updates
+- Live task collaboration
+- Instant messaging between team members
+- Online user presence indicators
+- Real-time notifications
+- Live project status updates
+
 ### Technical Features
-- Real-time updates via SSE
+- Real-time updates via WebSocket and SSE
 - Role-based authentication (NextAuth.js)
 - Data export (CSV)
 - Project templates
@@ -44,8 +58,6 @@ A comprehensive multi-tenant construction management platform built with Next.js
 
 ## Getting Started
 
-### Development Setup
-
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database
@@ -61,7 +73,7 @@ cd cortex-abacus
 
 2. Install dependencies:
 ```bash
-npm install
+yarn install
 ```
 
 3. Set up environment variables:
@@ -72,45 +84,21 @@ cp .env.example .env
 
 4. Run database migrations:
 ```bash
-npm run prisma generate
-npm run prisma db push
+yarn prisma generate
+yarn prisma db push
 ```
 
 5. Seed the database (optional):
 ```bash
-npm run prisma db seed
+yarn prisma db seed
 ```
 
 6. Start the development server:
 ```bash
-npm run dev
+yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Production Deployment (VPS)
-
-For production deployment to a VPS (Virtual Private Server):
-
-**Quick Start:**
-```bash
-cd /root
-git clone https://github.com/adrianstanca1/cortexbuild-pro.git
-cd cortexbuild-pro/deployment
-sudo bash quick-start.sh
-```
-
-See the [Deployment Quick Start Guide](../deployment/QUICKSTART.md) for complete instructions, including:
-- One-click deployment script
-- Health monitoring
-- Rollback capability
-- SSL setup
-- Backup strategies
-
-**Documentation:**
-- [Quick Start Guide](../deployment/QUICKSTART.md) - Fastest deployment method
-- [Full Deployment Guide](../deployment/README.md) - Comprehensive instructions
-- [CloudPanel Guide](../deployment/CLOUDPANEL-GUIDE.md) - Managed hosting option
 
 ## Environment Variables
 
@@ -120,6 +108,9 @@ Create a `.env` file with:
 DATABASE_URL="postgresql://user:password@host:5432/database"
 NEXTAUTH_SECRET="your-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+NEXT_PUBLIC_WEBSOCKET_URL="http://localhost:3000"
 ```
 
 ## Project Structure
@@ -152,13 +143,11 @@ Key API routes include:
 
 ## Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run prisma:generate` - Generate Prisma client
-- `npm run prisma:db:push` - Push schema to database
-- `npm run prisma:db:seed` - Seed the database
-- `npm run prisma:studio` - Open Prisma Studio
+- `yarn dev` - Start development server
+- `yarn build` - Build for production
+- `yarn start` - Start production server
+- `yarn prisma generate` - Generate Prisma client
+- `yarn prisma db push` - Push schema to database
 
 ## License
 

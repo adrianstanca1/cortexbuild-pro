@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -15,17 +12,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!session.user.organizationId) {
-      return NextResponse.json({ error: "User must belong to an organization" }, { status: 403 });
-    }
-
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
     const status = searchParams.get("status");
 
     const where: any = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else {
@@ -34,7 +27,7 @@ export async function GET(request: NextRequest) {
         organizationId: session.user.organizationId
       };
     }
-    
+
     if (category && category !== "all") where.category = category;
     if (status && status !== "all") where.status = status;
 
@@ -49,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate budget summary
-    const summary = costItems.reduce((acc: { totalEstimated: number; totalCommitted: number; totalActual: number }, item) => {
+    const summary = costItems.reduce((acc: any, item: any) => {
       acc.totalEstimated += item.estimatedAmount;
       acc.totalCommitted += item.committedAmount;
       acc.totalActual += item.actualAmount;

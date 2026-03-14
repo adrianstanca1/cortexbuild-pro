@@ -1,12 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
-// Cache duration in seconds (5 minutes)
-const CACHE_DURATION = 300;
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -18,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch comprehensive platform statistics with optimized queries
+    // Fetch comprehensive platform statistics
     const [users, organizations, projects, tasks, documents, rfis, submittals, changeOrders, safetyIncidents, dailyReports, activities] = await Promise.all([
       prisma.user.count(),
       prisma.organization.count(),
@@ -65,27 +58,19 @@ export async function GET() {
       where: { lastLogin: { gte: sevenDaysAgo } }
     });
 
-    // Organizations with user counts - add pagination for large datasets
+    // Organizations with user counts
     const orgStats = await prisma.organization.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
+      include: {
         _count: {
           select: {
             users: true,
             projects: true
           }
         }
-      },
-      take: 100, // Limit to 100 organizations for performance
-      orderBy: { createdAt: 'desc' }
+      }
     });
 
-    const totalOrganizations = Number(organizations);
-    const hasMoreOrganizations = totalOrganizations > 100;
-
-    // Storage estimates (document count as proxy) - batch counts
+    // Storage estimates (document count as proxy)
     const [dailyPhotos, safetyPhotos, rfiAttachments, submittalAttachments] = await Promise.all([
       prisma.dailyReportPhoto.count(),
       prisma.safetyIncidentPhoto.count(),
@@ -125,20 +110,10 @@ export async function GET() {
         userCount: Number(o._count.users),
         projectCount: Number(o._count.projects)
       })),
-      organizationsPagination: {
-        showing: orgStats.length,
-        total: totalOrganizations,
-        hasMore: hasMoreOrganizations
-      },
       storage: storageStats
     };
 
-    // Add cache headers for 5 minutes
-    return NextResponse.json(response, {
-      headers: {
-        'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`
-      }
-    });
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Error fetching admin stats:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

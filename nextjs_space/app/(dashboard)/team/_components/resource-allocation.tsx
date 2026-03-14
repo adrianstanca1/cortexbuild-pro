@@ -1,6 +1,5 @@
 'use client';
 
-import Image from "next/image";
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -186,7 +185,7 @@ export function ResourceAllocation() {
                     {/* Avatar */}
                     <div className="flex-shrink-0">
                       {resource.avatarUrl ? (
-                        <Image
+                        <img
                           src={resource.avatarUrl}
                           alt={resource.name}
                           className="h-12 w-12 rounded-full object-cover"

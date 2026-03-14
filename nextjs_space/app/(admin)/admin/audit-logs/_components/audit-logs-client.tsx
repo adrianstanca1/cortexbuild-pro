@@ -54,8 +54,8 @@ export function AuditLogsClient() {
   const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
   const [filters, setFilters] = useState<Filters>({ actionTypes: [], entityTypes: [] });
   const [search, setSearch] = useState("");
-  const [actionFilter, setActionFilter] = useState("all");
-  const [entityFilter, setEntityFilter] = useState("all");
+  const [actionFilter, setActionFilter] = useState("");
+  const [entityFilter, setEntityFilter] = useState("");
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   const fetchLogs = useCallback(async () => {
@@ -66,8 +66,8 @@ export function AuditLogsClient() {
         limit: pagination.limit.toString()
       });
       if (search) params.append("search", search);
-      if (actionFilter && actionFilter !== "all") params.append("action", actionFilter);
-      if (entityFilter && entityFilter !== "all") params.append("entityType", entityFilter);
+      if (actionFilter) params.append("action", actionFilter);
+      if (entityFilter) params.append("entityType", entityFilter);
 
       const res = await fetch(`/api/admin/audit-logs?${params}`);
       if (res.ok) {
@@ -223,7 +223,7 @@ export function AuditLogsClient() {
                 <SelectValue placeholder="Filter by action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Actions</SelectItem>
+                <SelectItem value="">All Actions</SelectItem>
                 {filters.actionTypes.slice(0, 15).map(a => (
                   <SelectItem key={a.action} value={a.action}>
                     {a.action.replace(/_/g, " ")} ({a.count})
@@ -236,7 +236,7 @@ export function AuditLogsClient() {
                 <SelectValue placeholder="Filter by entity" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Entities</SelectItem>
+                <SelectItem value="">All Entities</SelectItem>
                 {filters.entityTypes.map(e => (
                   <SelectItem key={e.type} value={e.type || ""}>
                     {e.type || "Unknown"} ({e.count})
@@ -246,7 +246,7 @@ export function AuditLogsClient() {
             </Select>
             <Button type="submit">Apply Filters</Button>
             {(search || actionFilter || entityFilter) && (
-              <Button type="button" variant="ghost" onClick={() => { setSearch(""); setActionFilter("all"); setEntityFilter("all"); setPagination(prev => ({ ...prev, page: 1 })); }}>
+              <Button type="button" variant="ghost" onClick={() => { setSearch(""); setActionFilter(""); setEntityFilter(""); setPagination(prev => ({ ...prev, page: 1 })); }}>
                 <X className="h-4 w-4 mr-1" /> Clear
               </Button>
             )}

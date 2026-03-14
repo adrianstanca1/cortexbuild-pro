@@ -7,19 +7,15 @@ import { ProjectDetailClient } from "./_components/project-detail-client";
 export const dynamic = "force-dynamic";
 
 interface ProjectDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
-export default async function ProjectDetailPage({
- params }: ProjectDetailPageProps) {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-  const { id } = await params;
+export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
   const project = await prisma.project.findFirst({
-    where: { id: id ?? "", organizationId: orgId ?? undefined },
+    where: { id: params?.id ?? "", organizationId: orgId ?? undefined },
     include: {
       manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
       tasks: {
@@ -223,7 +219,7 @@ export default async function ProjectDetailPage({
       include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } }
     }),
     prisma.activityLog.findMany({
-      where: { projectId: id ?? "" },
+      where: { projectId: params?.id ?? "" },
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } }
       },
@@ -242,11 +238,11 @@ export default async function ProjectDetailPage({
 
   return (
     <ProjectDetailClient
-      project={bigintSafe(project)}
-      availableTeamMembers={bigintSafe(teamMembers ?? [])}
+      project={JSON.parse(JSON.stringify(project))}
+      availableTeamMembers={JSON.parse(JSON.stringify(teamMembers ?? []))}
       currentUserId={(session?.user as any)?.id ?? ""}
-      activities={bigintSafe(activities ?? [])}
-      certifications={bigintSafe(certifications ?? [])}
+      activities={JSON.parse(JSON.stringify(activities ?? []))}
+      certifications={JSON.parse(JSON.stringify(certifications ?? []))}
     />
   );
 }

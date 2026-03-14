@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, Loader2, Shield, Clock } from 'lucide-react';
+import { Plus, Award, AlertTriangle, Check, Calendar, User, Search, Filter, Loader2, Shield, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { format, differenceInDays } from 'date-fns';
+import { format, differenceInDays, addDays } from 'date-fns';
 import { useRealtimeSubscription } from '@/hooks/use-realtime';
 
 interface CertificationsTabProps {
@@ -334,7 +334,7 @@ export function CertificationsTab({ teamMembers, certifications: initialCerts }:
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Award className="h-5 w-5 text-primary" /> Add Certification</DialogTitle>
-            <DialogDescription>Record a worker&apos;s certification or training</DialogDescription>
+            <DialogDescription>Record a worker's certification or training</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>

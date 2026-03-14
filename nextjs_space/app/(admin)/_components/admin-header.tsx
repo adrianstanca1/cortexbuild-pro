@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, User, ChevronDown, Shield, HardHat } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface AdminHeaderProps {

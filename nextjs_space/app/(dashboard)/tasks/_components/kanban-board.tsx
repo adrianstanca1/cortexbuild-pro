@@ -11,16 +11,16 @@ type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE';
 interface Task {
   id: string;
   title: string;
-  description?: string | null;
+  description?: string;
   status: TaskStatus;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  dueDate?: string | Date | null;
+  dueDate?: string;
   assignee?: {
     id: string;
     name: string;
-    email?: string;
-    avatarUrl?: string | null;
-  } | null;
+    email: string;
+    avatarUrl?: string;
+  };
   project?: {
     id: string;
     name: string;

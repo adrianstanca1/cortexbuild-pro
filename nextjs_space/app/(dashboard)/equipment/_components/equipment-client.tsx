@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format, differenceInDays } from 'date-fns';
+import { format, isPast, differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
-  Truck, Plus, Search, Wrench, MapPin,
+  Truck, Plus, Search, Wrench, MapPin, Calendar, PoundSterling,
   CheckCircle2, XCircle, AlertTriangle, Settings, Loader2, Package,
-  ChevronRight, LayoutGrid, List, AlertCircle, Eye
+  ChevronRight, Clock, Filter, LayoutGrid, List, AlertCircle
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -304,7 +303,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No equipment found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Add your first equipment to get started</p>
-            <Button onClick={() => setShowNewModal(true)} >
+            <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
               <Plus className="h-4 w-4 mr-2" /> Add Equipment
             </Button>
           </CardContent>
@@ -366,12 +365,6 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
                   </div>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Link href={`/equipment/${item.id}`} className="flex-shrink-0">
-                      <Button size="sm" variant="outline" className="h-9">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                    </Link>
                     {item.status === 'AVAILABLE' && (
                       <Select onValueChange={(projectId) => handleStatusUpdate(item.id, 'IN_USE', projectId)}>
                         <SelectTrigger className="flex-1 h-9 text-sm">
@@ -548,7 +541,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={loading} >
+              <Button onClick={handleCreate} disabled={loading} className="bg-gradient-to-r from-primary to-purple-600">
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Add Equipment
               </Button>

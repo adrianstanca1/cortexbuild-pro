@@ -1,18 +1,10 @@
 import { getServerSession } from 'next-auth';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
 import { MeetingsClient } from './_components/meetings-client';
 
 export default async function MeetingsPage() {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-
   const session = await getServerSession(authOptions);
   if (!session?.user?.organizationId) {
     redirect('/login');
@@ -36,7 +28,7 @@ export default async function MeetingsPage() {
 
   return (
     <MeetingsClient
-      meetings={bigintSafe(meetings)}
+      meetings={JSON.parse(JSON.stringify(meetings))}
       projects={projects}
     />
   );

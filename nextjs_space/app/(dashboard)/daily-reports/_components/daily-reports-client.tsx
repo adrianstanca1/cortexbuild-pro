@@ -17,10 +17,12 @@ import {
   Wind,
   CloudLightning,
   Users,
+  Truck,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  Thermometer
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -265,7 +267,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
             <div className="text-2xl font-bold text-green-600">
               {reports.filter(r => r.reportDate && new Date(r.reportDate).toDateString() === new Date().toDateString()).length}
             </div>
-            <div className="text-sm text-gray-500">Today&apos;s Reports</div>
+            <div className="text-sm text-gray-500">Today\'s Reports</div>
           </CardContent>
         </Card>
         <Card>
