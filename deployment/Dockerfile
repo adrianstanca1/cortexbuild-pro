@@ -1,6 +1,6 @@
 # ============================================================
-# CortexBuild Pro — Production Dockerfile
-# Multi-stage build: deps → builder → runner
+# CortexBuild Pro â Production Dockerfile
+# Multi-stage build: deps â builder â runner
 # ============================================================
 
 # ------------------------------------------------------------------
@@ -20,7 +20,7 @@ COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
 
 # Install all dependencies (including devDeps needed for Prisma + build)
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit --no-fund
+    npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
 
 # ------------------------------------------------------------------
 # Stage 3: Builder
@@ -34,7 +34,7 @@ COPY nextjs_space/ .
 # Generate Prisma client before build
 RUN npx prisma generate
 
-# Build-time env (dummy values — real values injected at runtime)
+# Build-time env (dummy values â real values injected at runtime)
 ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ARG NEXTAUTH_SECRET="build-time-secret-change-at-runtime"
 ARG NEXTAUTH_URL="http://localhost:3000"
@@ -90,5 +90,5 @@ USER nextjs
 
 EXPOSE 3000
 
-# Run migrations then start — non-fatal migration, always launches
-CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning — starting anyway'; exec node server.js"]
+# Run migrations then start â non-fatal migration, always launches
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node server.js"]
