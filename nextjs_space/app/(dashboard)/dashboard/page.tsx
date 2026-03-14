@@ -171,7 +171,7 @@ export default function DashboardPage() {
     data: inspections,
     isLoading: inspectionsLoading,
     isError: inspectionsError,
-    retry: retryInspections
+    refetch: refetchInspections
   } = useAsyncData(() => 
     prisma.inspection.findMany({
       where: { project: { organizationId: orgId } },
@@ -185,7 +185,7 @@ export default function DashboardPage() {
     data: milestones,
     isLoading: milestonesLoading,
     isError: milestonesError,
-    retry: retryMilestones
+    refetch: refetchMilestones
   } = useAsyncData(() => 
     prisma.task.findMany({
       where: {
@@ -203,7 +203,7 @@ export default function DashboardPage() {
     data: changeOrders,
     isLoading: changeOrdersLoading,
     isError: changeOrdersError,
-    retry: retryChangeOrders
+    refetch: refetchChangeOrders
   } = useAsyncData(() => 
     prisma.changeOrder.findMany({
       where: { project: { organizationId: orgId } },
