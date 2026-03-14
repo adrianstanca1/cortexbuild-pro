@@ -134,6 +134,8 @@ export type Screen =
     | 'system-admin'
     | 'tm-ticket'
     | 'risk-assessments'
+    | 'blog'
+    | 'resources'
     // Module Screens
     | 'accounting'
     | 'ai-tools'

@@ -177,6 +177,25 @@ const MainSidebar: React.FC<MainSidebarProps> = ({
       )
     },
 
+
+    {
+      id: 'blog',
+      label: 'Blog',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 12m-6 4h.01M6 12h.01M9 12h.01"/>
+        </svg>
+      ),
+    },
+    {
+      id: 'resources',
+      label: 'Resources',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+      ),
+    }
     {
       id: 'business-intelligence',
       label: 'Business Intelligence',
