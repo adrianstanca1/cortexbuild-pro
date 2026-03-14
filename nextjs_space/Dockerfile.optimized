@@ -1,5 +1,5 @@
 # ============================================
-# CortexBuild Pro - Production Dockerfile
+# CortexBuild Pro - Optimized Production Dockerfile
 # ============================================
 
 # ------------------------------------------------------------------
@@ -10,25 +10,30 @@ RUN apk add --no-cache libc6-compat openssl
 
 # ------------------------------------------------------------------
 # Stage 2: Dependencies
+# - Install only production dependencies
+# - Use cache mount for npm
 # ------------------------------------------------------------------
 FROM base AS deps
 WORKDIR /app
 
 # Copy package files first for better layer caching
-COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
+COPY package.json package-lock.json* ./
 
-# Install dependencies with cache mount for faster rebuilds
+# Install dependencies with cache mount
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline --no-audit --no-fund
 
 # ------------------------------------------------------------------
 # Stage 3: Builder
+# - Build the application
+# - Generate Prisma client
 # ------------------------------------------------------------------
 FROM base AS builder
 WORKDIR /app
 
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY nextjs_space/ .
+COPY . .
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -37,9 +42,8 @@ RUN npx prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_OUTPUT_MODE=standalone
-ENV PRISMA_SKIP_INIT=true
 
-# Dummy env vars for build (replaced at runtime)
+# Dummy build args (replaced at runtime)
 ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 ARG NEXTAUTH_SECRET="build-time-secret"
 ARG NEXTAUTH_URL="http://localhost:3000"
@@ -53,8 +57,9 @@ RUN npm run build
 
 # ------------------------------------------------------------------
 # Stage 4: Production Runner
+# - Minimal image with only runtime necessities
 # ------------------------------------------------------------------
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -69,7 +74,7 @@ RUN apk add --no-cache openssl
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy only necessary files
+# Copy only necessary files from builder
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static

@@ -1,0 +1,30 @@
+# ============================================
+# CortexBuild Pro - Optimized Docker Compose for Build
+# ============================================
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.optimized
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache-new,mode=max
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    image: cortexbuild-pro:optimized
+    container_name: cortexbuild-app-optimized
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+    networks:
+      - cortexbuild-network
+
+networks:
+  cortexbuild-network:
+    driver: bridge

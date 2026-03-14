@@ -1,0 +1,63 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "adrianstanca1"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    # Ignore major version updates for critical packages (manual review required)
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for npm in nextjs_space
+  - package-ecosystem: "npm"
+    directory: "/nextjs_space"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "adrianstanca1"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/deployment"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    reviewers:
+      - "adrianstanca1"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    reviewers:
+      - "adrianstanca1"
+    labels:
+      - "dependencies"
+      - "github-actions"

@@ -1,0 +1,109 @@
+# Alertmanager Configuration for CortexBuild Pro
+# Routes alerts to appropriate notification channels
+
+global:
+  # SMTP settings for email notifications
+  smtp_smarthost: 'smtp.sendgrid.net:587'
+  smtp_from: 'alerts@cortexbuildpro.com'
+  smtp_auth_username: 'apikey'
+  smtp_auth_password: '${SENDGRID_API_KEY}'
+  
+  # Slack webhook (optional)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  
+  # PagerDuty integration (optional)
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Templates for alert notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route alerts to different receivers based on severity and type
+route:
+  group_by: ['alertname', 'severity', 'job']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default'
+  
+  # Sub-routes for different severity levels
+  routes:
+    # Critical alerts go to PagerDuty and email immediately
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      repeat_interval: 1h
+      continue: true
+    
+    # Database alerts
+    - match:
+        job: postgres
+      receiver: 'database-team'
+      group_by: ['alertname', 'severity']
+    
+    # Application alerts
+    - match:
+        job: cortexbuild-app
+      receiver: 'app-team'
+      group_by: ['alertname', 'severity']
+
+# Receivers define notification channels
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'devops@cortexbuildpro.com'
+        subject: 'CortexBuild Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Time: {{ .StartsAt }}
+          {{ end }}
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@cortexbuildpro.com,devops@cortexbuildpro.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          CRITICAL ALERT
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Severity: {{ .Labels.severity }}
+          Time: {{ .StartsAt }}
+          
+          Runbook: {{ .Annotations.runbook_url }}
+          {{ end }}
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: '🚨 Critical Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'database-team'
+    email_configs:
+      - to: 'database-team@cortexbuildpro.com'
+        subject: 'Database Alert: {{ .GroupLabels.alertname }}'
+
+  - name: 'app-team'
+    email_configs:
+      - to: 'app-team@cortexbuildpro.com'
+        subject: 'App Alert: {{ .GroupLabels.alertname }}'
+
+# Inhibit rules to prevent alert spam
+inhibit_rules:
+  # If a critical alert is firing, don't send warnings for the same instance
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']

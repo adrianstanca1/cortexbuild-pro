@@ -1,33 +1,51 @@
 # ============================================
-# CortexBuild Pro - Production Dockerfile
+# CortexBuild Pro - Highly Optimized Production Dockerfile
 # ============================================
 
 # ------------------------------------------------------------------
 # Stage 1: Base
+# - Minimal Alpine image with required system packages
 # ------------------------------------------------------------------
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat openssl
 
 # ------------------------------------------------------------------
-# Stage 2: Dependencies
+# Stage 2: Dependencies (Production only)
+# - Install only production dependencies
+# - Use cache mount for npm to speed up rebuilds
 # ------------------------------------------------------------------
 FROM base AS deps
 WORKDIR /app
 
-# Copy package files first for better layer caching
+# Copy package files first for optimal layer caching
 COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
 
-# Install dependencies with cache mount for faster rebuilds
+# Install only production dependencies with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --no-fund --production
+
+# ------------------------------------------------------------------
+# Stage 3: Dev Dependencies (for build)
+# - Separate stage for dev dependencies
+# ------------------------------------------------------------------
+FROM base AS dev-deps
+WORKDIR /app
+
+COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
+
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline --no-audit --no-fund
 
 # ------------------------------------------------------------------
-# Stage 3: Builder
+# Stage 4: Builder
+# - Build the Next.js application
+# - Generate Prisma client
 # ------------------------------------------------------------------
 FROM base AS builder
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+# Copy all dependencies (dev + prod) for build
+COPY --from=dev-deps /app/node_modules ./node_modules
 COPY nextjs_space/ .
 
 # Generate Prisma client
@@ -52,9 +70,11 @@ ENV NEXTAUTH_URL=$NEXTAUTH_URL
 RUN npm run build
 
 # ------------------------------------------------------------------
-# Stage 4: Production Runner
+# Stage 5: Production Runner
+# - Minimal image with only runtime necessities
+# - No build tools, no dev dependencies
 # ------------------------------------------------------------------
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -65,17 +85,17 @@ ENV HOSTNAME="0.0.0.0"
 # Install only runtime dependencies
 RUN apk add --no-cache openssl
 
-# Create non-root user
+# Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy only necessary files
+# Copy only necessary files from builder
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Create uploads directory
+# Create uploads directory with proper permissions
 RUN mkdir -p uploads && chown nextjs:nodejs uploads
 
 USER nextjs
