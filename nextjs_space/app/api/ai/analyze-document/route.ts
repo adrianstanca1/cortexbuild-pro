@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
+import { ollamaClient } from '@/lib/ollamaClient';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const query = formData.get('query') as string || 'Analyze this document and provide a summary.';
+    const query = formData.get('query') as string || 'Analyse this construction document and provide a detailed summary, key risks, and action items.';
 
     if (!file) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 });
@@ -20,108 +21,59 @@ export async function POST(request: NextRequest) {
 
     const fileName = file.name.toLowerCase();
     const fileType = file.type;
-    let messages: any[] = [];
+    let textContent = '';
 
-    if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      // Handle PDF - send base64 to LLM
-      const base64Buffer = await file.arrayBuffer();
-      const base64String = Buffer.from(base64Buffer).toString('base64');
-      messages = [{
-        role: 'user',
-        content: [
-          { type: 'file', file: { filename: file.name, file_data: `data:application/pdf;base64,${base64String}` } },
-          { type: 'text', text: `${query}\n\nPlease analyze this construction document thoroughly.` }
-        ]
-      }];
+    // Extract text content from supported formats
+    if (fileType === 'text/plain' || fileName.endsWith('.txt')) {
+      textContent = await file.text();
+    } else if (fileType === 'text/csv' || fileName.endsWith('.csv')) {
+      textContent = await file.text();
+    } else if (fileName.endsWith('.md')) {
+      textContent = await file.text();
+    } else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
+      // For PDFs: Ollama (non-multimodal models) needs text extraction
+      // We pass the raw text — for production use a PDF parser like pdf-parse
+      textContent = `[PDF file: ${file.name}]\nNote: Direct PDF parsing requires pdf-parse. Please use a text or CSV format for best results, or upgrade to a vision-capable model.`;
     } else if (fileType.startsWith('image/')) {
-      // Handle images
-      const base64Buffer = await file.arrayBuffer();
-      const base64String = Buffer.from(base64Buffer).toString('base64');
-      messages = [{
-        role: 'user',
-        content: [
-          { type: 'text', text: `${query}\n\nAnalyze this construction-related image.` },
-          { type: 'image_url', image_url: { url: `data:${fileType};base64,${base64String}` } }
-        ]
-      }];
-    } else if (fileName.endsWith('.txt') || fileType === 'text/plain') {
-      // Handle text files
-      const textContent = await file.text();
-      messages = [{
-        role: 'user',
-        content: `${query}\n\nHere is the content from the file:\n\n${textContent}`
-      }];
-    } else if (fileName.endsWith('.csv') || fileType === 'text/csv') {
-      // Handle CSV files
-      const csvContent = await file.text();
-      messages = [{
-        role: 'user',
-        content: `${query}\n\nHere is the CSV data:\n\n${csvContent}`
-      }];
+      // Images are not supported without a multimodal model — provide guidance
+      textContent = `[Image file: ${file.name}]\nNote: Image analysis requires a vision-capable Ollama model (e.g. llava, bakllava). Currently configured model: ${process.env.OLLAMA_MODEL || 'qwen2.5:7b'}.`;
     } else {
-      return NextResponse.json({ error: 'Unsupported file type. Supported: PDF, images, TXT, CSV' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Unsupported file type. Supported: TXT, CSV, MD, PDF (text-only), images (vision model required)' },
+        { status: 400 }
+      );
     }
 
-    // Add system context for construction domain
-    messages.unshift({
-      role: 'system',
-      content: 'You are an AI assistant specializing in construction document analysis for CortexBuildPro. Analyze documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
-    });
+    // Check Ollama availability
+    const available = await ollamaClient.isAvailable();
+    if (!available) {
+      return NextResponse.json(
+        { error: 'AI service unavailable. Ensure Ollama is running at ' + (process.env.OLLAMA_URL || 'http://host.docker.internal:11434') },
+        { status: 503 }
+      );
+    }
 
-    // MIGRATED TO OLLAMA API
-    const response = await fetch('http://localhost:11434/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-        // Note: Ollama doesn't require Authorization header for local requests
+    const messages = [
+      {
+        role: 'system' as const,
+        content: 'You are an AI assistant specialising in construction document analysis for CortexBuildPro. Analyse documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
       },
-      body: JSON.stringify({
-        model: 'nemotron-3-super:cloud',  // Changed from 'gpt-4.1-mini'
-        messages,
-        stream: true,
-        options: {
-          num_predict: 3000,  // Ollama equivalent of max_tokens
-          temperature: 0.7    // Add temperature for better control
-        }
-      })
-    });
+      {
+        role: 'user' as const,
+        content: `${query}\n\nDocument: ${file.name}\n\n---\n${textContent}\n---`
+      }
+    ];
 
-    if (!response.ok) {
-      throw new Error(`Ollama API error: ${response.status}`);
-    }
-
+    // Stream the analysis via ollamaClient
     const stream = new ReadableStream({
       async start(controller) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
         const encoder = new TextEncoder();
         try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            
-            // OLLAMA STREAMING FORMAT: Parse JSON lines to extract content
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
-            for (const line of lines) {
-              try {
-                const parsed = JSON.parse(line);
-                if (parsed.message?.content) {
-                  // Send just the content part, same as original Abacus AI behavior
-                  controller.enqueue(encoder.encode(parsed.message.content));
-                }
-                // Handle done signal if needed
-                if (parsed.done) {
-                  // Optional: could send a done signal or close gracefully
-                }
-              } catch (e) {
-                // Skip invalid JSON lines
-                console.warn('Failed to parse Ollama response line:', line);
-              }
-            }
+          for await (const chunk of ollamaClient.streamChat(messages)) {
+            controller.enqueue(encoder.encode(chunk));
           }
         } catch (error) {
-          console.error('Stream error:', error);
+          console.error('Document analysis stream error:', error);
           controller.error(error);
         } finally {
           controller.close();
@@ -133,11 +85,14 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
+        'Connection': 'keep-alive',
+        'X-AI-Provider': 'ollama',
+        'X-AI-Model': process.env.OLLAMA_MODEL || 'qwen2.5:7b',
+        'X-Document-Name': file.name,
       }
     });
   } catch (error) {
     console.error('Document analysis error:', error);
-    return NextResponse.json({ error: 'Failed to analyze document' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to analyse document' }, { status: 500 });
   }
 }

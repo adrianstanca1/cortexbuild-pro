@@ -1,6 +1,7 @@
-# ============================================
-# CortexBuild Pro - Production Dockerfile
-# ============================================
+# ============================================================
+# CortexBuild Pro — Production Dockerfile
+# Multi-stage build: deps → builder → runner
+# ============================================================
 
 # ------------------------------------------------------------------
 # Stage 1: Base
@@ -14,10 +15,10 @@ RUN apk add --no-cache libc6-compat openssl
 FROM base AS deps
 WORKDIR /app
 
-# Copy package files first for better layer caching
+# Copy package files for better layer caching
 COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
 
-# Install dependencies with cache mount for faster rebuilds
+# Install all dependencies (including devDeps needed for Prisma + build)
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline --no-audit --no-fund
 
@@ -30,25 +31,27 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ .
 
-# Generate Prisma client
+# Generate Prisma client before build
 RUN npx prisma generate
 
-# Build configuration
+# Build-time env (dummy values — real values injected at runtime)
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ARG NEXTAUTH_SECRET="build-time-secret-change-at-runtime"
+ARG NEXTAUTH_URL="http://localhost:3000"
+ARG OLLAMA_URL="http://host.docker.internal:11434"
+ARG OLLAMA_MODEL="qwen2.5:7b"
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV OLLAMA_URL=$OLLAMA_URL
+ENV OLLAMA_MODEL=$OLLAMA_MODEL
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_OUTPUT_MODE=standalone
 ENV PRISMA_SKIP_INIT=true
 
-# Dummy env vars for build (replaced at runtime)
-ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-ARG NEXTAUTH_SECRET="build-time-secret"
-ARG NEXTAUTH_URL="http://localhost:3000"
-
-ENV DATABASE_URL=$DATABASE_URL
-ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-ENV NEXTAUTH_URL=$NEXTAUTH_URL
-
-# Build application
 RUN npm run build
 
 # ------------------------------------------------------------------
@@ -62,24 +65,30 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Install only runtime dependencies
-RUN apk add --no-cache openssl
+# Runtime: openssl for Prisma + wget for healthcheck
+RUN apk add --no-cache openssl wget
 
-# Create non-root user
+# Non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy only necessary files
+# Copy built artefacts
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Create uploads directory
+# Copy Prisma schema + migrations so we can run migrate deploy at startup
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
+# Persist uploaded files
 RUN mkdir -p uploads && chown nextjs:nodejs uploads
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+# Run migrations then start — non-fatal migration, always launches
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning — starting anyway'; exec node server.js"]
