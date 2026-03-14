@@ -230,6 +230,7 @@ jobs:
           NEXTAUTH_SECRET: build-time-placeholder
           NEXTAUTH_URL: http://localhost:3000
           SKIP_ENV_VALIDATION: "1"
+          NEXT_TELEMETRY_DISABLED: "1"
 
   # ============================================
   # STAGE 4: Docker Build & Push to GHCR
