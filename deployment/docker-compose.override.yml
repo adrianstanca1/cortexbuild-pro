@@ -1,0 +1,11 @@
+services:
+  nginx:
+    entrypoint: ["/bin/sh", "/nginx-direct-start.sh"]
+    volumes:
+      - ./nginx-http-only.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-ssl.conf:/etc/nginx/nginx-ssl.conf:ro
+      - ./nginx-direct-start.sh:/nginx-direct-start.sh:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:rw
+    networks:
+      - cortexbuild-network

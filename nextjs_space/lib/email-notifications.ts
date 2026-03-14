@@ -34,8 +34,8 @@ async function sendNotificationEmail(params: {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_APIKEY,
-        app_id: process.env.WEB_APPID,
+        deployment_token: process.env.ABACUSAI_API_KEY,
+        app_id: process.env.WEB_APP_ID,
         notification_id: params.notificationId,
         subject: params.subject,
         body: params.htmlBody,
