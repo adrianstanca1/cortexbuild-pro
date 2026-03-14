@@ -6,7 +6,7 @@
 # Stage 1: Base
 # - Minimal Alpine image with required system packages
 # ------------------------------------------------------------------
-FROM node:20-alpine AS base
+FROM node:25-alpine AS base
 RUN apk add --no-cache libc6-compat openssl
 
 # ------------------------------------------------------------------
@@ -74,7 +74,7 @@ RUN npm run build
 # - Minimal image with only runtime necessities
 # - No build tools, no dev dependencies
 # ------------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:25-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
