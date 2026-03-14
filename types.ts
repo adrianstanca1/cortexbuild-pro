@@ -133,6 +133,7 @@ export type Screen =
     | 'business-intelligence'
     | 'system-admin'
     | 'tm-ticket'
+    | 'risk-assessments'
     // Module Screens
     | 'accounting'
     | 'ai-tools'
