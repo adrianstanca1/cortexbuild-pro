@@ -55,7 +55,7 @@ class OllamaClient {
 
   constructor(baseUrl?: string, defaultModel?: string) {
     this.baseUrl = baseUrl || process.env.OLLAMA_URL || "http://host.docker.internal:11434";
-    this.defaultModel = defaultModel || process.env.OLLAMA_MODEL || "glm-5:cloud";
+    this.defaultModel = defaultModel || process.env.OLLAMA_MODEL || "qwen2.5:7b";
   }
 
   /**
