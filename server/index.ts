@@ -47,6 +47,7 @@ import { rateLimit } from './middleware/rateLimitMiddleware.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { responseCacheMiddleware, connectionHealthMiddleware } from './middleware/performanceMiddleware.js';
 import { metricsMiddleware, getMetrics as getRequestMetrics } from './middleware/metricsMiddleware.js';
+import { getPrometheusMetrics, prometheusMiddleware, register } from './middleware/prometheusMetrics.js';
 
 // Services
 import { TenantService } from './services/tenantService.js';
@@ -358,6 +359,19 @@ const metricsPaths = ['/metrics', '/api/metrics', '/api/v1/metrics', '/v1/metric
 
 app.get(healthPaths, getHealth);
 app.get(metricsPaths, getMetrics);
+
+// Prometheus metrics endpoint
+app.get('/prometheus/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', register.contentType);
+        res.end(await getPrometheusMetrics());
+    } catch (ex) {
+        res.status(500).end(ex);
+    }
+});
+
+// Use prometheus middleware
+app.use(prometheusMiddleware);
 
 // Unified Socket.io Handler mapping
 app.all(['/live*', '/api/live*'], (req, res) => {
