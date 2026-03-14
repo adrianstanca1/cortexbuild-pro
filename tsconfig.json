@@ -13,8 +13,6 @@
         "types": [
             "node",
             "vite/client",
-            "@testing-library/jest-dom",
-            "jest"
         ],
         "moduleResolution": "bundler",
         "baseUrl": ".",

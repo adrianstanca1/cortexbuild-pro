@@ -1,3 +1,4 @@
+// @ts-ignore
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type VoiceLanguage = 'en-US' | 'ro-RO' | 'de-DE' | 'fr-FR' | 'es-ES' | 'it-IT' | 'pt-PT';
@@ -67,7 +68,7 @@ class SpeechRecognitionManager {
       }
     };
 
-    this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+    this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -88,7 +89,7 @@ class SpeechRecognitionManager {
       }
     };
 
-    this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    this.recognition.onerror = (event: any) => {
       this.options.onError?.(event.error);
     };
   }

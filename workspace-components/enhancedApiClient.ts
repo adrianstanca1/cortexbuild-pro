@@ -88,7 +88,7 @@ class EnhancedApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as AxiosRequestConfig &amp; { _retry?: boolean };
+        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
         
         if (!originalRequest) {
           return Promise.reject(error);
