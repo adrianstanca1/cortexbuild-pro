@@ -17,7 +17,7 @@ This guide provides step-by-step instructions for deploying CortexBuild Pro on a
 
 ```bash
 cd /var/www
-git clone https://github.com/your-repo/cortexbuild-pro.git
+git clone https://github.com/adrianstanca1/cortexbuild-pro.git
 cd cortexbuild-pro
 ```
 
@@ -45,7 +45,7 @@ Run the SSL setup script:
 
 ```bash
 chmod +x deployment/setup-ssl.sh
-./deployment/setup-ssl.sh yourdomain.com admin@yourdomain.com
+./deployment/setup-ssl.sh cortexbuildpro.com admin@cortexbuildpro.com
 ```
 
 ### 4. Start the Services

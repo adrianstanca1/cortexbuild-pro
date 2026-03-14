@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ Cortexbuildpro, main, master ]
+    branches: [ Cortexbuildpro, main, master, dashboard-enhancements-fix ]
   pull_request:
-    branches: [ Cortexbuildpro, main, master ]
+    branches: [ Cortexbuildpro, main, master, dashboard-enhancements-fix ]
 
 jobs:
   test:
