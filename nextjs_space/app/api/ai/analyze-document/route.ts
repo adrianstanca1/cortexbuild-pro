@@ -68,22 +68,26 @@ export async function POST(request: NextRequest) {
       content: 'You are an AI assistant specializing in construction document analysis for CortexBuildPro. Analyze documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
     });
 
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+    // MIGRATED TO OLLAMA API
+    const response = await fetch('http://localhost:11434/api/chat', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
+        'Content-Type': 'application/json'
+        // Note: Ollama doesn't require Authorization header for local requests
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-mini',
+        model: 'nemotron-3-super:cloud',  // Changed from 'gpt-4.1-mini'
         messages,
         stream: true,
-        max_tokens: 3000
+        options: {
+          num_predict: 3000,  // Ollama equivalent of max_tokens
+          temperature: 0.7    // Add temperature for better control
+        }
       })
     });
 
     if (!response.ok) {
-      throw new Error(`LLM API error: ${response.status}`);
+      throw new Error(`Ollama API error: ${response.status}`);
     }
 
     const stream = new ReadableStream({
@@ -96,7 +100,25 @@ export async function POST(request: NextRequest) {
             const { done, value } = await reader!.read();
             if (done) break;
             const chunk = decoder.decode(value);
-            controller.enqueue(encoder.encode(chunk));
+            
+            // OLLAMA STREAMING FORMAT: Parse JSON lines to extract content
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            for (const line of lines) {
+              try {
+                const parsed = JSON.parse(line);
+                if (parsed.message?.content) {
+                  // Send just the content part, same as original Abacus AI behavior
+                  controller.enqueue(encoder.encode(parsed.message.content));
+                }
+                // Handle done signal if needed
+                if (parsed.done) {
+                  // Optional: could send a done signal or close gracefully
+                }
+              } catch (e) {
+                // Skip invalid JSON lines
+                console.warn('Failed to parse Ollama response line:', line);
+              }
+            }
           }
         } catch (error) {
           console.error('Stream error:', error);
