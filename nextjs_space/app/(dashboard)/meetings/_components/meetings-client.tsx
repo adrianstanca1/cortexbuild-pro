@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format, isToday, isPast, isThisWeek } from 'date-fns';
+import { format, isToday, isTomorrow, isPast, isThisWeek } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useRealtimeSubscription } from '@/components/realtime-provider';
 import {
   FileText, Plus, Search, Calendar, Clock, Users, CheckSquare,
-  MapPin, Loader2, ChevronRight, CalendarDays
+  MapPin, Loader2, Video, ChevronRight, Filter, LayoutGrid, List,
+  AlertCircle, CalendarDays
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -141,6 +142,13 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
   const upcomingMeetings = filteredMeetings.filter(m => !isPast(new Date(m.meetingDate)));
   const pastMeetings = filteredMeetings.filter(m => isPast(new Date(m.meetingDate)));
 
+  const getMeetingDateLabel = (date: string) => {
+    const d = new Date(date);
+    if (isToday(d)) return 'Today';
+    if (isTomorrow(d)) return 'Tomorrow';
+    return format(d, 'EEEE, MMM d');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       {/* Page Header */}
@@ -270,7 +278,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No meetings found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Record your first meeting to get started</p>
-            <Button onClick={() => setShowNewModal(true)} >
+            <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
               <Plus className="h-4 w-4 mr-2" /> Record Meeting
             </Button>
           </CardContent>
@@ -496,7 +504,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={loading} >
+              <Button onClick={handleCreate} disabled={loading} className="bg-gradient-to-r from-primary to-purple-600">
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Minutes
               </Button>

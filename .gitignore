@@ -1,84 +1,34 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Testing
-coverage/
-
-# Production
-dist/
-build/
-
-# Environment variables (all .env files with real credentials)
+# Environment variables (contains secrets - never commit)
 .env
 .env.local
-.env.development.local
-.env.test
-.env.test.local
-.env.production.local
-.env.production
+.env.*.local
 deployment/.env
-nextjs_space/.env
 
-# Production configuration files with credentials
-ecosystem.config.production.js
-server/ecosystem.config.production.js
-server/.env.hostinger
-server/.env.test
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-server.log
-*.log
-
-# Editor directories and files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+
+# OS
 .DS_Store
+Thumbs.db
 
-# Database files
-*.db
-*.db-shm
-*.db-wal
-*.sqlite
-*.sqlite3
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Temporary files
-*.tmp
-*.temp
-.cache/
+# Dependencies
+node_modules/
 
-# Firebase
-firebase-debug.log
-.firebase/
-
-# Vercel
-.vercel
-
-# Next.js
+# Build outputs
 .next/
 out/
+dist/
+build/
 
-# Backup files
-*.backup
-*.bak
-*.bak2
-*.bak3
-*.bak4
-
-.next
-test-results/
-playwright-report/
-
-# Agent and editor-specific files
-.agent/
-.claude/
-
-# Test output files
-test_output.txt
+# Debug
+npm-debug.log*
+.pnpm-debug.log*

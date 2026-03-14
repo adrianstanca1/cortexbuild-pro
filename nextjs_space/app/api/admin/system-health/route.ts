@@ -1,19 +1,11 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { getClientCount } from "@/lib/realtime-clients";
+import { getClientCount, getOrganizationClientCount } from "@/lib/realtime-clients";
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
@@ -95,7 +87,7 @@ export async function GET(_request: NextRequest) {
       ORDER BY date ASC
     `;
 
-    return NextResponse.json(bigintSafe({
+    return NextResponse.json({
       status,
       healthScore,
       timestamp: now.toISOString(),
@@ -138,7 +130,7 @@ export async function GET(_request: NextRequest) {
         status: "connected",
         responseTime: "<50ms"
       }
-    }));
+    });
   } catch (error) {
     console.error("Error fetching system health:", error);
     return NextResponse.json(

@@ -1,284 +1,164 @@
-# Deployment Guide
-
-This document describes how to deploy the application to production (Vercel) and VPS environments.
+# CortexBuild Pro - CloudPanel Deployment Guide
 
 ## Overview
 
-The application can be deployed to two environments:
-1. **Production (Vercel)** - Frontend and serverless functions
-2. **VPS** - Full-stack deployment with frontend and backend
+This guide provides step-by-step instructions for deploying CortexBuild Pro on a VPS using CloudPanel. The deployment includes a PostgreSQL database, Next.js frontend, and Nginx reverse proxy with SSL.
 
 ## Prerequisites
 
-### Required Secrets
+1. A VPS with CloudPanel installed
+2. Domain name pointing to your VPS IP
+3. SSH access to the VPS
+4. Docker and Docker Compose installed
 
-Configure the following secrets in GitHub repository settings:
+## Deployment Steps
 
-#### For Production (Vercel)
-- `VERCEL_TOKEN` - Vercel authentication token
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_ANON_KEY` - Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
-- `DATABASE_URL` - PostgreSQL connection string
-
-#### For VPS
-- `VPS_SSH_KEY` - SSH private key for VPS access
-
-### Environment Variables
-
-The following environment variables are configured during deployment:
-- `VITE_API_URL` - API endpoint URL
-- `VITE_WS_URL` - WebSocket endpoint URL
-- `NODE_ENV` - Environment (production)
-
-## Deployment Methods
-
-### 1. Automated Deployment (Recommended)
-
-#### Deploy to All Environments
-Use the "Deploy to All Environments" workflow for complete deployment:
+### 1. Clone the Repository
 
 ```bash
-# Via GitHub Actions UI:
-# 1. Go to Actions tab
-# 2. Select "Deploy to All Environments"
-# 3. Click "Run workflow"
-# 4. Select which environments to deploy (Production and/or VPS)
-# 5. Click "Run workflow"
+cd /var/www
+git clone https://github.com/your-repo/cortexbuild-pro.git
+cd cortexbuild-pro
 ```
 
-#### Deploy to Production Only
-The production deployment is triggered automatically on push to `main` branch, or manually:
+### 2. Configure Environment Variables
+
+Copy the example environment file and update the values:
 
 ```bash
-# Automatic: Push to main branch
-git push origin main
-
-# Manual: Via GitHub Actions UI
-# 1. Go to Actions tab
-# 2. Select "Deploy to Production (Vercel)"
-# 3. Click "Run workflow"
+cp .env.example .env
+nano .env
 ```
 
-#### Deploy to VPS Only
-The VPS deployment is triggered automatically on push to `main` branch, or manually:
+Update the following variables:
+
+- `POSTGRES_USER`: PostgreSQL username
+- `POSTGRES_PASSWORD`: PostgreSQL password
+- `POSTGRES_DB`: PostgreSQL database name
+- `NEXTAUTH_URL`: Your domain URL
+- `NEXTAUTH_SECRET`: Generate a secure secret
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET_NAME`, `AWS_REGION`: AWS S3 configuration (optional)
+
+### 3. Set Up SSL
+
+Run the SSL setup script:
 
 ```bash
-# Manual: Via GitHub Actions UI
-# 1. Go to Actions tab
-# 2. Select "Deploy to VPS"
-# 3. Click "Run workflow"
+chmod +x deployment/setup-ssl.sh
+./deployment/setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
 
-### 2. Manual Deployment
-
-#### Build Application Locally
+### 4. Start the Services
 
 ```bash
-# Install dependencies
-npm ci
-cd server && npm ci && cd ..
-
-# Build frontend and backend
-npm run build:prod
+docker-compose -f deployment/docker-compose.yml up -d
 ```
 
-#### Deploy to Production (Vercel)
+### 5. Run Database Migrations and Seeding
 
 ```bash
-# Install Vercel CLI
-npm install --global vercel
-
-# Deploy to production
-npm run vercel:prod
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma db seed"
 ```
 
-#### Deploy to VPS
+### 6. Configure CloudPanel
+
+1. Log in to CloudPanel
+2. Add a new site with your domain
+3. Configure the web root to point to the appropriate directory
+4. Set up the reverse proxy to forward requests to the Docker container
+
+### 7. Set Up Automated Backups
+
+Configure a cron job for daily backups:
 
 ```bash
-# Deploy using rsync (requires SSH access)
-VPS_HOST=72.62.132.43 npm run deploy:vps
-
-# Dry-run with strict local artifact checks (default behavior)
-VPS_HOST=72.62.132.43 npm run deploy:vps -- --dry-run --skip-build
-
-# Dry-run and bypass missing local artifacts intentionally
-VPS_HOST=72.62.132.43 npm run deploy:vps -- --dry-run --skip-build --allow-missing-artifacts
-
-# Run SSH/PM2 preflight checks only (no upload/restart)
-VPS_HOST=72.62.132.43 npm run deploy:vps -- --preflight-only --skip-build
-
-# Sync backend environment before PM2 restart
-VPS_HOST=72.62.132.43 BACKEND_ENV_FILE=server/.env.production npm run deploy:vps -- --skip-build
-
-# Optional: customize remote backend env destination
-VPS_HOST=72.62.132.43 BACKEND_ENV_FILE=server/.env.production VPS_BACKEND_ENV_PATH=/home/deploy/apps/cortexbuild/server/.env npm run deploy:vps -- --skip-build
+crontab -e
 ```
 
-## Deployment Workflows
-
-### Build Process
-
-All deployments follow this build process:
-
-1. **Install Dependencies**
-   - Frontend dependencies (`npm ci`)
-   - Backend dependencies (`cd server && npm ci`)
-
-2. **Lint Code**
-   - ESLint checks for code quality
-
-3. **Build Frontend**
-   - Vite build for production
-   - Environment variables injected
-   - Output: `dist/` directory
-
-4. **Build Backend**
-   - TypeScript compilation
-   - Output: `server/dist/` directory
-
-### Production (Vercel) Deployment
-
-1. Build application artifacts
-2. Pull Vercel environment configuration
-3. Build Vercel project
-4. Deploy to Vercel production
-
-### VPS Deployment
-
-1. Build application artifacts
-2. Setup SSH connection
-3. Deploy frontend via rsync
-   - Target: `/home/deploy/apps/cortexbuild/frontend/dist/`
-4. Deploy backend via rsync
-   - Target: `/home/deploy/apps/cortexbuild/server/dist/`
-5. Restart PM2 process
-   - Process name: `cortexbuild-backend`
-6. Verify deployment
-
-## Verification
-
-After deployment, verify the following:
-
-### Production (Vercel)
-- [ ] Frontend loads successfully
-- [ ] API endpoints respond
-- [ ] WebSocket connections work
-- [ ] Database connections succeed
-- [ ] Supabase integration works
-
-### VPS
-- [ ] Frontend files deployed correctly
-- [ ] Backend files deployed correctly
-- [ ] PM2 process is running
-- [ ] API endpoints respond
-- [ ] Service health check passes
-
-## Rollback
-
-### Production (Vercel)
-Use Vercel dashboard to rollback to previous deployment:
-1. Go to Vercel dashboard
-2. Select the project
-3. Navigate to Deployments
-4. Select previous successful deployment
-5. Click "Promote to Production"
-
-### VPS
-1. SSH into VPS
-2. Restore from backup or previous deployment
-3. Restart PM2 process
+Add the following line to run backups daily at 2 AM:
 
 ```bash
-ssh deploy@72.62.132.43
-cd /home/deploy/apps/cortexbuild
-# Restore from backup
-pm2 restart cortexbuild-backend
+0 2 * * * /var/www/cortexbuild-pro/deployment/backup.sh
 ```
 
-## Monitoring
+## Database Management
 
-### Check Deployment Status
+### Migrations
+
+To apply database migrations:
 
 ```bash
-# Check GitHub Actions workflows
-# Go to Actions tab in GitHub repository
-
-# Check VPS PM2 status
-ssh deploy@72.62.132.43 'pm2 status'
-
-# Check VPS application logs
-ssh deploy@72.62.132.43 'pm2 logs cortexbuild-backend --lines 50'
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma migrate deploy"
 ```
 
-### Health Checks
+### Seeding
+
+To seed the database with initial data:
 
 ```bash
-# Production API health
-curl https://api.cortexbuildpro.com/api/health
-
-# VPS health (if applicable)
-npm run db:health
+docker-compose -f deployment/docker-compose.yml exec app sh -c "cd /app && yarn prisma db seed"
 ```
+
+### Backups
+
+To manually create a backup:
+
+```bash
+./deployment/backup.sh
+```
+
+### Restore
+
+To restore from a backup:
+
+```bash
+./deployment/restore.sh backups/backup_file.sql.gz
+```
+
+## Monitoring and Maintenance
+
+### View Logs
+
+```bash
+docker-compose -f deployment/docker-compose.yml logs -f
+```
+
+### Restart Services
+
+```bash
+docker-compose -f deployment/docker-compose.yml restart
+```
+
+### Update the Application
+
+```bash
+git pull
+./deployment/deploy.sh
+```
+
+## Security Checklist
+
+1. **Firewall**: Ensure only necessary ports (80, 443, SSH) are open
+2. **SSH**: Use key-based authentication and disable password login
+3. **Database**: Use strong credentials and limit access
+4. **Secrets**: Store sensitive information in environment variables
+5. **Backups**: Regularly test backup and restore procedures
 
 ## Troubleshooting
 
-### Build Failures
-
-If the build fails:
-1. Check GitHub Actions logs for error details
-2. Verify all dependencies are correctly installed
-3. Check TypeScript compilation errors
-4. Ensure environment variables are set correctly
-
-### Deployment Failures
-
-#### Production (Vercel)
-1. Verify `VERCEL_TOKEN` is valid
-2. Check Vercel dashboard for deployment logs
-3. Ensure Vercel project is correctly configured
-
-#### VPS
-1. Verify SSH key is valid and has correct permissions
-2. Check VPS disk space: `ssh deploy@72.62.132.43 'df -h'`
-3. Verify PM2 is installed and running
-4. Check application logs: `ssh deploy@72.62.132.43 'pm2 logs'`
-
 ### Common Issues
 
-**TypeScript Compilation Errors**
-- Run `npm run build:backend` locally to see errors
-- Fix type errors in source code
-- Commit and push changes
+1. **Database Connection Errors**: Verify PostgreSQL credentials and container connectivity
+2. **SSL Issues**: Ensure domain DNS is properly configured and Let's Encrypt can verify ownership
+3. **Permission Issues**: Check file permissions for the web root and Docker volumes
 
-**Permission Denied (VPS)**
-- Ensure SSH key has correct permissions (600)
-- Verify user has write access to deployment directories
-- Check file ownership on VPS
+### Debugging
 
-**PM2 Process Not Starting**
-- Check PM2 logs: `ssh deploy@72.62.132.43 'pm2 logs cortexbuild-backend --err'`
-- Verify environment variables are set
-- Check Node.js version compatibility
-
-## Security Notes
-
-1. **Never commit secrets** to the repository
-2. Use GitHub Secrets for sensitive data
-3. Rotate SSH keys regularly
-4. Monitor deployment logs for suspicious activity
-5. Keep dependencies updated
+- Check container logs: `docker-compose -f deployment/docker-compose.yml logs`
+- Test database connection: `docker-compose -f deployment/docker-compose.yml exec postgres psql -U username -d database`
+- Verify Nginx configuration: `docker-compose -f deployment/docker-compose.yml exec nginx nginx -t`
 
 ## Support
 
-For deployment issues:
-1. Check GitHub Actions logs
-2. Review this deployment guide
-3. Contact repository maintainers
-4. Check application-specific documentation
-
-## References
-
-- [Vercel Documentation](https://vercel.com/docs)
-- [PM2 Documentation](https://pm2.keymetrics.io/docs/usage/quick-start/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+For additional support, refer to the [CortexBuild Pro Documentation](https://docs.cortexbuildpro.com) or contact <support@cortexbuildpro.com>.

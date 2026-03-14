@@ -4,8 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
+  BarChart3,
+  TrendingUp,
+  Users,
   FolderKanban,
   CheckCircle2,
+  Clock,
   AlertTriangle,
   PoundSterling
 } from 'lucide-react';
@@ -21,7 +25,8 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line
+  Line,
+  Legend
 } from 'recharts';
 
 interface ReportsClientProps {
@@ -50,6 +55,7 @@ interface ReportsClientProps {
   }[];
 }
 
+const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef'];
 const STATUS_COLORS = {
   TODO: '#9ca3af',
   IN_PROGRESS: '#3b82f6',
@@ -84,7 +90,7 @@ export function ReportsClient({
     fill: PRIORITY_COLORS[name as keyof typeof PRIORITY_COLORS]
   }));
 
-  const _projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
+  const projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
     name: name.replace('_', ' '),
     value
   }));

@@ -6,22 +6,19 @@ import { DashboardClient } from "./_components/dashboard-client";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
+
   const sevenDaysFromNow = new Date();
   sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
   const [
-    projects, 
-    tasks, 
-    teamMembers, 
+    projects,
+    tasks,
+    teamMembers,
     activities,
     rfis,
     submittals,
@@ -34,7 +31,7 @@ export default async function DashboardPage() {
     // Projects
     prisma.project.findMany({
       where: orgId ? { organizationId: orgId } : {},
-      include: { 
+      include: {
         _count: { select: { tasks: true } },
         manager: { select: { name: true } }
       },
@@ -121,70 +118,62 @@ export default async function DashboardPage() {
   // Calculate stats
   const stats = {
     totalProjects: projects?.length ?? 0,
-    activeTasks: tasks?.filter((t: { status?: string }) => t?.status !== "COMPLETE")?.length ?? 0,
+    activeTasks: tasks?.filter((t: any) => t?.status !== "COMPLETE")?.length ?? 0,
     teamMembers: teamMembers?.length ?? 0,
-    pendingItems: tasks?.filter((t: { status?: string }) => t?.status === "TODO")?.length ?? 0
+    pendingItems: tasks?.filter((t: any) => t?.status === "TODO")?.length ?? 0
   };
 
   const projectStatusCounts = {
-    PLANNING: projects?.filter((p: { status?: string }) => p?.status === "PLANNING")?.length ?? 0,
-    IN_PROGRESS: projects?.filter((p: { status?: string }) => p?.status === "IN_PROGRESS")?.length ?? 0,
-    ON_HOLD: projects?.filter((p: { status?: string }) => p?.status === "ON_HOLD")?.length ?? 0,
-    COMPLETED: projects?.filter((p: { status?: string }) => p?.status === "COMPLETED")?.length ?? 0
+    PLANNING: projects?.filter((p: any) => p?.status === "PLANNING")?.length ?? 0,
+    IN_PROGRESS: projects?.filter((p: any) => p?.status === "IN_PROGRESS")?.length ?? 0,
+    ON_HOLD: projects?.filter((p: any) => p?.status === "ON_HOLD")?.length ?? 0,
+    COMPLETED: projects?.filter((p: any) => p?.status === "COMPLETED")?.length ?? 0
   };
 
   // Construction-specific metrics
-  type RFIType = { status?: string; dueDate?: Date | string | null };
-  type SubmittalType = { status?: string };
-  type SafetyType = { severity?: string };
-  type PunchType = { status?: string; priority?: string };
-  type InspectionType = { status?: string; scheduledDate?: Date | string | null };
-  type ChangeOrderType = { status?: string; costImpact?: number | string | null };
-  type ProjectType = { budget?: number | string | null };
-
   const constructionMetrics = {
     // RFI metrics
-    openRFIs: rfis?.filter((r: RFIType) => r?.status === "OPEN" || r?.status === "DRAFT")?.length ?? 0,
-    overdueRFIs: rfis?.filter((r: RFIType) => r?.dueDate && new Date(r.dueDate) < new Date() && r.status !== "CLOSED")?.length ?? 0,
-    
+    openRFIs: rfis?.filter((r: any) => r?.status === "OPEN" || r?.status === "DRAFT")?.length ?? 0,
+    overdueRFIs: rfis?.filter((r: any) => r?.dueDate && new Date(r.dueDate) < new Date() && r.status !== "CLOSED")?.length ?? 0,
+
     // Submittal metrics
-    pendingSubmittals: submittals?.filter((s: SubmittalType) => s?.status === "SUBMITTED" || s?.status === "UNDER_REVIEW")?.length ?? 0,
-    
+    pendingSubmittals: submittals?.filter((s: any) => s?.status === "SUBMITTED" || s?.status === "UNDER_REVIEW")?.length ?? 0,
+
     // Safety metrics
     safetyIncidentsThisMonth: safetyIncidents?.length ?? 0,
-    criticalIncidents: safetyIncidents?.filter((i: SafetyType) => i?.severity === "CRITICAL" || i?.severity === "HIGH")?.length ?? 0,
-    
+    criticalIncidents: safetyIncidents?.filter((i: any) => i?.severity === "CRITICAL" || i?.severity === "HIGH")?.length ?? 0,
+
     // Punch list metrics  
-    openPunchItems: punchLists?.filter((p: PunchType) => p?.status !== "COMPLETED" && p?.status !== "VERIFIED")?.length ?? 0,
-    criticalPunchItems: punchLists?.filter((p: PunchType) => p?.priority === "CRITICAL" && p?.status !== "COMPLETED")?.length ?? 0,
-    
+    openPunchItems: punchLists?.filter((p: any) => p?.status !== "COMPLETED" && p?.status !== "VERIFIED")?.length ?? 0,
+    criticalPunchItems: punchLists?.filter((p: any) => p?.priority === "CRITICAL" && p?.status !== "COMPLETED")?.length ?? 0,
+
     // Inspection metrics
-    upcomingInspections: inspections?.filter((i: InspectionType) => i?.status === "SCHEDULED" && new Date(i?.scheduledDate ?? 0) >= new Date())?.length ?? 0,
-    failedInspections: inspections?.filter((i: InspectionType) => i?.status === "FAILED")?.length ?? 0,
-    
+    upcomingInspections: inspections?.filter((i: any) => i?.status === "SCHEDULED" && new Date(i?.scheduledDate ?? 0) >= new Date())?.length ?? 0,
+    failedInspections: inspections?.filter((i: any) => i?.status === "FAILED")?.length ?? 0,
+
     // Change order metrics
-    pendingChangeOrders: changeOrders?.filter((c: ChangeOrderType) => c?.status === "PENDING_APPROVAL" || c?.status === "DRAFT")?.length ?? 0,
-    changeOrderValue: changeOrders?.filter((c: ChangeOrderType) => c?.status === "APPROVED")?.reduce((sum: number, c: ChangeOrderType) => sum + (Number(c?.costImpact) || 0), 0) ?? 0,
-    
+    pendingChangeOrders: changeOrders?.filter((c: any) => c?.status === "PENDING_APPROVAL" || c?.status === "DRAFT")?.length ?? 0,
+    changeOrderValue: changeOrders?.filter((c: any) => c?.status === "APPROVED")?.reduce((sum: number, c: any) => sum + (Number((c as any)?.costImpact) || 0), 0) ?? 0,
+
     // Budget impact (from projects)
-    totalBudget: projects?.reduce((sum: number, p: ProjectType) => sum + (Number(p?.budget) || 0), 0) ?? 0
+    totalBudget: projects?.reduce((sum: number, p: any) => sum + (Number(p?.budget) || 0), 0) ?? 0
   };
 
   return (
     <DashboardClient
       stats={stats}
-      projects={bigintSafe(projects ?? [])}
-      tasks={bigintSafe(tasks ?? [])}
-      activities={bigintSafe(activities ?? [])}
-      teamMembers={bigintSafe(teamMembers ?? [])}
+      projects={JSON.parse(JSON.stringify(projects ?? []))}
+      tasks={JSON.parse(JSON.stringify(tasks ?? []))}
+      activities={JSON.parse(JSON.stringify(activities ?? []))}
+      teamMembers={JSON.parse(JSON.stringify(teamMembers ?? []))}
       projectStatusCounts={projectStatusCounts}
       constructionMetrics={constructionMetrics}
-      rfis={bigintSafe(rfis ?? [])}
-      submittals={bigintSafe(submittals ?? [])}
-      safetyIncidents={bigintSafe(safetyIncidents ?? [])}
-      punchLists={bigintSafe(punchLists ?? [])}
-      upcomingMilestones={bigintSafe(milestones ?? [])}
-      changeOrders={bigintSafe(changeOrders ?? [])}
+      rfis={JSON.parse(JSON.stringify(rfis ?? []))}
+      submittals={JSON.parse(JSON.stringify(submittals ?? []))}
+      safetyIncidents={JSON.parse(JSON.stringify(safetyIncidents ?? []))}
+      punchLists={JSON.parse(JSON.stringify(punchLists ?? []))}
+      upcomingMilestones={JSON.parse(JSON.stringify(milestones ?? []))}
+      changeOrders={JSON.parse(JSON.stringify(changeOrders ?? []))}
     />
   );
 }

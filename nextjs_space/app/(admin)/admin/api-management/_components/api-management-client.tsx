@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Server,
   Plus,
@@ -22,13 +22,16 @@ import {
   Zap,
   Eye,
   EyeOff,
+  Copy,
   RotateCcw,
   Power,
   PowerOff,
   Activity,
   History,
+  Filter,
   Settings,
   ExternalLink,
+  ChevronDown,
   Terminal,
   Mail,
   Brain,
@@ -77,7 +80,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { HealthMonitoring } from "./health-monitoring";
 import { UsageAnalytics } from "./usage-analytics";
 import { RateLimiting } from "./rate-limiting";
@@ -240,10 +243,10 @@ export function ApiManagementClient() {
   const [logs, setLogs] = useState<ApiConnectionLog[]>([]);
   const [dependencies, setDependencies] = useState<DependencyModule[]>([]);
   const [stats, setStats] = useState<any>({});
-  const [_categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, _setFilterCategory] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
 
@@ -252,7 +255,7 @@ export function ApiManagementClient() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRotateModal, setShowRotateModal] = useState(false);
   const [showCustomApiModal, setShowCustomApiModal] = useState(false);
-  const [_showDependenciesModal, _setShowDependenciesModal] = useState(false);
+  const [showDependenciesModal, setShowDependenciesModal] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<ApiConnection | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
@@ -796,7 +799,7 @@ export function ApiManagementClient() {
   };
 
   // Copy to clipboard
-  const _handleCopyToClipboard = (text: string) => {
+  const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
   };
@@ -1004,7 +1007,7 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const _statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
+              const statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div
@@ -2006,7 +2009,7 @@ export function ApiManagementClient() {
               Add Custom API
             </DialogTitle>
             <DialogDescription>
-              Configure a custom API integration that isn&apos;t part of the built-in services
+              Configure a custom API integration that isn't part of the built-in services
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">

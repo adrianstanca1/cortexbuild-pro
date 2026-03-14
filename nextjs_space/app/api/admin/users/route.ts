@@ -1,17 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
-
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,6 +16,7 @@ export async function GET(req: NextRequest) {
     const organizationId = searchParams.get("organizationId");
     const role = searchParams.get("role");
     const search = searchParams.get("search");
+    const status = searchParams.get("status"); // active, suspended
 
     const where: any = {};
     
@@ -64,7 +57,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" }
     });
 
-    return NextResponse.json(bigintSafe({ users }));
+    return NextResponse.json({ users });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -135,7 +128,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json(bigintSafe({ user }), { status: 201 });
+    return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

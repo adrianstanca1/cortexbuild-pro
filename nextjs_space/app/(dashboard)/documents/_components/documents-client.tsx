@@ -2,12 +2,13 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
-  Search, FileText, Upload, Download, Trash2, Loader2,
+  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
   Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, HardDrive
+  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,30 +18,9 @@ import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { DocumentViewer } from "@/components/ui/document-viewer";
 
-interface Document {
-  id: string;
-  name: string;
-  documentType: string;
-  fileUrl: string;
-  fileSize: number;
-  uploadedAt: Date;
-  project?: {
-    id: string;
-    name: string;
-  };
-  uploadedBy?: {
-    name: string;
-  };
-}
-
-interface Project {
-  id: string;
-  name: string;
-}
-
 interface DocumentsClientProps {
-  documents: Document[];
-  projects: Project[];
+  documents: any[];
+  projects: any[];
 }
 
 const typeConfig = {
@@ -65,7 +45,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [uploadForm, setUploadForm] = useState({ projectId: "", documentType: "OTHER" });
 
   const handleDocumentEvent = useCallback(() => {
@@ -342,8 +322,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-green-100 dark:bg-green-900/50">
-                {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                 <Image className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <Image className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.byType.PHOTOS}</p>
@@ -426,7 +405,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No documents found</h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4">Upload your first document to get started</p>
-            <Button onClick={() => setShowUploadModal(true)} >
+            <Button onClick={() => setShowUploadModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
               <Upload className="h-4 w-4 mr-2" /> Upload Document
             </Button>
           </CardContent>

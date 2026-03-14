@@ -2,19 +2,13 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, User,
-  FolderTree, Folder, FolderOpen, LayoutGrid, Building2, Crown, HardHat,
-  ChevronDown
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Search, Users, Mail, Briefcase, Loader2, BarChart3, UserCheck, ChevronRight, User } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { ResourceAllocation } from "./resource-allocation";
@@ -42,193 +36,9 @@ const roleColors: Record<string, { bg: string; text: string }> = {
   FIELD_WORKER: { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-700 dark:text-slate-300" }
 };
 
-// Organization Tree View Component
-function OrganizationTreeView({ teamMembers }: { teamMembers: any[] }) {
-  const [expandedRoles, setExpandedRoles] = useState<string[]>(['leadership', 'managers', 'team']);
-  
-  // Group members by role hierarchy
-  const roleHierarchy = [
-    {
-      id: 'leadership',
-      name: 'Leadership',
-      icon: Crown,
-      color: 'from-amber-500 to-orange-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-950/30',
-      borderColor: 'border-amber-200 dark:border-amber-800',
-      roles: ['SUPER_ADMIN', 'COMPANY_OWNER']
-    },
-    {
-      id: 'managers',
-      name: 'Management',
-      icon: Building2,
-      color: 'from-blue-500 to-indigo-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-950/30',
-      borderColor: 'border-blue-200 dark:border-blue-800',
-      roles: ['ADMIN', 'COMPANY_ADMIN', 'PROJECT_MANAGER']
-    },
-    {
-      id: 'team',
-      name: 'Field Operations',
-      icon: HardHat,
-      color: 'from-emerald-500 to-teal-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
-      borderColor: 'border-emerald-200 dark:border-emerald-800',
-      roles: ['FIELD_WORKER']
-    }
-  ];
-
-  const toggleExpand = (id: string) => {
-    setExpandedRoles(prev => 
-      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
-    );
-  };
-
-  return (
-    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 via-purple-50/30 to-blue-50/30 dark:from-slate-800/50 dark:via-purple-900/10 dark:to-blue-900/10">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25">
-            <FolderTree className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Organization Structure</CardTitle>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Team hierarchy view</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {roleHierarchy.map((level, levelIndex) => {
-            const Icon = level.icon;
-            const members = teamMembers.filter(tm => level.roles.includes(tm?.user?.role));
-            const isExpanded = expandedRoles.includes(level.id);
-            
-            if (members.length === 0) return null;
-            
-            return (
-              <motion.div
-                key={level.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: levelIndex * 0.1 }}
-              >
-                {/* Department Folder */}
-                <div 
-                  className={`relative rounded-xl border-2 ${level.borderColor} ${level.bgColor} overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg`}
-                  onClick={() => toggleExpand(level.id)}
-                >
-                  {/* Folder Tab */}
-                  <div className={`absolute -top-0 left-4 right-4 h-2 rounded-t-lg bg-gradient-to-r ${level.color} opacity-90`} />
-                  
-                  {/* Folder Header */}
-                  <div className="flex items-center justify-between p-4 pt-5">
-                    <div className="flex items-center gap-3">
-                      <motion.div 
-                        className={`w-10 h-10 rounded-xl bg-gradient-to-br ${level.color} shadow-lg flex items-center justify-center`}
-                        animate={{ rotate: isExpanded ? 0 : -5 }}
-                      >
-                        {isExpanded ? (
-                          <FolderOpen className="h-5 w-5 text-white" />
-                        ) : (
-                          <Folder className="h-5 w-5 text-white" />
-                        )}
-                      </motion.div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {level.name}
-                        </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          {members.length} member{members.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <motion.div
-                      animate={{ rotate: isExpanded ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ChevronDown className="h-5 w-5 text-slate-400" />
-                    </motion.div>
-                  </div>
-                  
-                  {/* Members List */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-4 pb-4">
-                          {/* Tree Lines */}
-                          <div className="relative pl-8 space-y-2">
-                            {/* Vertical tree line */}
-                            <div className="absolute left-3 top-0 bottom-4 w-0.5 bg-gradient-to-b from-slate-300 to-slate-200 dark:from-slate-600 dark:to-slate-700" />
-                            
-                            {members.map((member, _memberIndex) => (
-                              <div key={member.id} className="relative flex items-center gap-3">
-                                {/* Horizontal branch */}
-                                <div className="absolute left-[-20px] top-1/2 w-5 h-0.5 bg-slate-300 dark:bg-slate-600" />
-                                {/* Node */}
-                                <div className={`absolute left-[-8px] w-2 h-2 rounded-full bg-gradient-to-br ${level.color}`} />
-                                
-                                {/* Member Card */}
-                                <div className="flex-1 flex items-center gap-3 p-3 rounded-lg bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 hover:shadow-md transition-all">
-                                  <div className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold bg-gradient-to-br ${level.color} text-white shadow`}>
-                                    {(member?.user?.name ?? "U")?.charAt(0)?.toUpperCase()}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-slate-800 dark:text-slate-100 truncate">
-                                      {member?.user?.name || 'Unknown'}
-                                    </p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                      <Briefcase className="h-3 w-3" />
-                                      {member?.jobTitle || roleLabels[member?.user?.role] || 'Team Member'}
-                                    </p>
-                                  </div>
-                                  <div className="hidden sm:flex items-center gap-2">
-                                    {member?.user?.email && (
-                                      <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-600 hover:bg-slate-200 dark:hover:bg-slate-500 transition-colors">
-                                              <Mail className="h-3.5 w-3.5 text-slate-500 dark:text-slate-300" />
-                                            </div>
-                                          </TooltipTrigger>
-                                          <TooltipContent>{member.user.email}</TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    )}
-                                    {(member?.projectAssignments?.length || 0) > 0 && (
-                                      <Badge variant="secondary" className="text-[10px] px-1.5">
-                                        {member.projectAssignments.length} project{member.projectAssignments.length !== 1 ? 's' : ''}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function TeamClient({ teamMembers, userRole, organizationId }: TeamClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'members' | 'organization' | 'allocation'>('members');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeTab, setActiveTab] = useState<'members' | 'allocation'>('members');
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -417,89 +227,34 @@ export function TeamClient({ teamMembers, userRole, organizationId }: TeamClient
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex gap-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 w-fit">
-          <button
-            onClick={() => setActiveTab('members')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'members'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Members
-            <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary">{teamMembers?.length || 0}</Badge>
-          </button>
-          <button
-            onClick={() => setActiveTab('organization')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'organization'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <FolderTree className="h-4 w-4" />
-            Organization
-          </button>
-          <button
-            onClick={() => setActiveTab('allocation')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'allocation'
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <BarChart3 className="h-4 w-4" />
-            Allocation
-          </button>
-        </div>
-
-        {/* View Mode Toggle (only for members tab) */}
-        {activeTab === 'members' && (
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-slate-100 dark:bg-slate-800">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-all ${
-                      viewMode === 'grid'
-                        ? 'bg-white dark:bg-slate-700 shadow-sm text-primary'
-                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>Grid View</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-all ${
-                      viewMode === 'list'
-                        ? 'bg-white dark:bg-slate-700 shadow-sm text-primary'
-                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                  >
-                    <Users className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>List View</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
+      <div className="flex gap-2 p-1 rounded-xl bg-slate-100 dark:bg-slate-800 w-fit">
+        <button
+          onClick={() => setActiveTab('members')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'members'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <UserCheck className="h-4 w-4" />
+          Team Members
+          <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary">{teamMembers?.length || 0}</Badge>
+        </button>
+        <button
+          onClick={() => setActiveTab('allocation')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'allocation'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <BarChart3 className="h-4 w-4" />
+          Resource Allocation
+        </button>
       </div>
 
       {activeTab === 'allocation' ? (
         <ResourceAllocation />
-      ) : activeTab === 'organization' ? (
-        <OrganizationTreeView teamMembers={teamMembers} />
       ) : (
         <>
           {/* Filters */}

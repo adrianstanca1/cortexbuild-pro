@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { serviceRegistry } from "@/lib/service-registry";
@@ -12,20 +8,15 @@ import { createServiceAdapter } from "@/lib/service-adapters";
 // POST - Test a specific service connection
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  // Prevent execution during build time
-  if (process.env.__NEXT_TEST_MODE) {
-    return NextResponse.json({ error: "Not available during build" }, { status: 503 });
-  }
-
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = params;
     const body = await req.json().catch(() => ({}));
     const environment = body.environment || "PRODUCTION";
 

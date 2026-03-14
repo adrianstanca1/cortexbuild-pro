@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { format, isBefore } from "date-fns";
+import { useRouter } from "next/navigation";
+import { format, isToday, isBefore, differenceInDays } from "date-fns";
 import {
   Calendar, Clock, ListTodo, Users, ClipboardCheck, Shield, Target,
   AlertTriangle, ChevronRight, Loader2, FileQuestion, RefreshCw,
-  Wrench, MessageSquare, FileText,
-  CheckCircle2, Flame, Clock4, Send
+  HardHat, Wrench, MessageSquare, FileText, Send, AlertCircle,
+  CheckCircle2, XCircle, Flame, TrendingUp, Clock4, Bell
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -100,10 +101,11 @@ const typeLabels: Record<string, string> = {
 };
 
 export function TodayAgenda() {
+  const router = useRouter();
   const [agenda, setAgenda] = useState<AgendaItem[]>([]);
   const [summary, setSummary] = useState<AgendaSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   const fetchAgenda = useCallback(async () => {
@@ -192,7 +194,7 @@ export function TodayAgenda() {
         <CardHeader className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-b border-slate-200 dark:border-slate-700">
           <CardTitle className="text-lg flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
-            Today&apos;s Agenda
+            Today's Agenda
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -215,7 +217,7 @@ export function TodayAgenda() {
             </div>
             <div>
               <CardTitle className="text-lg flex items-center gap-2">
-                Today&apos;s Agenda
+                Today's Agenda
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {format(new Date(), "EEEE, MMMM d, yyyy")}

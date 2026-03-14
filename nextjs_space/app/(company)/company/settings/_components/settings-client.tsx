@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import {
   Building2,
@@ -89,7 +88,7 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
           <div className="flex items-center gap-6">
             <div className="h-20 w-20 rounded-lg bg-emerald-100 flex items-center justify-center">
               {organization?.logoUrl ? (
-                <Image
+                <img
                   src={organization.logoUrl}
                   alt={organization.name}
                   className="h-20 w-20 rounded-lg object-cover"

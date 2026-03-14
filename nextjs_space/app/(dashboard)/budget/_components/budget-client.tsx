@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   PoundSterling, Plus, Search, TrendingUp, TrendingDown,
   FileText, Edit2, Trash2, Loader2, Building2, CheckCircle,
@@ -152,10 +153,7 @@ export function BudgetClient({
       const res = await fetch("/api/budget", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...newItem,
-          subcontractorId: newItem.subcontractorId === "none" ? "" : newItem.subcontractorId
-        })
+        body: JSON.stringify(newItem)
       });
       if (!res.ok) throw new Error("Failed to create cost item");
       toast.success("Cost item created successfully");
@@ -518,7 +516,6 @@ export function BudgetClient({
                   <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Category</th>
                   <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Status</th>
                   <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Estimated</th>
-                  <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Committed</th>
                   <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Actual</th>
                   <th className="text-center p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Actions</th>
                 </tr>
@@ -555,9 +552,6 @@ export function BudgetClient({
                       </td>
                       <td className="p-4 text-right">
                         <span className="font-medium text-slate-700 dark:text-slate-300">{formatCurrency(item.estimatedAmount)}</span>
-                      </td>
-                      <td className="p-4 text-right">
-                        <span className="font-medium text-blue-600 dark:text-blue-400">{formatCurrency(item.committedAmount)}</span>
                       </td>
                       <td className="p-4 text-right">
                         <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(item.actualAmount)}</span>
@@ -614,10 +608,6 @@ export function BudgetClient({
                   <div className="flex items-center justify-between text-sm mb-3">
                     <span className="text-slate-500">Est.</span>
                     <span className="font-medium text-slate-700 dark:text-slate-300">{formatCurrency(item.estimatedAmount)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mb-3">
-                    <span className="text-slate-500">Committed</span>
-                    <span className="font-medium text-blue-600">{formatCurrency(item.committedAmount)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm mb-4">
                     <span className="text-slate-500">Actual</span>

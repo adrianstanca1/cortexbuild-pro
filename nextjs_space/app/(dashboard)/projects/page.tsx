@@ -6,9 +6,6 @@ import { ProjectsClient } from "./_components/projects-client";
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
-  const bigintSafe = (obj: any) => JSON.parse(JSON.stringify(obj, (_, v) => typeof v === 'bigint' ? Number(v) : v));
-
-
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
@@ -38,5 +35,5 @@ export default async function ProjectsPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  return <ProjectsClient projects={bigintSafe(projects ?? [])} />;
+  return <ProjectsClient projects={JSON.parse(JSON.stringify(projects ?? []))} />;
 }

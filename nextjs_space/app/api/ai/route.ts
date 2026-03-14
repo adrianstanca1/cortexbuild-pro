@@ -1,13 +1,8 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
-
-// Main AI chat endpoint - supports Ollama (primary), Gemini, and Abacus AI
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { message, context } = await request.json();
+    const { message, projectId, context } = await request.json();
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
@@ -89,25 +84,54 @@ Provide helpful, accurate answers based on this data. If asked about something n
       { role: 'user', content: message }
     ];
 
-    const { generateAIResponse } = await import('@/lib/ai-service');
-    const result = await generateAIResponse({ messages: messages as any, stream: true });
+    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-mini',
+        messages,
+        stream: true,
+        max_tokens: 2000
+      })
+    });
 
-    if (!result.success || !result.stream) {
-      return NextResponse.json({ error: result.error || 'AI service unavailable' }, { status: 503 });
+    if (!response.ok) {
+      throw new Error(`LLM API error: ${response.status}`);
     }
 
-    return new Response(result.stream, {
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        const encoder = new TextEncoder();
+        try {
+          while (true) {
+            const { done, value } = await reader!.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+            controller.enqueue(encoder.encode(chunk));
+          }
+        } catch (error) {
+          console.error('Stream error:', error);
+          controller.error(error);
+        } finally {
+          controller.close();
+        }
+      }
+    });
+
+    return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
+        'Connection': 'keep-alive'
+      }
     });
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('AI API Error:', error);
-    }
+    console.error('AI API Error:', error);
     return NextResponse.json({ error: 'Failed to process AI request' }, { status: 500 });
   }
 }
-

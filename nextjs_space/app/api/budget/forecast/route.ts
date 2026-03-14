@@ -1,8 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -13,10 +10,6 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!session.user.organizationId) {
-      return NextResponse.json({ error: "User must belong to an organization" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -64,7 +57,7 @@ export async function GET(request: NextRequest) {
     const recentCosts = costItems.filter(item => 
       item.createdAt && new Date(item.createdAt) >= threeMonthsAgo
     );
-    const recentTotal = recentCosts.reduce((sum: number, item) => sum + item.actualAmount, 0);
+    const recentTotal = recentCosts.reduce((sum, item) => sum + item.actualAmount, 0);
     const monthlyBurnRate = recentTotal / 3;
 
     // Project at completion (EAC) forecast
@@ -110,7 +103,7 @@ export async function GET(request: NextRequest) {
       .map(([category, data]) => ({
         category,
         overBy: data.actual - data.estimated,
-        percentOver: data.estimated > 0 ? ((data.actual - data.estimated) / data.estimated * 100).toFixed(1) : null
+        percentOver: ((data.actual - data.estimated) / data.estimated * 100).toFixed(1)
       }));
 
     return NextResponse.json({

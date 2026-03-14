@@ -1,1 +1,0 @@
--- Run 'npx prisma migrate dev' to generate full migration

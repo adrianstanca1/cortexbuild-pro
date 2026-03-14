@@ -1,16 +1,8 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
 
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +71,7 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
-    return NextResponse.json(bigintSafe({
+    return NextResponse.json({
       logs: logs.map(log => ({
         id: log.id,
         action: log.action,
@@ -103,7 +95,7 @@ export async function GET(request: NextRequest) {
         actionTypes: actionTypes.map(a => ({ action: a.action, count: a._count })),
         entityTypes: entityTypes.filter(e => e.entityType).map(e => ({ type: e.entityType, count: e._count }))
       }
-    }));
+    });
   } catch (error) {
     console.error("Error fetching audit logs:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

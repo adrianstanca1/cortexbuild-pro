@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  AlertTriangle, Plus, Search, Loader2, Eye, Edit,
+  AlertTriangle, Plus, Search, Filter, Loader2, Eye, Edit,
   CheckCircle, Clock, XCircle, MapPin, Wrench
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -51,7 +51,7 @@ interface DefectsClientProps {
   teamMembers: any[];
 }
 
-export function DefectsClient({ defects: initialDefects, projects }: DefectsClientProps) {
+export function DefectsClient({ defects: initialDefects, projects, teamMembers }: DefectsClientProps) {
   const [defects, setDefects] = useState(initialDefects);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

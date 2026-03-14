@@ -1,31 +1,22 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: id },
+      where: { id: params.id },
       include: {
         organization: true,
         teamMemberships: {
@@ -56,7 +47,7 @@ export async function GET(
 
     // Don't return password
     const { password, ...userWithoutPassword } = user;
-    return NextResponse.json(bigintSafe({ user: userWithoutPassword }));
+    return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -65,19 +56,18 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { name, email, role, organizationId, phone, password, _suspended } = body;
+    const { name, email, role, organizationId, phone, password, suspended } = body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: id } });
+    const existingUser = await prisma.user.findUnique({ where: { id: params.id } });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -101,7 +91,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: id },
+      where: { id: params.id },
       data: updateData,
       select: {
         id: true,
@@ -120,16 +110,16 @@ export async function PATCH(
       // Remove old team membership
       if (existingUser.organizationId) {
         await prisma.teamMember.deleteMany({
-          where: { userId: id, organizationId: existingUser.organizationId }
+          where: { userId: params.id, organizationId: existingUser.organizationId }
         });
       }
       // Create new team membership
       if (organizationId) {
         await prisma.teamMember.upsert({
-          where: { userId_organizationId: { userId: id, organizationId } },
+          where: { userId_organizationId: { userId: params.id, organizationId } },
           update: {},
           create: {
-            userId: id,
+            userId: params.id,
             organizationId,
             jobTitle: role === "ADMIN" ? "Administrator" : role === "PROJECT_MANAGER" ? "Project Manager" : "Team Member"
           }
@@ -149,7 +139,7 @@ export async function PATCH(
       }
     });
 
-    return NextResponse.json(bigintSafe({ user }));
+    return NextResponse.json({ user });
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -158,30 +148,29 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Prevent self-deletion
-    if (id === session.user.id) {
+    if (params.id === session.user.id) {
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: id } });
+    const user = await prisma.user.findUnique({ where: { id: params.id } });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Delete related team memberships first
-    await prisma.teamMember.deleteMany({ where: { userId: id } });
+    await prisma.teamMember.deleteMany({ where: { userId: params.id } });
 
     // Delete user
-    await prisma.user.delete({ where: { id: id } });
+    await prisma.user.delete({ where: { id: params.id } });
 
     // Log activity
     await prisma.activityLog.create({
@@ -194,7 +183,7 @@ export async function DELETE(
       }
     });
 
-    return NextResponse.json(bigintSafe({ success: true }));
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

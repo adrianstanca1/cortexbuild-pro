@@ -1,17 +1,9 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { decryptCredentials } from "@/lib/encryption";
-
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
 
 // GET - Export API connections configuration
 export async function GET(req: NextRequest) {
@@ -103,11 +95,11 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return NextResponse.json(bigintSafe({
+    return NextResponse.json({
       exportedAt: new Date().toISOString(),
       count: exportData.length,
       connections: exportData
-    }));
+    });
   } catch (error) {
     console.error("Error exporting API connections:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

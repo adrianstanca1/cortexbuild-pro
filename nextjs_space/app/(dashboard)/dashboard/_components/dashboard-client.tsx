@@ -1,30 +1,28 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  FolderKanban, ListTodo, Users, Clock, Plus, Activity,
-  FileQuestion, Shield, ClipboardCheck, PoundSterling,
-  AlertCircle, ChevronRight, BarChart3, Building2, Briefcase, Sparkles,
-  Zap, HardHat, Flame, TrendingUp, TrendingDown, Minus,
-  Folder, FolderOpen, FolderCog,
-  Flag, CircleDot, CheckCircle,
-  FileStack, Wallet, Loader2
+import { 
+  FolderKanban, ListTodo, Users, Clock, Plus, ArrowRight, Activity, Calendar,
+  FileQuestion, FileCheck, Shield, AlertTriangle, ClipboardCheck, PoundSterling,
+  TrendingUp, CheckCircle2, XCircle, AlertCircle, Target, Wrench, FileText,
+  ChevronRight, Bell, BarChart3, Building2, Briefcase, Timer, Eye, Sparkles,
+  Zap, Brain, Gauge, Award, Package, HardHat, TrendingDown, Flame
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MetricCard, CompactMetric, MetricSection } from "@/components/ui/metric-card";
 import { KPICard, QuickAction, AlertBanner, ProgressRing } from "@/components/ui/kpi-dashboard";
+import { ProjectStatusChart } from "./project-status-chart";
 import { TodayAgenda } from "./today-agenda";
 import { PortfolioIntelligence } from "@/components/ui/portfolio-intelligence";
 import { PredictiveAnalytics } from "@/components/ui/predictive-analytics";
 import { SmartAlerts } from "@/components/ui/smart-alerts";
 import { ResourceIntelligence } from "@/components/ui/resource-intelligence";
-import { formatDistanceToNow, format, isToday, isPast } from "date-fns";
+import { formatDistanceToNow, format, isToday, isPast, addDays } from "date-fns";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
-import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
 interface ConstructionMetrics {
   openRFIs: number;
@@ -85,581 +83,6 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(amount);
 }
 
-// Weekly Trends Chart — shows tasks created vs completed over last 7 days
-function WeeklyTrendsChart() {
-  const [trendData, setTrendData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/dashboard/stats")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.trends) setTrendData(data.trends);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
-        <CardContent className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!trendData?.weekly?.length) return null;
-
-  const TrendIcon = trendData.productivityChange > 0 ? TrendingUp :
-    trendData.productivityChange < 0 ? TrendingDown : Minus;
-  const trendColor = trendData.productivityChange > 0 ? "text-emerald-600 dark:text-emerald-400" :
-    trendData.productivityChange < 0 ? "text-red-600 dark:text-red-400" : "text-slate-500";
-
-  return (
-    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-indigo-500/25">
-              <BarChart3 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Weekly Activity</CardTitle>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Tasks created vs completed this week</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1 text-sm font-semibold ${trendColor}`}>
-              <TrendIcon className="h-4 w-4" />
-              {trendData.productivityChange > 0 ? '+' : ''}{trendData.productivityChange}%
-            </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400">vs last week</span>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={trendData.weekly} barGap={2}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border, #e2e8f0)" />
-              <XAxis dataKey="dayLabel" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} width={30} />
-              <RechartsTooltip
-                contentStyle={{ fontSize: 12, borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-              />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="tasksCreated" name="Created" fill="#818cf8" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="tasksCompleted" name="Completed" fill="#34d399" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{trendData.tasksCompletedThisWeek}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Completed this week</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{trendData.tasksCompletedLastWeek}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Completed last week</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-              {trendData.weekly.reduce((s: number, d: any) => s + d.activities, 0)}
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total activities</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Budget Utilization Widget — shows spending across active projects
-function BudgetUtilization() {
-  const [budgetData, setBudgetData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/dashboard/stats")
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data?.budgetSummary) setBudgetData(data.budgetSummary);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading || !budgetData || budgetData.totalBudget === 0) return null;
-
-  return (
-    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/25">
-              <PoundSterling className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Budget Utilization</CardTitle>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Active project spend tracking</p>
-            </div>
-          </div>
-          <Link href="/budget" className="text-sm text-primary hover:text-primary/80 font-semibold flex items-center gap-1">
-            Full Report <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        {/* Overall utilization bar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Overall Utilization</span>
-            <span className={`text-sm font-bold ${
-              budgetData.overallUtilization > 90 ? 'text-red-600 dark:text-red-400' :
-              budgetData.overallUtilization > 75 ? 'text-amber-600 dark:text-amber-400' :
-              'text-emerald-600 dark:text-emerald-400'
-            }`}>{budgetData.overallUtilization}%</span>
-          </div>
-          <div className="h-3 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-700 ${
-                budgetData.overallUtilization > 90 ? 'bg-red-500' :
-                budgetData.overallUtilization > 75 ? 'bg-amber-500' :
-                'bg-emerald-500'
-              }`}
-              style={{ width: `${Math.min(budgetData.overallUtilization, 100)}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-xs text-slate-500 dark:text-slate-400">
-            <span>{formatCurrency(budgetData.totalSpent)} spent</span>
-            <span>{formatCurrency(budgetData.totalBudget)} budget</span>
-          </div>
-        </div>
-
-        {/* Per-project breakdown */}
-        <div className="space-y-3">
-          {budgetData.projects.slice(0, 5).map((project: any) => (
-            <div key={project.projectId} className="flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{project.projectName}</span>
-                  <span className={`text-xs font-semibold ${
-                    project.utilization > 90 ? 'text-red-600' :
-                    project.utilization > 75 ? 'text-amber-600' :
-                    'text-emerald-600'
-                  }`}>{project.utilization}%</span>
-                </div>
-                <div className="h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      project.utilization > 90 ? 'bg-red-500' :
-                      project.utilization > 75 ? 'bg-amber-500' :
-                      'bg-emerald-500'
-                    }`}
-                    style={{ width: `${Math.min(project.utilization, 100)}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// System Status Widget — shows database and API connection health
-function SystemStatus() {
-  const [health, setHealth] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then(res => res.json())
-      .then(data => setHealth(data))
-      .catch(() => setHealth({ status: "unknown" }))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return null;
-
-  const isHealthy = health?.status === "healthy";
-  const dbStatus = health?.services?.database || "unknown";
-  const apiStatus = health?.services?.api || "unknown";
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border ${
-        isHealthy
-          ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
-          : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-      }`}
-    >
-      <div className={`h-2.5 w-2.5 rounded-full ${isHealthy ? "bg-emerald-500 animate-pulse" : "bg-red-500 animate-pulse"}`} />
-      <span className={`text-sm font-medium ${isHealthy ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
-        System {isHealthy ? "Operational" : "Issue Detected"}
-      </span>
-      <div className="flex items-center gap-2 ml-auto text-xs">
-        <span className={`flex items-center gap-1 ${dbStatus === "connected" ? "text-emerald-600" : "text-red-600"}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${dbStatus === "connected" ? "bg-emerald-500" : "bg-red-500"}`} />
-          DB
-        </span>
-        <span className={`flex items-center gap-1 ${apiStatus === "operational" ? "text-emerald-600" : "text-red-600"}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${apiStatus === "operational" ? "bg-emerald-500" : "bg-red-500"}`} />
-          API
-        </span>
-        {health?.responseTime && (
-          <span className="text-slate-500 dark:text-slate-400">{health.responseTime}</span>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// Command Center with Folder-Schema Design
-function CommandCenter({ 
-  constructionMetrics, 
-  projectStatusCounts,
-  tasks,
-  rfis: _rfis,
-}: { 
-  constructionMetrics?: ConstructionMetrics;
-  projectStatusCounts: { PLANNING: number; IN_PROGRESS: number; ON_HOLD: number; COMPLETED: number };
-  tasks: any[];
-  rfis?: any[];
-}) {
-  const [hoveredFolder, setHoveredFolder] = useState<string | null>(null);
-  
-  const folders = [
-    {
-      id: 'projects',
-      name: 'Projects',
-      icon: FolderKanban,
-      href: '/projects',
-      color: 'from-blue-500 to-indigo-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-950/30',
-      borderColor: 'border-blue-200 dark:border-blue-800',
-      count: Object.values(projectStatusCounts).reduce((a, b) => a + b, 0),
-      badge: projectStatusCounts.IN_PROGRESS > 0 ? `${projectStatusCounts.IN_PROGRESS} active` : null,
-      badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-    },
-    {
-      id: 'tasks',
-      name: 'Tasks',
-      icon: ListTodo,
-      href: '/tasks',
-      color: 'from-emerald-500 to-teal-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
-      borderColor: 'border-emerald-200 dark:border-emerald-800',
-      count: tasks?.filter(t => t.status !== 'COMPLETE')?.length || 0,
-      badge: tasks?.filter(t => t.priority === 'CRITICAL' && t.status !== 'COMPLETE')?.length > 0 
-        ? `${tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'COMPLETE').length} critical` 
-        : null,
-      badgeColor: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-    },
-    {
-      id: 'rfis',
-      name: 'RFIs',
-      icon: FileQuestion,
-      href: '/rfis',
-      color: 'from-amber-500 to-orange-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-950/30',
-      borderColor: 'border-amber-200 dark:border-amber-800',
-      count: constructionMetrics?.openRFIs || 0,
-      badge: constructionMetrics?.overdueRFIs && constructionMetrics.overdueRFIs > 0 
-        ? `${constructionMetrics.overdueRFIs} overdue` 
-        : null,
-      badgeColor: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-    },
-    {
-      id: 'safety',
-      name: 'Safety',
-      icon: Shield,
-      href: '/safety',
-      color: 'from-red-500 to-rose-600',
-      bgColor: 'bg-red-50 dark:bg-red-950/30',
-      borderColor: 'border-red-200 dark:border-red-800',
-      count: constructionMetrics?.safetyIncidentsThisMonth || 0,
-      badge: constructionMetrics?.criticalIncidents && constructionMetrics.criticalIncidents > 0 
-        ? `${constructionMetrics.criticalIncidents} critical` 
-        : 'All clear',
-      badgeColor: constructionMetrics?.criticalIncidents && constructionMetrics.criticalIncidents > 0
-        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-        : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
-    },
-    {
-      id: 'team',
-      name: 'Team',
-      icon: Users,
-      href: '/team',
-      color: 'from-purple-500 to-violet-600',
-      bgColor: 'bg-purple-50 dark:bg-purple-950/30',
-      borderColor: 'border-purple-200 dark:border-purple-800',
-      count: null,
-      badge: null,
-      badgeColor: ''
-    },
-    {
-      id: 'documents',
-      name: 'Documents',
-      icon: FileStack,
-      href: '/documents',
-      color: 'from-cyan-500 to-sky-600',
-      bgColor: 'bg-cyan-50 dark:bg-cyan-950/30',
-      borderColor: 'border-cyan-200 dark:border-cyan-800',
-      count: null,
-      badge: null,
-      badgeColor: ''
-    },
-    {
-      id: 'budget',
-      name: 'Budget',
-      icon: Wallet,
-      href: '/budget',
-      color: 'from-green-500 to-emerald-600',
-      bgColor: 'bg-green-50 dark:bg-green-950/30',
-      borderColor: 'border-green-200 dark:border-green-800',
-      count: null,
-      badge: constructionMetrics?.totalBudget ? formatCurrency(constructionMetrics.totalBudget) : null,
-      badgeColor: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-    },
-    {
-      id: 'reports',
-      name: 'Reports',
-      icon: BarChart3,
-      href: '/reports',
-      color: 'from-pink-500 to-rose-600',
-      bgColor: 'bg-pink-50 dark:bg-pink-950/30',
-      borderColor: 'border-pink-200 dark:border-pink-800',
-      count: null,
-      badge: 'Analytics',
-      badgeColor: 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300'
-    }
-  ];
-
-  return (
-    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-slate-800/50 dark:via-blue-900/10 dark:to-purple-900/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-lg shadow-primary/25">
-              <FolderCog className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Command Center</CardTitle>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Quick access to all modules</p>
-            </div>
-          </div>
-          <Badge variant="outline" className="hidden sm:flex items-center gap-1 text-xs bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
-            <Folder className="h-3 w-3" /> 8 Modules
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-          {folders.map((folder, index) => {
-            const Icon = folder.icon;
-            const isHovered = hoveredFolder === folder.id;
-            
-            return (
-              <motion.div
-                key={folder.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link
-                  href={folder.href}
-                  className={`relative flex flex-col items-center p-4 rounded-xl border-2 ${folder.borderColor} ${folder.bgColor} hover:shadow-lg transition-all duration-300 group`}
-                  onMouseEnter={() => setHoveredFolder(folder.id)}
-                  onMouseLeave={() => setHoveredFolder(null)}
-                >
-                  {/* Folder Tab Effect */}
-                  <div className={`absolute -top-1 left-3 right-3 h-2 rounded-t-lg bg-gradient-to-r ${folder.color} opacity-80 group-hover:opacity-100 transition-opacity`} />
-                  
-                  {/* Folder Icon */}
-                  <motion.div 
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${folder.color} shadow-lg flex items-center justify-center mb-3`}
-                    animate={{ scale: isHovered ? 1.1 : 1 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    {isHovered ? (
-                      <FolderOpen className="h-6 w-6 text-white" />
-                    ) : (
-                      <Icon className="h-6 w-6 text-white" />
-                    )}
-                  </motion.div>
-                  
-                  {/* Folder Name */}
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 text-center">
-                    {folder.name}
-                  </span>
-                  
-                  {/* Count Badge */}
-                  {folder.count !== null && (
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {folder.count} items
-                    </span>
-                  )}
-                  
-                  {/* Status Badge */}
-                  {folder.badge && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full mt-2 font-medium ${folder.badgeColor}`}>
-                      {folder.badge}
-                    </span>
-                  )}
-                  
-                  {/* Hover Arrow */}
-                  <motion.div
-                    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    animate={{ x: isHovered ? 2 : 0 }}
-                  >
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
-                  </motion.div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Critical Path Monitor Component
-function CriticalPathMonitor({ 
-  milestones, 
-  tasks 
-}: { 
-  milestones: any[];
-  tasks: any[];
-}) {
-  if (milestones.length === 0 && tasks.length === 0) return null;
-
-  const allItems = [
-    ...milestones.map(m => ({ ...m, type: 'milestone' })),
-    ...tasks.slice(0, 5).map(t => ({ ...t, type: 'task' }))
-  ].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 6);
-
-  return (
-    <Card className="border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/25">
-              <Flag className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-lg text-slate-800 dark:text-slate-100">Critical Path Monitor</CardTitle>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Upcoming critical milestones & tasks</p>
-            </div>
-          </div>
-          <Link href="/milestones" className="text-sm text-primary hover:text-primary/80 font-semibold flex items-center gap-1">
-            View Timeline <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        {/* Timeline visualization */}
-        <div className="relative">
-          {/* Timeline Line */}
-          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-orange-300 to-red-300 dark:from-amber-700 dark:via-orange-700 dark:to-red-700" />
-          
-          <div className="space-y-4">
-            {allItems.map((item, index) => {
-              const isOverdue = item.dueDate && isPast(new Date(item.dueDate));
-              const isDueToday = item.dueDate && isToday(new Date(item.dueDate));
-              const daysUntil = item.dueDate ? Math.ceil((new Date(item.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
-              
-              return (
-                <motion.div
-                  key={`${item.type}-${item.id}`}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="relative flex items-start gap-4 pl-12"
-                >
-                  {/* Timeline Node */}
-                  <div className={`absolute left-4 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    isOverdue 
-                      ? 'bg-red-100 border-red-500 dark:bg-red-900/50' 
-                      : isDueToday 
-                        ? 'bg-amber-100 border-amber-500 dark:bg-amber-900/50'
-                        : 'bg-white border-slate-300 dark:bg-slate-700 dark:border-slate-500'
-                  }`}>
-                    {item.type === 'milestone' ? (
-                      <Flag className={`h-2.5 w-2.5 ${isOverdue ? 'text-red-500' : isDueToday ? 'text-amber-500' : 'text-slate-400'}`} />
-                    ) : (
-                      <CircleDot className={`h-2.5 w-2.5 ${isOverdue ? 'text-red-500' : isDueToday ? 'text-amber-500' : 'text-slate-400'}`} />
-                    )}
-                  </div>
-                  
-                  {/* Content Card */}
-                  <div className={`flex-1 p-4 rounded-xl border ${
-                    isOverdue 
-                      ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800' 
-                      : isDueToday 
-                        ? 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800'
-                        : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700'
-                  }`}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant={item.type === 'milestone' ? 'warning' : 'destructive'} className="text-[10px] px-1.5 py-0 uppercase">
-                            {item.type}
-                          </Badge>
-                          {item.project?.name && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                              {item.project.name}
-                            </span>
-                          )}
-                        </div>
-                        <h4 className="font-semibold text-slate-800 dark:text-slate-100 truncate">
-                          {item.title || item.name}
-                        </h4>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className={`text-sm font-semibold ${
-                          isOverdue ? 'text-red-600 dark:text-red-400' : 
-                          isDueToday ? 'text-amber-600 dark:text-amber-400' : 
-                          'text-slate-700 dark:text-slate-300'
-                        }`}>
-                          {item.dueDate ? format(new Date(item.dueDate), 'MMM d') : '—'}
-                        </div>
-                        <div className={`text-xs ${
-                          isOverdue ? 'text-red-500' : 
-                          isDueToday ? 'text-amber-500' : 
-                          'text-slate-500 dark:text-slate-400'
-                        }`}>
-                          {isOverdue ? `${Math.abs(daysUntil)} days overdue` : 
-                           isDueToday ? 'Due today' : 
-                           `${daysUntil} days left`}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-          
-          {allItems.length === 0 && (
-            <div className="text-center py-8">
-              <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
-              <p className="text-slate-600 dark:text-slate-300 font-medium">No critical items in the next 7 days</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">You&apos;re on track!</p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function DashboardClient({ 
   stats, 
   projects, 
@@ -669,7 +92,11 @@ export function DashboardClient({
   projectStatusCounts,
   constructionMetrics,
   rfis = [],
+  submittals = [],
+  safetyIncidents = [],
+  punchLists = [],
   upcomingMilestones = [],
+  changeOrders = []
 }: DashboardClientProps) {
   const router = useRouter();
 
@@ -688,7 +115,7 @@ export function DashboardClient({
   const completionRate = totalProjects > 0 ? Math.round((projectStatusCounts.COMPLETED / totalProjects) * 100) : 0;
   
   // Check for critical alerts
-  const criticalAlerts: string[] = [];
+  const criticalAlerts = [];
   if (constructionMetrics?.criticalIncidents && constructionMetrics.criticalIncidents > 0) {
     criticalAlerts.push(`${constructionMetrics.criticalIncidents} critical safety incident(s)`);
   }
@@ -734,9 +161,6 @@ export function DashboardClient({
           </Link>
         </div>
       </div>
-
-      {/* System Status Indicator */}
-      <SystemStatus />
 
       {/* Critical Alert Banner */}
       {criticalAlerts.length > 0 && (
@@ -851,26 +275,6 @@ export function DashboardClient({
           </CardContent>
         </Card>
       </div>
-
-      {/* Command Center - Folder Schema Navigation */}
-      <CommandCenter 
-        constructionMetrics={constructionMetrics}
-        projectStatusCounts={projectStatusCounts}
-        tasks={tasks}
-        rfis={rfis}
-      />
-
-      {/* Weekly Trends & Budget Utilization */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WeeklyTrendsChart />
-        <BudgetUtilization />
-      </div>
-
-      {/* Critical Path Monitor */}
-      <CriticalPathMonitor
-        milestones={upcomingMilestones}
-        tasks={tasks.filter(t => t.priority === 'CRITICAL' && t.status !== 'COMPLETE')}
-      />
 
       {/* Today's Agenda - Prominent Position */}
       <TodayAgenda />

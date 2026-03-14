@@ -1,9 +1,5 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
@@ -12,17 +8,16 @@ import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/e
 // GET - Get single API connection details
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: id },
+      where: { id: params.id },
       include: {
         createdBy: {
           select: { id: true, name: true, email: true }
@@ -61,17 +56,16 @@ export async function GET(
 // PATCH - Update API connection
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id: id }
+      where: { id: params.id }
     });
 
     if (!existing) {
@@ -89,15 +83,7 @@ export async function PATCH(
       isEnabled,
       status,
       environment,
-      expiresAt,
-      // New plug-and-play fields
-      category,
-      purpose,
-      dependentModules,
-      configSchema,
-      isBuiltIn,
-      isRequired,
-      autoReconnect
+      expiresAt
     } = body;
 
     const updateData: any = {};
@@ -143,46 +129,12 @@ export async function PATCH(
       updateData.credentials = encryptCredentials(credentials);
       changes.push("credentials");
     }
-    // New plug-and-play fields
-    if (category !== undefined) {
-      updateData.category = category;
-      changes.push("category");
-    }
-    if (purpose !== undefined) {
-      updateData.purpose = purpose;
-      changes.push("purpose");
-    }
-    if (dependentModules !== undefined) {
-      updateData.dependentModules = dependentModules;
-      changes.push("dependentModules");
-    }
-    if (configSchema !== undefined) {
-      updateData.configSchema = configSchema;
-      changes.push("configSchema");
-    }
-    if (isBuiltIn !== undefined) {
-      updateData.isBuiltIn = isBuiltIn;
-      changes.push("isBuiltIn");
-    }
-    if (isRequired !== undefined) {
-      updateData.isRequired = isRequired;
-      changes.push("isRequired");
-    }
-    if (autoReconnect !== undefined) {
-      updateData.autoReconnect = autoReconnect;
-      changes.push("autoReconnect");
-    }
-    // Track last modifier
-    updateData.lastModifiedById = session.user.id;
 
     const connection = await prisma.apiConnection.update({
-      where: { id: id },
+      where: { id: params.id },
       data: updateData,
       include: {
         createdBy: {
-          select: { id: true, name: true, email: true }
-        },
-        lastModifiedBy: {
           select: { id: true, name: true, email: true }
         }
       }
@@ -220,17 +172,16 @@ export async function PATCH(
 // DELETE - Delete API connection
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user || (session.user as any).role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id: id }
+      where: { id: params.id }
     });
 
     if (!existing) {
@@ -255,7 +206,7 @@ export async function DELETE(
     });
 
     await prisma.apiConnection.delete({
-      where: { id: id }
+      where: { id: params.id }
     });
 
     return NextResponse.json({ success: true });

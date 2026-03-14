@@ -19,9 +19,13 @@ import {
   ShieldAlert,
   FileText,
   AlertTriangle,
+  RefreshCw,
   BarChart3,
   PieChart,
+  Calendar,
   Target,
+  ArrowUpRight,
+  ArrowDownRight,
   Shield
 } from "lucide-react";
 import { SafetyComplianceDashboard } from "./safety-compliance-dashboard";
@@ -99,7 +103,7 @@ export function CompanyDashboardClient({
   recentActivity
 }: CompanyDashboardClientProps) {
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
-  const [_loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
   const fetchStats = useCallback(async () => {
