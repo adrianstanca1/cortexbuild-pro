@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - Cortexbuildpro
+      - main
       - master-integrated
       - claude/deploy-to-vps-*
   workflow_dispatch:
@@ -32,7 +33,7 @@ jobs:
   # Pre-deployment checks
   # ============================================
   pre-deploy-checks:
-    name: â Pre-deployment Checks
+    name: ✅ Pre-deployment Checks
     runs-on: ubuntu-latest
     if: ${{ !inputs.skip_tests }}
     steps:
@@ -61,7 +62,7 @@ jobs:
   # Build and push Docker image
   # ============================================
   build-and-push:
-    name: ð³ Build & Push Image
+    name: 🐳 Build & Push Image
     runs-on: ubuntu-latest
     needs: pre-deploy-checks
     if: always() && (needs.pre-deploy-checks.result == 'success' || needs.pre-deploy-checks.result == 'skipped')
@@ -108,16 +109,16 @@ jobs:
 
       - name: Output image info
         run: |
-          echo "â Image built and pushed!"
-          echo "ð¦ Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          echo "ð Tags: ${{ steps.meta.outputs.tags }}"
-          echo "ð Digest: ${{ steps.build.outputs.digest }}"
+          echo "✅ Image built and pushed!"
+          echo "📦 Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          echo "🔖 Tags: ${{ steps.meta.outputs.tags }}"
+          echo "🔍 Digest: ${{ steps.build.outputs.digest }}"
 
   # ============================================
   # Deploy to VPS
   # ============================================
   deploy:
-    name: ð Deploy to VPS
+    name: 🚀 Deploy to VPS
     runs-on: ubuntu-latest
     needs: build-and-push
     environment:
@@ -141,7 +142,7 @@ jobs:
           script: |
             set -e
             echo "========================================="
-            echo "ð CortexBuild Pro - VPS Deployment"
+            echo "🚀 CortexBuild Pro - VPS Deployment"
             echo "========================================="
             BRANCH="${{ github.event.inputs.branch || 'Cortexbuildpro' }}"
             echo "Branch: $BRANCH"
@@ -153,20 +154,20 @@ jobs:
             if ! command -v git &> /dev/null; then
               apt-get update && apt-get install -y git curl wget openssl ufw
             fi
-            echo "  â Dependencies OK"
+            echo "  ✅ Dependencies OK"
 
             echo "[2/8] Checking Docker..."
             if ! command -v docker &> /dev/null; then
               echo "  Installing Docker..."
-              apt-get update && apt-get install -y docker.io docker-compose-plugin
+              curl -fsSL https://get.docker.com | sh
               systemctl enable docker && systemctl start docker
             fi
             if ! docker compose version &> /dev/null; then
-              apt-get update && apt-get install -y docker-compose-plugin
+              curl -fsSL https://get.docker.com | sh
             fi
             docker --version
             docker compose version
-            echo "  â Docker OK"
+            echo "  ✅ Docker OK"
 
             echo "[3/8] Configuring firewall..."
             if command -v ufw &> /dev/null; then
@@ -176,7 +177,7 @@ jobs:
               ufw allow 3000/tcp 2>/dev/null || true
               ufw --force enable 2>/dev/null || true
             fi
-            echo "  â Firewall OK"
+            echo "  ✅ Firewall OK"
 
             echo "[4/8] Fetching application..."
             if [ -d "$DEPLOY_DIR/.git" ]; then
@@ -189,7 +190,7 @@ jobs:
               git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
               cd "$DEPLOY_DIR"
             fi
-            echo "  â Repository ready at $(git log --oneline -1)"
+            echo "  ✅ Repository ready at $(git log --oneline -1)"
 
             echo "[5/8] Configuring environment..."
             cd "$DEPLOY_DIR/deployment"
@@ -222,11 +223,11 @@ jobs:
               printf "SENDGRID_API_KEY=\n" >> .env
               printf "SENDGRID_FROM_EMAIL=noreply@cortexbuildpro.com\n" >> .env
               printf "SENDGRID_FROM_NAME=CortexBuild Pro\n" >> .env
-              echo "  â Generated new .env with secure credentials"
-              echo "  ð DB Password: $POSTGRES_PASSWORD"
-              echo "  ð Server IP: $SERVER_IP"
+              echo "  ✅ Generated new .env with secure credentials"
+              echo "  🔐 DB Password: $POSTGRES_PASSWORD"
+              echo "  🌐 Server IP: $SERVER_IP"
             else
-              echo "  â Using existing .env"
+              echo "  ✅ Using existing .env"
             fi
 
             echo "[6/8] Pulling latest image..."
@@ -236,14 +237,14 @@ jobs:
             docker compose -f docker-compose.vps.yml down app 2>/dev/null || true
             docker compose -f docker-compose.vps.yml pull db 2>/dev/null || true
             docker compose -f docker-compose.vps.yml up -d db
-            echo "  â³ Waiting for database..."
+            echo "  ⏳ Waiting for database..."
             sleep 15
             docker compose -f docker-compose.vps.yml up -d app
-            echo "  â³ Waiting for app to initialize..."
+            echo "  ⏳ Waiting for app to initialize..."
             sleep 60
-            echo "  ð Running database migrations..."
-            docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || echo "  â ï¸ Migrations will run on first request"
-            echo "  ð Starting nginx..."
+            echo "  🔄 Running database migrations..."
+            docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || echo "  ⚠️ Migrations will run on first request"
+            echo "  🌐 Starting nginx..."
             docker compose -f docker-compose.vps.yml up -d nginx certbot
 
             echo "[8/8] Verifying deployment..."
@@ -252,20 +253,20 @@ jobs:
 
             # Health check
             if curl -sf http://localhost/api/health > /dev/null 2>&1; then
-              echo "  â Application is LIVE via nginx on port 80"
+              echo "  ✅ Application is LIVE via nginx on port 80"
             elif curl -sf http://localhost:3010/api/health > /dev/null 2>&1; then
-              echo "  â Application health check passed on port 3010"
+              echo "  ✅ Application health check passed on port 3010"
             else
-              echo "  â ï¸ Application may still be initializing..."
-              echo "  ð Check: cd $DEPLOY_DIR/deployment && docker compose -f docker-compose.vps.yml logs app nginx"
+              echo "  ⚠️ Application may still be initializing..."
+              echo "  📋 Check: cd $DEPLOY_DIR/deployment && docker compose -f docker-compose.vps.yml logs app nginx"
             fi
 
             SERVER_IP=$(curl -s ifconfig.me 2>/dev/null || echo "unknown")
             echo "========================================="
-            echo "â DEPLOYMENT COMPLETE!"
+            echo "✅ DEPLOYMENT COMPLETE!"
             echo "========================================="
-            echo "  ð HTTP:   http://$SERVER_IP"
-            echo "  ð Direct: http://$SERVER_IP:3010"
+            echo "  🌐 HTTP:   http://$SERVER_IP"
+            echo "  🔌 Direct: http://$SERVER_IP:3010"
             echo "========================================="
 
       - name: Setup SSL
@@ -280,7 +281,7 @@ jobs:
           timeout: 300s
           command_timeout: 10m
           script: |
-            echo "ð Setting up SSL..."
+            echo "🔒 Setting up SSL..."
             cd /var/www/cortexbuildpro/deployment
 
             # Ensure nginx is running (HTTP only at this stage for ACME challenge)
@@ -296,27 +297,27 @@ jobs:
               --no-eff-email \
               -d cortexbuildpro.com \
               -d www.cortexbuildpro.com; then
-              echo "  â SSL certificate obtained successfully!"
-              echo "  ð Restarting nginx to load SSL configuration..."
+              echo "  ✅ SSL certificate obtained successfully!"
+              echo "  🔄 Restarting nginx to load SSL configuration..."
               docker compose -f docker-compose.vps.yml restart nginx
               sleep 5
-              echo "  â Nginx restarted with SSL configuration"
+              echo "  ✅ Nginx restarted with SSL configuration"
               if curl -sk https://www.cortexbuildpro.com/api/health > /dev/null 2>&1; then
-                echo "  ð HTTPS is LIVE at https://www.cortexbuildpro.com"
+                echo "  🔒 HTTPS is LIVE at https://www.cortexbuildpro.com"
               else
-                echo "  â³ HTTPS not yet responding (DNS propagation may take a few minutes)"
+                echo "  ⏳ HTTPS not yet responding (DNS propagation may take a few minutes)"
               fi
             else
-              echo "  â SSL certificate request failed."
-              echo "  ð Ensure DNS A records for cortexbuildpro.com and www.cortexbuildpro.com"
+              echo "  ❌ SSL certificate request failed."
+              echo "  📋 Ensure DNS A records for cortexbuildpro.com and www.cortexbuildpro.com"
               echo "     point to this server IP before running SSL setup."
-              echo "  ð Then re-run with: Actions â Deploy to VPS â Run workflow (setup_ssl=true)"
+              echo "  🔄 Then re-run with: Actions → Deploy to VPS → Run workflow (setup_ssl=true)"
             fi
 
       - name: Deployment Summary
         if: always()
         run: |
-          echo "# ð Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
@@ -324,4 +325,4 @@ jobs:
           echo "| Build & Push Image | ${{ needs.build-and-push.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Deploy to VPS | ${{ steps.deploy.outcome }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "ð URL: https://www.cortexbuildpro.com" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 URL: https://www.cortexbuildpro.com" >> $GITHUB_STEP_SUMMARY

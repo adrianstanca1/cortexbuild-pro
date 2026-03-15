@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     // Build system context for RAG
-    const systemContext = `You are an AI assistant for CortexBuildPro, a construction management platform.
+    const systemContext = `You are an AI assistant for CortexBuildPro, a construction management platform used by AS Cladding & Roofing Ltd.
 You have access to the following organisation data:
 
 **Projects (${projects.length}):**
@@ -94,14 +94,16 @@ Provide helpful, accurate answers based on this data. If asked about something n
       );
     }
 
-    // Stream via ollamaClient (OLLAMA_URL + OLLAMA_MODEL from env)
+    // Stream via ollamaClient in SSE format compatible with ai-assistant.tsx
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         try {
           for await (const chunk of ollamaClient.streamChat(messages)) {
-            controller.enqueue(encoder.encode(chunk));
+            const sseData = JSON.stringify({ choices: [{ delta: { content: chunk } }] });
+            controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
           }
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         } catch (error) {
           console.error('AI stream error:', error);
           controller.error(error);
@@ -113,7 +115,7 @@ Provide helpful, accurate answers based on this data. If asked about something n
 
     return new Response(stream, {
       headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'X-AI-Provider': 'ollama',

@@ -162,7 +162,7 @@
         "babel-preset-typescript": "7.0.0-alpha.19",
         "compression": "^1.8.1",
         "concurrently": "9.2.1",
-        "eslint": "9.37.0",
+        "eslint": "^10.0.3",
         "eslint-plugin-react": "7.37.5",
         "eslint-plugin-react-hooks": "6.1.1",
         "exceljs": "^4.4.0",
@@ -182,7 +182,7 @@
         "ts-jest": "29.4.5",
         "tsx": "4.20.6",
         "typescript": "5.9.3",
-        "vercel": "^32.7.2",
+        "vercel": "^50.32.5",
         "vite": "^6.2.0",
         "vite-bundle-visualizer": "1.2.1"
     },
@@ -190,6 +190,24 @@
         "rollup-plugin-visualizer": "5.12.0",
         "vite-bundle-visualizer": {
             "rollup-plugin-visualizer": "5.12.0"
-        }
+        },
+        "tar": ">=6.2.1",
+        "semver": ">=7.5.4",
+        "path-to-regexp": ">=8.0.0",
+        "@mapbox/node-pre-gyp": ">=1.0.11",
+        "debug": ">=4.3.6",
+        "undici": ">=6.19.8",
+        "ajv": "8.18.0",
+        "eslint": {
+            "ajv": "6.14.0"
+        },
+        "@eslint/eslintrc": {
+            "ajv": "6.14.0"
+        },
+        "@tootallnate/once": "3.0.1",
+        "flatted": "3.4.1",
+        "minimatch": "10.2.4",
+        "yauzl": "3.2.1",
+        "dompurify": ">=3.3.3"
     }
 }

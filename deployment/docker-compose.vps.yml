@@ -20,7 +20,7 @@ services:
       retries: 5
 
   app:
-    image: ghcr.io/adrianstanca1/cortexbuild-pro:cortexbuildpro
+    image: ghcr.io/adrianstanca1/cortexbuild-pro:latest
     container_name: cortexbuild-app
     restart: unless-stopped
     ports:
