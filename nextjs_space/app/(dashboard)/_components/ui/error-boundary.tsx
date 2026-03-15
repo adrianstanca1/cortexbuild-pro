@@ -61,7 +61,7 @@ export class ErrorBoundary extends React.Component<
         ));
 
       // Ensure we never pass null to the fallback component
-      const errorToPass = this.state.error || new Error("Unknown error");
+      const errorToPass: Error = this.state.error || new Error("Unknown error");
       return <FallbackComponent error={errorToPass} resetError={this.resetError} />;
     }
 

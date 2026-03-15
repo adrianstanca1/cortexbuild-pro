@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import * as React from "react";
 import { AlertTriangle } from "lucide-react";
 
 export type ErrorBoundaryProps = {
@@ -60,7 +60,7 @@ export class ErrorBoundary extends React.Component<
           </div>
         ));
 
-      return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+      return <FallbackComponent error={this.state.error!} resetError={this.resetError} />;
     }
 
     return this.props.children;

@@ -183,8 +183,8 @@ jobs:
             if [ -d "$DEPLOY_DIR/.git" ]; then
               cd "$DEPLOY_DIR"
               git fetch origin
-              git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH" "origin/$BRANCH"
-              git pull origin "$BRANCH"
+              git checkout -B main origin/main
+              git reset --hard origin/main
             else
               rm -rf "$DEPLOY_DIR"
               git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"

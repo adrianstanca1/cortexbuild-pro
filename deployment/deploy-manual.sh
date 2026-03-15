@@ -14,7 +14,7 @@ echo "================================================"
 echo " CortexBuild Pro — Manual Deployment"
 echo "================================================"
 
-# -- 1. Docker
+# ── 1. Docker ────────────────────────────────────────
 echo "[1/7] Checking Docker..."
 if ! command -v docker &>/dev/null; then
   echo "  Installing Docker via get.docker.com..."
@@ -25,9 +25,9 @@ docker --version
 if ! docker compose version &>/dev/null; then
   apt-get update -qq && apt-get install -y docker-compose-plugin
 fi
-echo "  OK Docker ready"
+echo "  ✓ Docker ready"
 
-# -- 2. Firewall
+# ── 2. Firewall ──────────────────────────────────────
 echo "[2/7] Configuring firewall..."
 if command -v ufw &>/dev/null; then
   ufw allow ssh       2>/dev/null || true
@@ -36,9 +36,9 @@ if command -v ufw &>/dev/null; then
   ufw allow 3010/tcp  2>/dev/null || true
   ufw --force enable  2>/dev/null || true
 fi
-echo "  OK Firewall configured"
+echo "  ✓ Firewall OK"
 
-# -- 3. Clone / pull repo
+# ── 3. Clone / pull repo ─────────────────────────────
 echo "[3/7] Fetching latest code..."
 if [ -d "$DEPLOY_DIR/.git" ]; then
   cd "$DEPLOY_DIR"
@@ -50,9 +50,9 @@ else
   git clone -b main "$REPO_URL" "$DEPLOY_DIR" 2>/dev/null || \
   git clone -b Cortexbuildpro "$REPO_URL" "$DEPLOY_DIR"
 fi
-echo "  OK Code at $(cd $DEPLOY_DIR && git log --oneline -1)"
+echo "  ✓ Code at $(cd $DEPLOY_DIR && git log --oneline -1)"
 
-# -- 4. Environment
+# ── 4. Environment ───────────────────────────────────
 echo "[4/7] Setting up environment..."
 cd "$DEPLOY_DIR/deployment"
 if [ ! -f .env ]; then
@@ -79,35 +79,58 @@ SENDGRID_API_KEY=
 NEXT_PUBLIC_WEBSOCKET_URL=
 WEBSOCKET_PORT=3000
 EOF
-  echo "  OK .env created"
+  echo "  ✓ .env created (review and edit if needed)"
 else
-  echo "  OK .env already exists - skipping"
+  echo "  ✓ .env already exists — skipping"
 fi
 
-# -- 5. Pull image & start
+# ── 5. Pull image & start ────────────────────────────
 echo "[5/7] Pulling Docker image: $IMAGE ..."
 docker pull "$IMAGE"
+
+echo "  Stopping existing containers..."
 docker compose -f docker-compose.vps.yml down app nginx 2>/dev/null || true
+
+echo "  Starting database..."
 docker compose -f docker-compose.vps.yml up -d db
+echo "  Waiting for DB to be ready..."
 sleep 15
+
+echo "  Starting application..."
 docker compose -f docker-compose.vps.yml up -d app
 sleep 30
+echo "  ✓ App container started"
 
-# -- 6. Migrations + Seed
-echo "[6/7] Running database migrations and seed..."
-docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || echo "Migrations may run on first request"
-docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx tsx --require dotenv/config scripts/seed.ts" 2>/dev/null || echo "Seed skipped"
+# ── 6. Migrations + Seed ─────────────────────────────
+echo "[6/7] Running database migrations..."
+docker compose -f docker-compose.vps.yml exec -T app sh -c \
+  "cd /app && npx prisma migrate deploy" 2>/dev/null \
+  || echo "  ⚠ Migrations may run on first request"
 
-# -- 7. Health check
+echo "  Running database seed (AS Cladding & Roofing Ltd)..."
+docker compose -f docker-compose.vps.yml exec -T app sh -c \
+  "cd /app && npx tsx --require dotenv/config scripts/seed.ts" 2>/dev/null \
+  || echo "  ⚠ Seed skipped (data may already exist)"
+
+# ── 7. Health check ──────────────────────────────────
 echo "[7/7] Health check..."
 sleep 15
 SERVER_IP_LIVE=$(hostname -I | awk '{print $1}')
 if curl -sf "http://localhost:3010/api/health" >/dev/null 2>&1; then
-  echo "  App is LIVE at http://${SERVER_IP_LIVE}:3010"
-  echo "  Login: adrian@ascladdingltd.co.uk / Admin@2024!"
+  echo "  ✓ Application is LIVE!"
+  echo ""
+  echo "  URL:      http://${SERVER_IP_LIVE}:3010"
+  echo "  Login:    adrian@ascladdingltd.co.uk"
+  echo "  Password: Admin@2024!"
 else
-  echo "  App may still be initialising..."
-  docker compose -f docker-compose.vps.yml logs --tail=20 app
+  echo "  ⚠ App may still be initialising (check logs below)..."
+  docker compose -f docker-compose.vps.yml logs --tail=30 app
 fi
+
 docker compose -f docker-compose.vps.yml ps
-echo "DEPLOYMENT COMPLETE"
+
+echo ""
+echo "================================================"
+echo " DEPLOYMENT COMPLETE"
+echo " Logs: cd $DEPLOY_DIR/deployment && docker compose -f docker-compose.vps.yml logs -f app"
+echo "================================================"
