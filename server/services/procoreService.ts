@@ -206,7 +206,7 @@ export class ProcoreService {
    */
   async uploadDocument(accessToken: string, projectId: number, fileData: Buffer, filename: string, contentType: string): Promise<ProcoreDocument> {
     const formData = new FormData();
-    formData.append('file', new Blob([fileData], { type: contentType }), filename);
+    formData.append('file', new Blob([new Uint8Array(fileData)], { type: contentType }), filename);
 
     return this.apiRequest(`/rest/v1.0/projects/${projectId}/documents`, accessToken, {
       method: 'POST',

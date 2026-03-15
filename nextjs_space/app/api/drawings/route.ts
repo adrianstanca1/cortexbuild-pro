@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -21,13 +21,13 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     const where: any = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else {
       where.project = { organizationId: session.user.organizationId };
     }
-    
+
     if (discipline) where.discipline = discipline;
     if (status) where.status = status;
 
@@ -43,7 +43,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(drawings);
   } catch (error) {
     console.error("Error fetching drawings:", error);
-    return NextResponse.json({ error: "Failed to fetch drawings" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch drawings" },
+      { status: 500 },
+    );
   }
 }
 
@@ -55,10 +58,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { projectId, number, title, description, discipline, scale, sheetSize } = body;
+    const {
+      projectId,
+      number,
+      title,
+      description,
+      discipline,
+      scale,
+      sheetSize,
+    } = body;
 
     if (!projectId || !number || !title) {
-      return NextResponse.json({ error: "Project ID, number, and title are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project ID, number, and title are required" },
+        { status: 400 },
+      );
     }
 
     const drawing = await prisma.drawing.create({
@@ -80,13 +94,21 @@ export async function POST(request: NextRequest) {
     if (drawing.project.organizationId) {
       broadcastToOrganization(drawing.project.organizationId, {
         type: "drawing_created",
-        data: { id: drawing.id, number: drawing.number, title: drawing.title, projectName: drawing.project.name },
+        data: {
+          id: drawing.id,
+          number: drawing.number,
+          title: drawing.title,
+          projectName: drawing.project.name,
+        },
       });
     }
 
     return NextResponse.json(drawing, { status: 201 });
   } catch (error) {
     console.error("Error creating drawing:", error);
-    return NextResponse.json({ error: "Failed to create drawing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create drawing" },
+      { status: 500 },
+    );
   }
 }

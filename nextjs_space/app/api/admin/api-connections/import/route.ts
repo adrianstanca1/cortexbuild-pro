@@ -17,14 +17,17 @@ export async function POST(req: NextRequest) {
     const { connections, mode = "merge" } = body; // mode: merge, replace, skip_existing
 
     if (!Array.isArray(connections) || connections.length === 0) {
-      return NextResponse.json({ error: "No connections to import" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No connections to import" },
+        { status: 400 },
+      );
     }
 
     const results = {
       imported: 0,
       updated: 0,
       skipped: 0,
-      errors: [] as Array<{ name: string; error: string }>
+      errors: [] as Array<{ name: string; error: string }>,
     };
 
     for (const conn of connections) {
@@ -32,7 +35,10 @@ export async function POST(req: NextRequest) {
         const { name, serviceName, credentials, ...rest } = conn;
 
         if (!name || !serviceName) {
-          results.errors.push({ name: name || "Unknown", error: "Missing required fields" });
+          results.errors.push({
+            name: name || "Unknown",
+            error: "Missing required fields",
+          });
           continue;
         }
 
@@ -40,8 +46,8 @@ export async function POST(req: NextRequest) {
         const existing = await prisma.apiConnection.findFirst({
           where: {
             serviceName: serviceName.toLowerCase(),
-            environment: rest.environment || "PRODUCTION"
-          }
+            environment: rest.environment || "PRODUCTION",
+          },
         });
 
         if (existing) {
@@ -59,8 +65,10 @@ export async function POST(req: NextRequest) {
               baseUrl: rest.baseUrl,
               version: rest.version,
               headers: rest.headers || {},
-              ...(credentials && { credentials: encryptCredentials(credentials) })
-            }
+              ...(credentials && {
+                credentials: encryptCredentials(credentials),
+              }),
+            },
           });
 
           // Update rate limits if provided
@@ -69,9 +77,9 @@ export async function POST(req: NextRequest) {
               where: { connectionId: existing.id },
               create: {
                 connectionId: existing.id,
-                ...rest.rateLimits
+                ...rest.rateLimits,
               },
-              update: rest.rateLimits
+              update: rest.rateLimits,
             });
           }
 
@@ -79,7 +87,10 @@ export async function POST(req: NextRequest) {
         } else {
           // Create new
           if (!credentials) {
-            results.errors.push({ name, error: "Credentials required for new connections" });
+            results.errors.push({
+              name,
+              error: "Credentials required for new connections",
+            });
             continue;
           }
 
@@ -96,8 +107,8 @@ export async function POST(req: NextRequest) {
               headers: rest.headers || {},
               status: "ACTIVE",
               isEnabled: rest.isEnabled ?? true,
-              createdById: session.user.id
-            }
+              createdById: session.user.id,
+            },
           });
 
           // Create rate limits if provided
@@ -105,15 +116,18 @@ export async function POST(req: NextRequest) {
             await prisma.apiRateLimitConfig.create({
               data: {
                 connectionId: newConn.id,
-                ...rest.rateLimits
-              }
+                ...rest.rateLimits,
+              },
             });
           }
 
           results.imported++;
         }
       } catch (err: any) {
-        results.errors.push({ name: conn.name || "Unknown", error: err.message });
+        results.errors.push({
+          name: conn.name || "Unknown",
+          error: err.message,
+        });
       }
     }
 
@@ -129,17 +143,21 @@ export async function POST(req: NextRequest) {
           updated: results.updated,
           skipped: results.skipped,
           errorCount: results.errors.length,
-          importedBy: session.user.email
+          importedBy: session.user.email,
         },
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     return NextResponse.json(results);
   } catch (error) {
     console.error("Error importing API connections:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

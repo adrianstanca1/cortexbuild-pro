@@ -5,7 +5,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { checkServiceHealth, checkAllServicesHealth, getServiceUptimeStats, checkModuleDependencies } from "@/lib/service-health";
+import {
+  checkServiceHealth,
+  checkAllServicesHealth,
+  getServiceUptimeStats,
+  checkModuleDependencies,
+} from "@/lib/service-health";
 
 export const dynamic = "force-dynamic";
 
@@ -37,12 +42,12 @@ export async function GET(request: NextRequest) {
     // Check specific service
     if (serviceId) {
       const health = await checkServiceHealth(serviceId);
-      
+
       if (includeUptime) {
         const uptime = await getServiceUptimeStats(serviceId, uptimeDays);
         return NextResponse.json({ ...health, uptime });
       }
-      
+
       return NextResponse.json(health);
     }
 
@@ -53,11 +58,17 @@ export async function GET(request: NextRequest) {
       // Add uptime stats for each service
       const servicesWithUptime = await Promise.all(
         systemHealth.services.map(async (service) => {
-          const uptime = await getServiceUptimeStats(service.serviceId, uptimeDays);
+          const uptime = await getServiceUptimeStats(
+            service.serviceId,
+            uptimeDays,
+          );
           return { ...service, uptime };
-        })
+        }),
       );
-      return NextResponse.json({ ...systemHealth, services: servicesWithUptime });
+      return NextResponse.json({
+        ...systemHealth,
+        services: servicesWithUptime,
+      });
     }
 
     return NextResponse.json(systemHealth);
@@ -65,7 +76,7 @@ export async function GET(request: NextRequest) {
     console.error("Health check error:", error);
     return NextResponse.json(
       { error: "Failed to check service health" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -93,7 +104,7 @@ export async function POST(request: NextRequest) {
     if (!serviceId) {
       return NextResponse.json(
         { error: "serviceId is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -103,7 +114,7 @@ export async function POST(request: NextRequest) {
     console.error("Health check error:", error);
     return NextResponse.json(
       { error: "Failed to run health check" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

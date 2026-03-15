@@ -5,13 +5,12 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
-
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,9 +23,9 @@ export async function GET(request: NextRequest) {
     const trade = searchParams.get("trade");
 
     const where: any = {
-      organizationId: session.user.organizationId
+      organizationId: session.user.organizationId,
     };
-    
+
     if (trade && trade !== "all") where.trade = trade;
 
     const subcontractors = await prisma.subcontractor.findMany({
@@ -34,14 +33,14 @@ export async function GET(request: NextRequest) {
       include: {
         contracts: {
           include: {
-            project: { select: { id: true, name: true } }
-          }
+            project: { select: { id: true, name: true } },
+          },
         },
         _count: {
-          select: { contracts: true, costItems: true }
-        }
+          select: { contracts: true, costItems: true },
+        },
       },
-      orderBy: { companyName: "asc" }
+      orderBy: { companyName: "asc" },
     });
 
     // Calculate summary stats
@@ -50,20 +49,25 @@ export async function GET(request: NextRequest) {
     }, 0);
 
     const activeContracts = subcontractors.reduce((acc, sub) => {
-      return acc + sub.contracts.filter(c => c.status === "ACTIVE").length;
+      return acc + sub.contracts.filter((c) => c.status === "ACTIVE").length;
     }, 0);
 
-    return NextResponse.json(bigintSafe({
-      subcontractors,
-      summary: {
-        total: subcontractors.length,
-        totalContractValue,
-        activeContracts
-      }
-    }));
+    return NextResponse.json(
+      bigintSafe({
+        subcontractors,
+        summary: {
+          total: subcontractors.length,
+          totalContractValue,
+          activeContracts,
+        },
+      }),
+    );
   } catch (error) {
     console.error("Error fetching subcontractors:", error);
-    return NextResponse.json({ error: "Failed to fetch subcontractors" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch subcontractors" },
+      { status: 500 },
+    );
   }
 }
 
@@ -76,12 +80,23 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      companyName, contactName, email, phone, address, trade,
-      licenseNumber, insuranceExpiry, rating, notes
+      companyName,
+      contactName,
+      email,
+      phone,
+      address,
+      trade,
+      licenseNumber,
+      insuranceExpiry,
+      rating,
+      notes,
     } = body;
 
     if (!companyName || !contactName || !email) {
-      return NextResponse.json({ error: "Company name, contact name, and email are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Company name, contact name, and email are required" },
+        { status: 400 },
+      );
     }
 
     const subcontractor = await prisma.subcontractor.create({
@@ -96,14 +111,14 @@ export async function POST(request: NextRequest) {
         licenseNumber,
         insuranceExpiry: insuranceExpiry ? new Date(insuranceExpiry) : null,
         rating: rating ? parseInt(rating) : null,
-        notes
+        notes,
       },
       include: {
         contracts: true,
         _count: {
-          select: { contracts: true, costItems: true }
-        }
-      }
+          select: { contracts: true, costItems: true },
+        },
+      },
     });
 
     await prisma.activityLog.create({
@@ -113,18 +128,21 @@ export async function POST(request: NextRequest) {
         entityId: subcontractor.id,
         entityName: subcontractor.companyName,
         details: `Added subcontractor: ${subcontractor.companyName} (${subcontractor.trade})`,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "subcontractor_created",
-      data: { subcontractor }
+      data: { subcontractor },
     });
 
     return NextResponse.json(subcontractor);
   } catch (error) {
     console.error("Error creating subcontractor:", error);
-    return NextResponse.json({ error: "Failed to create subcontractor" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create subcontractor" },
+      { status: 500 },
+    );
   }
 }

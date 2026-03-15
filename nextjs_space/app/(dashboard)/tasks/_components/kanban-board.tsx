@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { TaskCard, TaskDetailDialog } from '@/components/ui/task-card';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { TaskCard, TaskDetailDialog } from "@/components/ui/task-card";
+import { Loader2 } from "lucide-react";
 
-type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'COMPLETE';
+type TaskStatus = "TODO" | "IN_PROGRESS" | "REVIEW" | "COMPLETE";
 
 interface Task {
   id: string;
   title: string;
   description?: string | null;
   status: TaskStatus;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   dueDate?: string | Date | null;
   assignee?: {
     id: string;
@@ -37,13 +37,17 @@ interface KanbanBoardProps {
 }
 
 const columns: { id: TaskStatus; title: string; color: string }[] = [
-  { id: 'TODO', title: 'To Do', color: 'bg-gray-500' },
-  { id: 'IN_PROGRESS', title: 'In Progress', color: 'bg-blue-500' },
-  { id: 'REVIEW', title: 'Review', color: 'bg-yellow-500' },
-  { id: 'COMPLETE', title: 'Complete', color: 'bg-green-500' },
+  { id: "TODO", title: "To Do", color: "bg-gray-500" },
+  { id: "IN_PROGRESS", title: "In Progress", color: "bg-blue-500" },
+  { id: "REVIEW", title: "Review", color: "bg-yellow-500" },
+  { id: "COMPLETE", title: "Complete", color: "bg-green-500" },
 ];
 
-export function KanbanBoard({ tasks, onStatusChange, isLoading }: KanbanBoardProps) {
+export function KanbanBoard({
+  tasks,
+  onStatusChange,
+  isLoading,
+}: KanbanBoardProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
@@ -53,12 +57,12 @@ export function KanbanBoard({ tasks, onStatusChange, isLoading }: KanbanBoardPro
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     setDraggedTask(task);
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    e.dataTransfer.dropEffect = "move";
   };
 
   const handleDrop = (e: React.DragEvent, status: TaskStatus) => {
@@ -93,7 +97,9 @@ export function KanbanBoard({ tasks, onStatusChange, isLoading }: KanbanBoardPro
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${column.color}`} />
-                    <CardTitle className="text-sm font-medium">{column.title}</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      {column.title}
+                    </CardTitle>
                   </div>
                   <Badge variant="secondary" className="text-xs">
                     {columnTasks.length}
@@ -111,7 +117,9 @@ export function KanbanBoard({ tasks, onStatusChange, isLoading }: KanbanBoardPro
                       key={task.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, task)}
-                      className={draggedTask?.id === task.id ? 'opacity-50' : ''}
+                      className={
+                        draggedTask?.id === task.id ? "opacity-50" : ""
+                      }
                     >
                       <TaskCard
                         task={task}

@@ -12,13 +12,9 @@ export function useAsyncData<T>(
     immediate?: boolean;
     retryCount?: number;
     retryDelay?: number;
-  } = {}
+  } = {},
 ) {
-  const {
-    immediate = true,
-    retryCount = 3,
-    retryDelay = 1000,
-  } = options;
+  const { immediate = true, retryCount = 3, retryDelay = 1000 } = options;
 
   const [state, setState] = useState<AsyncDataState<T>>({
     status: "idle",

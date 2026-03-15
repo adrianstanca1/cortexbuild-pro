@@ -14,18 +14,18 @@ export default async function MaterialsPage() {
     prisma.project.findMany({
       where: { organizationId: session.user.organizationId },
       select: { id: true, name: true },
-      orderBy: { name: "asc" }
+      orderBy: { name: "asc" },
     }),
     prisma.material.findMany({
       where: {
-        project: { organizationId: session.user.organizationId }
+        project: { organizationId: session.user.organizationId },
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
+        createdBy: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: "desc" }
-    })
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   const summary = materials.reduce(
@@ -35,14 +35,16 @@ export default async function MaterialsPage() {
       acc.totalReceived += mat.quantityReceived;
       return acc;
     },
-    { totalValue: 0, totalOrdered: 0, totalReceived: 0 }
+    { totalValue: 0, totalOrdered: 0, totalReceived: 0 },
   );
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Materials Tracking</h1>
-        <p className="text-gray-500">Track materials, deliveries, and inventory</p>
+        <p className="text-gray-500">
+          Track materials, deliveries, and inventory
+        </p>
       </div>
       <MaterialsClient
         initialMaterials={JSON.parse(JSON.stringify(materials))}

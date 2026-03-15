@@ -40,8 +40,12 @@ export default async function DefectsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Defect / Snag List</h1>
-        <p className="text-muted-foreground">Track and manage construction defects and issues</p>
+        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+          Defect / Snag List
+        </h1>
+        <p className="text-muted-foreground">
+          Track and manage construction defects and issues
+        </p>
       </div>
       <DefectsClient
         defects={JSON.parse(JSON.stringify(defects))}

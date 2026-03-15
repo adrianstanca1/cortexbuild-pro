@@ -11,8 +11,11 @@
         ],
         "skipLibCheck": true,
         "types": [
-            "node",
-            "vite/client",
+            "node"
+        ],
+        "typeRoots": [
+            "./node_modules/@types",
+            "./types"
         ],
         "moduleResolution": "bundler",
         "baseUrl": ".",
@@ -53,14 +56,24 @@
         "**/*.ts",
         "**/*.tsx",
         "vite-env.d.ts",
-        "types.ts"
+        "types.ts",
+        "types/**/*.d.ts"
     ],
     "exclude": [
         "node_modules",
         "dist",
         "server",
         "nextjs_space",
-        "deployment/scripts",
-        "_archived_variants"
+        "deployment",
+        "_archived_variants",
+        "**/__tests__/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "tests/**",
+        "vitest.config.ts",
+        "vitest.server.config.ts",
+        "vitest.setup.ts"
     ]
 }

@@ -4,9 +4,15 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import {
-  FolderKanban, ListTodo, Users, FileText, 
-  FileQuestion, Shield, 
-  Clock, Search, Plus
+  FolderKanban,
+  ListTodo,
+  Users,
+  FileText,
+  FileQuestion,
+  Shield,
+  Clock,
+  Search,
+  Plus,
 } from "lucide-react";
 
 interface EmptyStateProps {
@@ -31,20 +37,20 @@ const sizeClasses = {
     container: "py-8 px-4",
     icon: "h-10 w-10",
     title: "text-base",
-    description: "text-sm"
+    description: "text-sm",
   },
   md: {
     container: "py-12 px-6",
     icon: "h-14 w-14",
     title: "text-lg",
-    description: "text-sm"
+    description: "text-sm",
   },
   lg: {
     container: "py-16 px-8",
     icon: "h-20 w-20",
     title: "text-xl",
-    description: "text-base"
-  }
+    description: "text-base",
+  },
 };
 
 export function EmptyState({
@@ -54,7 +60,7 @@ export function EmptyState({
   action,
   secondaryAction,
   size = "md",
-  className
+  className,
 }: EmptyStateProps) {
   const sizes = sizeClasses[size];
 
@@ -63,7 +69,7 @@ export function EmptyState({
       className={cn(
         "flex flex-col items-center justify-center text-center",
         sizes.container,
-        className
+        className,
       )}
     >
       {/* Decorative background circles */}
@@ -71,7 +77,11 @@ export function EmptyState({
         <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl scale-150" />
         <div className="relative p-4 bg-muted/50 rounded-full">
           <div className="p-3 bg-background rounded-full shadow-sm border border-border">
-            {icon || <FolderKanban className={cn(sizes.icon, "text-muted-foreground")} />}
+            {icon || (
+              <FolderKanban
+                className={cn(sizes.icon, "text-muted-foreground")}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -79,7 +89,9 @@ export function EmptyState({
       <h3 className={cn("font-semibold text-foreground mb-2", sizes.title)}>
         {title}
       </h3>
-      <p className={cn("text-muted-foreground max-w-md mb-6", sizes.description)}>
+      <p
+        className={cn("text-muted-foreground max-w-md mb-6", sizes.description)}
+      >
         {description}
       </p>
 
@@ -103,7 +115,11 @@ export function EmptyState({
 }
 
 // Pre-configured empty states for common modules
-export function NoProjectsEmpty({ onCreateProject }: { onCreateProject: () => void }) {
+export function NoProjectsEmpty({
+  onCreateProject,
+}: {
+  onCreateProject: () => void;
+}) {
   return (
     <EmptyState
       icon={<FolderKanban className="h-14 w-14 text-primary" />}
@@ -125,7 +141,13 @@ export function NoTasksEmpty({ onCreateTask }: { onCreateTask: () => void }) {
   );
 }
 
-export function NoSearchResultsEmpty({ query, onClear }: { query: string; onClear: () => void }) {
+export function NoSearchResultsEmpty({
+  query,
+  onClear,
+}: {
+  query: string;
+  onClear: () => void;
+}) {
   return (
     <EmptyState
       icon={<Search className="h-14 w-14 text-muted-foreground" />}

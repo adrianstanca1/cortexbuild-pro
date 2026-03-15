@@ -50,9 +50,17 @@ interface TeamInvitationsClientProps {
   userRole: string;
 }
 
-export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) {
+export function TeamInvitationsClient({
+  userRole,
+}: TeamInvitationsClientProps) {
   const [invitations, setInvitations] = useState<any[]>([]);
-  const [counts, setCounts] = useState({ total: 0, PENDING: 0, ACCEPTED: 0, EXPIRED: 0, REVOKED: 0 });
+  const [counts, setCounts] = useState({
+    total: 0,
+    PENDING: 0,
+    ACCEPTED: 0,
+    EXPIRED: 0,
+    REVOKED: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -72,10 +80,10 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
     try {
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.set("status", statusFilter);
-      
+
       const res = await fetch(`/api/company/invitations?${params}`);
       const data = await res.json();
-      
+
       if (res.ok) {
         setInvitations(data.invitations);
         setCounts(data.counts);
@@ -128,10 +136,15 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
     }
   };
 
-  const handleAction = async (id: string, action: "resend" | "revoke" | "delete") => {
+  const handleAction = async (
+    id: string,
+    action: "resend" | "revoke" | "delete",
+  ) => {
     try {
       if (action === "delete") {
-        const res = await fetch(`/api/company/invitations/${id}`, { method: "DELETE" });
+        const res = await fetch(`/api/company/invitations/${id}`, {
+          method: "DELETE",
+        });
         if (res.ok) {
           toast.success("Invitation deleted");
           fetchInvitations();
@@ -142,9 +155,11 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action }),
         });
-        
+
         if (res.ok) {
-          toast.success(action === "resend" ? "Invitation resent" : "Invitation revoked");
+          toast.success(
+            action === "resend" ? "Invitation resent" : "Invitation revoked",
+          );
           fetchInvitations();
         }
       }
@@ -165,15 +180,20 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
   const filteredInvitations = invitations.filter(
     (inv) =>
       inv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inv.email.toLowerCase().includes(searchQuery.toLowerCase())
+      inv.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
-    PENDING: { icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
-    ACCEPTED: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-100" },
-    EXPIRED: { icon: AlertCircle, color: "text-gray-600", bg: "bg-gray-100" },
-    REVOKED: { icon: XCircle, color: "text-red-600", bg: "bg-red-100" },
-  };
+  const statusConfig: Record<string, { icon: any; color: string; bg: string }> =
+    {
+      PENDING: { icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
+      ACCEPTED: {
+        icon: CheckCircle2,
+        color: "text-emerald-600",
+        bg: "bg-emerald-100",
+      },
+      EXPIRED: { icon: AlertCircle, color: "text-gray-600", bg: "bg-gray-100" },
+      REVOKED: { icon: XCircle, color: "text-red-600", bg: "bg-red-100" },
+    };
 
   const roleOptions = [
     { value: "FIELD_WORKER", label: "Field Worker" },
@@ -186,9 +206,14 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Team Invitations</h1>
-          <p className="text-gray-500 mt-1">Invite new members to join your organization</p>
+          <p className="text-gray-500 mt-1">
+            Invite new members to join your organization
+          </p>
         </div>
-        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCreateModal(true)}>
+        <Button
+          className="bg-emerald-600 hover:bg-emerald-700"
+          onClick={() => setShowCreateModal(true)}
+        >
           <UserPlus className="h-4 w-4 mr-2" />
           Invite Member
         </Button>
@@ -198,8 +223,16 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           { label: "Total", value: counts.total, color: "border-gray-300" },
-          { label: "Pending", value: counts.PENDING, color: "border-amber-400" },
-          { label: "Accepted", value: counts.ACCEPTED, color: "border-emerald-400" },
+          {
+            label: "Pending",
+            value: counts.PENDING,
+            color: "border-amber-400",
+          },
+          {
+            label: "Accepted",
+            value: counts.ACCEPTED,
+            color: "border-emerald-400",
+          },
           { label: "Expired", value: counts.EXPIRED, color: "border-gray-400" },
           { label: "Revoked", value: counts.REVOKED, color: "border-red-400" },
         ].map((stat) => (
@@ -275,13 +308,20 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                         {invitation.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{invitation.name}</p>
-                        <p className="text-sm text-gray-500">{invitation.email}</p>
+                        <p className="font-medium text-gray-900">
+                          {invitation.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {invitation.email}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="hidden sm:inline-flex">
+                      <Badge
+                        variant="outline"
+                        className="hidden sm:inline-flex"
+                      >
                         {invitation.role.replace("_", " ")}
                       </Badge>
                       <Badge className={`${status.bg} ${status.color}`}>
@@ -289,7 +329,9 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                         {invitation.status}
                       </Badge>
                       <span className="text-xs text-gray-400 hidden md:block">
-                        {formatDistanceToNow(new Date(invitation.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(invitation.createdAt), {
+                          addSuffix: true,
+                        })}
                       </span>
 
                       <DropdownMenu>
@@ -301,7 +343,9 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                         <DropdownMenuContent align="end">
                           {invitation.status === "PENDING" && (
                             <>
-                              <DropdownMenuItem onClick={() => copyInviteLink(invitation.token)}>
+                              <DropdownMenuItem
+                                onClick={() => copyInviteLink(invitation.token)}
+                              >
                                 {copiedToken === invitation.token ? (
                                   <Check className="h-4 w-4 mr-2" />
                                 ) : (
@@ -309,12 +353,18 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                                 )}
                                 Copy Link
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAction(invitation.id, "resend")}>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleAction(invitation.id, "resend")
+                                }
+                              >
                                 <Send className="h-4 w-4 mr-2" />
                                 Resend
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() => handleAction(invitation.id, "revoke")}
+                                onClick={() =>
+                                  handleAction(invitation.id, "revoke")
+                                }
                                 className="text-amber-600"
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
@@ -323,13 +373,19 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                             </>
                           )}
                           {invitation.status === "EXPIRED" && (
-                            <DropdownMenuItem onClick={() => handleAction(invitation.id, "resend")}>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleAction(invitation.id, "resend")
+                              }
+                            >
                               <Send className="h-4 w-4 mr-2" />
                               Resend
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
-                            onClick={() => handleAction(invitation.id, "delete")}
+                            onClick={() =>
+                              handleAction(invitation.id, "delete")
+                            }
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
@@ -361,7 +417,9 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                 type="email"
                 placeholder="colleague@company.com"
                 value={newInvitation.email}
-                onChange={(e) => setNewInvitation({ ...newInvitation, email: e.target.value })}
+                onChange={(e) =>
+                  setNewInvitation({ ...newInvitation, email: e.target.value })
+                }
               />
             </div>
 
@@ -371,7 +429,9 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                 id="name"
                 placeholder="John Doe"
                 value={newInvitation.name}
-                onChange={(e) => setNewInvitation({ ...newInvitation, name: e.target.value })}
+                onChange={(e) =>
+                  setNewInvitation({ ...newInvitation, name: e.target.value })
+                }
               />
             </div>
 
@@ -379,7 +439,9 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
               <Label>Role</Label>
               <Select
                 value={newInvitation.role}
-                onValueChange={(value) => setNewInvitation({ ...newInvitation, role: value })}
+                onValueChange={(value) =>
+                  setNewInvitation({ ...newInvitation, role: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -401,7 +463,12 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                   id="jobTitle"
                   placeholder="Site Manager"
                   value={newInvitation.jobTitle}
-                  onChange={(e) => setNewInvitation({ ...newInvitation, jobTitle: e.target.value })}
+                  onChange={(e) =>
+                    setNewInvitation({
+                      ...newInvitation,
+                      jobTitle: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -410,7 +477,12 @@ export function TeamInvitationsClient({ userRole }: TeamInvitationsClientProps) 
                   id="department"
                   placeholder="Operations"
                   value={newInvitation.department}
-                  onChange={(e) => setNewInvitation({ ...newInvitation, department: e.target.value })}
+                  onChange={(e) =>
+                    setNewInvitation({
+                      ...newInvitation,
+                      department: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>

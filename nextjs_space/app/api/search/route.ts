@@ -1,21 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q')?.toLowerCase() || '';
+    const query = searchParams.get("q")?.toLowerCase() || "";
 
     if (query.length < 2) {
       return NextResponse.json({ results: [] });
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { organizationId: true }
+      select: { organizationId: true },
     });
 
     if (!user?.organizationId) {
@@ -37,26 +37,31 @@ export async function GET(request: NextRequest) {
         where: {
           organizationId: user.organizationId,
           OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { clientName: { contains: query, mode: 'insensitive' } },
-            { location: { contains: query, mode: 'insensitive' } }
-          ]
+            { name: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
+            { clientName: { contains: query, mode: "insensitive" } },
+            { location: { contains: query, mode: "insensitive" } },
+          ],
         },
         select: { id: true, name: true, status: true },
-        take: 5
+        take: 5,
       }),
       // Search tasks
       prisma.task.findMany({
         where: {
           project: { organizationId: user.organizationId },
           OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } }
-          ]
+            { title: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
+          ],
         },
-        select: { id: true, title: true, status: true, project: { select: { name: true } } },
-        take: 5
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          project: { select: { name: true } },
+        },
+        take: 5,
       }),
       // Search team members
       prisma.teamMember.findMany({
@@ -64,26 +69,43 @@ export async function GET(request: NextRequest) {
           organizationId: user.organizationId,
           user: {
             OR: [
-              { name: { contains: query, mode: 'insensitive' } },
-              { email: { contains: query, mode: 'insensitive' } }
-            ]
-          }
+              { name: { contains: query, mode: "insensitive" } },
+              { email: { contains: query, mode: "insensitive" } },
+            ],
+          },
         },
         include: { user: { select: { id: true, name: true, email: true } } },
-        take: 5
-      })
+        take: 5,
+      }),
     ]);
 
     // Combine and format results
     const results = [
-      ...projects.map(p => ({ type: 'project', id: p.id, name: p.name, status: p.status })),
-      ...tasks.map(t => ({ type: 'task', id: t.id, title: t.title, name: t.title, status: t.status, projectName: t.project.name })),
-      ...teamMembers.map(tm => ({ type: 'team', id: tm.user.id, name: tm.user.name, email: tm.user.email }))
+      ...projects.map((p) => ({
+        type: "project",
+        id: p.id,
+        name: p.name,
+        status: p.status,
+      })),
+      ...tasks.map((t) => ({
+        type: "task",
+        id: t.id,
+        title: t.title,
+        name: t.title,
+        status: t.status,
+        projectName: t.project.name,
+      })),
+      ...teamMembers.map((tm) => ({
+        type: "team",
+        id: tm.user.id,
+        name: tm.user.name,
+        email: tm.user.email,
+      })),
     ];
 
     return NextResponse.json({ results });
   } catch (error) {
-    console.error('Error searching:', error);
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+    console.error("Error searching:", error);
+    return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }
 }

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // This endpoint is protected and only accessible by SUPER_ADMIN
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,15 +20,20 @@ export async function GET(
 
     const { id } = await context.params;
     const connection = await prisma.apiConnection.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!connection) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     // Decrypt credentials
-    const credentials = decryptCredentials(connection.credentials as Record<string, string>);
+    const credentials = decryptCredentials(
+      connection.credentials as Record<string, string>,
+    );
 
     // Log the access for audit purposes
     await prisma.apiConnectionLog.create({
@@ -37,17 +42,21 @@ export async function GET(
         action: "credentials_viewed",
         details: {
           credentialKeys: Object.keys(credentials),
-          purpose: "edit_configuration"
+          purpose: "edit_configuration",
         },
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     return NextResponse.json({ credentials });
   } catch (error) {
     console.error("Error fetching credentials:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

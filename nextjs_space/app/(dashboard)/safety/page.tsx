@@ -1,37 +1,37 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
-import { SafetyClient } from './_components/safety-client';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { SafetyClient } from "./_components/safety-client";
 
 export default async function SafetyPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const organizationId = session.user.organizationId;
-  if (!organizationId) redirect('/login');
+  if (!organizationId) redirect("/login");
 
   const [projects, incidents, teamMembers] = await Promise.all([
     prisma.project.findMany({
       where: { organizationId },
       select: { id: true, name: true },
-      orderBy: { name: 'asc' }
+      orderBy: { name: "asc" },
     }),
     prisma.safetyIncident.findMany({
       where: {
-        project: { organizationId }
+        project: { organizationId },
       },
       include: {
         project: { select: { id: true, name: true } },
         reportedBy: { select: { id: true, name: true } },
-        assignedTo: { select: { id: true, name: true } }
+        assignedTo: { select: { id: true, name: true } },
       },
-      orderBy: { incidentDate: 'desc' }
+      orderBy: { incidentDate: "desc" },
     }),
     prisma.teamMember.findMany({
       where: { organizationId },
-      include: { user: { select: { id: true, name: true, email: true } } }
-    })
+      include: { user: { select: { id: true, name: true, email: true } } },
+    }),
   ]);
 
   return (

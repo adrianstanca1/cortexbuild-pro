@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   BarChart3,
   TrendingUp,
@@ -11,8 +11,8 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
-  PoundSterling
-} from 'lucide-react';
+  PoundSterling,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -26,8 +26,8 @@ import {
   Cell,
   LineChart,
   Line,
-  Legend
-} from 'recharts';
+  Legend,
+} from "recharts";
 
 interface ReportsClientProps {
   stats: {
@@ -55,19 +55,19 @@ interface ReportsClientProps {
   }[];
 }
 
-const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef'];
+const COLORS = ["#6366f1", "#8b5cf6", "#a855f7", "#d946ef"];
 const STATUS_COLORS = {
-  TODO: '#9ca3af',
-  IN_PROGRESS: '#3b82f6',
-  REVIEW: '#f59e0b',
-  COMPLETE: '#22c55e',
+  TODO: "#9ca3af",
+  IN_PROGRESS: "#3b82f6",
+  REVIEW: "#f59e0b",
+  COMPLETE: "#22c55e",
 };
 
 const PRIORITY_COLORS = {
-  LOW: '#9ca3af',
-  MEDIUM: '#3b82f6',
-  HIGH: '#f97316',
-  CRITICAL: '#ef4444',
+  LOW: "#9ca3af",
+  MEDIUM: "#3b82f6",
+  HIGH: "#f97316",
+  CRITICAL: "#ef4444",
 };
 
 export function ReportsClient({
@@ -76,35 +76,42 @@ export function ReportsClient({
   projectsByStatus,
   tasksByPriority,
   activityByDay,
-  projectPerformance
+  projectPerformance,
 }: ReportsClientProps) {
   const taskStatusData = Object.entries(tasksByStatus).map(([name, value]) => ({
-    name: name.replace('_', ' '),
+    name: name.replace("_", " "),
     value,
-    fill: STATUS_COLORS[name as keyof typeof STATUS_COLORS]
+    fill: STATUS_COLORS[name as keyof typeof STATUS_COLORS],
   }));
 
   const priorityData = Object.entries(tasksByPriority).map(([name, value]) => ({
     name,
     value,
-    fill: PRIORITY_COLORS[name as keyof typeof PRIORITY_COLORS]
+    fill: PRIORITY_COLORS[name as keyof typeof PRIORITY_COLORS],
   }));
 
-  const projectStatusData = Object.entries(projectsByStatus).map(([name, value]) => ({
-    name: name.replace('_', ' '),
-    value
-  }));
+  const projectStatusData = Object.entries(projectsByStatus).map(
+    ([name, value]) => ({
+      name: name.replace("_", " "),
+      value,
+    }),
+  );
 
-  const completionRate = stats.totalTasks > 0 
-    ? Math.round((stats.completedTasks / stats.totalTasks) * 100) 
-    : 0;
+  const completionRate =
+    stats.totalTasks > 0
+      ? Math.round((stats.completedTasks / stats.totalTasks) * 100)
+      : 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-gray-600">Comprehensive overview of your construction projects.</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Reports & Analytics
+        </h1>
+        <p className="text-gray-600">
+          Comprehensive overview of your construction projects.
+        </p>
       </div>
 
       {/* Key Stats */}
@@ -148,10 +155,10 @@ export function ReportsClient({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Overdue Tasks</p>
-                <p className="text-3xl font-bold text-red-600">{stats.overdueTasks}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Needs attention
+                <p className="text-3xl font-bold text-red-600">
+                  {stats.overdueTasks}
                 </p>
+                <p className="text-xs text-gray-500 mt-1">Needs attention</p>
               </div>
               <div className="p-3 bg-red-100 rounded-full">
                 <AlertTriangle className="h-6 w-6 text-red-600" />
@@ -165,7 +172,9 @@ export function ReportsClient({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Budget</p>
-                <p className="text-3xl font-bold">£{(stats.totalBudget / 1000000).toFixed(1)}M</p>
+                <p className="text-3xl font-bold">
+                  £{(stats.totalBudget / 1000000).toFixed(1)}M
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Across all projects
                 </p>
@@ -186,7 +195,9 @@ export function ReportsClient({
         <CardContent>
           <div className="flex items-center gap-4">
             <Progress value={completionRate} className="flex-1 h-4" />
-            <span className="text-2xl font-bold text-purple-600">{completionRate}%</span>
+            <span className="text-2xl font-bold text-purple-600">
+              {completionRate}%
+            </span>
           </div>
           <p className="text-sm text-gray-500 mt-2">
             {stats.completedTasks} of {stats.totalTasks} tasks completed
@@ -261,20 +272,24 @@ export function ReportsClient({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={activityByDay}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(date) =>
+                    new Date(date).toLocaleDateString("en-US", {
+                      weekday: "short",
+                    })
+                  }
                 />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   labelFormatter={(date) => new Date(date).toLocaleDateString()}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="#6366f1" 
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#6366f1"
                   strokeWidth={2}
-                  dot={{ fill: '#6366f1', r: 4 }}
+                  dot={{ fill: "#6366f1", r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -301,11 +316,14 @@ export function ReportsClient({
               </thead>
               <tbody>
                 {projectPerformance.map((project) => (
-                  <tr key={project.id} className="border-b last:border-0 hover:bg-gray-50">
+                  <tr
+                    key={project.id}
+                    className="border-b last:border-0 hover:bg-gray-50"
+                  >
                     <td className="py-3 px-4 font-medium">{project.name}</td>
                     <td className="py-3 px-4">
                       <Badge variant="secondary" className="text-xs">
-                        {project.status.replace('_', ' ')}
+                        {project.status.replace("_", " ")}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
@@ -313,7 +331,10 @@ export function ReportsClient({
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <Progress value={project.progress} className="w-20 h-2" />
+                        <Progress
+                          value={project.progress}
+                          className="w-20 h-2"
+                        />
                         <span className="text-sm">{project.progress}%</span>
                       </div>
                     </td>

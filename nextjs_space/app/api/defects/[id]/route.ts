@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -34,13 +34,16 @@ export async function GET(
     return NextResponse.json(defect);
   } catch (error) {
     console.error("Error fetching defect:", error);
-    return NextResponse.json({ error: "Failed to fetch defect" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch defect" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -51,8 +54,20 @@ export async function PATCH(
 
     const body = await request.json();
     const {
-      title, description, location, floor, room, trade, status, priority,
-      dueDate, responsibleParty, rootCause, remedialAction, cost, assignedToId
+      title,
+      description,
+      location,
+      floor,
+      room,
+      trade,
+      status,
+      priority,
+      dueDate,
+      responsibleParty,
+      rootCause,
+      remedialAction,
+      cost,
+      assignedToId,
     } = body;
 
     const existingDefect = await prisma.defect.findUnique({
@@ -73,12 +88,16 @@ export async function PATCH(
     if (room !== undefined) updateData.room = room;
     if (trade) updateData.trade = trade;
     if (priority) updateData.priority = priority;
-    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
-    if (responsibleParty !== undefined) updateData.responsibleParty = responsibleParty || null;
+    if (dueDate !== undefined)
+      updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    if (responsibleParty !== undefined)
+      updateData.responsibleParty = responsibleParty || null;
     if (rootCause !== undefined) updateData.rootCause = rootCause || null;
-    if (remedialAction !== undefined) updateData.remedialAction = remedialAction || null;
+    if (remedialAction !== undefined)
+      updateData.remedialAction = remedialAction || null;
     if (cost !== undefined) updateData.cost = cost ? parseFloat(cost) : null;
-    if (assignedToId !== undefined) updateData.assignedToId = assignedToId || null;
+    if (assignedToId !== undefined)
+      updateData.assignedToId = assignedToId || null;
 
     if (status) {
       updateData.status = status;
@@ -103,20 +122,28 @@ export async function PATCH(
     if (existingDefect.project.organizationId) {
       broadcastToOrganization(existingDefect.project.organizationId, {
         type: "defect_updated",
-        data: { id: defect.id, number: defect.number, title: defect.title, status: defect.status },
+        data: {
+          id: defect.id,
+          number: defect.number,
+          title: defect.title,
+          status: defect.status,
+        },
       });
     }
 
     return NextResponse.json(defect);
   } catch (error) {
     console.error("Error updating defect:", error);
-    return NextResponse.json({ error: "Failed to update defect" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update defect" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -146,6 +173,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting defect:", error);
-    return NextResponse.json({ error: "Failed to delete defect" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete defect" },
+      { status: 500 },
+    );
   }
 }

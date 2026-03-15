@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { format, formatDistanceToNow, isPast, isFuture, addDays } from 'date-fns';
-import { useRouter } from 'next/navigation';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useState, useCallback } from "react";
+import {
+  format,
+  formatDistanceToNow,
+  isPast,
+  isFuture,
+  addDays,
+} from "date-fns";
+import { useRouter } from "next/navigation";
+import { useRealtimeSubscription } from "@/components/realtime-provider";
 import {
   Award,
   Plus,
@@ -22,32 +28,43 @@ import {
   Filter,
   XCircle,
   LayoutGrid,
-  List
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+  List,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import { FileUpload } from '@/components/ui/file-upload';
-import { Checkbox } from '@/components/ui/checkbox';
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { FileUpload } from "@/components/ui/file-upload";
+import { Checkbox } from "@/components/ui/checkbox";
 
-type CertificationType = 'CSCS' | 'CSR' | 'FIRST_AID' | 'MANUAL_HANDLING' | 'ASBESTOS' | 'SCAFFOLDING' | 'MEWP' | 'CRANE' | 'ELECTRICAL' | 'GAS' | 'OTHER';
-type CertificationStatus = 'VALID' | 'EXPIRING_SOON' | 'EXPIRED';
+type CertificationType =
+  | "CSCS"
+  | "CSR"
+  | "FIRST_AID"
+  | "MANUAL_HANDLING"
+  | "ASBESTOS"
+  | "SCAFFOLDING"
+  | "MEWP"
+  | "CRANE"
+  | "ELECTRICAL"
+  | "GAS"
+  | "OTHER";
+type CertificationStatus = "VALID" | "EXPIRING_SOON" | "EXPIRED";
 
 interface Certification {
   id: string;
@@ -73,49 +90,118 @@ interface CertificationsClientProps {
   projects: { id: string; name: string }[];
 }
 
-const certificationTypeConfig: Record<CertificationType, { label: string; color: string; icon: React.ReactNode }> = {
-  CSCS: { label: 'CSCS Card', color: 'bg-green-100 text-green-700', icon: <Shield className="w-4 h-4" /> },
-  CSR: { label: 'CSR Card', color: 'bg-blue-100 text-blue-700', icon: <Shield className="w-4 h-4" /> },
-  FIRST_AID: { label: 'First Aid', color: 'bg-red-100 text-red-700', icon: <AlertCircle className="w-4 h-4" /> },
-  MANUAL_HANDLING: { label: 'Manual Handling', color: 'bg-orange-100 text-orange-700', icon: <Award className="w-4 h-4" /> },
-  ASBESTOS: { label: 'Asbestos', color: 'bg-purple-100 text-purple-700', icon: <Shield className="w-4 h-4" /> },
-  SCAFFOLDING: { label: 'Scaffolding', color: 'bg-yellow-100 text-yellow-700', icon: <Building2 className="w-4 h-4" /> },
-  MEWP: { label: 'MEWP', color: 'bg-cyan-100 text-cyan-700', icon: <Award className="w-4 h-4" /> },
-  CRANE: { label: 'Crane Operation', color: 'bg-indigo-100 text-indigo-700', icon: <Award className="w-4 h-4" /> },
-  ELECTRICAL: { label: 'Electrical', color: 'bg-amber-100 text-amber-700', icon: <AlertTriangle className="w-4 h-4" /> },
-  GAS: { label: 'Gas Safe', color: 'bg-rose-100 text-rose-700', icon: <AlertTriangle className="w-4 h-4" /> },
-  OTHER: { label: 'Other', color: 'bg-gray-100 text-gray-700', icon: <FileText className="w-4 h-4" /> }
+const certificationTypeConfig: Record<
+  CertificationType,
+  { label: string; color: string; icon: React.ReactNode }
+> = {
+  CSCS: {
+    label: "CSCS Card",
+    color: "bg-green-100 text-green-700",
+    icon: <Shield className="w-4 h-4" />,
+  },
+  CSR: {
+    label: "CSR Card",
+    color: "bg-blue-100 text-blue-700",
+    icon: <Shield className="w-4 h-4" />,
+  },
+  FIRST_AID: {
+    label: "First Aid",
+    color: "bg-red-100 text-red-700",
+    icon: <AlertCircle className="w-4 h-4" />,
+  },
+  MANUAL_HANDLING: {
+    label: "Manual Handling",
+    color: "bg-orange-100 text-orange-700",
+    icon: <Award className="w-4 h-4" />,
+  },
+  ASBESTOS: {
+    label: "Asbestos",
+    color: "bg-purple-100 text-purple-700",
+    icon: <Shield className="w-4 h-4" />,
+  },
+  SCAFFOLDING: {
+    label: "Scaffolding",
+    color: "bg-yellow-100 text-yellow-700",
+    icon: <Building2 className="w-4 h-4" />,
+  },
+  MEWP: {
+    label: "MEWP",
+    color: "bg-cyan-100 text-cyan-700",
+    icon: <Award className="w-4 h-4" />,
+  },
+  CRANE: {
+    label: "Crane Operation",
+    color: "bg-indigo-100 text-indigo-700",
+    icon: <Award className="w-4 h-4" />,
+  },
+  ELECTRICAL: {
+    label: "Electrical",
+    color: "bg-amber-100 text-amber-700",
+    icon: <AlertTriangle className="w-4 h-4" />,
+  },
+  GAS: {
+    label: "Gas Safe",
+    color: "bg-rose-100 text-rose-700",
+    icon: <AlertTriangle className="w-4 h-4" />,
+  },
+  OTHER: {
+    label: "Other",
+    color: "bg-gray-100 text-gray-700",
+    icon: <FileText className="w-4 h-4" />,
+  },
 };
 
-const statusConfig: Record<CertificationStatus, { color: string; bgColor: string; icon: React.ReactNode; label: string }> = {
-  VALID: { color: 'text-emerald-600', bgColor: 'bg-emerald-100 dark:bg-emerald-900/30', icon: <CheckCircle className="w-3.5 h-3.5" />, label: 'Valid' },
-  EXPIRING_SOON: { color: 'text-amber-600', bgColor: 'bg-amber-100 dark:bg-amber-900/30', icon: <Clock className="w-3.5 h-3.5" />, label: 'Expiring Soon' },
-  EXPIRED: { color: 'text-red-600', bgColor: 'bg-red-100 dark:bg-red-900/30', icon: <XCircle className="w-3.5 h-3.5" />, label: 'Expired' }
+const statusConfig: Record<
+  CertificationStatus,
+  { color: string; bgColor: string; icon: React.ReactNode; label: string }
+> = {
+  VALID: {
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    icon: <CheckCircle className="w-3.5 h-3.5" />,
+    label: "Valid",
+  },
+  EXPIRING_SOON: {
+    color: "text-amber-600",
+    bgColor: "bg-amber-100 dark:bg-amber-900/30",
+    icon: <Clock className="w-3.5 h-3.5" />,
+    label: "Expiring Soon",
+  },
+  EXPIRED: {
+    color: "text-red-600",
+    bgColor: "bg-red-100 dark:bg-red-900/30",
+    icon: <XCircle className="w-3.5 h-3.5" />,
+    label: "Expired",
+  },
 };
 
-export function CertificationsClient({ certifications, workers, projects }: CertificationsClientProps) {
+export function CertificationsClient({
+  certifications,
+  workers,
+  projects,
+}: CertificationsClientProps) {
   const router = useRouter();
   const [items, setItems] = useState<Certification[]>(certifications);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [workerFilter, setWorkerFilter] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [workerFilter, setWorkerFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [showNewModal, setShowNewModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCert, setSelectedCert] = useState<Certification | null>(null);
   const [loading, setLoading] = useState(false);
   const [newCert, setNewCert] = useState({
-    workerId: '',
-    certificationType: 'CSCS' as CertificationType,
-    certificationName: '',
-    cardNumber: '',
-    issuingBody: '',
-    issueDate: format(new Date(), 'yyyy-MM-dd'),
-    expiryDate: '',
+    workerId: "",
+    certificationType: "CSCS" as CertificationType,
+    certificationName: "",
+    cardNumber: "",
+    issuingBody: "",
+    issueDate: format(new Date(), "yyyy-MM-dd"),
+    expiryDate: "",
     isLifetime: false,
-    notes: '',
-    documentUrl: ''
+    notes: "",
+    documentUrl: "",
   });
 
   const handleCertEvent = useCallback(() => {
@@ -123,18 +209,18 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
   }, [router]);
 
   useRealtimeSubscription(
-    ['certification_created', 'certification_updated', 'certification_deleted'],
-    handleCertEvent
+    ["certification_created", "certification_updated", "certification_deleted"],
+    handleCertEvent,
   );
 
   const getCertStatus = (cert: Certification): CertificationStatus => {
-    if (cert.isLifetime) return 'VALID';
-    if (!cert.expiryDate) return 'VALID';
+    if (cert.isLifetime) return "VALID";
+    if (!cert.expiryDate) return "VALID";
     const expiry = new Date(cert.expiryDate);
     const thirtyDaysFromNow = addDays(new Date(), 30);
-    if (isPast(expiry)) return 'EXPIRED';
-    if (expiry <= thirtyDaysFromNow) return 'EXPIRING_SOON';
-    return 'VALID';
+    if (isPast(expiry)) return "EXPIRED";
+    if (expiry <= thirtyDaysFromNow) return "EXPIRING_SOON";
+    return "VALID";
   };
 
   const openDetailModal = (cert: Certification) => {
@@ -144,62 +230,69 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
 
   const handleCreate = async () => {
     if (!newCert.workerId || !newCert.certificationName) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch('/api/certifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCert)
+      const res = await fetch("/api/certifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCert),
       });
 
       if (res.ok) {
         const created = await res.json();
-        setItems(prev => [created, ...prev]);
+        setItems((prev) => [created, ...prev]);
         setShowNewModal(false);
         setNewCert({
-          workerId: '',
-          certificationType: 'CSCS',
-          certificationName: '',
-          cardNumber: '',
-          issuingBody: '',
-          issueDate: format(new Date(), 'yyyy-MM-dd'),
-          expiryDate: '',
+          workerId: "",
+          certificationType: "CSCS",
+          certificationName: "",
+          cardNumber: "",
+          issuingBody: "",
+          issueDate: format(new Date(), "yyyy-MM-dd"),
+          expiryDate: "",
           isLifetime: false,
-          notes: '',
-          documentUrl: ''
+          notes: "",
+          documentUrl: "",
         });
-        toast.success('Certification added successfully');
+        toast.success("Certification added successfully");
       } else {
         const err = await res.json();
-        toast.error(err.error || 'Failed to add certification');
+        toast.error(err.error || "Failed to add certification");
       }
     } catch (error) {
-      toast.error('Failed to add certification');
+      toast.error("Failed to add certification");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredCerts = items.filter(cert => {
-    const matchesSearch = cert.certificationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredCerts = items.filter((cert) => {
+    const matchesSearch =
+      cert.certificationName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       cert.worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cert.cardNumber?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === 'all' || cert.certificationType === typeFilter;
-    const matchesStatus = statusFilter === 'all' || getCertStatus(cert) === statusFilter;
-    const matchesWorker = workerFilter === 'all' || cert.worker.id === workerFilter;
+    const matchesType =
+      typeFilter === "all" || cert.certificationType === typeFilter;
+    const matchesStatus =
+      statusFilter === "all" || getCertStatus(cert) === statusFilter;
+    const matchesWorker =
+      workerFilter === "all" || cert.worker.id === workerFilter;
     return matchesSearch && matchesType && matchesStatus && matchesWorker;
   });
 
   const stats = {
     total: items.length,
-    valid: items.filter(c => getCertStatus(c) === 'VALID').length,
-    expiringSoon: items.filter(c => getCertStatus(c) === 'EXPIRING_SOON').length,
-    expired: items.filter(c => getCertStatus(c) === 'EXPIRED').length,
-    lifetime: items.filter(c => c.isLifetime).length
+    valid: items.filter((c) => getCertStatus(c) === "VALID").length,
+    expiringSoon: items.filter((c) => getCertStatus(c) === "EXPIRING_SOON")
+      .length,
+    expired: items.filter((c) => getCertStatus(c) === "EXPIRED").length,
+    lifetime: items.filter((c) => c.isLifetime).length,
   };
 
   return (
@@ -213,9 +306,14 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
             </div>
             Worker Certifications
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage worker certifications and training records</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage worker certifications and training records
+          </p>
         </div>
-        <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-lg shadow-emerald-500/25">
+        <Button
+          onClick={() => setShowNewModal(true)}
+          className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-lg shadow-emerald-500/25"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Certification
         </Button>
@@ -227,8 +325,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {stats.total}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Total
+                </p>
               </div>
               <div className="p-2 bg-slate-200 dark:bg-slate-700 rounded-lg">
                 <Award className="w-5 h-5 text-slate-600 dark:text-slate-300" />
@@ -241,8 +343,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.valid}</p>
-                <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70 font-medium">Valid</p>
+                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {stats.valid}
+                </p>
+                <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70 font-medium">
+                  Valid
+                </p>
               </div>
               <div className="p-2 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -255,8 +361,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.expiringSoon}</p>
-                <p className="text-xs text-amber-600/70 dark:text-amber-400/70 font-medium">Expiring Soon</p>
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  {stats.expiringSoon}
+                </p>
+                <p className="text-xs text-amber-600/70 dark:text-amber-400/70 font-medium">
+                  Expiring Soon
+                </p>
               </div>
               <div className="p-2 bg-amber-200 dark:bg-amber-800 rounded-lg">
                 <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -269,8 +379,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.expired}</p>
-                <p className="text-xs text-red-600/70 dark:text-red-400/70 font-medium">Expired</p>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {stats.expired}
+                </p>
+                <p className="text-xs text-red-600/70 dark:text-red-400/70 font-medium">
+                  Expired
+                </p>
               </div>
               <div className="p-2 bg-red-200 dark:bg-red-800 rounded-lg">
                 <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -283,8 +397,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.lifetime}</p>
-                <p className="text-xs text-blue-600/70 dark:text-blue-400/70 font-medium">Lifetime</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {stats.lifetime}
+                </p>
+                <p className="text-xs text-blue-600/70 dark:text-blue-400/70 font-medium">
+                  Lifetime
+                </p>
               </div>
               <div className="p-2 bg-blue-200 dark:bg-blue-800 rounded-lg">
                 <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -314,9 +432,13 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  {Object.entries(certificationTypeConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                  ))}
+                  {Object.entries(certificationTypeConfig).map(
+                    ([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        {config.label}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -337,7 +459,9 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                 <SelectContent>
                   <SelectItem value="all">All Workers</SelectItem>
                   {workers.map((w) => (
-                    <SelectItem key={w.id} value={w.id}>{w.user.name}</SelectItem>
+                    <SelectItem key={w.id} value={w.id}>
+                      {w.user.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -346,16 +470,24 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('list')}
-                className={viewMode === 'list' ? 'bg-white dark:bg-slate-700 shadow-sm' : ''}
+                onClick={() => setViewMode("list")}
+                className={
+                  viewMode === "list"
+                    ? "bg-white dark:bg-slate-700 shadow-sm"
+                    : ""
+                }
               >
                 <List className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('grid')}
-                className={viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow-sm' : ''}
+                onClick={() => setViewMode("grid")}
+                className={
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-slate-700 shadow-sm"
+                    : ""
+                }
               >
                 <LayoutGrid className="w-4 h-4" />
               </Button>
@@ -371,11 +503,15 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
             <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full w-fit mx-auto mb-4">
               <Award className="w-12 h-12 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No certifications found</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Add certifications to track worker qualifications</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              No certifications found
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">
+              Add certifications to track worker qualifications
+            </p>
           </CardContent>
         </Card>
-      ) : viewMode === 'list' ? (
+      ) : viewMode === "list" ? (
         <div className="space-y-3">
           {filteredCerts.map((cert) => {
             const status = getCertStatus(cert);
@@ -394,9 +530,13 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                           {typeConfig.icon}
                           <span className="ml-1">{typeConfig.label}</span>
                         </Badge>
-                        <Badge className={`${statusConfig[status].bgColor} ${statusConfig[status].color} border-0`}>
+                        <Badge
+                          className={`${statusConfig[status].bgColor} ${statusConfig[status].color} border-0`}
+                        >
                           {statusConfig[status].icon}
-                          <span className="ml-1">{statusConfig[status].label}</span>
+                          <span className="ml-1">
+                            {statusConfig[status].label}
+                          </span>
                         </Badge>
                         {cert.isLifetime && (
                           <Badge className="bg-blue-500 text-white border-0">
@@ -421,12 +561,16 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                         )}
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
-                          Issued: {format(new Date(cert.issueDate), 'MMM d, yyyy')}
+                          Issued:{" "}
+                          {format(new Date(cert.issueDate), "MMM d, yyyy")}
                         </span>
                         {!cert.isLifetime && cert.expiryDate && (
-                          <span className={`flex items-center gap-1.5 ${status === 'EXPIRED' ? 'text-red-500' : status === 'EXPIRING_SOON' ? 'text-amber-500' : ''}`}>
+                          <span
+                            className={`flex items-center gap-1.5 ${status === "EXPIRED" ? "text-red-500" : status === "EXPIRING_SOON" ? "text-amber-500" : ""}`}
+                          >
                             <Clock className="w-3.5 h-3.5" />
-                            Expires: {format(new Date(cert.expiryDate), 'MMM d, yyyy')}
+                            Expires:{" "}
+                            {format(new Date(cert.expiryDate), "MMM d, yyyy")}
                           </span>
                         )}
                       </div>
@@ -455,7 +599,9 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                       {typeConfig.icon}
                       <span className="ml-1">{typeConfig.label}</span>
                     </Badge>
-                    <Badge className={`${statusConfig[status].bgColor} ${statusConfig[status].color} border-0`}>
+                    <Badge
+                      className={`${statusConfig[status].bgColor} ${statusConfig[status].color} border-0`}
+                    >
                       {statusConfig[status].label}
                     </Badge>
                   </div>
@@ -476,11 +622,19 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                   </div>
                   <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
                     <span className="text-slate-400">
-                      Issued {format(new Date(cert.issueDate), 'MMM yyyy')}
+                      Issued {format(new Date(cert.issueDate), "MMM yyyy")}
                     </span>
                     {!cert.isLifetime && cert.expiryDate && (
-                      <span className={status === 'EXPIRED' ? 'text-red-500' : status === 'EXPIRING_SOON' ? 'text-amber-500' : 'text-slate-500'}>
-                        Expires {format(new Date(cert.expiryDate), 'MMM yyyy')}
+                      <span
+                        className={
+                          status === "EXPIRED"
+                            ? "text-red-500"
+                            : status === "EXPIRING_SOON"
+                              ? "text-amber-500"
+                              : "text-slate-500"
+                        }
+                      >
+                        Expires {format(new Date(cert.expiryDate), "MMM yyyy")}
                       </span>
                     )}
                   </div>
@@ -505,74 +659,119 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Worker *</label>
-                <Select value={newCert.workerId} onValueChange={(v) => setNewCert({ ...newCert, workerId: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select worker" /></SelectTrigger>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Worker *
+                </label>
+                <Select
+                  value={newCert.workerId}
+                  onValueChange={(v) => setNewCert({ ...newCert, workerId: v })}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue placeholder="Select worker" />
+                  </SelectTrigger>
                   <SelectContent>
                     {workers.map((w) => (
-                      <SelectItem key={w.user.id} value={w.user.id}>{w.user.name}</SelectItem>
+                      <SelectItem key={w.user.id} value={w.user.id}>
+                        {w.user.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Certification Type *</label>
-                <Select value={newCert.certificationType} onValueChange={(v) => setNewCert({ ...newCert, certificationType: v as CertificationType })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Certification Type *
+                </label>
+                <Select
+                  value={newCert.certificationType}
+                  onValueChange={(v) =>
+                    setNewCert({
+                      ...newCert,
+                      certificationType: v as CertificationType,
+                    })
+                  }
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(certificationTypeConfig).map(([key, config]) => (
-                      <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                    ))}
+                    {Object.entries(certificationTypeConfig).map(
+                      ([key, config]) => (
+                        <SelectItem key={key} value={key}>
+                          {config.label}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Certification Name *</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Certification Name *
+              </label>
               <Input
                 className="mt-1.5"
                 value={newCert.certificationName}
-                onChange={(e) => setNewCert({ ...newCert, certificationName: e.target.value })}
+                onChange={(e) =>
+                  setNewCert({ ...newCert, certificationName: e.target.value })
+                }
                 placeholder="e.g., CSCS Green Card, First Aid Level 3"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Card/Number</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Card/Number
+                </label>
                 <Input
                   className="mt-1.5"
                   value={newCert.cardNumber}
-                  onChange={(e) => setNewCert({ ...newCert, cardNumber: e.target.value })}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, cardNumber: e.target.value })
+                  }
                   placeholder="e.g., CSC123456789"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Issuing Body</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Issuing Body
+                </label>
                 <Input
                   className="mt-1.5"
                   value={newCert.issuingBody}
-                  onChange={(e) => setNewCert({ ...newCert, issuingBody: e.target.value })}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, issuingBody: e.target.value })
+                  }
                   placeholder="e.g., CITB, HSE"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Issue Date *</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Issue Date *
+                </label>
                 <Input
                   type="date"
                   className="mt-1.5"
                   value={newCert.issueDate}
-                  onChange={(e) => setNewCert({ ...newCert, issueDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, issueDate: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Expiry Date</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Expiry Date
+                </label>
                 <Input
                   type="date"
                   className="mt-1.5"
                   value={newCert.expiryDate}
-                  onChange={(e) => setNewCert({ ...newCert, expiryDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewCert({ ...newCert, expiryDate: e.target.value })
+                  }
                   disabled={newCert.isLifetime}
                 />
               </div>
@@ -581,26 +780,45 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
               <Checkbox
                 id="isLifetime"
                 checked={newCert.isLifetime}
-                onCheckedChange={(checked) => setNewCert({ ...newCert, isLifetime: checked as boolean, expiryDate: '' })}
+                onCheckedChange={(checked) =>
+                  setNewCert({
+                    ...newCert,
+                    isLifetime: checked as boolean,
+                    expiryDate: "",
+                  })
+                }
               />
-              <label htmlFor="isLifetime" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+              <label
+                htmlFor="isLifetime"
+                className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
+              >
                 Lifetime Certification (no expiry)
               </label>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Notes</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Notes
+              </label>
               <Textarea
                 className="mt-1.5"
                 value={newCert.notes}
-                onChange={(e) => setNewCert({ ...newCert, notes: e.target.value })}
+                onChange={(e) =>
+                  setNewCert({ ...newCert, notes: e.target.value })
+                }
                 placeholder="Additional notes..."
                 rows={2}
               />
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreate} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700">
-                {loading ? 'Saving...' : 'Add Certification'}
+              <Button variant="outline" onClick={() => setShowNewModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreate}
+                disabled={loading}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                {loading ? "Saving..." : "Add Certification"}
               </Button>
             </div>
           </div>
@@ -622,46 +840,71 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge className={`${certificationTypeConfig[selectedCert.certificationType].color} border-0`}>
-                    {certificationTypeConfig[selectedCert.certificationType].label}
+                  <Badge
+                    className={`${certificationTypeConfig[selectedCert.certificationType].color} border-0`}
+                  >
+                    {
+                      certificationTypeConfig[selectedCert.certificationType]
+                        .label
+                    }
                   </Badge>
-                  <Badge className={`${statusConfig[getCertStatus(selectedCert)].bgColor} ${statusConfig[getCertStatus(selectedCert)].color} border-0`}>
+                  <Badge
+                    className={`${statusConfig[getCertStatus(selectedCert)].bgColor} ${statusConfig[getCertStatus(selectedCert)].color} border-0`}
+                  >
                     {statusConfig[getCertStatus(selectedCert)].label}
                   </Badge>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-3">
                   <div>
-                    <h4 className="text-sm font-medium text-slate-500">Certification</h4>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCert.certificationName}</p>
+                    <h4 className="text-sm font-medium text-slate-500">
+                      Certification
+                    </h4>
+                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                      {selectedCert.certificationName}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-slate-500">Worker:</span>
-                      <p className="font-medium text-slate-900 dark:text-white">{selectedCert.worker.name}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">
+                        {selectedCert.worker.name}
+                      </p>
                     </div>
                     {selectedCert.cardNumber && (
                       <div>
                         <span className="text-slate-500">Card Number:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{selectedCert.cardNumber}</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {selectedCert.cardNumber}
+                        </p>
                       </div>
                     )}
                     {selectedCert.issuingBody && (
                       <div>
                         <span className="text-slate-500">Issuing Body:</span>
-                        <p className="font-medium text-slate-900 dark:text-white">{selectedCert.issuingBody}</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {selectedCert.issuingBody}
+                        </p>
                       </div>
                     )}
                     <div>
                       <span className="text-slate-500">Issue Date:</span>
                       <p className="font-medium text-slate-900 dark:text-white">
-                        {format(new Date(selectedCert.issueDate), 'MMM d, yyyy')}
+                        {format(
+                          new Date(selectedCert.issueDate),
+                          "MMM d, yyyy",
+                        )}
                       </p>
                     </div>
                     {!selectedCert.isLifetime && selectedCert.expiryDate && (
                       <div>
                         <span className="text-slate-500">Expiry Date:</span>
-                        <p className={`font-medium ${getCertStatus(selectedCert) === 'EXPIRED' ? 'text-red-500' : getCertStatus(selectedCert) === 'EXPIRING_SOON' ? 'text-amber-500' : 'text-slate-900 dark:text-white'}`}>
-                          {format(new Date(selectedCert.expiryDate), 'MMM d, yyyy')}
+                        <p
+                          className={`font-medium ${getCertStatus(selectedCert) === "EXPIRED" ? "text-red-500" : getCertStatus(selectedCert) === "EXPIRING_SOON" ? "text-amber-500" : "text-slate-900 dark:text-white"}`}
+                        >
+                          {format(
+                            new Date(selectedCert.expiryDate),
+                            "MMM d, yyyy",
+                          )}
                         </p>
                       </div>
                     )}
@@ -669,8 +912,12 @@ export function CertificationsClient({ certifications, workers, projects }: Cert
                 </div>
                 {selectedCert.notes && (
                   <div>
-                    <h4 className="text-sm font-medium text-slate-500 mb-2">Notes</h4>
-                    <p className="text-slate-700 dark:text-slate-300">{selectedCert.notes}</p>
+                    <h4 className="text-sm font-medium text-slate-500 mb-2">
+                      Notes
+                    </h4>
+                    <p className="text-slate-700 dark:text-slate-300">
+                      {selectedCert.notes}
+                    </p>
                   </div>
                 )}
               </div>

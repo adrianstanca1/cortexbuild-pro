@@ -4,8 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Plus, X, FolderKanban, ListTodo, FileQuestion, 
-  ClipboardList, Shield, Calendar
+  Plus,
+  X,
+  FolderKanban,
+  ListTodo,
+  FileQuestion,
+  ClipboardList,
+  Shield,
+  Calendar,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,12 +25,48 @@ interface QuickAction {
 }
 
 const defaultActions: QuickAction[] = [
-  { id: "project", label: "New Project", icon: FolderKanban, href: "/projects/new", color: "bg-blue-500" },
-  { id: "task", label: "New Task", icon: ListTodo, href: "/tasks?new=true", color: "bg-green-500" },
-  { id: "rfi", label: "New RFI", icon: FileQuestion, href: "/rfis?new=true", color: "bg-orange-500" },
-  { id: "report", label: "Daily Report", icon: ClipboardList, href: "/daily-reports?new=true", color: "bg-purple-500" },
-  { id: "safety", label: "Safety Log", icon: Shield, href: "/safety?new=true", color: "bg-red-500" },
-  { id: "meeting", label: "New Meeting", icon: Calendar, href: "/meetings?new=true", color: "bg-cyan-500" }
+  {
+    id: "project",
+    label: "New Project",
+    icon: FolderKanban,
+    href: "/projects/new",
+    color: "bg-blue-500",
+  },
+  {
+    id: "task",
+    label: "New Task",
+    icon: ListTodo,
+    href: "/tasks?new=true",
+    color: "bg-green-500",
+  },
+  {
+    id: "rfi",
+    label: "New RFI",
+    icon: FileQuestion,
+    href: "/rfis?new=true",
+    color: "bg-orange-500",
+  },
+  {
+    id: "report",
+    label: "Daily Report",
+    icon: ClipboardList,
+    href: "/daily-reports?new=true",
+    color: "bg-purple-500",
+  },
+  {
+    id: "safety",
+    label: "Safety Log",
+    icon: Shield,
+    href: "/safety?new=true",
+    color: "bg-red-500",
+  },
+  {
+    id: "meeting",
+    label: "New Meeting",
+    icon: Calendar,
+    href: "/meetings?new=true",
+    color: "bg-cyan-500",
+  },
 ];
 
 interface FloatingActionButtonProps {
@@ -34,7 +76,7 @@ interface FloatingActionButtonProps {
 
 export function FloatingActionButton({
   actions = defaultActions,
-  position = "bottom-right"
+  position = "bottom-right",
 }: FloatingActionButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -45,7 +87,7 @@ export function FloatingActionButton({
     const handleScroll = () => {
       setIsVisible(window.scrollY > 100);
     };
-    
+
     // Show immediately if page is already scrolled
     handleScroll();
     window.addEventListener("scroll", handleScroll);
@@ -62,7 +104,7 @@ export function FloatingActionButton({
   const positionClasses = {
     "bottom-right": "right-6 bottom-6",
     "bottom-left": "left-6 bottom-6",
-    "bottom-center": "left-1/2 -translate-x-1/2 bottom-6"
+    "bottom-center": "left-1/2 -translate-x-1/2 bottom-6",
   };
 
   const handleActionClick = (action: QuickAction) => {
@@ -105,7 +147,12 @@ export function FloatingActionButton({
                     <span className="text-sm font-medium text-foreground">
                       {action.label}
                     </span>
-                    <div className={cn("p-2 rounded-full text-white", action.color)}>
+                    <div
+                      className={cn(
+                        "p-2 rounded-full text-white",
+                        action.color,
+                      )}
+                    >
                       <action.icon className="h-4 w-4" />
                     </div>
                   </motion.button>
@@ -123,14 +170,18 @@ export function FloatingActionButton({
               "h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-colors",
               isOpen
                 ? "bg-muted text-foreground"
-                : "bg-primary text-white hover:bg-primary/90"
+                : "bg-primary text-white hover:bg-primary/90",
             )}
           >
             <motion.div
               animate={{ rotate: isOpen ? 45 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Plus className="h-6 w-6" />
+              )}
             </motion.div>
           </motion.button>
 

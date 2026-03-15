@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -11,7 +11,7 @@ import { sendTeamMemberInvitationNotification } from "@/lib/email-notifications"
 // GET - Get invitation details
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const user = session.user as any;
-    
+
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -33,25 +33,31 @@ export async function GET(
       },
       include: {
         invitedBy: { select: { name: true, email: true } },
-        organization: { select: { name: true } }
-      }
+        organization: { select: { name: true } },
+      },
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invitation not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ invitation });
   } catch (error) {
     console.error("Error fetching invitation:", error);
-    return NextResponse.json({ error: "Failed to fetch invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch invitation" },
+      { status: 500 },
+    );
   }
 }
 
 // PATCH - Resend or revoke invitation
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -61,7 +67,7 @@ export async function PATCH(
     }
 
     const user = session.user as any;
-    
+
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -76,17 +82,23 @@ export async function PATCH(
       },
       include: {
         organization: { select: { name: true } },
-        invitedBy: { select: { name: true } }
-      }
+        invitedBy: { select: { name: true } },
+      },
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invitation not found" },
+        { status: 404 },
+      );
     }
 
     if (action === "resend") {
       if (invitation.status !== "PENDING" && invitation.status !== "EXPIRED") {
-        return NextResponse.json({ error: "Can only resend pending or expired invitations" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Can only resend pending or expired invitations" },
+          { status: 400 },
+        );
       }
 
       // Update expiry
@@ -98,14 +110,14 @@ export async function PATCH(
         data: {
           status: "PENDING",
           expiresAt: newExpiresAt,
-        }
+        },
       });
 
       // Resend email using notification API
       try {
         const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
         const acceptUrl = `${baseUrl}/team-invite/accept/${invitation.token}`;
-        
+
         await sendTeamMemberInvitationNotification({
           memberName: invitation.name,
           memberEmail: invitation.email,
@@ -115,23 +127,29 @@ export async function PATCH(
           jobTitle: invitation.jobTitle || undefined,
           department: invitation.department || undefined,
           acceptUrl,
-          expiresAt: newExpiresAt
+          expiresAt: newExpiresAt,
         });
       } catch (emailError) {
         console.error("Email sending error:", emailError);
       }
 
-      return NextResponse.json({ invitation: updated, message: "Invitation resent" });
+      return NextResponse.json({
+        invitation: updated,
+        message: "Invitation resent",
+      });
     }
 
     if (action === "revoke") {
       if (invitation.status !== "PENDING") {
-        return NextResponse.json({ error: "Can only revoke pending invitations" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Can only revoke pending invitations" },
+          { status: 400 },
+        );
       }
 
       const updated = await prisma.teamInvitation.update({
         where: { id: id },
-        data: { status: "REVOKED" }
+        data: { status: "REVOKED" },
       });
 
       // Log activity
@@ -142,23 +160,29 @@ export async function PATCH(
           entityId: invitation.id,
           entityName: invitation.name,
           userId: user.id,
-        }
+        },
       });
 
-      return NextResponse.json({ invitation: updated, message: "Invitation revoked" });
+      return NextResponse.json({
+        invitation: updated,
+        message: "Invitation revoked",
+      });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     console.error("Error updating invitation:", error);
-    return NextResponse.json({ error: "Failed to update invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update invitation" },
+      { status: 500 },
+    );
   }
 }
 
 // DELETE - Delete invitation
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -168,7 +192,7 @@ export async function DELETE(
     }
 
     const user = session.user as any;
-    
+
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -177,20 +201,26 @@ export async function DELETE(
       where: {
         id: id,
         organizationId: user.organizationId,
-      }
+      },
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invitation not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.teamInvitation.delete({
-      where: { id: id }
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Invitation deleted" });
   } catch (error) {
     console.error("Error deleting invitation:", error);
-    return NextResponse.json({ error: "Failed to delete invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete invitation" },
+      { status: 500 },
+    );
   }
 }

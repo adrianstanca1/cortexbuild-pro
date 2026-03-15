@@ -10,9 +10,7 @@ import {
 } from "@/lib/api-utils";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+export const dynamic = "force-dynamic";
 
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
@@ -20,13 +18,9 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
 
   const { projectId, status } = parseQueryParams(request);
 
-  const where = buildOrgScopedWhere(
-    context!.organizationId!,
-    projectId,
-    {
-      ...(status && status !== "all" && { status })
-    }
-  );
+  const where = buildOrgScopedWhere(context!.organizationId!, projectId, {
+    ...(status && status !== "all" && { status }),
+  });
 
   const materials = await prisma.material.findMany({
     where,
@@ -35,21 +29,27 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
       createdBy: { select: { id: true, name: true } },
       deliveries: {
         include: {
-          receivedBy: { select: { id: true, name: true } }
+          receivedBy: { select: { id: true, name: true } },
         },
-        orderBy: { deliveryDate: "desc" }
-      }
+        orderBy: { deliveryDate: "desc" },
+      },
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
   // Calculate summary
-  const summary = materials.reduce((acc: { totalValue: number; totalOrdered: number; totalReceived: number }, mat) => {
-    acc.totalValue += mat.totalCost;
-    acc.totalOrdered += mat.quantityOrdered;
-    acc.totalReceived += mat.quantityReceived;
-    return acc;
-  }, { totalValue: 0, totalOrdered: 0, totalReceived: 0 });
+  const summary = materials.reduce(
+    (
+      acc: { totalValue: number; totalOrdered: number; totalReceived: number },
+      mat,
+    ) => {
+      acc.totalValue += mat.totalCost;
+      acc.totalOrdered += mat.quantityOrdered;
+      acc.totalReceived += mat.quantityReceived;
+      return acc;
+    },
+    { totalValue: 0, totalOrdered: 0, totalReceived: 0 },
+  );
 
   return NextResponse.json({ materials, summary });
 });
@@ -60,8 +60,21 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
 
   const body = await request.json();
   const {
-    projectId, name, description, sku, category, unit, quantityNeeded,
-    quantityOrdered, unitCost, status, supplier, leadTime, expectedDate, location, notes
+    projectId,
+    name,
+    description,
+    sku,
+    category,
+    unit,
+    quantityNeeded,
+    quantityOrdered,
+    unitCost,
+    status,
+    supplier,
+    leadTime,
+    expectedDate,
+    location,
+    notes,
   } = body;
 
   if (!projectId || !name) {
@@ -69,14 +82,15 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
   }
 
   const project = await prisma.project.findFirst({
-    where: { id: projectId, organizationId: context!.organizationId }
+    where: { id: projectId, organizationId: context!.organizationId },
   });
 
   if (!project) {
     return errorResponse("NOT_FOUND", "Project not found");
   }
 
-  const totalCost = (parseFloat(quantityNeeded) || 0) * (parseFloat(unitCost) || 0);
+  const totalCost =
+    (parseFloat(quantityNeeded) || 0) * (parseFloat(unitCost) || 0);
 
   const material = await prisma.material.create({
     data: {
@@ -98,12 +112,12 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
       expectedDate: expectedDate ? new Date(expectedDate) : null,
       location,
       notes,
-      createdById: context!.userId
+      createdById: context!.userId,
     },
     include: {
       project: { select: { id: true, name: true } },
-      createdBy: { select: { id: true, name: true } }
-    }
+      createdBy: { select: { id: true, name: true } },
+    },
   });
 
   await prisma.activityLog.create({
@@ -114,15 +128,14 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
       entityName: material.name,
       details: `Added material: ${material.name} (${material.quantityNeeded} ${material.unit})`,
       userId: context!.userId,
-      projectId
-    }
+      projectId,
+    },
   });
 
   broadcastToOrganization(context!.organizationId!, {
     type: "material_created",
-    data: { material, projectId }
+    data: { material, projectId },
   });
 
   return NextResponse.json(material);
 });
-

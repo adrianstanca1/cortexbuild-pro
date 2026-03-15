@@ -3,11 +3,10 @@
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, User, ChevronDown, Shield, HardHat } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface AdminHeaderProps {
-  user: any;
+  user: { name?: string; email?: string; image?: string; [key: string]: unknown };
 }
 
 export function AdminHeader({ user }: AdminHeaderProps) {
@@ -34,7 +33,9 @@ export function AdminHeader({ user }: AdminHeaderProps) {
             </div>
             <div>
               <span className="text-xl font-bold text-white">CortexBuild</span>
-              <span className="text-xs text-purple-400 ml-2">ADMIN CONSOLE</span>
+              <span className="text-xs text-purple-400 ml-2">
+                ADMIN CONSOLE
+              </span>
             </div>
           </Link>
         </div>
@@ -42,7 +43,9 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-600/20 rounded-full">
             <Shield className="h-4 w-4 text-purple-400" />
-            <span className="text-sm text-purple-300 font-medium">Super Admin</span>
+            <span className="text-sm text-purple-300 font-medium">
+              Super Admin
+            </span>
           </div>
 
           <div className="relative" ref={menuRef}>

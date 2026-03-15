@@ -48,9 +48,7 @@ export class ErrorBoundary extends React.Component<
             <h2 className="text-lg font-semibold text-destructive mb-2">
               Something went wrong
             </h2>
-            <p className="text-muted-foreground mb-4">
-              {props.error.message}
-            </p>
+            <p className="text-muted-foreground mb-4">{props.error.message}</p>
             <button
               onClick={props.resetError}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2"
@@ -62,7 +60,9 @@ export class ErrorBoundary extends React.Component<
 
       // Ensure we never pass null to the fallback component
       const errorToPass: Error = this.state.error || new Error("Unknown error");
-      return <FallbackComponent error={errorToPass} resetError={this.resetError} />;
+      return (
+        <FallbackComponent error={errorToPass} resetError={this.resetError} />
+      );
     }
 
     return this.props.children;
@@ -71,10 +71,10 @@ export class ErrorBoundary extends React.Component<
 
 // Wrapper for easier usage
 export const withErrorBoundary = <
-  P extends Record<string, any> = Record<string, any>
+  P extends Record<string, any> = Record<string, any>,
 >(
   Component: React.ComponentType<P>,
-  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
+  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>,
 ) => {
   return (props: P) => (
     <ErrorBoundary fallback={fallback}>

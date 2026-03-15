@@ -37,8 +37,12 @@ export default async function ProgressClaimsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Progress Claims</h1>
-        <p className="text-muted-foreground">Manage payment applications and progress billing</p>
+        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+          Progress Claims
+        </h1>
+        <p className="text-muted-foreground">
+          Manage payment applications and progress billing
+        </p>
       </div>
       <ProgressClaimsClient
         claims={JSON.parse(JSON.stringify(claims))}

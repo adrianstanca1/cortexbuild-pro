@@ -26,8 +26,10 @@ export default async function CompanySettingsPage() {
   });
 
   return (
-    <CompanySettingsClient 
-      organization={organization ? JSON.parse(JSON.stringify(organization)) : null}
+    <CompanySettingsClient
+      organization={
+        organization ? JSON.parse(JSON.stringify(organization)) : null
+      }
       userRole={user.role}
     />
   );

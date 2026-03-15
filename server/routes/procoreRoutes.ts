@@ -5,7 +5,13 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 import { requirePermission } from '../middleware/permissionMiddleware.js';
 import { AppError } from '../utils/AppError.js';
 import { logger } from '../utils/logger.js';
+import { fileBucket } from '../buckets/FileBucket.js';
+import { BucketRegistry } from '../buckets/DataBucket.js';
+import { getDb } from '../database.js';
+import { auditService } from '../services/auditService.js';
+import { v4 as uuidv4 } from 'uuid';
 
+const documentBucket = BucketRegistry.getOrCreate('documents', 'companyId');
 const router = Router();
 
 /**
@@ -191,8 +197,9 @@ router.get('/projects/:projectId/documents', authenticateToken, async (req: Requ
 router.post('/documents/:documentId/import', authenticateToken, requirePermission('documents.create'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const companyId = (req as any).companyId;
+    const userId = (req as any).userId;
     const { documentId } = req.params;
-    const { projectId } = req.body;
+    const { projectId, filename, category = 'procore-imports' } = req.body;
     const integration = await IntegrationService.getIntegration(companyId, 'procore');
 
     if (!integration || integration.status !== 'connected') {
@@ -201,16 +208,93 @@ router.post('/documents/:documentId/import', authenticateToken, requirePermissio
 
     // Download document from Procore
     const fileBuffer = await procoreService.downloadDocument(integration.accessToken, projectId, parseInt(documentId));
-    
-    // TODO: Save to local storage and create document record
-    // This would integrate with your existing document management system
+
+    // Generate unique filename if not provided
+    const documentFilename = filename || `procore-${documentId}-${Date.now()}.pdf`;
+
+    // Get database connection
+    const db = getDb();
+
+    // Upload file to local storage with tenant namespacing
+    const { path: storedPath, url } = await fileBucket.upload(
+      companyId,
+      documentFilename,
+      fileBuffer,
+      userId,
+      { projectId, category },
+      db
+    );
+
+    // Generate unique document ID
+    const docId = `doc-${uuidv4()}`;
+
+    // Create document metadata record
+    const document = await documentBucket.create(
+      companyId,
+      {
+        id: docId,
+        filename: documentFilename,
+        path: storedPath,
+        url,
+        projectId,
+        category,
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        size: fileBuffer.length,
+        source: 'procore',
+        procoreDocumentId: parseInt(documentId),
+      },
+      userId,
+      db
+    );
+
+    // Log audit event
+    await auditService.log(db, {
+      companyId,
+      userId,
+      userName: (req as any).userName || 'Unknown',
+      action: 'IMPORT_DOCUMENT',
+      resource: 'Document',
+      resourceId: docId,
+      metadata: { filename: documentFilename, source: 'procore', procoreDocumentId: documentId }
+    });
+
+    // Log activity for timeline feed
+    await auditService.logActivity(db, {
+      companyId,
+      projectId: projectId || null,
+      userId,
+      userName: (req as any).userName || 'Unknown',
+      action: 'imported',
+      entityType: 'Document',
+      entityId: docId,
+      metadata: { filename: documentFilename, source: 'procore' }
+    });
+
+    logger.info('Procore document imported successfully', {
+      companyId,
+      projectId,
+      documentId: docId,
+      procoreDocumentId: documentId,
+      size: fileBuffer.length,
+      userId
+    });
 
     res.json({
+      success: true,
       message: 'Document imported successfully',
-      documentId,
-      size: fileBuffer.length,
+      document: {
+        id: docId,
+        filename: documentFilename,
+        size: fileBuffer.length,
+        url,
+        projectId,
+        category,
+        source: 'procore'
+      }
     });
   } catch (error) {
+    logger.error('Procore document import failed', { error });
     next(error);
   }
 });

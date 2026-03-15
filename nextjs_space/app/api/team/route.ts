@@ -18,14 +18,17 @@ export async function GET() {
     const teamMembers = await prisma.teamMember.findMany({
       where: orgId ? { organizationId: orgId } : {},
       include: {
-        user: { select: { id: true, name: true, email: true, role: true } }
-      }
+        user: { select: { id: true, name: true, email: true, role: true } },
+      },
     });
 
     return NextResponse.json({ teamMembers });
   } catch (error) {
     console.error("Get team error:", error);
-    return NextResponse.json({ error: "Failed to fetch team" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch team" },
+      { status: 500 },
+    );
   }
 }
 
@@ -37,21 +40,35 @@ export async function POST(request: Request) {
     }
 
     const userRole = (session.user as { role?: string })?.role;
-    if (userRole !== "ADMIN" && userRole !== "PROJECT_MANAGER" && userRole !== "COMPANY_OWNER" && userRole !== "SUPER_ADMIN") {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+    if (
+      userRole !== "ADMIN" &&
+      userRole !== "PROJECT_MANAGER" &&
+      userRole !== "COMPANY_OWNER" &&
+      userRole !== "SUPER_ADMIN"
+    ) {
+      return NextResponse.json(
+        { error: "Insufficient permissions" },
+        { status: 403 },
+      );
     }
 
     const orgId = (session.user as { organizationId?: string })?.organizationId;
-    const currentUserId = (session.user as { id?: string })?.id || '';
+    const currentUserId = (session.user as { id?: string })?.id || "";
     const body = await request.json();
     const { name, email, role, jobTitle } = body;
 
     if (!name?.trim() || !email?.trim()) {
-      return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Name and email are required" },
+        { status: 400 },
+      );
     }
 
     if (!orgId) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 400 },
+      );
     }
 
     // Check if user exists
@@ -66,29 +83,34 @@ export async function POST(request: Request) {
           email: email.trim(),
           password: hashedPassword,
           role: role || "FIELD_WORKER",
-          organizationId: orgId
-        }
+          organizationId: orgId,
+        },
       });
     }
 
     // Check if already a team member
     const existing = await prisma.teamMember.findUnique({
-      where: { userId_organizationId: { userId: user.id, organizationId: orgId } }
+      where: {
+        userId_organizationId: { userId: user.id, organizationId: orgId },
+      },
     });
 
     if (existing) {
-      return NextResponse.json({ error: "User is already a team member" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User is already a team member" },
+        { status: 400 },
+      );
     }
 
     const teamMember = await prisma.teamMember.create({
       data: {
         userId: user.id,
         organizationId: orgId,
-        jobTitle: jobTitle?.trim() || null
+        jobTitle: jobTitle?.trim() || null,
       },
       include: {
-        user: { select: { id: true, name: true, email: true, role: true } }
-      }
+        user: { select: { id: true, name: true, email: true, role: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -96,14 +118,14 @@ export async function POST(request: Request) {
         action: "added team member",
         entityType: "TeamMember",
         entityId: teamMember.id,
-        entityName: user.name || '',
-        userId: currentUserId
-      }
+        entityName: user.name || "",
+        userId: currentUserId,
+      },
     });
 
     // Broadcast real-time event to organization
     broadcastToOrganization(orgId, {
-      type: 'team_member_added',
+      type: "team_member_added",
       timestamp: new Date().toISOString(),
       payload: {
         teamMember: {
@@ -112,15 +134,18 @@ export async function POST(request: Request) {
           name: user.name,
           email: user.email,
           role: user.role,
-          jobTitle: teamMember.jobTitle
+          jobTitle: teamMember.jobTitle,
         },
-        addedBy: currentUserId
-      }
+        addedBy: currentUserId,
+      },
     });
 
     return NextResponse.json({ teamMember });
   } catch (error) {
     console.error("Add team member error:", error);
-    return NextResponse.json({ error: "Failed to add team member" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to add team member" },
+      { status: 500 },
+    );
   }
 }

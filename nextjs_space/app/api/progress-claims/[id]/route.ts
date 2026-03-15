@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -29,19 +29,25 @@ export async function GET(
     });
 
     if (!claim) {
-      return NextResponse.json({ error: "Progress claim not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Progress claim not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(claim);
   } catch (error) {
     console.error("Error fetching progress claim:", error);
-    return NextResponse.json({ error: "Failed to fetch progress claim" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch progress claim" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -52,8 +58,14 @@ export async function PATCH(
 
     const body = await request.json();
     const {
-      status, thisClaim, retentionHeld, approvedAmount, notes,
-      submittedDate, approvedDate, paidDate
+      status,
+      thisClaim,
+      retentionHeld,
+      approvedAmount,
+      notes,
+      submittedDate,
+      approvedDate,
+      paidDate,
     } = body;
 
     const existingClaim = await prisma.progressClaim.findUnique({
@@ -62,36 +74,45 @@ export async function PATCH(
     });
 
     if (!existingClaim) {
-      return NextResponse.json({ error: "Progress claim not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Progress claim not found" },
+        { status: 404 },
+      );
     }
 
     const updateData: any = {};
-    
+
     if (status) {
       updateData.status = status;
       if (status === "SUBMITTED" && !existingClaim.submittedDate) {
         updateData.submittedDate = new Date();
       }
-      if ((status === "APPROVED" || status === "PARTIALLY_APPROVED") && !existingClaim.approvedDate) {
+      if (
+        (status === "APPROVED" || status === "PARTIALLY_APPROVED") &&
+        !existingClaim.approvedDate
+      ) {
         updateData.approvedDate = new Date();
       }
       if (status === "PAID" && !existingClaim.paidDate) {
         updateData.paidDate = new Date();
       }
     }
-    
+
     if (thisClaim !== undefined) {
       updateData.thisClaim = thisClaim;
       updateData.totalClaimed = existingClaim.previousClaimed + thisClaim;
-      updateData.netPayable = thisClaim - (retentionHeld ?? existingClaim.retentionHeld);
+      updateData.netPayable =
+        thisClaim - (retentionHeld ?? existingClaim.retentionHeld);
     }
-    
+
     if (retentionHeld !== undefined) {
       updateData.retentionHeld = retentionHeld;
-      updateData.netPayable = (updateData.thisClaim ?? existingClaim.thisClaim) - retentionHeld;
+      updateData.netPayable =
+        (updateData.thisClaim ?? existingClaim.thisClaim) - retentionHeld;
     }
-    
-    if (approvedAmount !== undefined) updateData.approvedAmount = approvedAmount;
+
+    if (approvedAmount !== undefined)
+      updateData.approvedAmount = approvedAmount;
     if (notes !== undefined) updateData.notes = notes;
     if (submittedDate) updateData.submittedDate = new Date(submittedDate);
     if (approvedDate) updateData.approvedDate = new Date(approvedDate);
@@ -117,13 +138,16 @@ export async function PATCH(
     return NextResponse.json(claim);
   } catch (error) {
     console.error("Error updating progress claim:", error);
-    return NextResponse.json({ error: "Failed to update progress claim" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update progress claim" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -138,12 +162,18 @@ export async function DELETE(
     });
 
     if (!claim) {
-      return NextResponse.json({ error: "Progress claim not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Progress claim not found" },
+        { status: 404 },
+      );
     }
 
     // Only allow deleting draft claims
     if (claim.status !== "DRAFT") {
-      return NextResponse.json({ error: "Can only delete draft claims" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Can only delete draft claims" },
+        { status: 400 },
+      );
     }
 
     await prisma.progressClaim.delete({ where: { id: id } });
@@ -158,6 +188,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting progress claim:", error);
-    return NextResponse.json({ error: "Failed to delete progress claim" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete progress claim" },
+      { status: 500 },
+    );
   }
 }

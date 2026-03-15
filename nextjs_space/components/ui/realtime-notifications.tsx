@@ -1,12 +1,19 @@
 // components/ui/realtime-notifications.tsx
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react';
-import { useWebSocket } from '@/contexts/WebSocketContext';
-import { useSession } from 'next-auth/react';
-import { RealTimeNotifications as RealTimeNotificationService } from '@/lib/realtime-notifications';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Bell,
+  X,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  XCircle,
+} from "lucide-react";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useSession } from "next-auth/react";
+import { RealTimeNotifications as RealTimeNotificationService } from "@/lib/realtime-notifications";
 
 interface Notification {
   id: string;
@@ -14,7 +21,21 @@ interface Notification {
   projectId?: string;
   title: string;
   message: string;
-  type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS' | 'TASK_ASSIGNED' | 'TASK_UPDATED' | 'TASK_COMPLETED' | 'PROJECT_MESSAGE' | 'RFI_RESPONSE' | 'SUBMITTAL_APPROVED' | 'SUBMITTAL_REJECTED' | 'DEADLINE_REMINDER' | 'SAFETY_INCIDENT' | 'SYSTEM_ALERT';
+  type:
+    | "INFO"
+    | "WARNING"
+    | "ERROR"
+    | "SUCCESS"
+    | "TASK_ASSIGNED"
+    | "TASK_UPDATED"
+    | "TASK_COMPLETED"
+    | "PROJECT_MESSAGE"
+    | "RFI_RESPONSE"
+    | "SUBMITTAL_APPROVED"
+    | "SUBMITTAL_REJECTED"
+    | "DEADLINE_REMINDER"
+    | "SAFETY_INCIDENT"
+    | "SYSTEM_ALERT";
   read: boolean;
   createdAt: Date;
   data?: Record<string, any>;
@@ -22,22 +43,22 @@ interface Notification {
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
-    case 'SUCCESS':
-    case 'TASK_COMPLETED':
+    case "SUCCESS":
+    case "TASK_COMPLETED":
       return <CheckCircle className="h-5 w-5 text-green-500" />;
-    case 'WARNING':
-    case 'DEADLINE_REMINDER':
+    case "WARNING":
+    case "DEADLINE_REMINDER":
       return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-    case 'ERROR':
-    case 'SAFETY_INCIDENT':
+    case "ERROR":
+    case "SAFETY_INCIDENT":
       return <XCircle className="h-5 w-5 text-red-500" />;
-    case 'TASK_ASSIGNED':
-    case 'TASK_UPDATED':
-    case 'PROJECT_MESSAGE':
-    case 'RFI_RESPONSE':
-    case 'SUBMITTAL_APPROVED':
-    case 'SUBMITTAL_REJECTED':
-    case 'SYSTEM_ALERT':
+    case "TASK_ASSIGNED":
+    case "TASK_UPDATED":
+    case "PROJECT_MESSAGE":
+    case "RFI_RESPONSE":
+    case "SUBMITTAL_APPROVED":
+    case "SUBMITTAL_REJECTED":
+    case "SYSTEM_ALERT":
     default:
       return <Info className="h-5 w-5 text-blue-500" />;
   }
@@ -45,24 +66,24 @@ const getNotificationIcon = (type: string) => {
 
 const getNotificationColor = (type: string) => {
   switch (type) {
-    case 'SUCCESS':
-    case 'TASK_COMPLETED':
-      return 'border-green-200 bg-green-50';
-    case 'WARNING':
-    case 'DEADLINE_REMINDER':
-      return 'border-yellow-200 bg-yellow-50';
-    case 'ERROR':
-    case 'SAFETY_INCIDENT':
-      return 'border-red-200 bg-red-50';
-    case 'TASK_ASSIGNED':
-    case 'TASK_UPDATED':
-    case 'PROJECT_MESSAGE':
-    case 'RFI_RESPONSE':
-    case 'SUBMITTAL_APPROVED':
-    case 'SUBMITTAL_REJECTED':
-    case 'SYSTEM_ALERT':
+    case "SUCCESS":
+    case "TASK_COMPLETED":
+      return "border-green-200 bg-green-50";
+    case "WARNING":
+    case "DEADLINE_REMINDER":
+      return "border-yellow-200 bg-yellow-50";
+    case "ERROR":
+    case "SAFETY_INCIDENT":
+      return "border-red-200 bg-red-50";
+    case "TASK_ASSIGNED":
+    case "TASK_UPDATED":
+    case "PROJECT_MESSAGE":
+    case "RFI_RESPONSE":
+    case "SUBMITTAL_APPROVED":
+    case "SUBMITTAL_REJECTED":
+    case "SYSTEM_ALERT":
     default:
-      return 'border-blue-200 bg-blue-50';
+      return "border-blue-200 bg-blue-50";
   }
 };
 
@@ -79,10 +100,11 @@ const RealTimeNotifications: React.FC = () => {
     // Load initial notifications
     const loadNotifications = async () => {
       try {
-        const userNotifications = await RealTimeNotificationService.getUserUnreadNotifications(userId);
+        const userNotifications =
+          await RealTimeNotificationService.getUserUnreadNotifications(userId);
         setNotifications(userNotifications as unknown as Notification[]);
       } catch (error) {
-        console.error('Failed to load notifications:', error);
+        console.error("Failed to load notifications:", error);
       }
     };
 
@@ -98,9 +120,9 @@ const RealTimeNotifications: React.FC = () => {
   const markAsRead = async (notificationId: string) => {
     try {
       await RealTimeNotificationService.markAsRead(notificationId, userId);
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      console.error("Failed to mark notification as read:", error);
     }
   };
 
@@ -111,13 +133,13 @@ const RealTimeNotifications: React.FC = () => {
       }
       setNotifications([]);
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      console.error("Failed to mark all notifications as read:", error);
     }
   };
 
   const _handleNotificationReceived = (newNotification: Notification) => {
-    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]); // Keep only the 10 most recent
-    
+    setNotifications((prev) => [newNotification, ...prev.slice(0, 9)]); // Keep only the 10 most recent
+
     // Show notification toast
     setIsVisible(true);
     setTimeout(() => setIsVisible(false), 5000);
@@ -159,7 +181,7 @@ const RealTimeNotifications: React.FC = () => {
                 </button>
               )}
             </div>
-            
+
             <div className="max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
@@ -170,7 +192,7 @@ const RealTimeNotifications: React.FC = () => {
                   <motion.div
                     key={notification.id}
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className={`border-b p-3 ${getNotificationColor(notification.type)}`}
                   >

@@ -28,7 +28,7 @@ export interface EmailResult {
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   // First, try SendGrid if configured
   const sendGridConfigured = await isServiceConfigured("sendgrid");
-  
+
   if (sendGridConfigured) {
     try {
       const sendgrid = new SendGridAdapter();
@@ -38,13 +38,13 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         html: options.html,
         text: options.text,
         from: options.from,
-        replyTo: options.replyTo
+        replyTo: options.replyTo,
       });
 
       if (result.success) {
         return {
           success: true,
-          provider: "sendgrid"
+          provider: "sendgrid",
         };
       }
 
@@ -58,26 +58,29 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   if (process.env.ABACUSAI_API_KEY && process.env.WEB_APP_ID) {
     try {
       const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-      
+
       // Try the notification email API
-      const response = await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          app_id: process.env.WEB_APP_ID,
-          subject: options.subject,
-          body: options.html,
-          is_html: true,
-          recipient_email: toAddresses[0], // Primary recipient
-          sender_alias: options.from?.name || "CortexBuild Pro"
-        })
-      });
+      const response = await fetch(
+        "https://apps.abacus.ai/api/sendNotificationEmail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deployment_token: process.env.ABACUSAI_API_KEY,
+            app_id: process.env.WEB_APP_ID,
+            subject: options.subject,
+            body: options.html,
+            is_html: true,
+            recipient_email: toAddresses[0], // Primary recipient
+            sender_alias: options.from?.name || "CortexBuild Pro",
+          }),
+        },
+      );
 
       if (response.ok) {
         return {
           success: true,
-          provider: "abacus"
+          provider: "abacus",
         };
       }
 
@@ -85,13 +88,13 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       return {
         success: false,
         provider: "abacus",
-        error: `Abacus API error: ${response.status}`
+        error: `Abacus API error: ${response.status}`,
       };
     } catch (error) {
       return {
         success: false,
         provider: "abacus",
-        error: error instanceof Error ? error.message : "Unknown error"
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -100,7 +103,8 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   return {
     success: false,
     provider: "none",
-    error: "No email provider configured. Please configure SendGrid in API Management or ensure ABACUSAI_API_KEY is set."
+    error:
+      "No email provider configured. Please configure SendGrid in API Management or ensure ABACUSAI_API_KEY is set.",
   };
 }
 
@@ -114,4 +118,4 @@ export {
   generateTeamInvitationEmail,
   type CompanyInvitationTemplateParams,
   type TeamInvitationTemplateParams,
-} from './email-templates';
+} from "./email-templates";

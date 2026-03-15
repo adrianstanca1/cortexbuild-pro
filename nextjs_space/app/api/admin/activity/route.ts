@@ -28,13 +28,13 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           user: { select: { id: true, name: true, email: true, role: true } },
-          project: { select: { id: true, name: true } }
+          project: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      prisma.activityLog.count({ where })
+      prisma.activityLog.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -43,11 +43,14 @@ export async function GET(req: NextRequest) {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Error fetching activities:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -34,13 +34,16 @@ export async function GET(
     return NextResponse.json(drawing);
   } catch (error) {
     console.error("Error fetching drawing:", error);
-    return NextResponse.json({ error: "Failed to fetch drawing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch drawing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -50,7 +53,17 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { number, title, description, discipline, status, currentRevision, scale, sheetSize, newRevision } = body;
+    const {
+      number,
+      title,
+      description,
+      discipline,
+      status,
+      currentRevision,
+      scale,
+      sheetSize,
+      newRevision,
+    } = body;
 
     const existingDrawing = await prisma.drawing.findUnique({
       where: { id: id },
@@ -104,13 +117,16 @@ export async function PATCH(
     return NextResponse.json(drawing);
   } catch (error) {
     console.error("Error updating drawing:", error);
-    return NextResponse.json({ error: "Failed to update drawing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update drawing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -140,6 +156,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting drawing:", error);
-    return NextResponse.json({ error: "Failed to delete drawing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete drawing" },
+      { status: 500 },
+    );
   }
 }

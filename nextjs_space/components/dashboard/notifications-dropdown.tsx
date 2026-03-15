@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, CheckCircle, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { useRealtime } from '@/hooks/use-realtime';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  Bell,
+  CheckCircle,
+  FolderKanban,
+  ListTodo,
+  Users,
+  FileText,
+  X,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useRealtime } from "@/hooks/use-realtime";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Notification {
   id: string;
@@ -38,14 +46,14 @@ export function NotificationsDropdown() {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/notifications?limit=10');
+      const res = await fetch("/api/notifications?limit=10");
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       }
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      console.error("Failed to fetch notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -63,14 +71,14 @@ export function NotificationsDropdown() {
 
   // Real-time updates with debouncing
   useRealtime((event) => {
-    if (event.type === 'activity_logged' || event.type === 'notification') {
+    if (event.type === "activity_logged" || event.type === "notification") {
       debouncedFetchNotifications();
     }
   });
 
   useEffect(() => {
     fetchNotifications();
-    
+
     // Cleanup debounce timer on unmount
     return () => {
       if (debounceTimerRef.current) {
@@ -82,20 +90,25 @@ export function NotificationsDropdown() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const markAllAsRead = async () => {
     try {
-      const res = await fetch('/api/notifications/read-all', { method: 'PATCH' });
+      const res = await fetch("/api/notifications/read-all", {
+        method: "PATCH",
+      });
       if (!res.ok) return;
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch {
       // Network-level failure; state unchanged
@@ -117,7 +130,7 @@ export function NotificationsDropdown() {
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center">
             <span className="text-[10px] font-bold text-white">
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           </span>
         )}
@@ -135,7 +148,10 @@ export function NotificationsDropdown() {
                   Mark all read
                 </Button>
               )}
-              <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-200 rounded">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 hover:bg-gray-200 rounded"
+              >
                 <X className="h-4 w-4 text-gray-500" />
               </button>
             </div>
@@ -157,12 +173,16 @@ export function NotificationsDropdown() {
                 <div
                   key={notification.id}
                   className={`flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
-                    !notification.read ? 'bg-purple-50/50' : ''
+                    !notification.read ? "bg-purple-50/50" : ""
                   }`}
                 >
-                  <div className={`p-2 rounded-lg ${
-                    !notification.read ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-600'
-                  }`}>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      !notification.read
+                        ? "bg-purple-100 text-purple-600"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
                     {getIcon(notification.type)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -175,7 +195,9 @@ export function NotificationsDropdown() {
                       </p>
                     )}
                     <p className="text-xs text-gray-400 mt-1">
-                      {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(notification.createdAt), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                   {!notification.read && (

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -24,37 +24,43 @@ export async function GET(
             email: true,
             role: true,
             createdAt: true,
-            lastLogin: true
-          }
+            lastLogin: true,
+          },
         },
         projects: {
           include: {
             manager: { select: { name: true } },
-            _count: { select: { tasks: true, documents: true } }
-          }
+            _count: { select: { tasks: true, documents: true } },
+          },
         },
         teamMembers: {
           include: {
-            user: { select: { name: true, email: true } }
-          }
-        }
-      }
+            user: { select: { name: true, email: true } },
+          },
+        },
+      },
     });
 
     if (!organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ organization });
   } catch (error) {
     console.error("Error fetching organization:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,27 +71,38 @@ export async function PATCH(
     const body = await req.json();
     const { name, slug, logoUrl } = body;
 
-    const existingOrg = await prisma.organization.findUnique({ where: { id: (await params).id } });
+    const existingOrg = await prisma.organization.findUnique({
+      where: { id: (await params).id },
+    });
     if (!existingOrg) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 },
+      );
     }
 
     // Check slug uniqueness if changing
     if (slug && slug !== existingOrg.slug) {
-      const slugExists = await prisma.organization.findUnique({ where: { slug } });
+      const slugExists = await prisma.organization.findUnique({
+        where: { slug },
+      });
       if (slugExists) {
-        return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
+        return NextResponse.json(
+          { error: "Slug already in use" },
+          { status: 409 },
+        );
       }
     }
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
-    if (slug !== undefined) updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
+    if (slug !== undefined)
+      updateData.slug = slug.toLowerCase().replace(/\s+/g, "-");
     if (logoUrl !== undefined) updateData.logoUrl = logoUrl;
 
     const organization = await prisma.organization.update({
       where: { id: (await params).id },
-      data: updateData
+      data: updateData,
     });
 
     // Log activity
@@ -96,20 +113,23 @@ export async function PATCH(
         entityId: organization.id,
         entityName: organization.name,
         userId: session.user.id,
-        details: `Updated organization ${organization.name}`
-      }
+        details: `Updated organization ${organization.name}`,
+      },
     });
 
     return NextResponse.json({ organization });
   } catch (error) {
     console.error("Error updating organization:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -119,18 +139,24 @@ export async function DELETE(
 
     const organization = await prisma.organization.findUnique({
       where: { id: (await params).id },
-      include: { _count: { select: { users: true, projects: true } } }
+      include: { _count: { select: { users: true, projects: true } } },
     });
 
     if (!organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 },
+      );
     }
 
     // Check if organization has users or projects
     if (organization._count.users > 0 || organization._count.projects > 0) {
       return NextResponse.json(
-        { error: "Cannot delete organization with existing users or projects. Please reassign or delete them first." },
-        { status: 400 }
+        {
+          error:
+            "Cannot delete organization with existing users or projects. Please reassign or delete them first.",
+        },
+        { status: 400 },
       );
     }
 
@@ -143,13 +169,16 @@ export async function DELETE(
         entityType: "Organization",
         entityName: organization.name,
         userId: session.user.id,
-        details: `Deleted organization ${organization.name}`
-      }
+        details: `Deleted organization ${organization.name}`,
+      },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting organization:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

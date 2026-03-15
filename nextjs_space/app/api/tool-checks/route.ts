@@ -6,8 +6,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 import { sendToolCheckCompletedNotification } from "@/lib/email-notifications";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50");
 
     const whereClause: any = {
-      project: { organizationId: orgId }
+      project: { organizationId: orgId },
     };
 
     if (projectId) whereClause.projectId = projectId;
@@ -35,7 +34,7 @@ export async function GET(request: NextRequest) {
       const checkDate = new Date(date);
       whereClause.checkDate = {
         gte: new Date(checkDate.setHours(0, 0, 0, 0)),
-        lte: new Date(checkDate.setHours(23, 59, 59, 999))
+        lte: new Date(checkDate.setHours(23, 59, 59, 999)),
       };
     }
 
@@ -43,16 +42,19 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         project: { select: { id: true, name: true } },
-        inspector: { select: { id: true, name: true, email: true } }
+        inspector: { select: { id: true, name: true, email: true } },
       },
       orderBy: { checkDate: "desc" },
-      take: limit
+      take: limit,
     });
 
     return NextResponse.json({ checks });
   } catch (error) {
     console.error("Error fetching tool checks:", error);
-    return NextResponse.json({ error: "Failed to fetch tool checks" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch tool checks" },
+      { status: 500 },
+    );
   }
 }
 
@@ -101,19 +103,19 @@ export async function POST(request: NextRequest) {
       comments,
       // Signature
       inspectorSignature,
-      photoUrls
+      photoUrls,
     } = body;
 
     if (!projectId || !toolName || !toolType) {
       return NextResponse.json(
         { error: "Project, tool name, and tool type are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: orgId }
+      where: { id: projectId, organizationId: orgId },
     });
 
     if (!project) {
@@ -150,19 +152,21 @@ export async function POST(request: NextRequest) {
         // Results
         overallStatus: overallStatus || "PASS",
         isSafeToUse: isSafeToUse !== false,
-        nextInspectionDue: nextInspectionDue ? new Date(nextInspectionDue) : null,
+        nextInspectionDue: nextInspectionDue
+          ? new Date(nextInspectionDue)
+          : null,
         defectsFound: defectsFound || null,
         actionsTaken: actionsTaken || null,
         comments: comments || null,
         // Signature
         inspectorSignature: inspectorSignature || null,
         inspectorSignedAt: inspectorSignature ? new Date() : null,
-        photoUrls: photoUrls || []
+        photoUrls: photoUrls || [],
       },
       include: {
         project: { select: { id: true, name: true } },
-        inspector: { select: { id: true, name: true } }
-      }
+        inspector: { select: { id: true, name: true } },
+      },
     });
 
     // Log activity
@@ -173,20 +177,25 @@ export async function POST(request: NextRequest) {
         entityId: check.id,
         userId,
         projectId,
-        details: JSON.stringify({ tool: toolName, type: toolType, status: check.overallStatus, safeToUse: check.isSafeToUse })
-      }
+        details: JSON.stringify({
+          tool: toolName,
+          type: toolType,
+          status: check.overallStatus,
+          safeToUse: check.isSafeToUse,
+        }),
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "tool_check_completed",
-      data: { check }
+      data: { check },
     });
 
     // Send email notification (non-blocking)
     sendToolCheckCompletedNotification(
       {
         id: check.id,
-        toolName: check.toolName || 'Tool',
+        toolName: check.toolName || "Tool",
         toolType: check.toolType,
         serialNumber: check.toolSerial,
         overallStatus: check.overallStatus,
@@ -194,14 +203,17 @@ export async function POST(request: NextRequest) {
         inspectorName: check.inspector?.name,
         projectName: check.project.name,
         checkDate: new Date(check.checkDate),
-        defectsFound: check.defectsFound
+        defectsFound: check.defectsFound,
       },
-      'adrian.stanca1@gmail.com'
-    ).catch(err => console.error('Email notification error:', err));
+      "adrian.stanca1@gmail.com",
+    ).catch((err) => console.error("Email notification error:", err));
 
     return NextResponse.json({ check }, { status: 201 });
   } catch (error) {
     console.error("Error creating tool check:", error);
-    return NextResponse.json({ error: "Failed to create tool check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create tool check" },
+      { status: 500 },
+    );
   }
 }

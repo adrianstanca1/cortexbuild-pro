@@ -15,18 +15,18 @@ export default async function MilestonesPage() {
     prisma.project.findMany({
       where: { organizationId: session.user.organizationId },
       select: { id: true, name: true, status: true },
-      orderBy: { name: "asc" }
+      orderBy: { name: "asc" },
     }),
     prisma.milestone.findMany({
       where: {
-        project: { organizationId: session.user.organizationId }
+        project: { organizationId: session.user.organizationId },
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
+        createdBy: { select: { id: true, name: true } },
       },
-      orderBy: [{ targetDate: "asc" }, { sortOrder: "asc" }]
-    })
+      orderBy: [{ targetDate: "asc" }, { sortOrder: "asc" }],
+    }),
   ]);
 
   return (

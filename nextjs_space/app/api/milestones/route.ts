@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
 
     const where: any = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else {
       where.project = {
-        organizationId: session.user.organizationId
+        organizationId: session.user.organizationId,
       };
     }
 
@@ -32,15 +32,18 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
+        createdBy: { select: { id: true, name: true } },
       },
-      orderBy: [{ sortOrder: "asc" }, { targetDate: "asc" }]
+      orderBy: [{ sortOrder: "asc" }, { targetDate: "asc" }],
     });
 
     return NextResponse.json(milestones);
   } catch (error) {
     console.error("Error fetching milestones:", error);
-    return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch milestones" },
+      { status: 500 },
+    );
   }
 }
 
@@ -53,16 +56,30 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      projectId, name, description, targetDate, status, percentComplete,
-      sortOrder, isCritical, dependencies, notes
+      projectId,
+      name,
+      description,
+      targetDate,
+      status,
+      percentComplete,
+      sortOrder,
+      isCritical,
+      dependencies,
+      notes,
     } = body;
 
     if (!projectId || !name || !targetDate) {
-      return NextResponse.json({ error: "Project, name, and target date are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project, name, and target date are required" },
+        { status: 400 },
+      );
     }
 
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: session.user.organizationId ?? "" }
+      where: {
+        id: projectId,
+        organizationId: session.user.organizationId ?? "",
+      },
     });
 
     if (!project) {
@@ -81,12 +98,12 @@ export async function POST(request: NextRequest) {
         isCritical: isCritical || false,
         dependencies: dependencies || [],
         notes,
-        createdById: session.user.id
+        createdById: session.user.id,
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -97,18 +114,21 @@ export async function POST(request: NextRequest) {
         entityName: milestone.name,
         details: `Added milestone: ${milestone.name}`,
         userId: session.user.id,
-        projectId
-      }
+        projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "milestone_created",
-      data: { milestone, projectId }
+      data: { milestone, projectId },
     });
 
     return NextResponse.json(milestone);
   } catch (error) {
     console.error("Error creating milestone:", error);
-    return NextResponse.json({ error: "Failed to create milestone" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create milestone" },
+      { status: 500 },
+    );
   }
 }

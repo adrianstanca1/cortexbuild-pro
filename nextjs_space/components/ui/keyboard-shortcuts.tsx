@@ -16,25 +16,29 @@ const shortcuts: Shortcut[] = [
   { keys: ["g", "p"], description: "Go to Projects", category: "Navigation" },
   { keys: ["g", "t"], description: "Go to Team", category: "Navigation" },
   { keys: ["g", "s"], description: "Go to Settings", category: "Navigation" },
-  
+
   // Actions
   { keys: ["c"], description: "Create new item", category: "Actions" },
   { keys: ["/"], description: "Focus search", category: "Actions" },
-  { keys: ["Escape"], description: "Close modal / Clear search", category: "Actions" },
-  
+  {
+    keys: ["Escape"],
+    description: "Close modal / Clear search",
+    category: "Actions",
+  },
+
   // Views
   { keys: ["v", "l"], description: "List view", category: "Views" },
   { keys: ["v", "k"], description: "Kanban view", category: "Views" },
   { keys: ["v", "g"], description: "Gantt view", category: "Views" },
-  
+
   // General
   { keys: ["?"], description: "Show keyboard shortcuts", category: "General" },
-  { keys: ["Ctrl", "k"], description: "Command palette", category: "General" }
+  { keys: ["Ctrl", "k"], description: "Command palette", category: "General" },
 ];
 
 export function KeyboardShortcutsModal({
   open,
-  onOpenChange
+  onOpenChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,7 +78,9 @@ export function KeyboardShortcutsModal({
                               {key}
                             </kbd>
                             {i < shortcut.keys.length - 1 && (
-                              <span className="text-muted-foreground text-xs">then</span>
+                              <span className="text-muted-foreground text-xs">
+                                then
+                              </span>
                             )}
                           </span>
                         ))}
@@ -122,7 +128,9 @@ export function useKeyboardShortcuts() {
       // Focus search
       if (e.key === "/") {
         e.preventDefault();
-        const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+        const searchInput = document.querySelector<HTMLInputElement>(
+          "[data-search-input]",
+        );
         searchInput?.focus();
         return;
       }

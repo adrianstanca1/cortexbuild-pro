@@ -27,30 +27,37 @@ export async function GET(req: NextRequest) {
         where,
         include: {
           connection: {
-            select: { id: true, name: true, serviceName: true }
+            select: { id: true, name: true, serviceName: true },
           },
           performedBy: {
-            select: { id: true, name: true, email: true }
-          }
+            select: { id: true, name: true, email: true },
+          },
         },
         orderBy: { createdAt: "desc" },
         take: limit,
-        skip: (page - 1) * limit
+        skip: (page - 1) * limit,
       }),
-      prisma.apiConnectionLog.count({ where })
+      prisma.apiConnectionLog.count({ where }),
     ]);
 
-    return NextResponse.json(JSON.parse(JSON.stringify({
-      logs,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    })));
+    return NextResponse.json(
+      JSON.parse(
+        JSON.stringify({
+          logs,
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+        }),
+      ),
+    );
   } catch (error) {
     console.error("Error fetching API connection logs:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

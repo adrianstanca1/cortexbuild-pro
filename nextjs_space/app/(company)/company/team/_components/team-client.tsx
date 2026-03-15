@@ -62,7 +62,11 @@ interface CompanyTeamClientProps {
   currentUserRole: string;
 }
 
-export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, currentUserRole }: CompanyTeamClientProps) {
+export function CompanyTeamClient({
+  teamMembers: initialMembers,
+  currentUserId,
+  currentUserRole,
+}: CompanyTeamClientProps) {
   const [mounted, setMounted] = useState(false);
   const [teamMembers, setTeamMembers] = useState(initialMembers);
   const [searchQuery, setSearchQuery] = useState("");
@@ -156,9 +160,17 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
     // SUPER_ADMIN can edit anyone
     if (currentUserRole === "SUPER_ADMIN") return true;
     // COMPANY_OWNER can edit anyone except SUPER_ADMIN
-    if (currentUserRole === "COMPANY_OWNER" && member.user.role !== "SUPER_ADMIN") return true;
+    if (
+      currentUserRole === "COMPANY_OWNER" &&
+      member.user.role !== "SUPER_ADMIN"
+    )
+      return true;
     // ADMIN can edit PM and FIELD_WORKER
-    if (currentUserRole === "ADMIN" && ["PROJECT_MANAGER", "FIELD_WORKER"].includes(member.user.role)) return true;
+    if (
+      currentUserRole === "ADMIN" &&
+      ["PROJECT_MANAGER", "FIELD_WORKER"].includes(member.user.role)
+    )
+      return true;
     return false;
   };
 
@@ -167,7 +179,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Team Management</h1>
-          <p className="text-gray-500 mt-1">Manage your organization&apos;s team members</p>
+          <p className="text-gray-500 mt-1">
+            Manage your organization&apos;s team members
+          </p>
         </div>
         <Link href="/company/invitations">
           <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -180,17 +194,43 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Members", value: teamMembers.length, icon: Users, color: "text-emerald-600" },
-          { label: "Admins", value: teamMembers.filter((m) => ["COMPANY_OWNER", "ADMIN"].includes(m.user.role)).length, icon: Shield, color: "text-blue-600" },
-          { label: "Project Managers", value: teamMembers.filter((m) => m.user.role === "PROJECT_MANAGER").length, icon: Briefcase, color: "text-amber-600" },
-          { label: "Field Workers", value: teamMembers.filter((m) => m.user.role === "FIELD_WORKER").length, icon: Users, color: "text-gray-600" },
+          {
+            label: "Total Members",
+            value: teamMembers.length,
+            icon: Users,
+            color: "text-emerald-600",
+          },
+          {
+            label: "Admins",
+            value: teamMembers.filter((m) =>
+              ["COMPANY_OWNER", "ADMIN"].includes(m.user.role),
+            ).length,
+            icon: Shield,
+            color: "text-blue-600",
+          },
+          {
+            label: "Project Managers",
+            value: teamMembers.filter((m) => m.user.role === "PROJECT_MANAGER")
+              .length,
+            icon: Briefcase,
+            color: "text-amber-600",
+          },
+          {
+            label: "Field Workers",
+            value: teamMembers.filter((m) => m.user.role === "FIELD_WORKER")
+              .length,
+            icon: Users,
+            color: "text-gray-600",
+          },
         ].map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
                 </div>
                 <stat.icon className={`h-8 w-8 ${stat.color}`} />
               </div>
@@ -232,7 +272,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
       {/* Team List */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Team Members ({filteredMembers.length})</CardTitle>
+          <CardTitle className="text-lg">
+            Team Members ({filteredMembers.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {filteredMembers.length === 0 ? (
@@ -256,26 +298,43 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900">{member.user.name}</p>
+                          <p className="font-medium text-gray-900">
+                            {member.user.name}
+                          </p>
                           {member.user.id === currentUserId && (
-                            <Badge variant="outline" className="text-xs">You</Badge>
+                            <Badge variant="outline" className="text-xs">
+                              You
+                            </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500">{member.user.email}</p>
+                        <p className="text-sm text-gray-500">
+                          {member.user.email}
+                        </p>
                         {member.jobTitle && (
-                          <p className="text-xs text-gray-400">{member.jobTitle}</p>
+                          <p className="text-xs text-gray-400">
+                            {member.jobTitle}
+                          </p>
                         )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="hidden md:block text-right">
-                        <Badge className={roleColors[member.user.role] || "bg-gray-100"}>
+                        <Badge
+                          className={
+                            roleColors[member.user.role] || "bg-gray-100"
+                          }
+                        >
                           {member.user.role.replace("_", " ")}
                         </Badge>
                         <p className="text-xs text-gray-400 mt-1">
                           <Clock className="h-3 w-3 inline mr-1" />
-                          Joined {mounted ? formatDistanceToNow(new Date(member.invitedAt), { addSuffix: true }) : "recently"}
+                          Joined{" "}
+                          {mounted
+                            ? formatDistanceToNow(new Date(member.invitedAt), {
+                                addSuffix: true,
+                              })
+                            : "recently"}
                         </p>
                       </div>
 
@@ -294,7 +353,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(member)}>
+                            <DropdownMenuItem
+                              onClick={() => handleEdit(member)}
+                            >
                               <Edit2 className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
@@ -331,7 +392,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
               <Label>Job Title</Label>
               <Input
                 value={editForm.jobTitle}
-                onChange={(e) => setEditForm({ ...editForm, jobTitle: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, jobTitle: e.target.value })
+                }
                 placeholder="Site Manager"
               />
             </div>
@@ -339,7 +402,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
               <Label>Department</Label>
               <Input
                 value={editForm.department}
-                onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, department: e.target.value })
+                }
                 placeholder="Operations"
               />
             </div>
@@ -348,14 +413,18 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
                 <Label>Role</Label>
                 <Select
                   value={editForm.role}
-                  onValueChange={(value) => setEditForm({ ...editForm, role: value })}
+                  onValueChange={(value) =>
+                    setEditForm({ ...editForm, role: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ADMIN">Admin</SelectItem>
-                    <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
+                    <SelectItem value="PROJECT_MANAGER">
+                      Project Manager
+                    </SelectItem>
                     <SelectItem value="FIELD_WORKER">Field Worker</SelectItem>
                   </SelectContent>
                 </Select>
@@ -363,8 +432,15 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditModal(false)}>Cancel</Button>
-            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveEdit}>Save Changes</Button>
+            <Button variant="outline" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={handleSaveEdit}
+            >
+              Save Changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -375,8 +451,9 @@ export function CompanyTeamClient({ teamMembers: initialMembers, currentUserId, 
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove <strong>{memberToDelete?.user.name}</strong> from the team? 
-              This action cannot be undone and they will lose access to all projects.
+              Are you sure you want to remove{" "}
+              <strong>{memberToDelete?.user.name}</strong> from the team? This
+              action cannot be undone and they will lose access to all projects.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

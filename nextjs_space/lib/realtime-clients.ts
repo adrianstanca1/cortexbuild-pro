@@ -6,7 +6,11 @@ interface ClientInfo {
 
 const clients = new Map<string, ClientInfo>();
 
-export function addClient(userId: string, controller: ReadableStreamDefaultController, organizationId: string) {
+export function addClient(
+  userId: string,
+  controller: ReadableStreamDefaultController,
+  organizationId: string,
+) {
   clients.set(userId, { controller, organizationId });
 }
 
@@ -21,7 +25,7 @@ export function getClient(userId: string): ClientInfo | undefined {
 // Helper to broadcast events to specific users
 export function broadcastEvent(userIds: string[], event: object) {
   const data = JSON.stringify(event);
-  userIds.forEach(userId => {
+  userIds.forEach((userId) => {
     const clientInfo = clients.get(userId);
     if (clientInfo) {
       try {

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { useRouter } from 'next/navigation';
-import { useRealtimeSubscription } from '@/components/realtime-provider';
+import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useRealtimeSubscription } from "@/components/realtime-provider";
 import {
   FileText,
   Plus,
@@ -20,31 +20,37 @@ import {
   Truck,
   AlertTriangle,
   ChevronRight,
-  Thermometer
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+  Thermometer,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import { FileUpload } from '@/components/ui/file-upload';
-import { Camera } from 'lucide-react';
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { FileUpload } from "@/components/ui/file-upload";
+import { Camera } from "lucide-react";
 
-type WeatherCondition = 'SUNNY' | 'CLOUDY' | 'RAINY' | 'STORMY' | 'SNOWY' | 'WINDY';
+type WeatherCondition =
+  | "SUNNY"
+  | "CLOUDY"
+  | "RAINY"
+  | "STORMY"
+  | "SNOWY"
+  | "WINDY";
 
 interface Photo {
   id?: string;
@@ -83,39 +89,44 @@ const weatherIcons: Record<WeatherCondition, React.ReactNode> = {
   RAINY: <CloudRain className="w-5 h-5 text-blue-500" />,
   STORMY: <CloudLightning className="w-5 h-5 text-purple-500" />,
   SNOWY: <CloudSnow className="w-5 h-5 text-blue-300" />,
-  WINDY: <Wind className="w-5 h-5 text-teal-500" />
+  WINDY: <Wind className="w-5 h-5 text-teal-500" />,
 };
 
 const weatherLabels: Record<WeatherCondition, string> = {
-  SUNNY: 'Sunny',
-  CLOUDY: 'Cloudy',
-  RAINY: 'Rainy',
-  STORMY: 'Stormy',
-  SNOWY: 'Snowy',
-  WINDY: 'Windy'
+  SUNNY: "Sunny",
+  CLOUDY: "Cloudy",
+  RAINY: "Rainy",
+  STORMY: "Stormy",
+  SNOWY: "Snowy",
+  WINDY: "Windy",
 };
 
-export function DailyReportsClient({ initialReports, projects }: DailyReportsClientProps) {
+export function DailyReportsClient({
+  initialReports,
+  projects,
+}: DailyReportsClientProps) {
   const router = useRouter();
   const [reports, setReports] = useState<DailyReport[]>(initialReports);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
   const [showNewModal, setShowNewModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
+  const [selectedReport, setSelectedReport] = useState<DailyReport | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [newReport, setNewReport] = useState({
-    projectId: '',
-    reportDate: format(new Date(), 'yyyy-MM-dd'),
-    weather: 'SUNNY' as WeatherCondition,
-    temperature: '',
-    workPerformed: '',
-    materialsUsed: '',
-    equipmentUsed: '',
-    visitors: '',
-    delays: '',
-    safetyNotes: '',
-    manpowerCount: ''
+    projectId: "",
+    reportDate: format(new Date(), "yyyy-MM-dd"),
+    weather: "SUNNY" as WeatherCondition,
+    temperature: "",
+    workPerformed: "",
+    materialsUsed: "",
+    equipmentUsed: "",
+    visitors: "",
+    delays: "",
+    safetyNotes: "",
+    manpowerCount: "",
   });
   const [photos, setPhotos] = useState<Photo[]>([]);
 
@@ -125,71 +136,85 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
   }, [router]);
 
   useRealtimeSubscription(
-    ['daily_report_created', 'daily_report_updated', 'daily_report_deleted'],
-    handleDailyReportEvent
+    ["daily_report_created", "daily_report_updated", "daily_report_deleted"],
+    handleDailyReportEvent,
   );
 
   const openDetailModal = (report: DailyReport) => {
     setSelectedReport(report);
-    setPhotos(report.photos?.map((p: any) => ({
-      id: p.id,
-      name: `Photo ${p.id.slice(0, 6)}`,
-      cloud_storage_path: p.cloudStoragePath,
-      caption: p.caption
-    })) || []);
+    setPhotos(
+      report.photos?.map((p: any) => ({
+        id: p.id,
+        name: `Photo ${p.id.slice(0, 6)}`,
+        cloud_storage_path: p.cloudStoragePath,
+        caption: p.caption,
+      })) || [],
+    );
     setShowDetailModal(true);
   };
 
   const handlePhotoUpload = async (file: Photo) => {
     if (!selectedReport || !file.cloud_storage_path) return;
     try {
-      const res = await fetch(`/api/daily-reports/${selectedReport.id}/photos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cloud_storage_path: file.cloud_storage_path,
-          caption: file.name
-        })
-      });
+      const res = await fetch(
+        `/api/daily-reports/${selectedReport.id}/photos`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cloud_storage_path: file.cloud_storage_path,
+            caption: file.name,
+          }),
+        },
+      );
       if (res.ok) {
         const saved = await res.json();
-        setPhotos(prev => prev.map(p =>
-          p.name === file.name && !p.id ? { ...p, id: saved.id } : p
-        ));
-        toast.success('Photo added');
+        setPhotos((prev) =>
+          prev.map((p) =>
+            p.name === file.name && !p.id ? { ...p, id: saved.id } : p,
+          ),
+        );
+        toast.success("Photo added");
       }
     } catch (error) {
-      console.error('Failed to save photo:', error);
+      console.error("Failed to save photo:", error);
     }
   };
 
   const handlePhotoDelete = async (file: Photo) => {
     if (!selectedReport || !file.id) return;
     try {
-      await fetch(`/api/daily-reports/${selectedReport.id}/photos?photoId=${file.id}`, {
-        method: 'DELETE'
-      });
+      await fetch(
+        `/api/daily-reports/${selectedReport.id}/photos?photoId=${file.id}`,
+        {
+          method: "DELETE",
+        },
+      );
     } catch (error) {
-      console.error('Failed to delete photo:', error);
+      console.error("Failed to delete photo:", error);
     }
   };
 
   const handleCreateReport = async () => {
     if (!newReport.projectId || !newReport.reportDate) {
-      toast.error('Please select a project and date');
+      toast.error("Please select a project and date");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch('/api/daily-reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/daily-reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newReport,
-          temperature: newReport.temperature ? parseInt(newReport.temperature) : null,
-          manpowerCount: newReport.manpowerCount ? parseInt(newReport.manpowerCount) : 0
-        })
+          temperature: newReport.temperature
+            ? parseInt(newReport.temperature)
+            : null,
+          manpowerCount: newReport.manpowerCount
+            ? parseInt(newReport.manpowerCount)
+            : 0,
+        }),
       });
 
       if (res.ok) {
@@ -197,39 +222,43 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         setReports([created, ...reports]);
         setShowNewModal(false);
         setNewReport({
-          projectId: '',
-          reportDate: format(new Date(), 'yyyy-MM-dd'),
-          weather: 'SUNNY',
-          temperature: '',
-          workPerformed: '',
-          materialsUsed: '',
-          equipmentUsed: '',
-          visitors: '',
-          delays: '',
-          safetyNotes: '',
-          manpowerCount: ''
+          projectId: "",
+          reportDate: format(new Date(), "yyyy-MM-dd"),
+          weather: "SUNNY",
+          temperature: "",
+          workPerformed: "",
+          materialsUsed: "",
+          equipmentUsed: "",
+          visitors: "",
+          delays: "",
+          safetyNotes: "",
+          manpowerCount: "",
         });
-        toast.success('Daily report created successfully');
+        toast.success("Daily report created successfully");
       } else {
         const err = await res.json();
-        toast.error(err.error || 'Failed to create report');
+        toast.error(err.error || "Failed to create report");
       }
     } catch (error) {
-      toast.error('Failed to create report');
+      toast.error("Failed to create report");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredReports = reports.filter(report => {
-    const matchesSearch = report.project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (report.workPerformed?.toLowerCase().includes(searchQuery.toLowerCase()) || false);
-    const matchesProject = projectFilter === 'all' || report.project.id === projectFilter;
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch =
+      report.project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      report.workPerformed?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      false;
+    const matchesProject =
+      projectFilter === "all" || report.project.id === projectFilter;
     return matchesSearch && matchesProject;
   });
 
   const totalManpower = reports.reduce((sum, r) => sum + r.manpowerCount, 0);
-  const avgManpower = reports.length > 0 ? Math.round(totalManpower / reports.length) : 0;
+  const avgManpower =
+    reports.length > 0 ? Math.round(totalManpower / reports.length) : 0;
 
   return (
     <div className="p-6 space-y-6">
@@ -240,9 +269,14 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
             <FileText className="w-7 h-7 text-orange-600" />
             Daily Reports
           </h1>
-          <p className="text-gray-500 mt-1">Field logs and daily progress tracking</p>
+          <p className="text-gray-500 mt-1">
+            Field logs and daily progress tracking
+          </p>
         </div>
-        <Button onClick={() => setShowNewModal(true)} className="bg-orange-600 hover:bg-orange-700">
+        <Button
+          onClick={() => setShowNewModal(true)}
+          className="bg-orange-600 hover:bg-orange-700"
+        >
           <Plus className="w-4 h-4 mr-2" />
           New Report
         </Button>
@@ -252,20 +286,31 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{reports.length}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {reports.length}
+            </div>
             <div className="text-sm text-gray-500">Total Reports</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-blue-600">{avgManpower}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {avgManpower}
+            </div>
             <div className="text-sm text-gray-500">Avg. Manpower</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold text-green-600">
-              {reports.filter(r => r.reportDate && new Date(r.reportDate).toDateString() === new Date().toDateString()).length}
+              {
+                reports.filter(
+                  (r) =>
+                    r.reportDate &&
+                    new Date(r.reportDate).toDateString() ===
+                      new Date().toDateString(),
+                ).length
+              }
             </div>
             <div className="text-sm text-gray-500">Today\'s Reports</div>
           </CardContent>
@@ -273,7 +318,7 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold text-orange-600">
-              {reports.filter(r => r.delays && r.delays.length > 0).length}
+              {reports.filter((r) => r.delays && r.delays.length > 0).length}
             </div>
             <div className="text-sm text-gray-500">Reports with Delays</div>
           </CardContent>
@@ -298,7 +343,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
           <SelectContent>
             <SelectItem value="all">All Projects</SelectItem>
             {projects.map((p) => (
-              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+              <SelectItem key={p.id} value={p.id}>
+                {p.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -333,25 +380,39 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                       </div>
                       <div>
                         <div className="font-semibold text-gray-900 dark:text-white">
-                          {format(new Date(report.reportDate), 'EEEE, MMMM d, yyyy')}
+                          {format(
+                            new Date(report.reportDate),
+                            "EEEE, MMMM d, yyyy",
+                          )}
                         </div>
-                        <div className="text-sm text-gray-500">{report.project.name}</div>
+                        <div className="text-sm text-gray-500">
+                          {report.project.name}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
                         {weatherIcons[report.weather]}
-                        <span className="text-sm text-gray-600">{weatherLabels[report.weather]}</span>
+                        <span className="text-sm text-gray-600">
+                          {weatherLabels[report.weather]}
+                        </span>
                         {report.temperature && (
-                          <span className="text-sm text-gray-500">{report.temperature}°F</span>
+                          <span className="text-sm text-gray-500">
+                            {report.temperature}°F
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-medium">{report.manpowerCount}</span>
+                        <span className="text-sm font-medium">
+                          {report.manpowerCount}
+                        </span>
                       </div>
                       {report.delays && (
-                        <Badge variant="outline" className="text-orange-600 border-orange-200">
+                        <Badge
+                          variant="outline"
+                          className="text-orange-600 border-orange-200"
+                        >
                           <AlertTriangle className="w-3 h-3 mr-1" />
                           Delays
                         </Badge>
@@ -376,11 +437,20 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Project *</label>
-                <Select value={newReport.projectId} onValueChange={(v) => setNewReport({ ...newReport, projectId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select project" /></SelectTrigger>
+                <Select
+                  value={newReport.projectId}
+                  onValueChange={(v) =>
+                    setNewReport({ ...newReport, projectId: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select project" />
+                  </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -390,15 +460,27 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                 <Input
                   type="date"
                   value={newReport.reportDate}
-                  onChange={(e) => setNewReport({ ...newReport, reportDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewReport({ ...newReport, reportDate: e.target.value })
+                  }
                 />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium">Weather</label>
-                <Select value={newReport.weather} onValueChange={(v) => setNewReport({ ...newReport, weather: v as WeatherCondition })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={newReport.weather}
+                  onValueChange={(v) =>
+                    setNewReport({
+                      ...newReport,
+                      weather: v as WeatherCondition,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(weatherLabels).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
@@ -416,7 +498,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                 <Input
                   type="number"
                   value={newReport.temperature}
-                  onChange={(e) => setNewReport({ ...newReport, temperature: e.target.value })}
+                  onChange={(e) =>
+                    setNewReport({ ...newReport, temperature: e.target.value })
+                  }
                   placeholder="e.g., 75"
                 />
               </div>
@@ -425,7 +509,12 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                 <Input
                   type="number"
                   value={newReport.manpowerCount}
-                  onChange={(e) => setNewReport({ ...newReport, manpowerCount: e.target.value })}
+                  onChange={(e) =>
+                    setNewReport({
+                      ...newReport,
+                      manpowerCount: e.target.value,
+                    })
+                  }
                   placeholder="e.g., 25"
                 />
               </div>
@@ -434,7 +523,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
               <label className="text-sm font-medium">Work Performed</label>
               <Textarea
                 value={newReport.workPerformed}
-                onChange={(e) => setNewReport({ ...newReport, workPerformed: e.target.value })}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, workPerformed: e.target.value })
+                }
                 placeholder="Describe work completed today..."
                 rows={3}
               />
@@ -444,7 +535,12 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                 <label className="text-sm font-medium">Materials Used</label>
                 <Textarea
                   value={newReport.materialsUsed}
-                  onChange={(e) => setNewReport({ ...newReport, materialsUsed: e.target.value })}
+                  onChange={(e) =>
+                    setNewReport({
+                      ...newReport,
+                      materialsUsed: e.target.value,
+                    })
+                  }
                   placeholder="List materials..."
                   rows={2}
                 />
@@ -453,7 +549,12 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                 <label className="text-sm font-medium">Equipment Used</label>
                 <Textarea
                   value={newReport.equipmentUsed}
-                  onChange={(e) => setNewReport({ ...newReport, equipmentUsed: e.target.value })}
+                  onChange={(e) =>
+                    setNewReport({
+                      ...newReport,
+                      equipmentUsed: e.target.value,
+                    })
+                  }
                   placeholder="List equipment..."
                   rows={2}
                 />
@@ -463,7 +564,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
               <label className="text-sm font-medium">Delays / Issues</label>
               <Textarea
                 value={newReport.delays}
-                onChange={(e) => setNewReport({ ...newReport, delays: e.target.value })}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, delays: e.target.value })
+                }
                 placeholder="Note any delays or issues..."
                 rows={2}
               />
@@ -472,15 +575,23 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
               <label className="text-sm font-medium">Safety Notes</label>
               <Textarea
                 value={newReport.safetyNotes}
-                onChange={(e) => setNewReport({ ...newReport, safetyNotes: e.target.value })}
+                onChange={(e) =>
+                  setNewReport({ ...newReport, safetyNotes: e.target.value })
+                }
                 placeholder="Safety observations, toolbox talks, etc."
                 rows={2}
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreateReport} disabled={loading} className="bg-orange-600 hover:bg-orange-700">
-                {loading ? 'Creating...' : 'Create Report'}
+              <Button variant="outline" onClick={() => setShowNewModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateReport}
+                disabled={loading}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                {loading ? "Creating..." : "Create Report"}
               </Button>
             </div>
           </div>
@@ -495,26 +606,37 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
                   <Calendar className="w-6 h-6 text-orange-600" />
-                  {format(new Date(selectedReport.reportDate), 'EEEE, MMMM d, yyyy')}
+                  {format(
+                    new Date(selectedReport.reportDate),
+                    "EEEE, MMMM d, yyyy",
+                  )}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
-                    <div className="font-semibold">{selectedReport.project.name}</div>
-                    <div className="text-sm text-gray-500">Created by {selectedReport.createdBy.name}</div>
+                    <div className="font-semibold">
+                      {selectedReport.project.name}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Created by {selectedReport.createdBy.name}
+                    </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       {weatherIcons[selectedReport.weather]}
                       <span>{weatherLabels[selectedReport.weather]}</span>
                       {selectedReport.temperature && (
-                        <span className="text-gray-500">| {selectedReport.temperature}°F</span>
+                        <span className="text-gray-500">
+                          | {selectedReport.temperature}°F
+                        </span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
                       <Users className="w-4 h-4" />
-                      <span className="font-medium">{selectedReport.manpowerCount} workers</span>
+                      <span className="font-medium">
+                        {selectedReport.manpowerCount} workers
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -523,7 +645,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                   <div>
                     <h4 className="font-medium mb-2">Work Performed</h4>
                     <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <p className="whitespace-pre-wrap">{selectedReport.workPerformed}</p>
+                      <p className="whitespace-pre-wrap">
+                        {selectedReport.workPerformed}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -533,7 +657,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                     <div>
                       <h4 className="font-medium mb-2">Materials Used</h4>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="whitespace-pre-wrap text-sm">{selectedReport.materialsUsed}</p>
+                        <p className="whitespace-pre-wrap text-sm">
+                          {selectedReport.materialsUsed}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -541,7 +667,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                     <div>
                       <h4 className="font-medium mb-2">Equipment Used</h4>
                       <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="whitespace-pre-wrap text-sm">{selectedReport.equipmentUsed}</p>
+                        <p className="whitespace-pre-wrap text-sm">
+                          {selectedReport.equipmentUsed}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -554,7 +682,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                       Delays / Issues
                     </h4>
                     <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200">
-                      <p className="whitespace-pre-wrap">{selectedReport.delays}</p>
+                      <p className="whitespace-pre-wrap">
+                        {selectedReport.delays}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -563,7 +693,9 @@ export function DailyReportsClient({ initialReports, projects }: DailyReportsCli
                   <div>
                     <h4 className="font-medium mb-2">Safety Notes</h4>
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <p className="whitespace-pre-wrap">{selectedReport.safetyNotes}</p>
+                      <p className="whitespace-pre-wrap">
+                        {selectedReport.safetyNotes}
+                      </p>
                     </div>
                   </div>
                 )}

@@ -8,21 +8,66 @@
  * - User presence
  */
 
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
-const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3000';
+const WEBSOCKET_URL =
+  process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3000";
+
+// Type definitions for WebSocket payloads
+interface TaskChanges {
+  [key: string]: unknown;
+}
+
+interface NotificationPayload {
+  [key: string]: unknown;
+}
+
+interface TaskUpdateData {
+  taskId: string;
+  projectId: string;
+  changes: TaskChanges;
+}
+
+interface TaskCreateData {
+  taskId: string;
+  projectId: string;
+}
+
+interface TaskDeleteData {
+  taskId: string;
+  projectId: string;
+}
+
+interface ProjectMessageData {
+  projectId: string;
+  message: string;
+  senderName: string;
+  timestamp: string;
+}
+
+interface UserStatusData {
+  projectId: string;
+  userId: string;
+  status: string;
+}
+
+interface NotificationData {
+  projectId: string;
+  type: string;
+  payload: NotificationPayload;
+}
 
 interface WebSocketEventMap {
-  'connect': () => void;
-  'disconnect': () => void;
-  'authenticated': (data: { userId: string; projectId?: string }) => void;
-  'authentication-error': (error: Error) => void;
-  'task:updated': (data: { taskId: string; projectId: string; changes: any }) => void;
-  'task:created': (data: { taskId: string; projectId: string }) => void;
-  'task:deleted': (data: { taskId: string; projectId: string }) => void;
-  'project:message': (data: { projectId: string; message: string; senderName: string; timestamp: string }) => void;
-  'user:status': (data: { projectId: string; userId: string; status: string }) => void;
-  'notification': (data: { projectId: string; type: string; payload: any }) => void;
+  connect: () => void;
+  disconnect: () => void;
+  authenticated: (data: { userId: string; projectId?: string }) => void;
+  "authentication-error": (error: Error) => void;
+  "task:updated": (data: TaskUpdateData) => void;
+  "task:created": (data: TaskCreateData) => void;
+  "task:deleted": (data: TaskDeleteData) => void;
+  "project:message": (data: ProjectMessageData) => void;
+  "user:status": (data: UserStatusData) => void;
+  notification: (data: NotificationData) => void;
 }
 
 class WebSocketClient {
@@ -38,55 +83,57 @@ class WebSocketClient {
       try {
         this.socket = io(WEBSOCKET_URL, {
           auth: { token, userId },
-          transports: ['websocket', 'polling'],
+          transports: ["websocket", "polling"],
           reconnection: true,
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
         });
 
-        this.socket.on('connect', () => {
-          this.emit('connect');
+        this.socket.on("connect", () => {
+          this.emit("connect");
           resolve();
         });
 
-        this.socket.on('disconnect', () => {
-          this.emit('disconnect');
+        this.socket.on("disconnect", () => {
+          this.emit("disconnect");
         });
 
-        this.socket.on('authenticated', (data: { userId: string; projectId?: string }) => {
-          this.emit('authenticated', data);
-        });
+        this.socket.on(
+          "authenticated",
+          (data: { userId: string; projectId?: string }) => {
+            this.emit("authenticated", data);
+          },
+        );
 
-        this.socket.on('authentication-error', (error: Error) => {
-          this.emit('authentication-error', error);
+        this.socket.on("authentication-error", (error: Error) => {
+          this.emit("authentication-error", error);
           reject(error);
         });
 
         // Set up event listeners for real-time events
-        this.socket.on('task:updated', (data) => {
-          this.emit('task:updated', data);
+        this.socket.on("task:updated", (data) => {
+          this.emit("task:updated", data);
         });
 
-        this.socket.on('task:created', (data) => {
-          this.emit('task:created', data);
+        this.socket.on("task:created", (data) => {
+          this.emit("task:created", data);
         });
 
-        this.socket.on('task:deleted', (data) => {
-          this.emit('task:deleted', data);
+        this.socket.on("task:deleted", (data) => {
+          this.emit("task:deleted", data);
         });
 
-        this.socket.on('project:message', (data) => {
-          this.emit('project:message', data);
+        this.socket.on("project:message", (data) => {
+          this.emit("project:message", data);
         });
 
-        this.socket.on('user:status', (data) => {
-          this.emit('user:status', data);
+        this.socket.on("user:status", (data) => {
+          this.emit("user:status", data);
         });
 
-        this.socket.on('notification', (data) => {
-          this.emit('notification', data);
+        this.socket.on("notification", (data) => {
+          this.emit("notification", data);
         });
-
       } catch (error) {
         reject(error);
       }
@@ -109,7 +156,7 @@ class WebSocketClient {
    */
   joinProject(projectId: string, userId: string): void {
     if (this.socket) {
-      this.socket.emit('join:project', { projectId, userId });
+      this.socket.emit("join:project", { projectId, userId });
       this.connectedProjectIds.add(projectId);
     }
   }
@@ -119,7 +166,7 @@ class WebSocketClient {
    */
   leaveProject(projectId: string): void {
     if (this.socket) {
-      this.socket.emit('leave:project', { projectId });
+      this.socket.emit("leave:project", { projectId });
       this.connectedProjectIds.delete(projectId);
     }
   }
@@ -129,16 +176,20 @@ class WebSocketClient {
    */
   sendTaskUpdate(projectId: string, task: any): void {
     if (this.socket && this.connectedProjectIds.has(projectId)) {
-      this.socket.emit('task:update', { projectId, task });
+      this.socket.emit("task:update", { projectId, task });
     }
   }
 
   /**
    * Send project message
    */
-  sendProjectMessage(projectId: string, message: string, senderName: string): void {
+  sendProjectMessage(
+    projectId: string,
+    message: string,
+    senderName: string,
+  ): void {
     if (this.socket && this.connectedProjectIds.has(projectId)) {
-      this.socket.emit('project:message', { projectId, message, senderName });
+      this.socket.emit("project:message", { projectId, message, senderName });
     }
   }
 
@@ -147,7 +198,7 @@ class WebSocketClient {
    */
   updateUserStatus(projectId: string, status: string): void {
     if (this.socket && this.connectedProjectIds.has(projectId)) {
-      this.socket.emit('user:status', { projectId, status });
+      this.socket.emit("user:status", { projectId, status });
     }
   }
 
@@ -156,14 +207,17 @@ class WebSocketClient {
    */
   sendNotification(projectId: string, notification: any): void {
     if (this.socket && this.connectedProjectIds.has(projectId)) {
-      this.socket.emit('notification', { projectId, notification });
+      this.socket.emit("notification", { projectId, notification });
     }
   }
 
   /**
    * Subscribe to an event
    */
-  on<T extends keyof WebSocketEventMap>(event: T, callback: WebSocketEventMap[T]): void {
+  on<T extends keyof WebSocketEventMap>(
+    event: T,
+    callback: WebSocketEventMap[T],
+  ): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
@@ -173,7 +227,10 @@ class WebSocketClient {
   /**
    * Unsubscribe from an event
    */
-  off<T extends keyof WebSocketEventMap>(event: T, callback?: WebSocketEventMap[T]): void {
+  off<T extends keyof WebSocketEventMap>(
+    event: T,
+    callback?: WebSocketEventMap[T],
+  ): void {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
       if (callback) {
@@ -187,10 +244,13 @@ class WebSocketClient {
   /**
    * Emit an event to all listeners
    */
-  private emit<T extends keyof WebSocketEventMap>(event: T, data?: Parameters<WebSocketEventMap[T]>[0]): void {
+  private emit<T extends keyof WebSocketEventMap>(
+    event: T,
+    data?: Parameters<WebSocketEventMap[T]>[0],
+  ): void {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
-      eventListeners.forEach(callback => callback(data));
+      eventListeners.forEach((callback) => callback(data));
     }
   }
 }

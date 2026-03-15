@@ -14,14 +14,16 @@ export default async function DocumentsPage() {
       where: orgId ? { project: { organizationId: orgId } } : {},
       include: {
         project: { select: { id: true, name: true } },
-        uploadedBy: { select: { id: true, name: true } }
+        uploadedBy: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     }),
     prisma.project.findMany({
-      where: orgId ? { organizationId: orgId, status: { not: "ARCHIVED" } } : {},
-      select: { id: true, name: true }
-    })
+      where: orgId
+        ? { organizationId: orgId, status: { not: "ARCHIVED" } }
+        : {},
+      select: { id: true, name: true },
+    }),
   ]);
 
   return (

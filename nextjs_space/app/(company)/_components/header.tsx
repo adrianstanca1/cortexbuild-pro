@@ -44,7 +44,10 @@ export function CompanyHeader({ user, organization }: CompanyHeaderProps) {
               {organization?.name || "Organization"}
             </span>
           </div>
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+          <Badge
+            variant="outline"
+            className="bg-emerald-50 text-emerald-700 border-emerald-200"
+          >
             Company Management
           </Badge>
         </div>
@@ -58,8 +61,12 @@ export function CompanyHeader({ user, organization }: CompanyHeaderProps) {
               {user?.name?.charAt(0) || "U"}
             </div>
             <div className="text-left hidden sm:block">
-              <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-              <div className="text-xs text-gray-500">{roleLabels[user?.role] || user?.role}</div>
+              <div className="text-sm font-medium text-gray-900">
+                {user?.name}
+              </div>
+              <div className="text-xs text-gray-500">
+                {roleLabels[user?.role] || user?.role}
+              </div>
             </div>
             <ChevronDown className="h-4 w-4 text-gray-500" />
           </button>
@@ -67,8 +74,12 @@ export function CompanyHeader({ user, organization }: CompanyHeaderProps) {
           {showMenu && (
             <div className="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg border border-gray-200 py-1 z-50">
               <div className="px-4 py-3 border-b border-gray-100">
-                <div className="text-sm font-medium text-gray-900">{user?.name}</div>
-                <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {user?.name}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  {user?.email}
+                </div>
               </div>
               <Link
                 href="/settings"

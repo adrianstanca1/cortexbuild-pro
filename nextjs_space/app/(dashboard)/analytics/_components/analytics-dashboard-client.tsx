@@ -34,7 +34,7 @@ interface OrganizationAnalytics {
 
 export function AnalyticsDashboardClient() {
   const [analytics, setAnalytics] = useState<OrganizationAnalytics | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +73,9 @@ export function AnalyticsDashboardClient() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Projects
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{analytics.projectCount}</div>
@@ -82,11 +84,15 @@ export function AnalyticsDashboardClient() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Avg Health Score</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg Health Score
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="text-2xl font-bold">{analytics.averageHealthScore}%</div>
+              <div className="text-2xl font-bold">
+                {analytics.averageHealthScore}%
+              </div>
               {analytics.averageHealthScore >= 80 ? (
                 <TrendingUp className="h-4 w-4 text-green-500" />
               ) : analytics.averageHealthScore < 60 ? (
@@ -98,7 +104,9 @@ export function AnalyticsDashboardClient() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Projects at Risk</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Projects at Risk
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
@@ -114,7 +122,9 @@ export function AnalyticsDashboardClient() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Healthy Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Healthy Projects
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">
@@ -143,21 +153,23 @@ export function AnalyticsDashboardClient() {
                         project.overallScore >= 80
                           ? "default"
                           : project.overallScore >= 60
-                          ? "secondary"
-                          : "destructive"
+                            ? "secondary"
+                            : "destructive"
                       }
                     >
                       {project.overallScore >= 80
                         ? "Healthy"
                         : project.overallScore >= 60
-                        ? "At Risk"
-                        : "Critical"}
+                          ? "At Risk"
+                          : "Critical"}
                     </Badge>
                   </div>
                   <Progress value={project.overallScore} className="h-2" />
                 </div>
                 <div className="ml-4 text-right">
-                  <div className="text-2xl font-bold">{project.overallScore}%</div>
+                  <div className="text-2xl font-bold">
+                    {project.overallScore}%
+                  </div>
                   <div className="text-sm text-muted-foreground">
                     {project.metrics.overdueTasks} overdue
                   </div>

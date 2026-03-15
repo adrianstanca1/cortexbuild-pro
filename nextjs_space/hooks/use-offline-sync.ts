@@ -5,8 +5,8 @@ import {
   processQueuedRequests,
   getQueueLength,
   getSyncStatus,
-  manualSync
-} from "@/lib/sw-register";
+  manualSync,
+} from "@/lib/offline/sync-queue";
 
 export function useOfflineSync() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -77,7 +77,7 @@ export function useOfflineSync() {
     manualSync: handleManualSync,
     // Expose individual functions for advanced usage
     processQueuedRequests,
-    getQueueLength
+    getQueueLength,
   };
 }
 

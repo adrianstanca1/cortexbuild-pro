@@ -18,7 +18,7 @@ const colorClasses = {
   success: "stroke-green-500",
   warning: "stroke-amber-500",
   danger: "stroke-red-500",
-  info: "stroke-blue-500"
+  info: "stroke-blue-500",
 };
 
 export function ProgressRing({
@@ -29,14 +29,21 @@ export function ProgressRing({
   showLabel = true,
   color = "primary",
   bgColor = "stroke-muted",
-  children
+  children,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference;
+  const offset =
+    circumference -
+    (Math.min(100, Math.max(0, progress)) / 100) * circumference;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
+    <div
+      className={cn(
+        "relative inline-flex items-center justify-center",
+        className,
+      )}
+    >
       <svg width={size} height={size} className="-rotate-90">
         {/* Background circle */}
         <circle
@@ -57,7 +64,10 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className={cn(colorClasses[color], "transition-all duration-500 ease-out")}
+          className={cn(
+            colorClasses[color],
+            "transition-all duration-500 ease-out",
+          )}
         />
       </svg>
       {(showLabel || children) && (
@@ -89,21 +99,33 @@ export function StatsRingCard({
   total,
   color = "primary",
   icon,
-  suffix = ""
+  suffix = "",
 }: StatsRingCardProps) {
   const progress = total > 0 ? (value / total) * 100 : 0;
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 flex items-center gap-4">
-      <ProgressRing progress={progress} size={80} strokeWidth={6} color={color} showLabel={false}>
+      <ProgressRing
+        progress={progress}
+        size={80}
+        strokeWidth={6}
+        color={color}
+        showLabel={false}
+      >
         {icon && <div className="text-muted-foreground">{icon}</div>}
       </ProgressRing>
       <div>
         <p className="text-2xl font-bold text-foreground">
-          {value}{suffix} <span className="text-sm font-normal text-muted-foreground">/ {total}</span>
+          {value}
+          {suffix}{" "}
+          <span className="text-sm font-normal text-muted-foreground">
+            / {total}
+          </span>
         </p>
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground mt-1">{Math.round(progress)}% complete</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {Math.round(progress)}% complete
+        </p>
       </div>
     </div>
   );
@@ -113,14 +135,19 @@ export function StatsRingCard({
 export function MiniProgress({
   progress,
   color = "primary",
-  className
+  className,
 }: {
   progress: number;
   color?: "primary" | "success" | "warning" | "danger" | "info";
   className?: string;
 }) {
   return (
-    <div className={cn("h-1.5 w-full bg-muted rounded-full overflow-hidden", className)}>
+    <div
+      className={cn(
+        "h-1.5 w-full bg-muted rounded-full overflow-hidden",
+        className,
+      )}
+    >
       <div
         className={cn(
           "h-full rounded-full transition-all duration-500",
@@ -128,7 +155,7 @@ export function MiniProgress({
           color === "success" && "bg-green-500",
           color === "warning" && "bg-amber-500",
           color === "danger" && "bg-red-500",
-          color === "info" && "bg-blue-500"
+          color === "info" && "bg-blue-500",
         )}
         style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
       />

@@ -8,7 +8,7 @@ import { createServiceAdapter } from "@/lib/service-adapters";
 // POST - Test a specific service connection
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -25,17 +25,17 @@ export async function POST(
     if (!service) {
       return NextResponse.json(
         { error: `Service '${id}' not found` },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Create adapter and test
     const adapter = createServiceAdapter(id, environment);
-    
+
     if (!adapter || typeof (adapter as any).testConnection !== "function") {
       return NextResponse.json(
         { error: "Service does not support connection testing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -45,10 +45,13 @@ export async function POST(
       success: result.success,
       responseTime: result.responseTime,
       statusCode: result.statusCode,
-      error: result.error
+      error: result.error,
     });
   } catch (error) {
     console.error("Error testing service:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

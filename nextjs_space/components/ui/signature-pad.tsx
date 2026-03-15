@@ -23,7 +23,7 @@ export function SignaturePad({
   width = 400,
   height = 150,
   className,
-  disabled = false
+  disabled = false,
 }: SignaturePadProps) {
   // Support both onSignature and onSave props
   const handleSignature = onSignature || onSave;
@@ -64,19 +64,19 @@ export function SignaturePad({
       const touch = e.touches[0];
       return {
         x: (touch.clientX - rect.left) * scaleX,
-        y: (touch.clientY - rect.top) * scaleY
+        y: (touch.clientY - rect.top) * scaleY,
       };
     }
 
     return {
       x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      y: (e.clientY - rect.top) * scaleY,
     };
   };
 
   const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
     if (disabled || !ctx) return;
-    
+
     e.preventDefault();
     const { x, y } = getCoordinates(e);
     ctx.beginPath();
@@ -87,7 +87,7 @@ export function SignaturePad({
 
   const draw = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing || !ctx || disabled) return;
-    
+
     e.preventDefault();
     const { x, y } = getCoordinates(e);
     ctx.lineTo(x, y);
@@ -123,7 +123,7 @@ export function SignaturePad({
           height={height}
           className={cn(
             "border-2 border-dashed border-border rounded-lg cursor-crosshair touch-none",
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled && "opacity-50 cursor-not-allowed",
           )}
           onMouseDown={startDrawing}
           onMouseMove={draw}
@@ -170,7 +170,7 @@ export function SignatureDisplay({
   signatureData,
   name,
   timestamp,
-  className
+  className,
 }: {
   signatureData: string;
   name?: string;

@@ -23,51 +23,63 @@ export async function GET(request: NextRequest) {
     const activities = await prisma.activityLog.findMany({
       where,
       include: {
-        user: { 
-          select: { 
-            id: true, 
-            name: true, 
-            email: true, 
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
             role: true,
-            organization: { select: { id: true, name: true } }
-          } 
+            organization: { select: { id: true, name: true } },
+          },
         },
-        project: { select: { id: true, name: true } }
+        project: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: limit
+      take: limit,
     });
 
     // Get quick stats
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const [recentCount, activeUsers] = await Promise.all([
-      prisma.activityLog.count({ where: { createdAt: { gte: fiveMinutesAgo } } }),
+      prisma.activityLog.count({
+        where: { createdAt: { gte: fiveMinutesAgo } },
+      }),
       prisma.activityLog.groupBy({
         by: ["userId"],
-        where: { createdAt: { gte: fiveMinutesAgo } }
-      })
+        where: { createdAt: { gte: fiveMinutesAgo } },
+      }),
     ]);
 
     return NextResponse.json({
-      activities: activities.map(a => ({
+      activities: activities.map((a) => ({
         id: a.id,
         action: a.action,
         entityType: a.entityType,
         entityId: a.entityId,
         details: a.details,
         createdAt: a.createdAt,
-        user: a.user ? { id: a.user.id, name: a.user.name, email: a.user.email, role: a.user.role } : null,
+        user: a.user
+          ? {
+              id: a.user.id,
+              name: a.user.name,
+              email: a.user.email,
+              role: a.user.role,
+            }
+          : null,
         project: a.project,
-        organization: a.user?.organization || null
+        organization: a.user?.organization || null,
       })),
       stats: {
         recentActivities: recentCount,
-        activeUsers: activeUsers.length
+        activeUsers: activeUsers.length,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error fetching live feed:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

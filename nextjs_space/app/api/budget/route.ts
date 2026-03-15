@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     } else {
       // Filter by organization's projects
       where.project = {
-        organizationId: session.user.organizationId
+        organizationId: session.user.organizationId,
       };
     }
 
@@ -36,23 +36,29 @@ export async function GET(request: NextRequest) {
       include: {
         project: { select: { id: true, name: true } },
         subcontractor: { select: { id: true, companyName: true } },
-        createdBy: { select: { id: true, name: true } }
+        createdBy: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     // Calculate budget summary
-    const summary = costItems.reduce((acc: any, item: any) => {
-      acc.totalEstimated += item.estimatedAmount;
-      acc.totalCommitted += item.committedAmount;
-      acc.totalActual += item.actualAmount;
-      return acc;
-    }, { totalEstimated: 0, totalCommitted: 0, totalActual: 0 });
+    const summary = costItems.reduce(
+      (acc: any, item: any) => {
+        acc.totalEstimated += item.estimatedAmount;
+        acc.totalCommitted += item.committedAmount;
+        acc.totalActual += item.actualAmount;
+        return acc;
+      },
+      { totalEstimated: 0, totalCommitted: 0, totalActual: 0 },
+    );
 
     return NextResponse.json({ costItems, summary });
   } catch (error) {
     console.error("Error fetching cost items:", error);
-    return NextResponse.json({ error: "Failed to fetch cost items" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch cost items" },
+      { status: 500 },
+    );
   }
 }
 
@@ -64,15 +70,35 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { projectId, description, category, status, estimatedAmount, actualAmount, committedAmount, vendor, notes, subcontractorId, invoiceNumber, invoiceDate, paidDate } = body;
+    const {
+      projectId,
+      description,
+      category,
+      status,
+      estimatedAmount,
+      actualAmount,
+      committedAmount,
+      vendor,
+      notes,
+      subcontractorId,
+      invoiceNumber,
+      invoiceDate,
+      paidDate,
+    } = body;
 
     if (!projectId || !description) {
-      return NextResponse.json({ error: "Project and description are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project and description are required" },
+        { status: 400 },
+      );
     }
 
     // Verify project belongs to user's organization
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: session.user.organizationId ?? "" }
+      where: {
+        id: projectId,
+        organizationId: session.user.organizationId ?? "",
+      },
     });
 
     if (!project) {
@@ -94,13 +120,13 @@ export async function POST(request: NextRequest) {
         invoiceNumber,
         invoiceDate: invoiceDate ? new Date(invoiceDate) : null,
         paidDate: paidDate ? new Date(paidDate) : null,
-        createdById: session.user.id
+        createdById: session.user.id,
       },
       include: {
         project: { select: { id: true, name: true } },
         subcontractor: { select: { id: true, companyName: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     // Log activity
@@ -112,19 +138,22 @@ export async function POST(request: NextRequest) {
         entityName: costItem.description,
         details: `Added cost item: ${costItem.description} (${costItem.category})`,
         userId: session.user.id,
-        projectId
-      }
+        projectId,
+      },
     });
 
     // Broadcast real-time event
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_created",
-      data: { costItem, projectId }
+      data: { costItem, projectId },
     });
 
     return NextResponse.json(costItem);
   } catch (error) {
     console.error("Error creating cost item:", error);
-    return NextResponse.json({ error: "Failed to create cost item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create cost item" },
+      { status: 500 },
+    );
   }
 }

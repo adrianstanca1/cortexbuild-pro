@@ -11,7 +11,7 @@ import {
 } from "@/lib/api-utils";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
@@ -19,14 +19,10 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
 
   const { projectId, status, type } = parseQueryParams(request);
 
-  const where = buildOrgScopedWhere(
-    context!.organizationId!,
-    projectId,
-    {
-      ...(status && { status }),
-      ...(type && { type }),
-    }
-  );
+  const where = buildOrgScopedWhere(context!.organizationId!, projectId, {
+    ...(status && { status }),
+    ...(type && { type }),
+  });
 
   const permits = await prisma.permit.findMany({
     where,
@@ -45,7 +41,17 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
   if (error) return error;
 
   const body = await request.json();
-  const { projectId, type, title, description, issuingAuthority, applicationDate, fee, conditions, notes } = body;
+  const {
+    projectId,
+    type,
+    title,
+    description,
+    issuingAuthority,
+    applicationDate,
+    fee,
+    conditions,
+    notes,
+  } = body;
 
   if (!projectId || !title) {
     return errorResponse("BAD_REQUEST", "Project ID and title are required");
@@ -80,10 +86,14 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
   if (permit.project.organizationId) {
     broadcastToOrganization(permit.project.organizationId, {
       type: "permit_created",
-      data: { id: permit.id, number: permit.number, title: permit.title, projectName: permit.project.name },
+      data: {
+        id: permit.id,
+        number: permit.number,
+        title: permit.title,
+        projectName: permit.project.name,
+      },
     });
   }
 
   return NextResponse.json(permit, { status: 201 });
 });
-

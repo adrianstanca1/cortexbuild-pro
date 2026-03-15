@@ -3,8 +3,14 @@
 import { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import {
-  format, differenceInDays, addDays, startOfMonth, 
-  eachDayOfInterval, isSameDay, isWeekend, parseISO
+  format,
+  differenceInDays,
+  addDays,
+  startOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isWeekend,
+  parseISO,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,7 +44,7 @@ const statusColors: Record<string, string> = {
   DELAYED: "bg-red-500",
   AT_RISK: "bg-orange-500",
   PLANNING: "bg-purple-400",
-  ON_HOLD: "bg-yellow-500"
+  ON_HOLD: "bg-yellow-500",
 };
 
 export function GanttChart({ items, onItemClick }: GanttChartProps) {
@@ -61,7 +67,7 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
     let minDate = new Date();
     let maxDate = new Date();
 
-    items.forEach(item => {
+    items.forEach((item) => {
       const start = parseISO(item.startDate);
       const end = parseISO(item.endDate);
       if (start < minDate) minDate = start;
@@ -75,7 +81,7 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
     return {
       start: minDate,
       end: maxDate,
-      days: eachDayOfInterval({ start: minDate, end: maxDate })
+      days: eachDayOfInterval({ start: minDate, end: maxDate }),
     };
   }, [items]);
 
@@ -86,7 +92,10 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
     const startDate = parseISO(item.startDate);
     const endDate = parseISO(item.endDate);
     const left = differenceInDays(startDate, dateRange.start) * cellWidth;
-    const width = Math.max((differenceInDays(endDate, startDate) + 1) * cellWidth, 20);
+    const width = Math.max(
+      (differenceInDays(endDate, startDate) + 1) * cellWidth,
+      20,
+    );
     return { left, width };
   };
 
@@ -126,13 +135,25 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
       {/* Toolbar */}
       <div className="flex items-center justify-between p-3 border-b bg-gray-50 dark:bg-gray-800">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigateView("prev")}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateView("prev")}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setViewStart(startOfMonth(new Date()))}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setViewStart(startOfMonth(new Date()))}
+          >
             <Calendar className="h-4 w-4 mr-1" /> Today
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigateView("next")}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateView("next")}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -165,7 +186,9 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
         {/* Left panel - Item names */}
         <div className="w-[200px] flex-shrink-0 border-r">
           <div className="h-[60px] border-b bg-gray-50 dark:bg-gray-800 flex items-end p-2">
-            <span className="text-sm font-medium text-gray-600">Tasks / Milestones</span>
+            <span className="text-sm font-medium text-gray-600">
+              Tasks / Milestones
+            </span>
           </div>
           {items.map((item, _index) => (
             <div
@@ -176,7 +199,9 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
               <div className="truncate">
                 <span className="text-sm font-medium">{item.name}</span>
                 {item.assignee && (
-                  <span className="text-xs text-gray-500 ml-2">{item.assignee}</span>
+                  <span className="text-xs text-gray-500 ml-2">
+                    {item.assignee}
+                  </span>
                 )}
               </div>
             </div>
@@ -192,7 +217,10 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
                 <div
                   key={i}
                   className="border-r text-xs font-medium text-gray-600 flex items-center justify-center"
-                  style={{ width: mh.count * cellWidth, left: mh.startIndex * cellWidth }}
+                  style={{
+                    width: mh.count * cellWidth,
+                    left: mh.startIndex * cellWidth,
+                  }}
                 >
                   {mh.month}
                 </div>
@@ -212,7 +240,11 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
                     } ${isToday ? "bg-blue-100 dark:bg-blue-900" : ""}`}
                     style={{ width: cellWidth }}
                   >
-                    {zoom === "day" ? format(day, "d") : zoom === "week" && i % 7 === 0 ? format(day, "d") : ""}
+                    {zoom === "day"
+                      ? format(day, "d")
+                      : zoom === "week" && i % 7 === 0
+                        ? format(day, "d")
+                        : ""}
                   </div>
                 );
               })}
@@ -221,10 +253,16 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
             {/* Timeline rows */}
             {items.map((item, index) => {
               const { left, width } = getBarPosition(item);
-              const barColor = item.color || statusColors[item.status || "TODO"] || "bg-blue-500";
+              const barColor =
+                item.color ||
+                statusColors[item.status || "TODO"] ||
+                "bg-blue-500";
 
               return (
-                <div key={item.id} className="h-[40px] border-b relative flex items-center">
+                <div
+                  key={item.id}
+                  className="h-[40px] border-b relative flex items-center"
+                >
                   {/* Grid lines */}
                   {dateRange.days.map((day, i) => {
                     const isWknd = isWeekend(day);
@@ -251,18 +289,24 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
                     style={{
                       left,
                       width: item.type === "milestone" ? 16 : width,
-                      transformOrigin: "left"
+                      transformOrigin: "left",
                     }}
                     onClick={() => onItemClick?.(item)}
                   >
                     {item.type === "milestone" ? (
-                      <div className={`w-4 h-4 rotate-45 ${barColor} mx-auto mt-1`} />
+                      <div
+                        className={`w-4 h-4 rotate-45 ${barColor} mx-auto mt-1`}
+                      />
                     ) : (
                       <>
                         {/* Progress overlay */}
                         <div
                           className="absolute inset-0 rounded opacity-30 bg-black"
-                          style={{ width: `${100 - item.progress}%`, right: 0, left: "auto" }}
+                          style={{
+                            width: `${100 - item.progress}%`,
+                            right: 0,
+                            left: "auto",
+                          }}
                         />
                         {/* Label */}
                         <div className="absolute inset-0 flex items-center px-2 overflow-hidden">
@@ -283,7 +327,10 @@ export function GanttChart({ items, onItemClick }: GanttChartProps) {
                     <div className="absolute bottom-full left-0 mb-1 hidden group-hover:block z-10">
                       <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
                         <p className="font-medium">{item.name}</p>
-                        <p>{format(parseISO(item.startDate), "MMM d")} - {format(parseISO(item.endDate), "MMM d")}</p>
+                        <p>
+                          {format(parseISO(item.startDate), "MMM d")} -{" "}
+                          {format(parseISO(item.endDate), "MMM d")}
+                        </p>
                         <p>{item.progress}% complete</p>
                       </div>
                     </div>

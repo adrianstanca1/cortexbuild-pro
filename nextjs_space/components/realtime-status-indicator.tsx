@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useRealtimeContext } from './realtime-provider';
-import { Wifi, WifiOff, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useRealtimeContext } from "./realtime-provider";
+import { Wifi, WifiOff, Users } from "lucide-react";
+import { useState } from "react";
 
 export function RealtimeStatusIndicator() {
   const { isConnected, connectedClients } = useRealtimeContext();
@@ -14,8 +14,8 @@ export function RealtimeStatusIndicator() {
         onClick={() => setShowDetails(!showDetails)}
         className={`flex items-center gap-2 px-3 py-2 rounded-full shadow-lg transition-all duration-300 ${
           isConnected
-            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-            : 'bg-red-100 text-red-700 hover:bg-red-200'
+            ? "bg-green-100 text-green-700 hover:bg-green-200"
+            : "bg-red-100 text-red-700 hover:bg-red-200"
         }`}
       >
         {isConnected ? (
@@ -24,7 +24,7 @@ export function RealtimeStatusIndicator() {
           <WifiOff className="w-4 h-4" />
         )}
         <span className="text-xs font-medium">
-          {isConnected ? 'Live' : 'Offline'}
+          {isConnected ? "Live" : "Offline"}
         </span>
       </button>
 
@@ -34,8 +34,8 @@ export function RealtimeStatusIndicator() {
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">Connection</span>
-              <span className={isConnected ? 'text-green-600' : 'text-red-600'}>
-                {isConnected ? 'Connected' : 'Disconnected'}
+              <span className={isConnected ? "text-green-600" : "text-red-600"}>
+                {isConnected ? "Connected" : "Disconnected"}
               </span>
             </div>
             {isConnected && connectedClients > 0 && (

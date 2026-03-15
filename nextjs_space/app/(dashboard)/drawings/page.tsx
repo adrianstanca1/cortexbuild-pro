@@ -36,8 +36,12 @@ export default async function DrawingsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Drawing Register</h1>
-        <p className="text-muted-foreground">Manage project drawings and revisions</p>
+        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+          Drawing Register
+        </h1>
+        <p className="text-muted-foreground">
+          Manage project drawings and revisions
+        </p>
       </div>
       <DrawingsClient
         drawings={JSON.parse(JSON.stringify(drawings))}

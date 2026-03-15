@@ -33,46 +33,48 @@ export async function GET(request: NextRequest) {
         { action: { contains: search, mode: "insensitive" } },
         { details: { contains: search, mode: "insensitive" } },
         { user: { name: { contains: search, mode: "insensitive" } } },
-        { user: { email: { contains: search, mode: "insensitive" } } }
+        { user: { email: { contains: search, mode: "insensitive" } } },
       ];
     }
-    if (startDate) where.createdAt = { ...where.createdAt, gte: new Date(startDate) };
-    if (endDate) where.createdAt = { ...where.createdAt, lte: new Date(endDate) };
+    if (startDate)
+      where.createdAt = { ...where.createdAt, gte: new Date(startDate) };
+    if (endDate)
+      where.createdAt = { ...where.createdAt, lte: new Date(endDate) };
 
     const [logs, total, actionTypes, entityTypes] = await Promise.all([
       prisma.activityLog.findMany({
         where,
         include: {
-          user: { 
-            select: { 
-              id: true, 
-              name: true, 
-              email: true, 
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
               role: true,
-              organization: { select: { id: true, name: true } }
-            } 
+              organization: { select: { id: true, name: true } },
+            },
           },
-          project: { select: { id: true, name: true } }
+          project: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
       prisma.activityLog.count({ where }),
       prisma.activityLog.groupBy({
         by: ["action"],
         _count: true,
         orderBy: { _count: { action: "desc" } },
-        take: 20
+        take: 20,
       }),
       prisma.activityLog.groupBy({
         by: ["entityType"],
-        _count: true
-      })
+        _count: true,
+      }),
     ]);
 
     return NextResponse.json({
-      logs: logs.map(log => ({
+      logs: logs.map((log) => ({
         id: log.id,
         action: log.action,
         entityType: log.entityType,
@@ -81,23 +83,38 @@ export async function GET(request: NextRequest) {
         ipAddress: null,
         userAgent: null,
         createdAt: log.createdAt,
-        user: log.user ? { id: log.user.id, name: log.user.name, email: log.user.email, role: log.user.role } : null,
+        user: log.user
+          ? {
+              id: log.user.id,
+              name: log.user.name,
+              email: log.user.email,
+              role: log.user.role,
+            }
+          : null,
         project: log.project,
-        organization: log.user?.organization || null
+        organization: log.user?.organization || null,
       })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
       filters: {
-        actionTypes: actionTypes.map(a => ({ action: a.action, count: a._count })),
-        entityTypes: entityTypes.filter(e => e.entityType).map(e => ({ type: e.entityType, count: e._count }))
-      }
+        actionTypes: actionTypes.map((a) => ({
+          action: a.action,
+          count: a._count,
+        })),
+        entityTypes: entityTypes
+          .filter((e) => e.entityType)
+          .map((e) => ({ type: e.entityType, count: e._count })),
+      },
     });
   } catch (error) {
     console.error("Error fetching audit logs:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

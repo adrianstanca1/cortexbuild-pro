@@ -76,7 +76,7 @@ export interface TrendAnalysisResult {
 }
 
 export interface AIInsight {
-    category: 'cost' | 'schedule' | 'safety' | 'quality' | 'resource';
+    category: 'cost' | 'schedule' | 'safety' | 'quality' | 'resource' | 'info';
     severity: 'info' | 'warning' | 'critical';
     title: string;
     description: string;

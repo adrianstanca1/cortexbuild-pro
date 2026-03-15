@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     const where: any = {
-      project: { organizationId: session.user.organizationId }
+      project: { organizationId: session.user.organizationId },
     };
 
     if (projectId) where.projectId = projectId;
@@ -41,15 +41,18 @@ export async function GET(request: NextRequest) {
         project: { select: { id: true, name: true } },
         task: { select: { id: true, title: true } },
         user: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true } }
+        approvedBy: { select: { id: true, name: true } },
       },
-      orderBy: { date: "desc" }
+      orderBy: { date: "desc" },
     });
 
     return NextResponse.json(timeEntries);
   } catch (error) {
     console.error("Error fetching time entries:", error);
-    return NextResponse.json({ error: "Failed to fetch time entries" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch time entries" },
+      { status: 500 },
+    );
   }
 }
 
@@ -61,14 +64,28 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { projectId, taskId, date, hours, description, billable, hourlyRate } = body;
+    const {
+      projectId,
+      taskId,
+      date,
+      hours,
+      description,
+      billable,
+      hourlyRate,
+    } = body;
 
     if (!projectId || !date || !hours) {
-      return NextResponse.json({ error: "Project, date, and hours are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project, date, and hours are required" },
+        { status: 400 },
+      );
     }
 
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: session.user.organizationId ?? "" }
+      where: {
+        id: projectId,
+        organizationId: session.user.organizationId ?? "",
+      },
     });
 
     if (!project) {
@@ -85,13 +102,13 @@ export async function POST(request: NextRequest) {
         description,
         billable: billable ?? true,
         hourlyRate: hourlyRate ? parseFloat(hourlyRate) : null,
-        status: "PENDING"
+        status: "PENDING",
       },
       include: {
         project: { select: { id: true, name: true } },
         task: { select: { id: true, title: true } },
-        user: { select: { id: true, name: true, email: true } }
-      }
+        user: { select: { id: true, name: true, email: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -102,18 +119,21 @@ export async function POST(request: NextRequest) {
         entityName: `${hours}h on ${project.name}`,
         details: `Logged ${hours} hours`,
         userId: session.user.id,
-        projectId
-      }
+        projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "time_entry_created",
-      data: { timeEntry, projectId }
+      data: { timeEntry, projectId },
     });
 
     return NextResponse.json(timeEntry);
   } catch (error) {
     console.error("Error creating time entry:", error);
-    return NextResponse.json({ error: "Failed to create time entry" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create time entry" },
+      { status: 500 },
+    );
   }
 }

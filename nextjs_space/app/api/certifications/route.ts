@@ -1,41 +1,41 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
-import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const workerId = searchParams.get('workerId');
-    const type = searchParams.get('type');
-    const expiringSoon = searchParams.get('expiringSoon');
+    const workerId = searchParams.get("workerId");
+    const type = searchParams.get("type");
+    const expiringSoon = searchParams.get("expiringSoon");
 
     const where: any = {
-      organizationId: session.user.organizationId
+      organizationId: session.user.organizationId,
     };
-    
+
     if (workerId) {
       where.workerId = workerId;
     }
-    
+
     if (type) {
       where.certificationType = type;
     }
 
     // Get certs expiring in next 30 days
-    if (expiringSoon === 'true') {
+    if (expiringSoon === "true") {
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
       where.expiryDate = {
         lte: thirtyDaysFromNow,
-        gte: new Date()
+        gte: new Date(),
       };
       where.isLifetime = false;
     }
@@ -44,15 +44,18 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         worker: { select: { id: true, name: true, email: true } },
-        verifiedBy: { select: { id: true, name: true } }
+        verifiedBy: { select: { id: true, name: true } },
       },
-      orderBy: [{ expiryDate: 'asc' }, { createdAt: 'desc' }]
+      orderBy: [{ expiryDate: "asc" }, { createdAt: "desc" }],
     });
 
     return NextResponse.json(certifications);
   } catch (error) {
-    console.error('Error fetching certifications:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching certifications:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -60,7 +63,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const data = await request.json();
@@ -77,31 +80,34 @@ export async function POST(request: NextRequest) {
         isLifetime: data.isLifetime || false,
         documentUrl: data.documentUrl,
         notes: data.notes,
-        organizationId: session.user.organizationId!
+        organizationId: session.user.organizationId!,
       },
       include: {
-        worker: { select: { id: true, name: true, email: true } }
-      }
+        worker: { select: { id: true, name: true, email: true } },
+      },
     });
 
     await prisma.activityLog.create({
       data: {
-        action: 'created',
-        entityType: 'WorkerCertification',
+        action: "created",
+        entityType: "WorkerCertification",
         entityId: certification.id,
         entityName: `${data.certificationName} for ${certification.worker.name}`,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId!, {
-      type: 'certification_created',
-      data: certification
+      type: "certification_created",
+      data: certification,
     });
 
     return NextResponse.json(certification, { status: 201 });
   } catch (error) {
-    console.error('Error creating certification:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error creating certification:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

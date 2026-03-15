@@ -42,7 +42,7 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
   };
 
   const storageUsedGB = usageData.storageUsedBytes / (1024 * 1024 * 1024);
-  
+
   const usagePercent = {
     users: Math.round((usageData.teamMembers / usageData.maxUsers) * 100),
     projects: Math.round((usageData.projects / usageData.maxProjects) * 100),
@@ -50,9 +50,23 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
   };
 
   const getUsageStatus = (percent: number) => {
-    if (percent >= 90) return { color: "text-red-600", bgColor: "bg-red-500", status: "Critical" };
-    if (percent >= 75) return { color: "text-amber-600", bgColor: "bg-amber-500", status: "Warning" };
-    return { color: "text-emerald-600", bgColor: "bg-emerald-500", status: "Healthy" };
+    if (percent >= 90)
+      return {
+        color: "text-red-600",
+        bgColor: "bg-red-500",
+        status: "Critical",
+      };
+    if (percent >= 75)
+      return {
+        color: "text-amber-600",
+        bgColor: "bg-amber-500",
+        status: "Warning",
+      };
+    return {
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-500",
+      status: "Healthy",
+    };
   };
 
   const documentTypeIcons: Record<string, any> = {
@@ -75,7 +89,9 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Usage & Limits</h1>
-        <p className="text-gray-500 mt-1">Monitor your organization&apos;s resource usage</p>
+        <p className="text-gray-500 mt-1">
+          Monitor your organization&apos;s resource usage
+        </p>
       </div>
 
       {/* Main Usage Cards */}
@@ -92,10 +108,23 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
             <div className="space-y-3">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{usageData.teamMembers}</p>
-                  <p className="text-sm text-gray-500">of {usageData.maxUsers} seats</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {usageData.teamMembers}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    of {usageData.maxUsers} seats
+                  </p>
                 </div>
-                <Badge className={getUsageStatus(usagePercent.users).color === "text-red-600" ? "bg-red-100 text-red-700" : getUsageStatus(usagePercent.users).color === "text-amber-600" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}>
+                <Badge
+                  className={
+                    getUsageStatus(usagePercent.users).color === "text-red-600"
+                      ? "bg-red-100 text-red-700"
+                      : getUsageStatus(usagePercent.users).color ===
+                          "text-amber-600"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                  }
+                >
                   {getUsageStatus(usagePercent.users).status}
                 </Badge>
               </div>
@@ -119,10 +148,24 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
             <div className="space-y-3">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{usageData.projects}</p>
-                  <p className="text-sm text-gray-500">of {usageData.maxProjects} projects</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {usageData.projects}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    of {usageData.maxProjects} projects
+                  </p>
                 </div>
-                <Badge className={getUsageStatus(usagePercent.projects).color === "text-red-600" ? "bg-red-100 text-red-700" : getUsageStatus(usagePercent.projects).color === "text-amber-600" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}>
+                <Badge
+                  className={
+                    getUsageStatus(usagePercent.projects).color ===
+                    "text-red-600"
+                      ? "bg-red-100 text-red-700"
+                      : getUsageStatus(usagePercent.projects).color ===
+                          "text-amber-600"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                  }
+                >
                   {getUsageStatus(usagePercent.projects).status}
                 </Badge>
               </div>
@@ -146,10 +189,24 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
             <div className="space-y-3">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{storageUsedGB.toFixed(2)} GB</p>
-                  <p className="text-sm text-gray-500">of {usageData.storageGB} GB</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {storageUsedGB.toFixed(2)} GB
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    of {usageData.storageGB} GB
+                  </p>
                 </div>
-                <Badge className={getUsageStatus(usagePercent.storage).color === "text-red-600" ? "bg-red-100 text-red-700" : getUsageStatus(usagePercent.storage).color === "text-amber-600" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}>
+                <Badge
+                  className={
+                    getUsageStatus(usagePercent.storage).color ===
+                    "text-red-600"
+                      ? "bg-red-100 text-red-700"
+                      : getUsageStatus(usagePercent.storage).color ===
+                          "text-amber-600"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-emerald-100 text-emerald-700"
+                  }
+                >
                   {getUsageStatus(usagePercent.storage).status}
                 </Badge>
               </div>
@@ -171,34 +228,49 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
           <CardContent>
             <div className="space-y-4">
               {Object.entries(usageData.documentsByType).length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No documents uploaded yet</p>
+                <p className="text-gray-500 text-center py-4">
+                  No documents uploaded yet
+                </p>
               ) : (
-                Object.entries(usageData.documentsByType).map(([type, count]) => {
-                  const Icon = documentTypeIcons[type] || File;
-                  return (
-                    <div key={type} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                          <Icon className="h-5 w-5 text-gray-600" />
+                Object.entries(usageData.documentsByType).map(
+                  ([type, count]) => {
+                    const Icon = documentTypeIcons[type] || File;
+                    return (
+                      <div
+                        key={type}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <Icon className="h-5 w-5 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {type.replace("_", " ")}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {count} files
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{type.replace("_", " ")}</p>
-                          <p className="text-xs text-gray-500">{count} files</p>
-                        </div>
+                        <Badge variant="outline">{count}</Badge>
                       </div>
-                      <Badge variant="outline">{count}</Badge>
-                    </div>
-                  );
-                })
+                    );
+                  },
+                )
               )}
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">Total Documents</span>
-                  <span className="font-medium">{usageData.documentsCount}</span>
+                  <span className="font-medium">
+                    {usageData.documentsCount}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-1">
                   <span className="text-gray-500">Total Size</span>
-                  <span className="font-medium">{formatBytes(usageData.totalDocumentSize)}</span>
+                  <span className="font-medium">
+                    {formatBytes(usageData.totalDocumentSize)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -213,26 +285,41 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
           <CardContent>
             <div className="space-y-4">
               {Object.entries(usageData.projectsByStatus).length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No projects created yet</p>
+                <p className="text-gray-500 text-center py-4">
+                  No projects created yet
+                </p>
               ) : (
-                Object.entries(usageData.projectsByStatus).map(([status, count]) => (
-                  <div key={status} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Badge className={projectStatusColors[status] || "bg-gray-100"}>
-                        {status.replace("_", " ")}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-32 bg-gray-100 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${projectStatusColors[status]?.includes("emerald") ? "bg-emerald-500" : projectStatusColors[status]?.includes("amber") ? "bg-amber-500" : projectStatusColors[status]?.includes("blue") ? "bg-blue-500" : "bg-gray-400"}`}
-                          style={{ width: `${(count / usageData.projects) * 100}%` }}
-                        />
+                Object.entries(usageData.projectsByStatus).map(
+                  ([status, count]) => (
+                    <div
+                      key={status}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Badge
+                          className={
+                            projectStatusColors[status] || "bg-gray-100"
+                          }
+                        >
+                          {status.replace("_", " ")}
+                        </Badge>
                       </div>
-                      <span className="font-medium w-8 text-right">{count}</span>
+                      <div className="flex items-center gap-4">
+                        <div className="w-32 bg-gray-100 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${projectStatusColors[status]?.includes("emerald") ? "bg-emerald-500" : projectStatusColors[status]?.includes("amber") ? "bg-amber-500" : projectStatusColors[status]?.includes("blue") ? "bg-blue-500" : "bg-gray-400"}`}
+                            style={{
+                              width: `${(count / usageData.projects) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="font-medium w-8 text-right">
+                          {count}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ),
+                )
               )}
             </div>
           </CardContent>
@@ -250,7 +337,9 @@ export function UsageClient({ usageData, entitlements }: UsageClientProps) {
               <div
                 key={key}
                 className={`flex items-center gap-2 p-3 rounded-lg border ${
-                  enabled ? "bg-emerald-50 border-emerald-200" : "bg-gray-50 border-gray-200 opacity-50"
+                  enabled
+                    ? "bg-emerald-50 border-emerald-200"
+                    : "bg-gray-50 border-gray-200 opacity-50"
                 }`}
               >
                 {enabled ? (

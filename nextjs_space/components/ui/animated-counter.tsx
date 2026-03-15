@@ -18,7 +18,7 @@ export function AnimatedCounter({
   className,
   prefix = "",
   suffix = "",
-  decimals = 0
+  decimals = 0,
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -26,7 +26,7 @@ export function AnimatedCounter({
 
   useEffect(() => {
     if (value === previousValue.current) return;
-    
+
     setIsAnimating(true);
     const startValue = previousValue.current;
     const endValue = value;
@@ -36,10 +36,10 @@ export function AnimatedCounter({
       const now = Date.now();
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Easing function (ease-out)
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      
+
       const currentValue = startValue + (endValue - startValue) * easeOut;
       setDisplayValue(currentValue);
 
@@ -55,13 +55,22 @@ export function AnimatedCounter({
     requestAnimationFrame(animate);
   }, [value, duration]);
 
-  const formattedValue = decimals > 0
-    ? displayValue.toFixed(decimals)
-    : Math.round(displayValue).toLocaleString();
+  const formattedValue =
+    decimals > 0
+      ? displayValue.toFixed(decimals)
+      : Math.round(displayValue).toLocaleString();
 
   return (
-    <span className={cn("tabular-nums", isAnimating && "transition-transform", className)}>
-      {prefix}{formattedValue}{suffix}
+    <span
+      className={cn(
+        "tabular-nums",
+        isAnimating && "transition-transform",
+        className,
+      )}
+    >
+      {prefix}
+      {formattedValue}
+      {suffix}
     </span>
   );
 }
@@ -69,7 +78,7 @@ export function AnimatedCounter({
 // Animated percentage
 export function AnimatedPercentage({
   value,
-  className
+  className,
 }: {
   value: number;
   className?: string;
@@ -88,7 +97,7 @@ export function AnimatedPercentage({
 export function AnimatedCurrency({
   value,
   currency = "£",
-  className
+  className,
 }: {
   value: number;
   currency?: string;

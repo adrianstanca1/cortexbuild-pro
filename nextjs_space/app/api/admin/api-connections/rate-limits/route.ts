@@ -24,32 +24,44 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         connection: {
-          select: { id: true, name: true, serviceName: true, status: true }
-        }
-      }
+          select: { id: true, name: true, serviceName: true, status: true },
+        },
+      },
     });
 
     // Calculate usage percentages
-    const formattedLimits = rateLimits.map(rl => {
-      const minuteUsagePct = Math.round((rl.currentMinuteUsage / rl.requestsPerMinute) * 100);
-      const hourUsagePct = Math.round((rl.currentHourUsage / rl.requestsPerHour) * 100);
-      const dayUsagePct = Math.round((rl.currentDayUsage / rl.requestsPerDay) * 100);
-      
+    const formattedLimits = rateLimits.map((rl) => {
+      const minuteUsagePct = Math.round(
+        (rl.currentMinuteUsage / rl.requestsPerMinute) * 100,
+      );
+      const hourUsagePct = Math.round(
+        (rl.currentHourUsage / rl.requestsPerHour) * 100,
+      );
+      const dayUsagePct = Math.round(
+        (rl.currentDayUsage / rl.requestsPerDay) * 100,
+      );
+
       return {
         ...rl,
         minuteUsagePct,
         hourUsagePct,
         dayUsagePct,
-        isNearLimit: minuteUsagePct >= rl.alertThreshold || 
-                     hourUsagePct >= rl.alertThreshold || 
-                     dayUsagePct >= rl.alertThreshold
+        isNearLimit:
+          minuteUsagePct >= rl.alertThreshold ||
+          hourUsagePct >= rl.alertThreshold ||
+          dayUsagePct >= rl.alertThreshold,
       };
     });
 
-    return NextResponse.json(JSON.parse(JSON.stringify({ rateLimits: formattedLimits })));
+    return NextResponse.json(
+      JSON.parse(JSON.stringify({ rateLimits: formattedLimits })),
+    );
   } catch (error) {
     console.error("Error fetching rate limits:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -71,20 +83,26 @@ export async function POST(req: NextRequest) {
       throttleOnLimit = true,
       alertOnThreshold = true,
       alertThreshold = 80,
-      isEnabled = true
+      isEnabled = true,
     } = body;
 
     if (!connectionId) {
-      return NextResponse.json({ error: "connectionId is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "connectionId is required" },
+        { status: 400 },
+      );
     }
 
     // Verify connection exists
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: connectionId }
+      where: { id: connectionId },
     });
 
     if (!connection) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     const rateLimitConfig = await prisma.apiRateLimitConfig.upsert({
@@ -98,7 +116,7 @@ export async function POST(req: NextRequest) {
         throttleOnLimit,
         alertOnThreshold,
         alertThreshold,
-        isEnabled
+        isEnabled,
       },
       update: {
         requestsPerMinute,
@@ -108,13 +126,13 @@ export async function POST(req: NextRequest) {
         throttleOnLimit,
         alertOnThreshold,
         alertThreshold,
-        isEnabled
+        isEnabled,
       },
       include: {
         connection: {
-          select: { id: true, name: true, serviceName: true }
-        }
-      }
+          select: { id: true, name: true, serviceName: true },
+        },
+      },
     });
 
     // Log the change
@@ -127,18 +145,22 @@ export async function POST(req: NextRequest) {
           requestsPerHour,
           requestsPerDay,
           burstLimit,
-          isEnabled
+          isEnabled,
         },
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     return NextResponse.json(JSON.parse(JSON.stringify({ rateLimitConfig })));
   } catch (error) {
     console.error("Error updating rate limit:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -154,19 +176,28 @@ export async function DELETE(req: NextRequest) {
     const connectionId = searchParams.get("connectionId");
 
     if (!connectionId) {
-      return NextResponse.json({ error: "connectionId is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "connectionId is required" },
+        { status: 400 },
+      );
     }
 
     await prisma.apiRateLimitConfig.delete({
-      where: { connectionId }
+      where: { connectionId },
     });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
     if (error.code === "P2025") {
-      return NextResponse.json({ error: "Rate limit config not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Rate limit config not found" },
+        { status: 404 },
+      );
     }
     console.error("Error deleting rate limit:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

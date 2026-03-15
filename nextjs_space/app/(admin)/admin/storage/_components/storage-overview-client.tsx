@@ -15,7 +15,7 @@ import {
   ListTodo,
   Server,
   Cloud,
-  Shield
+  Shield,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -90,12 +90,17 @@ export function StorageOverviewClient() {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Failed to load storage data</p>
-        <Button onClick={fetchStats} className="mt-4">Retry</Button>
+        <Button onClick={fetchStats} className="mt-4">
+          Retry
+        </Button>
       </div>
     );
   }
 
-  const totalFiles = stats.storage.totalDocuments + stats.storage.totalPhotos + stats.storage.totalAttachments;
+  const totalFiles =
+    stats.storage.totalDocuments +
+    stats.storage.totalPhotos +
+    stats.storage.totalAttachments;
 
   return (
     <div className="space-y-6">
@@ -105,24 +110,33 @@ export function StorageOverviewClient() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Storage & Data Overview
           </h1>
-          <p className="text-gray-500 mt-1">Platform storage and database statistics</p>
+          <p className="text-gray-500 mt-1">
+            Platform storage and database statistics
+          </p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       </div>
 
       {/* Storage Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-blue-100 text-sm">S3 Cloud Storage</p>
                   <p className="text-3xl font-bold mt-1">{totalFiles}</p>
-                  <p className="text-blue-200 text-sm mt-2">Total Files Stored</p>
+                  <p className="text-blue-200 text-sm mt-2">
+                    Total Files Stored
+                  </p>
                 </div>
                 <Cloud className="h-12 w-12 text-blue-300" />
               </div>
@@ -130,14 +144,20 @@ export function StorageOverviewClient() {
           </Card>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-purple-100 text-sm">Database Records</p>
                   <p className="text-3xl font-bold mt-1">
-                    {Object.values(stats.totals).reduce((a, b) => a + b, 0).toLocaleString()}
+                    {Object.values(stats.totals)
+                      .reduce((a, b) => a + b, 0)
+                      .toLocaleString()}
                   </p>
                   <p className="text-purple-200 text-sm mt-2">PostgreSQL</p>
                 </div>
@@ -147,14 +167,22 @@ export function StorageOverviewClient() {
           </Card>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-green-100 text-sm">Organizations</p>
-                  <p className="text-3xl font-bold mt-1">{stats.totals.organizations}</p>
-                  <p className="text-green-200 text-sm mt-2">Multi-tenant Isolation</p>
+                  <p className="text-3xl font-bold mt-1">
+                    {stats.totals.organizations}
+                  </p>
+                  <p className="text-green-200 text-sm mt-2">
+                    Multi-tenant Isolation
+                  </p>
                 </div>
                 <Shield className="h-12 w-12 text-green-300" />
               </div>
@@ -180,11 +208,17 @@ export function StorageOverviewClient() {
                     <FileText className="h-4 w-4 text-blue-500" />
                     <span className="font-medium">Documents</span>
                   </div>
-                  <span className="text-gray-500">{stats.storage.totalDocuments}</span>
+                  <span className="text-gray-500">
+                    {stats.storage.totalDocuments}
+                  </span>
                 </div>
-                <Progress 
-                  value={totalFiles > 0 ? (stats.storage.totalDocuments / totalFiles) * 100 : 0} 
-                  className="h-3" 
+                <Progress
+                  value={
+                    totalFiles > 0
+                      ? (stats.storage.totalDocuments / totalFiles) * 100
+                      : 0
+                  }
+                  className="h-3"
                 />
               </div>
 
@@ -194,11 +228,17 @@ export function StorageOverviewClient() {
                     <Image className="h-4 w-4 text-green-500" />
                     <span className="font-medium">Photos</span>
                   </div>
-                  <span className="text-gray-500">{stats.storage.totalPhotos}</span>
+                  <span className="text-gray-500">
+                    {stats.storage.totalPhotos}
+                  </span>
                 </div>
-                <Progress 
-                  value={totalFiles > 0 ? (stats.storage.totalPhotos / totalFiles) * 100 : 0} 
-                  className="h-3" 
+                <Progress
+                  value={
+                    totalFiles > 0
+                      ? (stats.storage.totalPhotos / totalFiles) * 100
+                      : 0
+                  }
+                  className="h-3"
                 />
               </div>
 
@@ -208,18 +248,26 @@ export function StorageOverviewClient() {
                     <Paperclip className="h-4 w-4 text-orange-500" />
                     <span className="font-medium">Attachments</span>
                   </div>
-                  <span className="text-gray-500">{stats.storage.totalAttachments}</span>
+                  <span className="text-gray-500">
+                    {stats.storage.totalAttachments}
+                  </span>
                 </div>
-                <Progress 
-                  value={totalFiles > 0 ? (stats.storage.totalAttachments / totalFiles) * 100 : 0} 
-                  className="h-3" 
+                <Progress
+                  value={
+                    totalFiles > 0
+                      ? (stats.storage.totalAttachments / totalFiles) * 100
+                      : 0
+                  }
+                  className="h-3"
                 />
               </div>
 
               <div className="pt-4 border-t">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Total Files</span>
-                  <Badge variant="secondary" className="text-lg px-3 py-1">{totalFiles}</Badge>
+                  <Badge variant="secondary" className="text-lg px-3 py-1">
+                    {totalFiles}
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -236,21 +284,79 @@ export function StorageOverviewClient() {
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Users", value: stats.totals.users, icon: Users, color: "text-purple-500" },
-                { label: "Organizations", value: stats.totals.organizations, icon: Building2, color: "text-blue-500" },
-                { label: "Projects", value: stats.totals.projects, icon: FolderKanban, color: "text-green-500" },
-                { label: "Tasks", value: stats.totals.tasks, icon: ListTodo, color: "text-orange-500" },
-                { label: "Documents", value: stats.totals.documents, icon: FileText, color: "text-blue-500" },
-                { label: "RFIs", value: stats.totals.rfis, icon: FileText, color: "text-purple-500" },
-                { label: "Submittals", value: stats.totals.submittals, icon: FileText, color: "text-green-500" },
-                { label: "Change Orders", value: stats.totals.changeOrders, icon: FileText, color: "text-red-500" },
-                { label: "Safety Incidents", value: stats.totals.safetyIncidents, icon: Shield, color: "text-red-500" },
-                { label: "Daily Reports", value: stats.totals.dailyReports, icon: FileText, color: "text-teal-500" },
-                { label: "Activity Logs", value: stats.totals.activities, icon: Server, color: "text-gray-500" }
+                {
+                  label: "Users",
+                  value: stats.totals.users,
+                  icon: Users,
+                  color: "text-purple-500",
+                },
+                {
+                  label: "Organizations",
+                  value: stats.totals.organizations,
+                  icon: Building2,
+                  color: "text-blue-500",
+                },
+                {
+                  label: "Projects",
+                  value: stats.totals.projects,
+                  icon: FolderKanban,
+                  color: "text-green-500",
+                },
+                {
+                  label: "Tasks",
+                  value: stats.totals.tasks,
+                  icon: ListTodo,
+                  color: "text-orange-500",
+                },
+                {
+                  label: "Documents",
+                  value: stats.totals.documents,
+                  icon: FileText,
+                  color: "text-blue-500",
+                },
+                {
+                  label: "RFIs",
+                  value: stats.totals.rfis,
+                  icon: FileText,
+                  color: "text-purple-500",
+                },
+                {
+                  label: "Submittals",
+                  value: stats.totals.submittals,
+                  icon: FileText,
+                  color: "text-green-500",
+                },
+                {
+                  label: "Change Orders",
+                  value: stats.totals.changeOrders,
+                  icon: FileText,
+                  color: "text-red-500",
+                },
+                {
+                  label: "Safety Incidents",
+                  value: stats.totals.safetyIncidents,
+                  icon: Shield,
+                  color: "text-red-500",
+                },
+                {
+                  label: "Daily Reports",
+                  value: stats.totals.dailyReports,
+                  icon: FileText,
+                  color: "text-teal-500",
+                },
+                {
+                  label: "Activity Logs",
+                  value: stats.totals.activities,
+                  icon: Server,
+                  color: "text-gray-500",
+                },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.label} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
                     <div className="flex items-center gap-2">
                       <Icon className={`h-4 w-4 ${item.color}`} />
                       <span className="text-sm">{item.label}</span>
@@ -277,15 +383,26 @@ export function StorageOverviewClient() {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">Organization</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">Users</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">Projects</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">
+                    Organization
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500">
+                    Users
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-500">
+                    Projects
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-500">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {stats.organizations.map((org) => (
-                  <tr key={org.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr
+                    key={org.id}
+                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -301,7 +418,9 @@ export function StorageOverviewClient() {
                       <Badge variant="outline">{org.projectCount}</Badge>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <Badge className="bg-green-100 text-green-800">Active</Badge>
+                      <Badge className="bg-green-100 text-green-800">
+                        Active
+                      </Badge>
                     </td>
                   </tr>
                 ))}
@@ -322,7 +441,9 @@ export function StorageOverviewClient() {
               <div>
                 <h3 className="font-semibold">AWS S3</h3>
                 <p className="text-sm text-gray-500">Cloud File Storage</p>
-                <Badge className="mt-2 bg-green-100 text-green-800">Connected</Badge>
+                <Badge className="mt-2 bg-green-100 text-green-800">
+                  Connected
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -337,7 +458,9 @@ export function StorageOverviewClient() {
               <div>
                 <h3 className="font-semibold">PostgreSQL</h3>
                 <p className="text-sm text-gray-500">Database Server</p>
-                <Badge className="mt-2 bg-green-100 text-green-800">Healthy</Badge>
+                <Badge className="mt-2 bg-green-100 text-green-800">
+                  Healthy
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -352,7 +475,9 @@ export function StorageOverviewClient() {
               <div>
                 <h3 className="font-semibold">Next.js Server</h3>
                 <p className="text-sm text-gray-500">Application Runtime</p>
-                <Badge className="mt-2 bg-green-100 text-green-800">Running</Badge>
+                <Badge className="mt-2 bg-green-100 text-green-800">
+                  Running
+                </Badge>
               </div>
             </div>
           </CardContent>

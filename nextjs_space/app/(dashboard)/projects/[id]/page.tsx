@@ -10,124 +10,148 @@ interface ProjectDetailPageProps {
   params: { id: string };
 }
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+export default async function ProjectDetailPage({
+  params,
+}: ProjectDetailPageProps) {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
 
   const project = await prisma.project.findFirst({
     where: { id: params?.id ?? "", organizationId: orgId ?? undefined },
     include: {
-      manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      manager: {
+        select: { id: true, name: true, email: true, avatarUrl: true },
+      },
       tasks: {
-        include: { 
+        include: {
           assignee: { select: { id: true, name: true, avatarUrl: true } },
-          creator: { select: { id: true, name: true } }
+          creator: { select: { id: true, name: true } },
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       documents: {
         include: { uploadedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       teamMembers: {
-        include: { teamMember: { include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } } } }
+        include: {
+          teamMember: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatarUrl: true,
+                  role: true,
+                },
+              },
+            },
+          },
+        },
       },
       rfis: {
-        include: { 
+        include: {
           createdBy: { select: { id: true, name: true } },
-          assignedTo: { select: { id: true, name: true } }
+          assignedTo: { select: { id: true, name: true } },
         },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       submittals: {
         include: { submittedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       changeOrders: {
         include: { requestedBy: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       safetyIncidents: {
         include: { reportedBy: { select: { id: true, name: true } } },
-        orderBy: { incidentDate: "desc" }
+        orderBy: { incidentDate: "desc" },
       },
       dailyReports: {
         include: { createdBy: { select: { id: true, name: true } } },
         orderBy: { reportDate: "desc" },
-        take: 30
+        take: 30,
       },
       // Additional construction modules
       milestones: {
-        orderBy: { targetDate: "asc" }
+        orderBy: { targetDate: "asc" },
       },
       timeEntries: {
-        include: { 
+        include: {
           user: { select: { id: true, name: true } },
-          task: { select: { id: true, title: true } }
+          task: { select: { id: true, title: true } },
         },
         orderBy: { date: "desc" },
-        take: 50
+        take: 50,
       },
       costItems: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       materials: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       subcontracts: {
-        include: { subcontractor: { select: { id: true, companyName: true, trade: true } } },
-        orderBy: { createdAt: "desc" }
+        include: {
+          subcontractor: {
+            select: { id: true, companyName: true, trade: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
       },
       permits: {
-        orderBy: { expirationDate: "asc" }
+        orderBy: { expirationDate: "asc" },
       },
       drawings: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       siteDiaries: {
         orderBy: { date: "desc" },
-        take: 30
+        take: 30,
       },
       defects: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       punchLists: {
         include: { assignedTo: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       inspections: {
-        orderBy: { scheduledDate: "desc" }
+        orderBy: { scheduledDate: "desc" },
       },
       progressClaims: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       },
       // Toolbox talks and daily checks
       toolboxTalks: {
         include: {
           presenter: { select: { id: true, name: true } },
           attendees: {
-            include: { user: { select: { id: true, name: true } } }
+            include: { user: { select: { id: true, name: true } } },
           },
-          _count: { select: { attendees: true } }
+          _count: { select: { attendees: true } },
         },
         orderBy: { date: "desc" },
-        take: 50
+        take: 50,
       },
       mewpChecks: {
         include: {
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
-          equipment: { select: { id: true, name: true, equipmentNumber: true } }
+          equipment: {
+            select: { id: true, name: true, equipmentNumber: true },
+          },
         },
         orderBy: { checkDate: "desc" },
-        take: 50
+        take: 50,
       },
       toolChecks: {
         include: {
-          inspector: { select: { id: true, name: true } }
+          inspector: { select: { id: true, name: true } },
         },
         orderBy: { checkDate: "desc" },
-        take: 50
+        take: 50,
       },
       // Enhanced construction features
       riskAssessments: {
@@ -135,50 +159,50 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           createdBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
           hazards: true,
-          _count: { select: { acknowledgements: true, hazards: true } }
+          _count: { select: { acknowledgements: true, hazards: true } },
         },
         orderBy: { createdAt: "desc" },
-        take: 50
+        take: 50,
       },
       hotWorkPermits: {
         include: {
           requestedBy: { select: { id: true, name: true } },
           approvedBy: { select: { id: true, name: true } },
-          completedBy: { select: { id: true, name: true } }
+          completedBy: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
-        take: 50
+        take: 50,
       },
       confinedSpacePermits: {
         include: {
           requestedBy: { select: { id: true, name: true } },
-          approvedBy: { select: { id: true, name: true } }
+          approvedBy: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
-        take: 50
+        take: 50,
       },
       liftingOperations: {
         include: {
           plannedBy: { select: { id: true, name: true } },
           operator: { select: { id: true, name: true } },
           supervisor: { select: { id: true, name: true } },
-          appointedPerson: { select: { id: true, name: true } }
+          appointedPerson: { select: { id: true, name: true } },
         },
         orderBy: { liftDate: "desc" },
-        take: 50
+        take: 50,
       },
       siteAccessLogs: {
         include: {
           user: { select: { id: true, name: true } },
-          recordedBy: { select: { id: true, name: true } }
+          recordedBy: { select: { id: true, name: true } },
         },
         orderBy: { accessTime: "desc" },
-        take: 200
+        take: 200,
       },
-      _count: { 
-        select: { 
-          tasks: true, 
-          documents: true, 
+      _count: {
+        select: {
+          tasks: true,
+          documents: true,
           teamMembers: true,
           rfis: true,
           submittals: true,
@@ -203,10 +227,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           hotWorkPermits: true,
           confinedSpacePermits: true,
           liftingOperations: true,
-          siteAccessLogs: true
-        } 
-      }
-    }
+          siteAccessLogs: true,
+        },
+      },
+    },
   });
 
   if (!project) {
@@ -216,24 +240,34 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   const [teamMembers, activities, certifications] = await Promise.all([
     prisma.teamMember.findMany({
       where: { organizationId: orgId ?? undefined },
-      include: { user: { select: { id: true, name: true, email: true, avatarUrl: true, role: true } } }
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarUrl: true,
+            role: true,
+          },
+        },
+      },
     }),
     prisma.activityLog.findMany({
       where: { projectId: params?.id ?? "" },
       include: {
-        user: { select: { id: true, name: true, avatarUrl: true } }
+        user: { select: { id: true, name: true, avatarUrl: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: 50
+      take: 50,
     }),
     prisma.workerCertification.findMany({
       where: { organizationId: orgId ?? undefined },
       include: {
         worker: { select: { id: true, name: true, email: true } },
-        verifiedBy: { select: { id: true, name: true } }
+        verifiedBy: { select: { id: true, name: true } },
       },
-      orderBy: [{ expiryDate: "asc" }, { createdAt: "desc" }]
-    })
+      orderBy: [{ expiryDate: "asc" }, { createdAt: "desc" }],
+    }),
   ]);
 
   return (

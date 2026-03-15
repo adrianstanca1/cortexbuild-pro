@@ -10,11 +10,12 @@ import {
 } from "@/lib/api-utils";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
 export const GET = withAuthHandler(async (request: NextRequest, context) => {
   if (!context.organizationId) {
@@ -23,8 +24,8 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
 
   // Add pagination support
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "50");
   const skip = (page - 1) * pageSize;
 
   // Get projects with pagination
@@ -33,26 +34,28 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
       where: { organizationId: context.organizationId },
       include: {
         manager: { select: { id: true, name: true } },
-        _count: { select: { tasks: true, documents: true } }
+        _count: { select: { tasks: true, documents: true } },
       },
       orderBy: { createdAt: "desc" },
       take: pageSize,
-      skip: skip
+      skip: skip,
     }),
     prisma.project.count({
-      where: { organizationId: context.organizationId }
-    })
+      where: { organizationId: context.organizationId },
+    }),
   ]);
 
-  return NextResponse.json(bigintSafe({ 
-    projects,
-    pagination: {
-      page,
-      pageSize,
-      totalCount,
-      totalPages: Math.ceil(totalCount / pageSize)
-    }
-  }));
+  return NextResponse.json(
+    bigintSafe({
+      projects,
+      pagination: {
+        page,
+        pageSize,
+        totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+      },
+    }),
+  );
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {
@@ -61,7 +64,17 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
   }
 
   const body = await request.json();
-  const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
+  const {
+    name,
+    description,
+    location,
+    clientName,
+    clientEmail,
+    budget,
+    startDate,
+    endDate,
+    status,
+  } = body;
 
   if (!name?.trim()) {
     return errorResponse("BAD_REQUEST", "Project name is required");
@@ -84,11 +97,11 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
       endDate: endDate ? new Date(endDate) : null,
       status: status || "PLANNING",
       organizationId: context.organizationId,
-      managerId: context.userId || null
+      managerId: context.userId || null,
     },
     include: {
-      manager: { select: { id: true, name: true } }
-    }
+      manager: { select: { id: true, name: true } },
+    },
   });
 
   // Log activity
@@ -100,23 +113,23 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
     `Created project: ${project.name}`,
     project.id,
     project.name,
-    project.id
+    project.id,
   );
 
   // Broadcast real-time event
   broadcastEntityEvent(
     broadcastToOrganization,
     context.organizationId,
-    'project_created',
+    "project_created",
     {
       id: project.id,
       name: project.name,
       status: project.status,
       location: project.location,
       clientName: project.clientName,
-      managerName: project.manager?.name
+      managerName: project.manager?.name,
     },
-    context.userId
+    context.userId,
   );
 
   return NextResponse.json(bigintSafe({ project }));

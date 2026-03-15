@@ -1,6 +1,11 @@
-import { ollamaClient } from "./ollama-client";
+import { ollamaClient } from "../ollama-client";
 import { AIAdapter } from "../service-adapters";
-import { AICompletionOptions, AIEmbeddingOptions, VisionOptions, AIResponse } from "./types";
+import {
+  AICompletionOptions,
+  AIEmbeddingOptions,
+  VisionOptions,
+  AIResponse,
+} from "./types";
 
 export interface LocalAIModel {
   id: string;
@@ -66,7 +71,9 @@ export class LocalAIAdapter {
     };
   }
 
-  async embed(options: AIEmbeddingOptions): Promise<AIResponse<{ embeddings: number[][] }>> {
+  async embed(
+    options: AIEmbeddingOptions,
+  ): Promise<AIResponse<{ embeddings: number[][] }>> {
     if (this.useLocal) {
       const isAvailable = await ollamaClient.isAvailable();
       if (isAvailable) {
@@ -87,7 +94,9 @@ export class LocalAIAdapter {
     };
   }
 
-  async vision(options: VisionOptions): Promise<AIResponse<{ description: string }>> {
+  async vision(
+    options: VisionOptions,
+  ): Promise<AIResponse<{ description: string }>> {
     if (this.useLocal) {
       const isAvailable = await ollamaClient.isAvailable();
       if (isAvailable) {
@@ -114,7 +123,7 @@ export class LocalAIAdapter {
     // Check Ollama models
     const ollamaModels = await ollamaClient.listModels();
     for (const model of DEFAULT_MODELS) {
-      if (ollamaModels.some(m => m.startsWith(model.id))) {
+      if (ollamaModels.some((m) => m.startsWith(model.id))) {
         available.push({ ...model, available: true } as any);
       }
     }

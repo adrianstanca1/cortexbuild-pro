@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { user: { name: { contains: search, mode: "insensitive" } } },
         { user: { email: { contains: search, mode: "insensitive" } } },
-        { jobTitle: { contains: search, mode: "insensitive" } }
+        { jobTitle: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -53,40 +53,43 @@ export async function GET(request: NextRequest) {
               email: true,
               role: true,
               lastLogin: true,
-              createdAt: true
-            }
+              createdAt: true,
+            },
           },
           projectAssignments: {
             include: {
               project: {
-                select: { id: true, name: true, status: true }
-              }
-            }
-          }
+                select: { id: true, name: true, status: true },
+              },
+            },
+          },
         },
         skip,
         take: limit,
-        orderBy: { invitedAt: "desc" }
+        orderBy: { invitedAt: "desc" },
       }),
-      prisma.teamMember.count({ where })
+      prisma.teamMember.count({ where }),
     ]);
 
     return NextResponse.json({
-      members: members.map(m => ({
+      members: members.map((m) => ({
         ...m,
         projectCount: m.projectAssignments.length,
-        projects: m.projectAssignments.map(pa => pa.project)
+        projects: m.projectAssignments.map((pa) => pa.project),
       })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Error fetching team members:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -98,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = session.user as any;
-    
+
     if (!["COMPANY_OWNER", "ADMIN", "SUPER_ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -108,11 +111,14 @@ export async function POST(request: NextRequest) {
 
     // Check if team member already exists
     const existing = await prisma.teamMember.findFirst({
-      where: { userId, organizationId: user.organizationId }
+      where: { userId, organizationId: user.organizationId },
     });
 
     if (existing) {
-      return NextResponse.json({ error: "Team member already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Team member already exists" },
+        { status: 409 },
+      );
     }
 
     const member = await prisma.teamMember.create({
@@ -120,18 +126,21 @@ export async function POST(request: NextRequest) {
         userId,
         organizationId: user.organizationId,
         jobTitle,
-        department
+        department,
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true, role: true }
-        }
-      }
+          select: { id: true, name: true, email: true, role: true },
+        },
+      },
     });
 
     return NextResponse.json(member, { status: 201 });
   } catch (error) {
     console.error("Error creating team member:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

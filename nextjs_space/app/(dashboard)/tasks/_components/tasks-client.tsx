@@ -4,17 +4,44 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format, formatDistanceToNow, isPast, isToday } from "date-fns";
 import {
-  Plus, Search, ListTodo, User, Clock, Loader2, LayoutGrid, List,
-  GanttChart as GanttIcon, Filter, Calendar, AlertCircle, CheckCircle2,
-  ChevronRight, Target, Flame, TrendingUp, MoreHorizontal
+  Plus,
+  Search,
+  ListTodo,
+  User,
+  Clock,
+  Loader2,
+  LayoutGrid,
+  List,
+  GanttChart as GanttIcon,
+  Filter,
+  Calendar,
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Target,
+  Flame,
+  TrendingUp,
+  MoreHorizontal,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { KanbanBoard } from "./kanban-board";
 import { TaskCard, TaskDetailDialog } from "@/components/ui/task-card";
@@ -28,20 +55,56 @@ interface TasksClientProps {
 }
 
 const statusColors = {
-  TODO: { bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-300", dot: "bg-slate-400" },
-  IN_PROGRESS: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300", dot: "bg-blue-500" },
-  REVIEW: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300", dot: "bg-amber-500" },
-  COMPLETE: { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-300", dot: "bg-green-500" }
+  TODO: {
+    bg: "bg-slate-100 dark:bg-slate-800",
+    text: "text-slate-700 dark:text-slate-300",
+    dot: "bg-slate-400",
+  },
+  IN_PROGRESS: {
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-300",
+    dot: "bg-blue-500",
+  },
+  REVIEW: {
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-300",
+    dot: "bg-amber-500",
+  },
+  COMPLETE: {
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-300",
+    dot: "bg-green-500",
+  },
 } as const;
 
 const priorityConfig = {
-  LOW: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
-  MEDIUM: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
-  HIGH: { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
-  CRITICAL: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" }
+  LOW: {
+    bg: "bg-slate-100",
+    text: "text-slate-600",
+    border: "border-slate-200",
+  },
+  MEDIUM: {
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-200",
+  },
+  HIGH: {
+    bg: "bg-orange-100",
+    text: "text-orange-700",
+    border: "border-orange-200",
+  },
+  CRITICAL: {
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-200",
+  },
 } as const;
 
-export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) {
+export function TasksClient({
+  tasks,
+  projects,
+  teamMembers,
+}: TasksClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -57,7 +120,7 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
     priority: "MEDIUM",
     status: "TODO",
     assigneeId: "",
-    dueDate: ""
+    dueDate: "",
   });
 
   const handleTaskEvent = useCallback(() => {
@@ -65,28 +128,41 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
   }, [router]);
 
   useRealtimeSubscription(
-    ['task_created', 'task_updated', 'task_deleted'],
+    ["task_created", "task_updated", "task_deleted"],
     handleTaskEvent,
-    []
+    [],
   );
 
   const filteredTasks = (tasks ?? [])?.filter((task: any) => {
-    const matchesSearch = (task?.title ?? "")?.toLowerCase()?.includes(search?.toLowerCase() ?? "");
-    const matchesStatus = statusFilter === "all" || task?.status === statusFilter;
-    const matchesPriority = priorityFilter === "all" || task?.priority === priorityFilter;
+    const matchesSearch = (task?.title ?? "")
+      ?.toLowerCase()
+      ?.includes(search?.toLowerCase() ?? "");
+    const matchesStatus =
+      statusFilter === "all" || task?.status === statusFilter;
+    const matchesPriority =
+      priorityFilter === "all" || task?.priority === priorityFilter;
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
   // Calculate stats
   const stats = {
     total: tasks?.length ?? 0,
-    todo: tasks?.filter(t => t?.status === "TODO")?.length ?? 0,
-    inProgress: tasks?.filter(t => t?.status === "IN_PROGRESS")?.length ?? 0,
-    review: tasks?.filter(t => t?.status === "REVIEW")?.length ?? 0,
-    complete: tasks?.filter(t => t?.status === "COMPLETE")?.length ?? 0,
-    overdue: tasks?.filter(t => t?.dueDate && isPast(new Date(t.dueDate)) && t?.status !== "COMPLETE")?.length ?? 0,
-    critical: tasks?.filter(t => t?.priority === "CRITICAL" && t?.status !== "COMPLETE")?.length ?? 0,
-    dueToday: tasks?.filter(t => t?.dueDate && isToday(new Date(t.dueDate)))?.length ?? 0
+    todo: tasks?.filter((t) => t?.status === "TODO")?.length ?? 0,
+    inProgress: tasks?.filter((t) => t?.status === "IN_PROGRESS")?.length ?? 0,
+    review: tasks?.filter((t) => t?.status === "REVIEW")?.length ?? 0,
+    complete: tasks?.filter((t) => t?.status === "COMPLETE")?.length ?? 0,
+    overdue:
+      tasks?.filter(
+        (t) =>
+          t?.dueDate && isPast(new Date(t.dueDate)) && t?.status !== "COMPLETE",
+      )?.length ?? 0,
+    critical:
+      tasks?.filter(
+        (t) => t?.priority === "CRITICAL" && t?.status !== "COMPLETE",
+      )?.length ?? 0,
+    dueToday:
+      tasks?.filter((t) => t?.dueDate && isToday(new Date(t.dueDate)))
+        ?.length ?? 0,
   };
 
   const handleCreateTask = async () => {
@@ -106,13 +182,21 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
         body: JSON.stringify({
           ...newTask,
           dueDate: newTask.dueDate || null,
-          assigneeId: newTask.assigneeId || null
-        })
+          assigneeId: newTask.assigneeId || null,
+        }),
       });
       if (res.ok) {
         toast.success("Task created!");
         setShowNewTaskModal(false);
-        setNewTask({ title: "", description: "", projectId: "", priority: "MEDIUM", status: "TODO", assigneeId: "", dueDate: "" });
+        setNewTask({
+          title: "",
+          description: "",
+          projectId: "",
+          priority: "MEDIUM",
+          status: "TODO",
+          assigneeId: "",
+          dueDate: "",
+        });
         router.refresh();
       } else {
         toast.error("Failed to create task");
@@ -129,7 +213,7 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
       await fetch(`/api/tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
       toast.success("Task updated!");
       router.refresh();
@@ -143,8 +227,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Tasks</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and track all tasks across projects</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
+            Tasks
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage and track all tasks across projects
+          </p>
         </div>
         <Dialog open={showNewTaskModal} onOpenChange={setShowNewTaskModal}>
           <DialogTrigger asChild>
@@ -158,39 +246,70 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Title *</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Title *
+                </label>
                 <Input
                   placeholder="Enter task title"
                   value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, title: e.target.value })
+                  }
                   className="h-11"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Project *</label>
-                <Select value={newTask.projectId} onValueChange={(v) => setNewTask({ ...newTask, projectId: v })}>
-                  <SelectTrigger className="h-11"><SelectValue placeholder="Select project" /></SelectTrigger>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Project *
+                </label>
+                <Select
+                  value={newTask.projectId}
+                  onValueChange={(v) =>
+                    setNewTask({ ...newTask, projectId: v })
+                  }
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select project" />
+                  </SelectTrigger>
                   <SelectContent>
                     {(projects ?? [])?.map((p: any) => (
-                      <SelectItem key={p?.id ?? Math.random()} value={p?.id ?? ""}>{p?.name ?? "Unknown"}</SelectItem>
+                      <SelectItem
+                        key={p?.id ?? Math.random()}
+                        value={p?.id ?? ""}
+                      >
+                        {p?.name ?? "Unknown"}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Description</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Description
+                </label>
                 <Textarea
                   placeholder="Add task description"
                   value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, description: e.target.value })
+                  }
                   rows={3}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Priority</label>
-                  <Select value={newTask.priority} onValueChange={(v) => setNewTask({ ...newTask, priority: v })}>
-                    <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Priority
+                  </label>
+                  <Select
+                    value={newTask.priority}
+                    onValueChange={(v) =>
+                      setNewTask({ ...newTask, priority: v })
+                    }
+                  >
+                    <SelectTrigger className="h-11">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="LOW">Low</SelectItem>
                       <SelectItem value="MEDIUM">Medium</SelectItem>
@@ -200,23 +319,56 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Due Date</label>
-                  <Input type="date" value={newTask.dueDate} onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })} className="h-11" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Due Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={newTask.dueDate}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, dueDate: e.target.value })
+                    }
+                    className="h-11"
+                  />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Assignee</label>
-                <Select value={newTask.assigneeId} onValueChange={(v) => setNewTask({ ...newTask, assigneeId: v })}>
-                  <SelectTrigger className="h-11"><SelectValue placeholder="Select assignee" /></SelectTrigger>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Assignee
+                </label>
+                <Select
+                  value={newTask.assigneeId}
+                  onValueChange={(v) =>
+                    setNewTask({ ...newTask, assigneeId: v })
+                  }
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select assignee" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {(teamMembers ?? [])?.filter((tm: any) => tm?.userId || tm?.user?.id).map((tm: any) => (
-                      <SelectItem key={tm?.id ?? Math.random()} value={tm?.userId || tm?.user?.id}>{tm?.user?.name ?? "Unknown"}</SelectItem>
-                    ))}
+                    {(teamMembers ?? [])
+                      ?.filter((tm: any) => tm?.userId || tm?.user?.id)
+                      .map((tm: any) => (
+                        <SelectItem
+                          key={tm?.id ?? Math.random()}
+                          value={tm?.userId || tm?.user?.id}
+                        >
+                          {tm?.user?.name ?? "Unknown"}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleCreateTask} disabled={loading} className="w-full h-11 bg-gradient-to-r from-primary to-purple-600">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+              <Button
+                onClick={handleCreateTask}
+                disabled={loading}
+                className="w-full h-11 bg-gradient-to-r from-primary to-purple-600"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Plus className="h-4 w-4 mr-2" />
+                )}
                 Create Task
               </Button>
             </div>
@@ -233,8 +385,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <ListTodo className="h-5 w-5 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total Tasks</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {stats.total}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Total Tasks
+                </p>
               </div>
             </div>
           </CardContent>
@@ -247,8 +403,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.inProgress}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">In Progress</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {stats.inProgress}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  In Progress
+                </p>
               </div>
             </div>
           </CardContent>
@@ -261,8 +421,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <Target className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.review}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">In Review</p>
+                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  {stats.review}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  In Review
+                </p>
               </div>
             </div>
           </CardContent>
@@ -275,8 +439,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.complete}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Completed</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {stats.complete}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Completed
+                </p>
               </div>
             </div>
           </CardContent>
@@ -289,8 +457,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.overdue}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Overdue</p>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {stats.overdue}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Overdue
+                </p>
               </div>
             </div>
           </CardContent>
@@ -303,8 +475,12 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                 <Flame className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.critical}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Critical</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {stats.critical}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Critical
+                </p>
               </div>
             </div>
           </CardContent>
@@ -395,16 +571,25 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
         <Card className="border-slate-200 dark:border-slate-700">
           <CardContent className="p-4">
             <GanttChart
-              items={filteredTasks.filter((t: any) => t.dueDate).map((t: any) => ({
-                id: t.id,
-                name: t.title,
-                startDate: t.createdAt || new Date().toISOString(),
-                endDate: t.dueDate || new Date().toISOString(),
-                progress: t.status === "COMPLETE" ? 100 : t.status === "REVIEW" ? 75 : t.status === "IN_PROGRESS" ? 50 : 0,
-                type: "task" as const,
-                status: t.status,
-                assignee: t.assignee?.name
-              }))}
+              items={filteredTasks
+                .filter((t: any) => t.dueDate)
+                .map((t: any) => ({
+                  id: t.id,
+                  name: t.title,
+                  startDate: t.createdAt || new Date().toISOString(),
+                  endDate: t.dueDate || new Date().toISOString(),
+                  progress:
+                    t.status === "COMPLETE"
+                      ? 100
+                      : t.status === "REVIEW"
+                        ? 75
+                        : t.status === "IN_PROGRESS"
+                          ? 50
+                          : 0,
+                  type: "task" as const,
+                  status: t.status,
+                  assignee: t.assignee?.name,
+                }))}
               onItemClick={(item) => {
                 const task = filteredTasks.find((t: any) => t.id === item.id);
                 if (task) setSelectedTask(task);
@@ -413,16 +598,26 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
           </CardContent>
         </Card>
       ) : viewMode === "kanban" ? (
-        <KanbanBoard tasks={filteredTasks} onStatusChange={handleUpdateStatus} />
+        <KanbanBoard
+          tasks={filteredTasks}
+          onStatusChange={handleUpdateStatus}
+        />
       ) : filteredTasks?.length === 0 ? (
         <Card className="border-slate-200 dark:border-slate-700">
           <CardContent className="py-16 text-center">
             <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
               <ListTodo className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No tasks found</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Create your first task to get started</p>
-            <Button onClick={() => setShowNewTaskModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              No tasks found
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">
+              Create your first task to get started
+            </p>
+            <Button
+              onClick={() => setShowNewTaskModal(true)}
+              className="bg-gradient-to-r from-primary to-purple-600"
+            >
               <Plus className="h-4 w-4 mr-2" /> Create Task
             </Button>
           </CardContent>
@@ -430,9 +625,16 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
       ) : (
         <div className="space-y-3">
           {filteredTasks?.map((task: any) => {
-            const isOverdue = task?.dueDate && isPast(new Date(task.dueDate)) && task?.status !== "COMPLETE";
-            const statusStyle = statusColors[task?.status as keyof typeof statusColors] || statusColors.TODO;
-            const priorityStyle = priorityConfig[task?.priority as keyof typeof priorityConfig] || priorityConfig.MEDIUM;
+            const isOverdue =
+              task?.dueDate &&
+              isPast(new Date(task.dueDate)) &&
+              task?.status !== "COMPLETE";
+            const statusStyle =
+              statusColors[task?.status as keyof typeof statusColors] ||
+              statusColors.TODO;
+            const priorityStyle =
+              priorityConfig[task?.priority as keyof typeof priorityConfig] ||
+              priorityConfig.MEDIUM;
 
             return (
               <Card
@@ -449,11 +651,16 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                         <h3 className="font-semibold text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors">
                           {task?.title ?? "Untitled"}
                         </h3>
-                        <Badge className={`${priorityStyle.bg} ${priorityStyle.text} text-xs px-2 py-0.5`}>
+                        <Badge
+                          className={`${priorityStyle.bg} ${priorityStyle.text} text-xs px-2 py-0.5`}
+                        >
                           {task?.priority ?? "MEDIUM"}
                         </Badge>
                         {isOverdue && (
-                          <Badge variant="destructive" className="text-xs px-2 py-0.5 animate-pulse">
+                          <Badge
+                            variant="destructive"
+                            className="text-xs px-2 py-0.5 animate-pulse"
+                          >
                             <AlertCircle className="h-3 w-3 mr-1" />
                             Overdue
                           </Badge>
@@ -472,24 +679,40 @@ export function TasksClient({ tasks, projects, teamMembers }: TasksClientProps) 
                           </span>
                         )}
                         {task?.dueDate && (
-                          <span className={`flex items-center gap-1.5 ${isOverdue ? "text-red-500" : ""}`}>
+                          <span
+                            className={`flex items-center gap-1.5 ${isOverdue ? "text-red-500" : ""}`}
+                          >
                             <Calendar className="h-3.5 w-3.5" />
                             {format(new Date(task.dueDate), "MMM d, yyyy")}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                      <Select value={task?.status ?? "TODO"} onValueChange={(v) => handleUpdateStatus(task?.id ?? "", v)}>
-                        <SelectTrigger className={`w-36 h-9 ${statusStyle.bg} ${statusStyle.text} border-0`}>
+                    <div
+                      className="flex items-center gap-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Select
+                        value={task?.status ?? "TODO"}
+                        onValueChange={(v) =>
+                          handleUpdateStatus(task?.id ?? "", v)
+                        }
+                      >
+                        <SelectTrigger
+                          className={`w-36 h-9 ${statusStyle.bg} ${statusStyle.text} border-0`}
+                        >
                           <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
+                            <div
+                              className={`w-2 h-2 rounded-full ${statusStyle.dot}`}
+                            />
                             <SelectValue />
                           </div>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="TODO">To Do</SelectItem>
-                          <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                          <SelectItem value="IN_PROGRESS">
+                            In Progress
+                          </SelectItem>
                           <SelectItem value="REVIEW">Review</SelectItem>
                           <SelectItem value="COMPLETE">Complete</SelectItem>
                         </SelectContent>

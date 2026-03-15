@@ -6,50 +6,59 @@ import { prisma } from "@/lib/db";
 import { decryptCredentials } from "@/lib/encryption";
 
 // Service-specific test configurations
-const SERVICE_TEST_CONFIGS: Record<string, {
-  testEndpoint: string;
-  method: string;
-  authHeader: (credentials: Record<string, string>) => Record<string, string>;
-  validateResponse: (response: Response) => boolean;
-}> = {
+const SERVICE_TEST_CONFIGS: Record<
+  string,
+  {
+    testEndpoint: string;
+    method: string;
+    authHeader: (credentials: Record<string, string>) => Record<string, string>;
+    validateResponse: (response: Response) => boolean;
+  }
+> = {
   sendgrid: {
     testEndpoint: "https://api.sendgrid.com/v3/scopes",
     method: "GET",
-    authHeader: (creds) => ({ Authorization: `Bearer ${creds.apiKey || creds.API_KEY}` }),
-    validateResponse: (res) => res.status === 200
+    authHeader: (creds) => ({
+      Authorization: `Bearer ${creds.apiKey || creds.API_KEY}`,
+    }),
+    validateResponse: (res) => res.status === 200,
   },
   openai: {
     testEndpoint: "https://api.openai.com/v1/models",
     method: "GET",
-    authHeader: (creds) => ({ Authorization: `Bearer ${creds.apiKey || creds.API_KEY}` }),
-    validateResponse: (res) => res.status === 200
+    authHeader: (creds) => ({
+      Authorization: `Bearer ${creds.apiKey || creds.API_KEY}`,
+    }),
+    validateResponse: (res) => res.status === 200,
   },
   stripe: {
     testEndpoint: "https://api.stripe.com/v1/balance",
     method: "GET",
-    authHeader: (creds) => ({ Authorization: `Basic ${Buffer.from((creds.secretKey || creds.SECRET_KEY) + ':').toString('base64')}` }),
-    validateResponse: (res) => res.status === 200
+    authHeader: (creds) => ({
+      Authorization: `Basic ${Buffer.from((creds.secretKey || creds.SECRET_KEY) + ":").toString("base64")}`,
+    }),
+    validateResponse: (res) => res.status === 200,
   },
   twilio: {
     testEndpoint: "https://api.twilio.com/2010-04-01/Accounts",
     method: "GET",
     authHeader: (creds) => ({
-      Authorization: `Basic ${Buffer.from((creds.accountSid || creds.ACCOUNT_SID) + ':' + (creds.authToken || creds.AUTH_TOKEN)).toString('base64')}`
+      Authorization: `Basic ${Buffer.from((creds.accountSid || creds.ACCOUNT_SID) + ":" + (creds.authToken || creds.AUTH_TOKEN)).toString("base64")}`,
     }),
-    validateResponse: (res) => res.status === 200
+    validateResponse: (res) => res.status === 200,
   },
   database: {
     testEndpoint: "",
     method: "PING",
     authHeader: () => ({}),
-    validateResponse: () => true
-  }
+    validateResponse: () => true,
+  },
 };
 
 // POST - Test API connection
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,11 +67,14 @@ export async function POST(
     }
 
     const connection = await prisma.apiConnection.findUnique({
-      where: { id: (await params).id }
+      where: { id: (await params).id },
     });
 
     if (!connection) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     const startTime = Date.now();
@@ -70,8 +82,11 @@ export async function POST(
     let errorMessage: string | null = null;
     let statusCode = 0;
 
-    const credentials = decryptCredentials(connection.credentials as Record<string, string>);
-    const serviceConfig = SERVICE_TEST_CONFIGS[connection.serviceName.toLowerCase()];
+    const credentials = decryptCredentials(
+      connection.credentials as Record<string, string>,
+    );
+    const serviceConfig =
+      SERVICE_TEST_CONFIGS[connection.serviceName.toLowerCase()];
 
     try {
       if (serviceConfig && serviceConfig.method !== "PING") {
@@ -79,12 +94,12 @@ export async function POST(
         const testUrl = connection.baseUrl || serviceConfig.testEndpoint;
         const headers = {
           ...serviceConfig.authHeader(credentials),
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         };
 
         const response = await fetch(testUrl, {
           method: serviceConfig.method,
-          headers
+          headers,
         });
 
         statusCode = response.status;
@@ -99,8 +114,8 @@ export async function POST(
         const response = await fetch(connection.baseUrl, {
           method: "HEAD",
           headers: {
-            ...credentials
-          }
+            ...credentials,
+          },
         });
 
         statusCode = response.status;
@@ -136,8 +151,8 @@ export async function POST(
         status: newStatus,
         lastValidatedAt: new Date(),
         lastErrorMessage: errorMessage,
-        consecutiveErrors
-      }
+        consecutiveErrors,
+      },
     });
 
     // Log the test
@@ -152,9 +167,10 @@ export async function POST(
         testResponseTime: responseTime,
         testErrorMessage: errorMessage,
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     // Record health check for monitoring
@@ -166,8 +182,8 @@ export async function POST(
         statusCode,
         errorMessage,
         checkType: "manual",
-        endpoint: connection.baseUrl || serviceConfig?.testEndpoint
-      }
+        endpoint: connection.baseUrl || serviceConfig?.testEndpoint,
+      },
     });
 
     return NextResponse.json({
@@ -175,10 +191,13 @@ export async function POST(
       responseTime,
       statusCode,
       error: errorMessage,
-      newStatus
+      newStatus,
     });
   } catch (error) {
     console.error("Error testing API connection:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

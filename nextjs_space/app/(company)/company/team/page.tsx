@@ -32,22 +32,22 @@ export default async function CompanyTeamPage() {
           role: true,
           lastLogin: true,
           createdAt: true,
-        }
+        },
       },
       projectAssignments: {
         include: {
           project: {
-            select: { id: true, name: true, status: true }
-          }
-        }
-      }
+            select: { id: true, name: true, status: true },
+          },
+        },
+      },
     },
-    orderBy: { invitedAt: "desc" }
+    orderBy: { invitedAt: "desc" },
   });
 
   return (
-    <CompanyTeamClient 
-      teamMembers={JSON.parse(JSON.stringify(teamMembers))} 
+    <CompanyTeamClient
+      teamMembers={JSON.parse(JSON.stringify(teamMembers))}
       currentUserId={user.id}
       currentUserRole={user.role}
     />

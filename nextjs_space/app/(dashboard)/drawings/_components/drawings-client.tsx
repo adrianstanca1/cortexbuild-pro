@@ -2,22 +2,56 @@
 
 import { useState } from "react";
 import {
-  FileImage, Plus, Search, Filter, Grid, List, Loader2,
-  Eye, Edit, Upload, History, CheckCircle, Clock, XCircle
+  FileImage,
+  Plus,
+  Search,
+  Filter,
+  Grid,
+  List,
+  Loader2,
+  Eye,
+  Edit,
+  Upload,
+  History,
+  CheckCircle,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
 const DISCIPLINES = [
-  "ARCHITECTURAL", "STRUCTURAL", "MECHANICAL", "ELECTRICAL", "PLUMBING",
-  "CIVIL", "LANDSCAPE", "FIRE_PROTECTION", "INTERIOR", "SHOP_DRAWING", "AS_BUILT", "OTHER"
+  "ARCHITECTURAL",
+  "STRUCTURAL",
+  "MECHANICAL",
+  "ELECTRICAL",
+  "PLUMBING",
+  "CIVIL",
+  "LANDSCAPE",
+  "FIRE_PROTECTION",
+  "INTERIOR",
+  "SHOP_DRAWING",
+  "AS_BUILT",
+  "OTHER",
 ];
 
 const STATUSES = ["DRAFT", "FOR_REVIEW", "APPROVED", "SUPERSEDED", "VOID"];
@@ -50,7 +84,10 @@ interface DrawingsClientProps {
   projects: any[];
 }
 
-export function DrawingsClient({ drawings: initialDrawings, projects }: DrawingsClientProps) {
+export function DrawingsClient({
+  drawings: initialDrawings,
+  projects,
+}: DrawingsClientProps) {
   const [drawings, setDrawings] = useState(initialDrawings);
   const [search, setSearch] = useState("");
   const [disciplineFilter, setDisciplineFilter] = useState("all");
@@ -69,10 +106,13 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
   });
 
   const filteredDrawings = drawings.filter((drawing) => {
-    const matchesSearch = drawing.title.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch =
+      drawing.title.toLowerCase().includes(search.toLowerCase()) ||
       drawing.number.toLowerCase().includes(search.toLowerCase());
-    const matchesDiscipline = disciplineFilter === "all" || drawing.discipline === disciplineFilter;
-    const matchesStatus = statusFilter === "all" || drawing.status === statusFilter;
+    const matchesDiscipline =
+      disciplineFilter === "all" || drawing.discipline === disciplineFilter;
+    const matchesStatus =
+      statusFilter === "all" || drawing.status === statusFilter;
     return matchesSearch && matchesDiscipline && matchesStatus;
   });
 
@@ -93,8 +133,13 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
       setDrawings([drawing, ...drawings]);
       setShowNewModal(false);
       setNewDrawing({
-        projectId: "", number: "", title: "", description: "",
-        discipline: "ARCHITECTURAL", scale: "", sheetSize: "",
+        projectId: "",
+        number: "",
+        title: "",
+        description: "",
+        discipline: "ARCHITECTURAL",
+        scale: "",
+        sheetSize: "",
       });
       toast.success("Drawing created successfully");
     } catch (error) {
@@ -106,9 +151,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
 
   const stats = {
     total: drawings.length,
-    approved: drawings.filter(d => d.status === "APPROVED").length,
-    forReview: drawings.filter(d => d.status === "FOR_REVIEW").length,
-    disciplines: [...new Set(drawings.map(d => d.discipline))].length,
+    approved: drawings.filter((d) => d.status === "APPROVED").length,
+    forReview: drawings.filter((d) => d.status === "FOR_REVIEW").length,
+    disciplines: [...new Set(drawings.map((d) => d.discipline))].length,
   };
 
   return (
@@ -131,7 +176,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.approved}
+                </p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
@@ -142,7 +189,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">For Review</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.forReview}</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {stats.forReview}
+                </p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
             </div>
@@ -179,8 +228,10 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Disciplines</SelectItem>
-              {DISCIPLINES.map(d => (
-                <SelectItem key={d} value={d}>{d.replace("_", " ")}</SelectItem>
+              {DISCIPLINES.map((d) => (
+                <SelectItem key={d} value={d}>
+                  {d.replace("_", " ")}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -190,8 +241,10 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              {STATUSES.map(s => (
-                <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>
+              {STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s.replace("_", " ")}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -225,7 +278,11 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
           <CardContent className="p-8 text-center">
             <FileImage className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No drawings found</p>
-            <Button onClick={() => setShowNewModal(true)} variant="outline" className="mt-4">
+            <Button
+              onClick={() => setShowNewModal(true)}
+              variant="outline"
+              className="mt-4"
+            >
               Add First Drawing
             </Button>
           </CardContent>
@@ -233,7 +290,10 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
       ) : viewMode === "list" ? (
         <div className="space-y-3">
           {filteredDrawings.map((drawing) => (
-            <Card key={drawing.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={drawing.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -245,25 +305,42 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                         <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
                           {drawing.number}
                         </span>
-                        <h3 className="font-semibold" style={{ color: "#1a1a1a" }}>{drawing.title}</h3>
-                        <Badge className={getStatusColor(drawing.status)}>{drawing.status.replace("_", " ")}</Badge>
+                        <h3
+                          className="font-semibold"
+                          style={{ color: "#1a1a1a" }}
+                        >
+                          {drawing.title}
+                        </h3>
+                        <Badge className={getStatusColor(drawing.status)}>
+                          {drawing.status.replace("_", " ")}
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                         <span>{drawing.project?.name}</span>
-                        <Badge variant="outline" className={getDisciplineColor(drawing.discipline)}>
+                        <Badge
+                          variant="outline"
+                          className={getDisciplineColor(drawing.discipline)}
+                        >
                           {drawing.discipline.replace("_", " ")}
                         </Badge>
                         {drawing.scale && <span>Scale: {drawing.scale}</span>}
                         <span className="flex items-center gap-1">
-                          <History className="h-3 w-3" /> Rev {drawing.currentRevision}
+                          <History className="h-3 w-3" /> Rev{" "}
+                          {drawing.currentRevision}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm"><Upload className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm"><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -273,10 +350,15 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDrawings.map((drawing) => (
-            <Card key={drawing.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={drawing.id}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
-                  <Badge className={getStatusColor(drawing.status)}>{drawing.status.replace("_", " ")}</Badge>
+                  <Badge className={getStatusColor(drawing.status)}>
+                    {drawing.status.replace("_", " ")}
+                  </Badge>
                   <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
                     Rev {drawing.currentRevision}
                   </span>
@@ -284,9 +366,16 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                 <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg mb-3 flex items-center justify-center">
                   <FileImage className="h-12 w-12 text-muted-foreground" />
                 </div>
-                <span className="font-mono text-sm text-muted-foreground">{drawing.number}</span>
-                <h3 className="font-semibold mt-1" style={{ color: "#1a1a1a" }}>{drawing.title}</h3>
-                <Badge variant="outline" className={`mt-2 ${getDisciplineColor(drawing.discipline)}`}>
+                <span className="font-mono text-sm text-muted-foreground">
+                  {drawing.number}
+                </span>
+                <h3 className="font-semibold mt-1" style={{ color: "#1a1a1a" }}>
+                  {drawing.title}
+                </h3>
+                <Badge
+                  variant="outline"
+                  className={`mt-2 ${getDisciplineColor(drawing.discipline)}`}
+                >
                   {drawing.discipline.replace("_", " ")}
                 </Badge>
               </CardContent>
@@ -304,11 +393,20 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
           <div className="grid gap-4 py-4">
             <div>
               <label className="text-sm font-medium">Project *</label>
-              <Select value={newDrawing.projectId} onValueChange={(v) => setNewDrawing({ ...newDrawing, projectId: v })}>
-                <SelectTrigger><SelectValue placeholder="Select project" /></SelectTrigger>
+              <Select
+                value={newDrawing.projectId}
+                onValueChange={(v) =>
+                  setNewDrawing({ ...newDrawing, projectId: v })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
                 <SelectContent>
-                  {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -318,17 +416,28 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                 <label className="text-sm font-medium">Drawing Number *</label>
                 <Input
                   value={newDrawing.number}
-                  onChange={(e) => setNewDrawing({ ...newDrawing, number: e.target.value })}
+                  onChange={(e) =>
+                    setNewDrawing({ ...newDrawing, number: e.target.value })
+                  }
                   placeholder="e.g., A-101"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Discipline</label>
-                <Select value={newDrawing.discipline} onValueChange={(v) => setNewDrawing({ ...newDrawing, discipline: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={newDrawing.discipline}
+                  onValueChange={(v) =>
+                    setNewDrawing({ ...newDrawing, discipline: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {DISCIPLINES.map(d => (
-                      <SelectItem key={d} value={d}>{d.replace("_", " ")}</SelectItem>
+                    {DISCIPLINES.map((d) => (
+                      <SelectItem key={d} value={d}>
+                        {d.replace("_", " ")}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -338,7 +447,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
               <label className="text-sm font-medium">Title *</label>
               <Input
                 value={newDrawing.title}
-                onChange={(e) => setNewDrawing({ ...newDrawing, title: e.target.value })}
+                onChange={(e) =>
+                  setNewDrawing({ ...newDrawing, title: e.target.value })
+                }
                 placeholder="e.g., Ground Floor Plan"
               />
             </div>
@@ -346,7 +457,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
               <label className="text-sm font-medium">Description</label>
               <Textarea
                 value={newDrawing.description}
-                onChange={(e) => setNewDrawing({ ...newDrawing, description: e.target.value })}
+                onChange={(e) =>
+                  setNewDrawing({ ...newDrawing, description: e.target.value })
+                }
                 placeholder="Drawing description..."
               />
             </div>
@@ -355,14 +468,23 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
                 <label className="text-sm font-medium">Scale</label>
                 <Input
                   value={newDrawing.scale}
-                  onChange={(e) => setNewDrawing({ ...newDrawing, scale: e.target.value })}
+                  onChange={(e) =>
+                    setNewDrawing({ ...newDrawing, scale: e.target.value })
+                  }
                   placeholder="e.g., 1:100"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Sheet Size</label>
-                <Select value={newDrawing.sheetSize} onValueChange={(v) => setNewDrawing({ ...newDrawing, sheetSize: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
+                <Select
+                  value={newDrawing.sheetSize}
+                  onValueChange={(v) =>
+                    setNewDrawing({ ...newDrawing, sheetSize: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="A0">A0</SelectItem>
                     <SelectItem value="A1">A1</SelectItem>
@@ -376,7 +498,9 @@ export function DrawingsClient({ drawings: initialDrawings, projects }: Drawings
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowNewModal(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleCreateDrawing} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Create Drawing

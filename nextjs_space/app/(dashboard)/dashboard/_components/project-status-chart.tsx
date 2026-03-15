@@ -1,6 +1,13 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 
 interface ProjectStatusChartProps {
   data: {
@@ -18,10 +25,11 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
     { name: "Planning", value: data?.PLANNING ?? 0 },
     { name: "In Progress", value: data?.IN_PROGRESS ?? 0 },
     { name: "On Hold", value: data?.ON_HOLD ?? 0 },
-    { name: "Completed", value: data?.COMPLETED ?? 0 }
-  ].filter(item => (item?.value ?? 0) > 0);
+    { name: "Completed", value: data?.COMPLETED ?? 0 },
+  ].filter((item) => (item?.value ?? 0) > 0);
 
-  const total = chartData?.reduce((sum, item) => sum + (item?.value ?? 0), 0) ?? 0;
+  const total =
+    chartData?.reduce((sum, item) => sum + (item?.value ?? 0), 0) ?? 0;
 
   if (total === 0) {
     return (
@@ -45,16 +53,21 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
             dataKey="value"
           >
             {chartData?.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS?.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS?.length]}
+              />
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ fontSize: 11, borderRadius: 8, border: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
+            contentStyle={{
+              fontSize: 11,
+              borderRadius: 8,
+              border: "none",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
           />
-          <Legend
-            verticalAlign="top"
-            wrapperStyle={{ fontSize: 11 }}
-          />
+          <Legend verticalAlign="top" wrapperStyle={{ fontSize: 11 }} />
         </PieChart>
       </ResponsiveContainer>
     </div>

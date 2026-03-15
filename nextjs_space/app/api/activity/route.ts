@@ -1,25 +1,25 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
-import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const projectId = searchParams.get("projectId");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { organizationId: true }
+      select: { organizationId: true },
     });
 
     if (!user?.organizationId) {
@@ -34,11 +34,11 @@ export async function GET(request: NextRequest) {
       // Get activities for all projects in the organization
       const projects = await prisma.project.findMany({
         where: { organizationId: user.organizationId },
-        select: { id: true }
+        select: { id: true },
       });
       where.OR = [
         { projectId: { in: projects.map((p: { id: string }) => p.id) } },
-        { userId: session.user.id }
+        { userId: session.user.id },
       ];
     }
 
@@ -47,23 +47,26 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           user: {
-            select: { id: true, name: true, email: true, avatarUrl: true }
+            select: { id: true, name: true, email: true, avatarUrl: true },
           },
           project: {
-            select: { id: true, name: true }
-          }
+            select: { id: true, name: true },
+          },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: limit,
-        skip: offset
+        skip: offset,
       }),
-      prisma.activityLog.count({ where })
+      prisma.activityLog.count({ where }),
     ]);
 
     return NextResponse.json({ activities, total });
   } catch (error) {
-    console.error('Error fetching activities:', error);
-    return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
+    console.error("Error fetching activities:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch activities" },
+      { status: 500 },
+    );
   }
 }
 
@@ -71,12 +74,14 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const organizationId = (session.user as { organizationId?: string })?.organizationId;
+    const organizationId = (session.user as { organizationId?: string })
+      ?.organizationId;
     const body = await request.json();
-    const { action, entityType, entityId, entityName, details, projectId } = body;
+    const { action, entityType, entityId, entityName, details, projectId } =
+      body;
 
     const activity = await prisma.activityLog.create({
       data: {
@@ -86,22 +91,22 @@ export async function POST(request: NextRequest) {
         entityName,
         details,
         userId: session.user.id,
-        projectId
+        projectId,
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true, avatarUrl: true }
+          select: { id: true, name: true, email: true, avatarUrl: true },
         },
         project: {
-          select: { id: true, name: true }
-        }
-      }
+          select: { id: true, name: true },
+        },
+      },
     });
 
     // Broadcast activity event to organization
     if (organizationId) {
       broadcastToOrganization(organizationId, {
-        type: 'activity_logged',
+        type: "activity_logged",
         timestamp: new Date().toISOString(),
         payload: {
           activity: {
@@ -111,15 +116,18 @@ export async function POST(request: NextRequest) {
             entityName: activity.entityName,
             userName: activity.user?.name,
             projectName: activity.project?.name,
-            createdAt: activity.createdAt
-          }
-        }
+            createdAt: activity.createdAt,
+          },
+        },
       });
     }
 
     return NextResponse.json(activity);
   } catch (error) {
-    console.error('Error creating activity:', error);
-    return NextResponse.json({ error: 'Failed to create activity' }, { status: 500 });
+    console.error("Error creating activity:", error);
+    return NextResponse.json(
+      { error: "Failed to create activity" },
+      { status: 500 },
+    );
   }
 }

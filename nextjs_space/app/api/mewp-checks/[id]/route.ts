@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -22,30 +22,36 @@ export async function GET(
     const check = await prisma.mEWPCheck.findFirst({
       where: {
         id: id,
-        project: { organizationId: orgId }
+        project: { organizationId: orgId },
       },
       include: {
         project: { select: { id: true, name: true } },
         operator: { select: { id: true, name: true, email: true } },
         supervisor: { select: { id: true, name: true, email: true } },
-        equipment: { select: { id: true, name: true, equipmentNumber: true } }
-      }
+        equipment: { select: { id: true, name: true, equipmentNumber: true } },
+      },
     });
 
     if (!check) {
-      return NextResponse.json({ error: "MEWP check not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "MEWP check not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ check });
   } catch (error) {
     console.error("Error fetching MEWP check:", error);
-    return NextResponse.json({ error: "Failed to fetch MEWP check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch MEWP check" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -60,11 +66,14 @@ export async function PATCH(
 
     const existing = await prisma.mEWPCheck.findFirst({
       where: { id: id, project: { organizationId: orgId } },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "MEWP check not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "MEWP check not found" },
+        { status: 404 },
+      );
     }
 
     // Handle supervisor sign-off
@@ -80,18 +89,21 @@ export async function PATCH(
       include: {
         project: { select: { id: true, name: true } },
         operator: { select: { id: true, name: true } },
-        supervisor: { select: { id: true, name: true } }
-      }
+        supervisor: { select: { id: true, name: true } },
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "mewp_check_updated",
-      data: { check }
+      data: { check },
     });
 
     return NextResponse.json({ check });
   } catch (error) {
     console.error("Error updating MEWP check:", error);
-    return NextResponse.json({ error: "Failed to update MEWP check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update MEWP check" },
+      { status: 500 },
+    );
   }
 }

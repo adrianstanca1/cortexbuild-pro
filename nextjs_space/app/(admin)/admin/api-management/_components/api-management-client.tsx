@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Server,
   Plus,
@@ -22,16 +22,13 @@ import {
   Zap,
   Eye,
   EyeOff,
-  Copy,
   RotateCcw,
   Power,
   PowerOff,
   Activity,
   History,
-  Filter,
   Settings,
   ExternalLink,
-  ChevronDown,
   Terminal,
   Mail,
   Brain,
@@ -48,7 +45,7 @@ import {
   Check,
   Info,
   Save,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,7 +77,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { HealthMonitoring } from "./health-monitoring";
 import { UsageAnalytics } from "./usage-analytics";
 import { RateLimiting } from "./rate-limiting";
@@ -198,15 +195,58 @@ const ICON_MAP: Record<string, any> = {
 };
 
 // Status colors and indicators
-const STATUS_CONFIG: Record<string, { color: string; bgColor: string; icon: any; label: string }> = {
-  ACTIVE: { color: "text-green-600", bgColor: "bg-green-500", icon: CheckCircle2, label: "Active" },
-  INACTIVE: { color: "text-gray-500", bgColor: "bg-gray-400", icon: PowerOff, label: "Inactive" },
-  DISCONNECTED: { color: "text-red-600", bgColor: "bg-red-500", icon: XCircle, label: "Disconnected" },
-  ERROR: { color: "text-red-600", bgColor: "bg-red-500", icon: AlertTriangle, label: "Error" },
-  EXPIRED: { color: "text-yellow-600", bgColor: "bg-yellow-500", icon: Clock, label: "Expired" },
-  INVALID: { color: "text-red-600", bgColor: "bg-red-500", icon: AlertCircle, label: "Invalid" },
-  NOT_CONFIGURED: { color: "text-gray-400", bgColor: "bg-gray-300", icon: Settings, label: "Not Configured" },
-  DISABLED: { color: "text-gray-500", bgColor: "bg-gray-400", icon: PowerOff, label: "Disabled" },
+const STATUS_CONFIG: Record<
+  string,
+  { color: string; bgColor: string; icon: any; label: string }
+> = {
+  ACTIVE: {
+    color: "text-green-600",
+    bgColor: "bg-green-500",
+    icon: CheckCircle2,
+    label: "Active",
+  },
+  INACTIVE: {
+    color: "text-gray-500",
+    bgColor: "bg-gray-400",
+    icon: PowerOff,
+    label: "Inactive",
+  },
+  DISCONNECTED: {
+    color: "text-red-600",
+    bgColor: "bg-red-500",
+    icon: XCircle,
+    label: "Disconnected",
+  },
+  ERROR: {
+    color: "text-red-600",
+    bgColor: "bg-red-500",
+    icon: AlertTriangle,
+    label: "Error",
+  },
+  EXPIRED: {
+    color: "text-yellow-600",
+    bgColor: "bg-yellow-500",
+    icon: Clock,
+    label: "Expired",
+  },
+  INVALID: {
+    color: "text-red-600",
+    bgColor: "bg-red-500",
+    icon: AlertCircle,
+    label: "Invalid",
+  },
+  NOT_CONFIGURED: {
+    color: "text-gray-400",
+    bgColor: "bg-gray-300",
+    icon: Settings,
+    label: "Not Configured",
+  },
+  DISABLED: {
+    color: "text-gray-500",
+    bgColor: "bg-gray-400",
+    icon: PowerOff,
+    label: "Disabled",
+  },
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -256,19 +296,30 @@ export function ApiManagementClient() {
   const [showRotateModal, setShowRotateModal] = useState(false);
   const [showCustomApiModal, setShowCustomApiModal] = useState(false);
   const [showDependenciesModal, setShowDependenciesModal] = useState(false);
-  const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
-  const [selectedConnection, setSelectedConnection] = useState<ApiConnection | null>(null);
+  const [selectedService, setSelectedService] =
+    useState<ServiceDefinition | null>(null);
+  const [selectedConnection, setSelectedConnection] =
+    useState<ApiConnection | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loadingCredentials, setLoadingCredentials] = useState(false);
 
   // Form state
-  const [configCredentials, setConfigCredentials] = useState<Record<string, string>>({});
+  const [configCredentials, setConfigCredentials] = useState<
+    Record<string, string>
+  >({});
   const [editForm, setEditForm] = useState<Partial<ApiConnection>>({});
-  const [rotateCredentials, setRotateCredentials] = useState<Record<string, string>>({});
-  const [customApiForm, setCustomApiForm] = useState<CustomApiForm>(INITIAL_CUSTOM_FORM);
-  const [customCredentialKeys, setCustomCredentialKeys] = useState<string[]>(["API_KEY"]);
-  const [showCredentials, setShowCredentials] = useState<Record<string, boolean>>({});
+  const [rotateCredentials, setRotateCredentials] = useState<
+    Record<string, string>
+  >({});
+  const [customApiForm, setCustomApiForm] =
+    useState<CustomApiForm>(INITIAL_CUSTOM_FORM);
+  const [customCredentialKeys, setCustomCredentialKeys] = useState<string[]>([
+    "API_KEY",
+  ]);
+  const [showCredentials, setShowCredentials] = useState<
+    Record<string, boolean>
+  >({});
   const [newCredentialKey, setNewCredentialKey] = useState("");
 
   // Fetch platform services
@@ -341,7 +392,7 @@ export function ApiManagementClient() {
         fetchServices(),
         fetchConnections(),
         fetchLogs(),
-        fetchDependencies()
+        fetchDependencies(),
       ]);
       setLoading(false);
     };
@@ -352,7 +403,9 @@ export function ApiManagementClient() {
   const fetchDecryptedCredentials = async (connectionId: string) => {
     setLoadingCredentials(true);
     try {
-      const res = await fetch(`/api/admin/api-connections/${connectionId}/credentials`);
+      const res = await fetch(
+        `/api/admin/api-connections/${connectionId}/credentials`,
+      );
       if (res.ok) {
         const data = await res.json();
         return data.credentials;
@@ -377,9 +430,12 @@ export function ApiManagementClient() {
 
     setTesting(service.id);
     try {
-      const res = await fetch(`/api/admin/api-connections/${service.connectionId}/test`, {
-        method: "POST"
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/${service.connectionId}/test`,
+        {
+          method: "POST",
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -401,9 +457,12 @@ export function ApiManagementClient() {
   const handleTestConnection = async (connectionId: string) => {
     setTesting(connectionId);
     try {
-      const res = await fetch(`/api/admin/api-connections/${connectionId}/test`, {
-        method: "POST"
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/${connectionId}/test`,
+        {
+          method: "POST",
+        },
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -425,7 +484,9 @@ export function ApiManagementClient() {
   const handleConfigureService = async () => {
     if (!selectedService) return;
 
-    const requiredFields = selectedService.credentialFields.filter(f => f.required);
+    const requiredFields = selectedService.credentialFields.filter(
+      (f) => f.required,
+    );
     for (const field of requiredFields) {
       if (!configCredentials[field.key]) {
         toast.error(`Please enter ${field.label}`);
@@ -441,8 +502,8 @@ export function ApiManagementClient() {
         body: JSON.stringify({
           serviceId: selectedService.id,
           credentials: configCredentials,
-          environment: filterEnv
-        })
+          environment: filterEnv,
+        }),
       });
 
       if (res.ok) {
@@ -474,13 +535,13 @@ export function ApiManagementClient() {
     const credentials = await fetchDecryptedCredentials(service.connectionId);
     if (credentials) {
       // Find connection details
-      const conn = connections.find(c => c.id === service.connectionId);
+      const conn = connections.find((c) => c.id === service.connectionId);
       setEditForm({
         name: service.name,
         description: service.description,
         baseUrl: service.baseUrl,
         version: conn?.version || "",
-        environment: conn?.environment || service.environment as any,
+        environment: conn?.environment || (service.environment as any),
         status: conn?.status || "ACTIVE",
         headers: conn?.headers || {},
         isEnabled: conn?.isEnabled !== false,
@@ -516,7 +577,8 @@ export function ApiManagementClient() {
 
   // Save edit
   const handleSaveEdit = async () => {
-    const connectionId = selectedService?.connectionId || selectedConnection?.id;
+    const connectionId =
+      selectedService?.connectionId || selectedConnection?.id;
     if (!connectionId) return;
 
     setSaving(true);
@@ -546,7 +608,9 @@ export function ApiManagementClient() {
 
       // Only include credentials if they were modified (not empty)
       const nonEmptyCredentials = Object.fromEntries(
-        Object.entries(configCredentials).filter(([_, v]) => v && v.trim() !== "")
+        Object.entries(configCredentials).filter(
+          ([_, v]) => v && v.trim() !== "",
+        ),
       );
       if (Object.keys(nonEmptyCredentials).length > 0) {
         payload.credentials = nonEmptyCredentials;
@@ -555,7 +619,7 @@ export function ApiManagementClient() {
       const res = await fetch(`/api/admin/api-connections/${connectionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -590,7 +654,8 @@ export function ApiManagementClient() {
 
   // Rotate credentials
   const handleRotateCredentials = async () => {
-    const connectionId = selectedService?.connectionId || selectedConnection?.id;
+    const connectionId =
+      selectedService?.connectionId || selectedConnection?.id;
     if (!connectionId) return;
 
     if (Object.keys(rotateCredentials).length === 0) {
@@ -600,11 +665,14 @@ export function ApiManagementClient() {
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/api-connections/${connectionId}/rotate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credentials: rotateCredentials })
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/${connectionId}/rotate`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credentials: rotateCredentials }),
+        },
+      );
 
       if (res.ok) {
         toast.success("Credentials rotated successfully");
@@ -635,14 +703,17 @@ export function ApiManagementClient() {
 
     try {
       const isCurrentlyActive = service.status === "ACTIVE";
-      const res = await fetch(`/api/admin/api-connections/${service.connectionId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          isEnabled: !isCurrentlyActive,
-          status: isCurrentlyActive ? "DISABLED" : "ACTIVE"
-        })
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/${service.connectionId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            isEnabled: !isCurrentlyActive,
+            status: isCurrentlyActive ? "DISABLED" : "ACTIVE",
+          }),
+        },
+      );
 
       if (res.ok) {
         toast.success(`Service ${isCurrentlyActive ? "disabled" : "enabled"}`);
@@ -665,12 +736,14 @@ export function ApiManagementClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isEnabled: !isCurrentlyActive,
-          status: isCurrentlyActive ? "DISABLED" : "ACTIVE"
-        })
+          status: isCurrentlyActive ? "DISABLED" : "ACTIVE",
+        }),
       });
 
       if (res.ok) {
-        toast.success(`Connection ${isCurrentlyActive ? "disabled" : "enabled"}`);
+        toast.success(
+          `Connection ${isCurrentlyActive ? "disabled" : "enabled"}`,
+        );
         fetchConnections();
         fetchLogs();
       } else {
@@ -685,14 +758,21 @@ export function ApiManagementClient() {
   const handleDeleteService = async (service: ServiceDefinition) => {
     if (!service.connectionId) return;
 
-    if (!confirm(`Are you sure you want to remove the configuration for "${service.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to remove the configuration for "${service.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/admin/api-connections/${service.connectionId}`, {
-        method: "DELETE"
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/${service.connectionId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (res.ok) {
         toast.success("Service configuration removed");
@@ -708,13 +788,17 @@ export function ApiManagementClient() {
 
   // Delete custom connection
   const handleDeleteConnection = async (connection: ApiConnection) => {
-    if (!confirm(`Are you sure you want to delete "${connection.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${connection.name}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       const res = await fetch(`/api/admin/api-connections/${connection.id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       if (res.ok) {
@@ -756,8 +840,8 @@ export function ApiManagementClient() {
           version: customApiForm.version || null,
           credentials: customApiForm.credentials,
           headers: customApiForm.headers,
-          expiresAt: customApiForm.expiresAt || null
-        })
+          expiresAt: customApiForm.expiresAt || null,
+        }),
       });
 
       if (res.ok) {
@@ -792,7 +876,7 @@ export function ApiManagementClient() {
 
   // Remove credential field
   const handleRemoveCredentialField = (key: string) => {
-    setCustomCredentialKeys(customCredentialKeys.filter(k => k !== key));
+    setCustomCredentialKeys(customCredentialKeys.filter((k) => k !== key));
     const newCreds = { ...customApiForm.credentials };
     delete newCreds[key];
     setCustomApiForm({ ...customApiForm, credentials: newCreds });
@@ -805,16 +889,20 @@ export function ApiManagementClient() {
   };
 
   // Filter services
-  const filteredServices = services.filter(service => {
-    const matchesSearch = !searchQuery ||
+  const filteredServices = services.filter((service) => {
+    const matchesSearch =
+      !searchQuery ||
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       service.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "all" || service.status === filterStatus;
+    const matchesStatus =
+      filterStatus === "all" || service.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
   // Filter custom connections (exclude platform services)
-  const customConnections = connections.filter(c => !services.some(s => s.id === c.serviceName));
+  const customConnections = connections.filter(
+    (c) => !services.some((s) => s.id === c.serviceName),
+  );
 
   // Get icon component
   const getIcon = (iconName?: string) => {
@@ -826,8 +914,12 @@ export function ApiManagementClient() {
     const config = STATUS_CONFIG[status] || STATUS_CONFIG.NOT_CONFIGURED;
     return (
       <div className="flex items-center gap-2">
-        <div className={`h-2.5 w-2.5 rounded-full ${config.bgColor} animate-pulse`} />
-        <span className={`text-sm font-medium ${config.color}`}>{config.label}</span>
+        <div
+          className={`h-2.5 w-2.5 rounded-full ${config.bgColor} animate-pulse`}
+        />
+        <span className={`text-sm font-medium ${config.color}`}>
+          {config.label}
+        </span>
       </div>
     );
   };
@@ -864,7 +956,9 @@ export function ApiManagementClient() {
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600">{stats.active || 0}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.active || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Active</p>
               </div>
             </div>
@@ -877,7 +971,9 @@ export function ApiManagementClient() {
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-600">{stats.disconnected || 0}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {stats.disconnected || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Disconnected</p>
               </div>
             </div>
@@ -890,7 +986,9 @@ export function ApiManagementClient() {
                 <Settings className="h-5 w-5 text-gray-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-600">{stats.notConfigured || 0}</p>
+                <p className="text-2xl font-bold text-gray-600">
+                  {stats.notConfigured || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Not Configured</p>
               </div>
             </div>
@@ -903,7 +1001,9 @@ export function ApiManagementClient() {
                 <Shield className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-600">{stats.coreServices || 0}</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {stats.coreServices || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Core Services</p>
               </div>
             </div>
@@ -916,7 +1016,9 @@ export function ApiManagementClient() {
                 <Zap className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-600">{stats.coreActive || 0}/{stats.coreServices || 0}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.coreActive || 0}/{stats.coreServices || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Core Active</p>
               </div>
             </div>
@@ -991,12 +1093,16 @@ export function ApiManagementClient() {
                 <SelectItem value="ERROR">Error</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={() => {
-              fetchServices();
-              fetchConnections();
-              fetchLogs();
-              fetchDependencies();
-            }}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                fetchServices();
+                fetchConnections();
+                fetchLogs();
+                fetchDependencies();
+              }}
+            >
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
@@ -1007,7 +1113,8 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const statusConfig = STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
+              const statusConfig =
+                STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (
                 <motion.div
@@ -1016,54 +1123,82 @@ export function ApiManagementClient() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Card className={`relative overflow-hidden ${service.isPlatformCore ? 'border-l-4 border-l-purple-500' : ''}`}>
+                  <Card
+                    className={`relative overflow-hidden ${service.isPlatformCore ? "border-l-4 border-l-purple-500" : ""}`}
+                  >
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${service.isConfigured ? 'bg-primary/10' : 'bg-muted'}`}>
-                            <IconComponent className={`h-5 w-5 ${service.isConfigured ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <div
+                            className={`p-2 rounded-lg ${service.isConfigured ? "bg-primary/10" : "bg-muted"}`}
+                          >
+                            <IconComponent
+                              className={`h-5 w-5 ${service.isConfigured ? "text-primary" : "text-muted-foreground"}`}
+                            />
                           </div>
                           <div>
                             <CardTitle className="text-base flex items-center gap-2">
                               {service.name}
                               {service.isPlatformCore && (
-                                <Badge variant="outline" className="text-[10px] px-1 py-0">
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] px-1 py-0"
+                                >
                                   Core
                                 </Badge>
                               )}
                             </CardTitle>
-                            <Badge className={`text-[10px] ${CATEGORY_COLORS[service.category] || CATEGORY_COLORS.CUSTOM}`}>
+                            <Badge
+                              className={`text-[10px] ${CATEGORY_COLORS[service.category] || CATEGORY_COLORS.CUSTOM}`}
+                            >
                               {service.category.replace("_", " ")}
                             </Badge>
                           </div>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             {service.isConfigured ? (
                               <>
-                                <DropdownMenuItem onClick={() => handleTestService(service)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleTestService(service)}
+                                >
                                   <Play className="h-4 w-4 mr-2" />
                                   Test Connection
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleOpenEdit(service)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenEdit(service)}
+                                >
                                   <Edit className="h-4 w-4 mr-2" />
                                   Edit Configuration
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleOpenRotate(service)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenRotate(service)}
+                                >
                                   <RotateCcw className="h-4 w-4 mr-2" />
                                   Rotate Credentials
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => handleToggleService(service)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleToggleService(service)}
+                                >
                                   {service.status === "ACTIVE" ? (
-                                    <><PowerOff className="h-4 w-4 mr-2" /> Disable</>
+                                    <>
+                                      <PowerOff className="h-4 w-4 mr-2" />{" "}
+                                      Disable
+                                    </>
                                   ) : (
-                                    <><Power className="h-4 w-4 mr-2" /> Enable</>
+                                    <>
+                                      <Power className="h-4 w-4 mr-2" /> Enable
+                                    </>
                                   )}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -1076,11 +1211,13 @@ export function ApiManagementClient() {
                                 </DropdownMenuItem>
                               </>
                             ) : (
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedService(service);
-                                setConfigCredentials({});
-                                setShowConfigureModal(true);
-                              }}>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedService(service);
+                                  setConfigCredentials({});
+                                  setShowConfigureModal(true);
+                                }}
+                              >
                                 <Settings className="h-4 w-4 mr-2" />
                                 Configure
                               </DropdownMenuItem>
@@ -1089,7 +1226,11 @@ export function ApiManagementClient() {
                               <>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                  <a href={service.docsUrl} target="_blank" rel="noopener noreferrer">
+                                  <a
+                                    href={service.docsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
                                     <ExternalLink className="h-4 w-4 mr-2" />
                                     Documentation
                                   </a>
@@ -1108,21 +1249,34 @@ export function ApiManagementClient() {
                         {renderStatusIndicator(service.status)}
                         {service.isConfigured && service.lastValidatedAt && (
                           <span className="text-xs text-muted-foreground">
-                            Validated {formatDistanceToNow(new Date(service.lastValidatedAt), { addSuffix: true })}
+                            Validated{" "}
+                            {formatDistanceToNow(
+                              new Date(service.lastValidatedAt),
+                              { addSuffix: true },
+                            )}
                           </span>
                         )}
                       </div>
                       {service.dependencies.length > 0 && (
                         <div className="mt-3 pt-3 border-t">
-                          <p className="text-xs text-muted-foreground mb-1">Used by:</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Used by:
+                          </p>
                           <div className="flex flex-wrap gap-1">
                             {service.dependencies.slice(0, 3).map((dep) => (
-                              <Badge key={dep.moduleId} variant="secondary" className="text-[10px]">
+                              <Badge
+                                key={dep.moduleId}
+                                variant="secondary"
+                                className="text-[10px]"
+                              >
                                 {dep.moduleName}
                               </Badge>
                             ))}
                             {service.dependencies.length > 3 && (
-                              <Badge variant="secondary" className="text-[10px]">
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px]"
+                              >
                                 +{service.dependencies.length - 3} more
                               </Badge>
                             )}
@@ -1149,14 +1303,22 @@ export function ApiManagementClient() {
                             </Button>
                             <Button
                               size="sm"
-                              variant={service.status === "ACTIVE" ? "destructive" : "default"}
+                              variant={
+                                service.status === "ACTIVE"
+                                  ? "destructive"
+                                  : "default"
+                              }
                               className="flex-1"
                               onClick={() => handleToggleService(service)}
                             >
                               {service.status === "ACTIVE" ? (
-                                <><PowerOff className="h-3 w-3 mr-1" /> Disable</>
+                                <>
+                                  <PowerOff className="h-3 w-3 mr-1" /> Disable
+                                </>
                               ) : (
-                                <><Power className="h-3 w-3 mr-1" /> Enable</>
+                                <>
+                                  <Power className="h-3 w-3 mr-1" /> Enable
+                                </>
                               )}
                             </Button>
                           </>
@@ -1187,27 +1349,56 @@ export function ApiManagementClient() {
         <TabsContent value="dependencies" className="mt-6">
           <div className="space-y-4">
             {dependencies.map((module) => {
-              const requiredServices = module.services.filter(s => s.isRequired);
-              const allRequiredActive = requiredServices.every(s => s.status === "ACTIVE");
-              const someActive = module.services.some(s => s.status === "ACTIVE");
+              const requiredServices = module.services.filter(
+                (s) => s.isRequired,
+              );
+              const allRequiredActive = requiredServices.every(
+                (s) => s.status === "ACTIVE",
+              );
+              const someActive = module.services.some(
+                (s) => s.status === "ACTIVE",
+              );
 
               return (
                 <Card key={module.moduleId}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${allRequiredActive ? 'bg-green-100' : someActive ? 'bg-yellow-100' : 'bg-red-100'}`}>
-                          <Layers className={`h-5 w-5 ${allRequiredActive ? 'text-green-600' : someActive ? 'text-yellow-600' : 'text-red-600'}`} />
+                        <div
+                          className={`p-2 rounded-lg ${allRequiredActive ? "bg-green-100" : someActive ? "bg-yellow-100" : "bg-red-100"}`}
+                        >
+                          <Layers
+                            className={`h-5 w-5 ${allRequiredActive ? "text-green-600" : someActive ? "text-yellow-600" : "text-red-600"}`}
+                          />
                         </div>
                         <div>
-                          <CardTitle className="text-base">{module.moduleName}</CardTitle>
+                          <CardTitle className="text-base">
+                            {module.moduleName}
+                          </CardTitle>
                           <p className="text-xs text-muted-foreground">
-                            {requiredServices.filter(s => s.status === "ACTIVE").length}/{requiredServices.length} required services active
+                            {
+                              requiredServices.filter(
+                                (s) => s.status === "ACTIVE",
+                              ).length
+                            }
+                            /{requiredServices.length} required services active
                           </p>
                         </div>
                       </div>
-                      <Badge variant={allRequiredActive ? "default" : someActive ? "secondary" : "destructive"}>
-                        {allRequiredActive ? "Operational" : someActive ? "Degraded" : "Offline"}
+                      <Badge
+                        variant={
+                          allRequiredActive
+                            ? "default"
+                            : someActive
+                              ? "secondary"
+                              : "destructive"
+                        }
+                      >
+                        {allRequiredActive
+                          ? "Operational"
+                          : someActive
+                            ? "Degraded"
+                            : "Offline"}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -1216,17 +1407,21 @@ export function ApiManagementClient() {
                       {module.services.map((service) => (
                         <div
                           key={service.serviceId}
-                          className={`p-3 rounded-lg border ${service.status === "ACTIVE" ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
+                          className={`p-3 rounded-lg border ${service.status === "ACTIVE" ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-sm">{service.serviceName}</span>
+                            <span className="font-medium text-sm">
+                              {service.serviceName}
+                            </span>
                             {service.isRequired && (
                               <Badge variant="outline" className="text-[10px]">
                                 Required
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">{service.usageDescription}</p>
+                          <p className="text-xs text-muted-foreground mb-2">
+                            {service.usageDescription}
+                          </p>
                           {renderStatusIndicator(service.status)}
                         </div>
                       ))}
@@ -1241,11 +1436,13 @@ export function ApiManagementClient() {
         {/* Custom APIs Tab */}
         <TabsContent value="custom" className="mt-6">
           <div className="mb-4 flex justify-end">
-            <Button onClick={() => {
-              setCustomApiForm(INITIAL_CUSTOM_FORM);
-              setCustomCredentialKeys(["API_KEY"]);
-              setShowCustomApiModal(true);
-            }}>
+            <Button
+              onClick={() => {
+                setCustomApiForm(INITIAL_CUSTOM_FORM);
+                setCustomCredentialKeys(["API_KEY"]);
+                setShowCustomApiModal(true);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Custom API
             </Button>
@@ -1256,7 +1453,9 @@ export function ApiManagementClient() {
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-base">{connection.name}</CardTitle>
+                      <CardTitle className="text-base">
+                        {connection.name}
+                      </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="secondary" className="text-[10px]">
                           {connection.serviceName}
@@ -1273,28 +1472,40 @@ export function ApiManagementClient() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleTestConnection(connection.id)}>
+                        <DropdownMenuItem
+                          onClick={() => handleTestConnection(connection.id)}
+                        >
                           <Play className="h-4 w-4 mr-2" />
                           Test Connection
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenEditConnection(connection)}>
+                        <DropdownMenuItem
+                          onClick={() => handleOpenEditConnection(connection)}
+                        >
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
-                          setSelectedConnection(connection);
-                          setRotateCredentials({});
-                          setShowRotateModal(true);
-                        }}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedConnection(connection);
+                            setRotateCredentials({});
+                            setShowRotateModal(true);
+                          }}
+                        >
                           <RotateCcw className="h-4 w-4 mr-2" />
                           Rotate Credentials
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleToggleConnection(connection)}>
+                        <DropdownMenuItem
+                          onClick={() => handleToggleConnection(connection)}
+                        >
                           {connection.status === "ACTIVE" ? (
-                            <><PowerOff className="h-4 w-4 mr-2" /> Disable</>
+                            <>
+                              <PowerOff className="h-4 w-4 mr-2" /> Disable
+                            </>
                           ) : (
-                            <><Power className="h-4 w-4 mr-2" /> Enable</>
+                            <>
+                              <Power className="h-4 w-4 mr-2" /> Enable
+                            </>
                           )}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -1317,7 +1528,10 @@ export function ApiManagementClient() {
                     {renderStatusIndicator(connection.status)}
                     {connection.lastValidatedAt && (
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(connection.lastValidatedAt), { addSuffix: true })}
+                        {formatDistanceToNow(
+                          new Date(connection.lastValidatedAt),
+                          { addSuffix: true },
+                        )}
                       </span>
                     )}
                   </div>
@@ -1347,14 +1561,22 @@ export function ApiManagementClient() {
                     </Button>
                     <Button
                       size="sm"
-                      variant={connection.status === "ACTIVE" ? "destructive" : "default"}
+                      variant={
+                        connection.status === "ACTIVE"
+                          ? "destructive"
+                          : "default"
+                      }
                       className="flex-1"
                       onClick={() => handleToggleConnection(connection)}
                     >
                       {connection.status === "ACTIVE" ? (
-                        <><PowerOff className="h-3 w-3 mr-1" /> Disable</>
+                        <>
+                          <PowerOff className="h-3 w-3 mr-1" /> Disable
+                        </>
                       ) : (
-                        <><Power className="h-3 w-3 mr-1" /> Enable</>
+                        <>
+                          <Power className="h-3 w-3 mr-1" /> Enable
+                        </>
                       )}
                     </Button>
                   </div>
@@ -1377,13 +1599,21 @@ export function ApiManagementClient() {
             <CardContent className="p-0">
               <div className="divide-y max-h-[600px] overflow-y-auto">
                 {logs.map((log) => (
-                  <div key={log.id} className="p-4 hover:bg-muted/50 transition-colors">
+                  <div
+                    key={log.id}
+                    className="p-4 hover:bg-muted/50 transition-colors"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${log.testSuccess === true ? 'bg-green-100' : log.testSuccess === false ? 'bg-red-100' : 'bg-blue-100'}`}>
+                        <div
+                          className={`p-2 rounded-lg ${log.testSuccess === true ? "bg-green-100" : log.testSuccess === false ? "bg-red-100" : "bg-blue-100"}`}
+                        >
                           {log.action.includes("test") ? (
-                            <Activity className={`h-4 w-4 ${log.testSuccess ? 'text-green-600' : 'text-red-600'}`} />
-                          ) : log.action.includes("create") || log.action.includes("configure") ? (
+                            <Activity
+                              className={`h-4 w-4 ${log.testSuccess ? "text-green-600" : "text-red-600"}`}
+                            />
+                          ) : log.action.includes("create") ||
+                            log.action.includes("configure") ? (
                             <Plus className="h-4 w-4 text-blue-600" />
                           ) : log.action.includes("rotate") ? (
                             <RotateCcw className="h-4 w-4 text-purple-600" />
@@ -1397,18 +1627,25 @@ export function ApiManagementClient() {
                         </div>
                         <div>
                           <p className="font-medium text-sm">
-                            {log.action.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                            {log.action
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (c) => c.toUpperCase())}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {log.connection?.name || "Unknown service"}
                           </p>
                           {log.testResponseTime && (
-                            <Badge variant="outline" className="text-[10px] mt-1">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] mt-1"
+                            >
                               {log.testResponseTime}ms
                             </Badge>
                           )}
                           {log.testErrorMessage && (
-                            <p className="text-xs text-red-500 mt-1">{log.testErrorMessage}</p>
+                            <p className="text-xs text-red-500 mt-1">
+                              {log.testErrorMessage}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -1417,7 +1654,9 @@ export function ApiManagementClient() {
                           {log.performedBy?.name || "System"}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(log.createdAt), {
+                            addSuffix: true,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -1454,11 +1693,10 @@ export function ApiManagementClient() {
       <Dialog open={showConfigureModal} onOpenChange={setShowConfigureModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              Configure {selectedService?.name}
-            </DialogTitle>
+            <DialogTitle>Configure {selectedService?.name}</DialogTitle>
             <DialogDescription>
-              {selectedService?.description || "Enter the API credentials to enable this integration"}
+              {selectedService?.description ||
+                "Enter the API credentials to enable this integration"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -1466,18 +1704,26 @@ export function ApiManagementClient() {
               <div key={field.key} className="space-y-2">
                 <Label htmlFor={field.key}>
                   {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                  {field.required && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </Label>
                 <div className="relative">
                   <Input
                     id={field.key}
-                    type={field.type === "password" && !showCredentials[field.key] ? "password" : "text"}
+                    type={
+                      field.type === "password" && !showCredentials[field.key]
+                        ? "password"
+                        : "text"
+                    }
                     placeholder={field.placeholder}
                     value={configCredentials[field.key] || ""}
-                    onChange={(e) => setConfigCredentials(prev => ({
-                      ...prev,
-                      [field.key]: e.target.value
-                    }))}
+                    onChange={(e) =>
+                      setConfigCredentials((prev) => ({
+                        ...prev,
+                        [field.key]: e.target.value,
+                      }))
+                    }
                   />
                   {field.type === "password" && (
                     <Button
@@ -1485,10 +1731,12 @@ export function ApiManagementClient() {
                       variant="ghost"
                       size="icon"
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                      onClick={() => setShowCredentials(prev => ({
-                        ...prev,
-                        [field.key]: !prev[field.key]
-                      }))}
+                      onClick={() =>
+                        setShowCredentials((prev) => ({
+                          ...prev,
+                          [field.key]: !prev[field.key],
+                        }))
+                      }
                     >
                       {showCredentials[field.key] ? (
                         <EyeOff className="h-4 w-4" />
@@ -1499,20 +1747,29 @@ export function ApiManagementClient() {
                   )}
                 </div>
                 {field.helpText && (
-                  <p className="text-xs text-muted-foreground">{field.helpText}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {field.helpText}
+                  </p>
                 )}
               </div>
             ))}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfigureModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfigureModal(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleConfigureService} disabled={saving}>
               {saving ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+                </>
               ) : (
-                <><Check className="h-4 w-4 mr-2" /> Configure</>
+                <>
+                  <Check className="h-4 w-4 mr-2" /> Configure
+                </>
               )}
             </Button>
           </DialogFooter>
@@ -1528,7 +1785,8 @@ export function ApiManagementClient() {
               Edit {selectedService?.name || selectedConnection?.name}
             </DialogTitle>
             <DialogDescription>
-              Update the configuration, credentials, and settings for this integration
+              Update the configuration, credentials, and settings for this
+              integration
             </DialogDescription>
           </DialogHeader>
           {loadingCredentials ? (
@@ -1548,7 +1806,9 @@ export function ApiManagementClient() {
                     <Input
                       id="edit-name"
                       value={editForm.name || ""}
-                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, name: e.target.value })
+                      }
                       placeholder="API Display Name"
                     />
                   </div>
@@ -1557,7 +1817,9 @@ export function ApiManagementClient() {
                     <Input
                       id="edit-version"
                       value={editForm.version || ""}
-                      onChange={(e) => setEditForm({ ...editForm, version: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, version: e.target.value })
+                      }
                       placeholder="v1.0.0"
                     />
                   </div>
@@ -1567,7 +1829,9 @@ export function ApiManagementClient() {
                   <Textarea
                     id="edit-description"
                     value={editForm.description || ""}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     rows={2}
                     placeholder="What does this integration do?"
                   />
@@ -1584,7 +1848,9 @@ export function ApiManagementClient() {
                     <Label htmlFor="edit-environment">Environment</Label>
                     <Select
                       value={editForm.environment || "PRODUCTION"}
-                      onValueChange={(v) => setEditForm({ ...editForm, environment: v as any })}
+                      onValueChange={(v) =>
+                        setEditForm({ ...editForm, environment: v as any })
+                      }
                     >
                       <SelectTrigger id="edit-environment">
                         <SelectValue />
@@ -1615,7 +1881,9 @@ export function ApiManagementClient() {
                     <Label htmlFor="edit-status">Status</Label>
                     <Select
                       value={editForm.status || "ACTIVE"}
-                      onValueChange={(v) => setEditForm({ ...editForm, status: v as any })}
+                      onValueChange={(v) =>
+                        setEditForm({ ...editForm, status: v as any })
+                      }
                     >
                       <SelectTrigger id="edit-status">
                         <SelectValue />
@@ -1648,7 +1916,9 @@ export function ApiManagementClient() {
                   <Input
                     id="edit-baseUrl"
                     value={editForm.baseUrl || ""}
-                    onChange={(e) => setEditForm({ ...editForm, baseUrl: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, baseUrl: e.target.value })
+                    }
                     placeholder="https://api.example.com"
                   />
                 </div>
@@ -1669,21 +1939,26 @@ export function ApiManagementClient() {
                       const newKey = `X-Custom-Header-${Object.keys(currentHeaders).length + 1}`;
                       setEditForm({
                         ...editForm,
-                        headers: { ...currentHeaders, [newKey]: "" }
+                        headers: { ...currentHeaders, [newKey]: "" },
                       });
                     }}
                   >
                     <Plus className="h-3 w-3 mr-1" /> Add Header
                   </Button>
                 </div>
-                {editForm.headers && Object.keys(editForm.headers).length > 0 ? (
+                {editForm.headers &&
+                Object.keys(editForm.headers).length > 0 ? (
                   <div className="space-y-2">
-                    {Object.entries(editForm.headers as Record<string, string>).map(([key, value]) => (
+                    {Object.entries(
+                      editForm.headers as Record<string, string>,
+                    ).map(([key, value]) => (
                       <div key={key} className="flex items-center gap-2">
                         <Input
                           value={key}
                           onChange={(e) => {
-                            const newHeaders = { ...(editForm.headers as Record<string, string>) };
+                            const newHeaders = {
+                              ...(editForm.headers as Record<string, string>),
+                            };
                             delete newHeaders[key];
                             newHeaders[e.target.value] = value;
                             setEditForm({ ...editForm, headers: newHeaders });
@@ -1694,7 +1969,9 @@ export function ApiManagementClient() {
                         <Input
                           value={value}
                           onChange={(e) => {
-                            const newHeaders = { ...(editForm.headers as Record<string, string>) };
+                            const newHeaders = {
+                              ...(editForm.headers as Record<string, string>),
+                            };
                             newHeaders[key] = e.target.value;
                             setEditForm({ ...editForm, headers: newHeaders });
                           }}
@@ -1706,7 +1983,9 @@ export function ApiManagementClient() {
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            const newHeaders = { ...(editForm.headers as Record<string, string>) };
+                            const newHeaders = {
+                              ...(editForm.headers as Record<string, string>),
+                            };
                             delete newHeaders[key];
                             setEditForm({ ...editForm, headers: newHeaders });
                           }}
@@ -1717,7 +1996,9 @@ export function ApiManagementClient() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No custom headers configured</p>
+                  <p className="text-sm text-muted-foreground">
+                    No custom headers configured
+                  </p>
                 )}
               </div>
 
@@ -1729,97 +2010,119 @@ export function ApiManagementClient() {
                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
                   <p className="text-xs text-yellow-600 dark:text-yellow-400 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" />
-                    Leave credential fields empty to keep existing values. Only enter values you want to update.
+                    Leave credential fields empty to keep existing values. Only
+                    enter values you want to update.
                   </p>
                 </div>
-                {selectedService?.credentialFields ? (
-                  selectedService.credentialFields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label htmlFor={`edit-${field.key}`}>
-                        {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id={`edit-${field.key}`}
-                          type={field.type === "password" && !showCredentials[field.key] ? "password" : "text"}
-                          placeholder={field.placeholder || "Enter new value to update"}
-                          value={configCredentials[field.key] || ""}
-                          onChange={(e) => setConfigCredentials(prev => ({
-                            ...prev,
-                            [field.key]: e.target.value
-                          }))}
-                        />
-                        {field.type === "password" && (
+                {selectedService?.credentialFields
+                  ? selectedService.credentialFields.map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label htmlFor={`edit-${field.key}`}>
+                          {field.label}
+                          {field.required && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id={`edit-${field.key}`}
+                            type={
+                              field.type === "password" &&
+                              !showCredentials[field.key]
+                                ? "password"
+                                : "text"
+                            }
+                            placeholder={
+                              field.placeholder || "Enter new value to update"
+                            }
+                            value={configCredentials[field.key] || ""}
+                            onChange={(e) =>
+                              setConfigCredentials((prev) => ({
+                                ...prev,
+                                [field.key]: e.target.value,
+                              }))
+                            }
+                          />
+                          {field.type === "password" && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                              onClick={() =>
+                                setShowCredentials((prev) => ({
+                                  ...prev,
+                                  [field.key]: !prev[field.key],
+                                }))
+                              }
+                            >
+                              {showCredentials[field.key] ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        {field.helpText && (
+                          <p className="text-xs text-muted-foreground">
+                            {field.helpText}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                  : Object.keys(configCredentials).map((key) => (
+                      <div key={key} className="space-y-2">
+                        <Label htmlFor={`edit-${key}`}>{key}</Label>
+                        <div className="relative">
+                          <Input
+                            id={`edit-${key}`}
+                            type={!showCredentials[key] ? "password" : "text"}
+                            value={configCredentials[key] || ""}
+                            onChange={(e) =>
+                              setConfigCredentials((prev) => ({
+                                ...prev,
+                                [key]: e.target.value,
+                              }))
+                            }
+                          />
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
                             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                            onClick={() => setShowCredentials(prev => ({
-                              ...prev,
-                              [field.key]: !prev[field.key]
-                            }))}
+                            onClick={() =>
+                              setShowCredentials((prev) => ({
+                                ...prev,
+                                [key]: !prev[key],
+                              }))
+                            }
                           >
-                            {showCredentials[field.key] ? (
+                            {showCredentials[key] ? (
                               <EyeOff className="h-4 w-4" />
                             ) : (
                               <Eye className="h-4 w-4" />
                             )}
                           </Button>
-                        )}
+                        </div>
                       </div>
-                      {field.helpText && (
-                        <p className="text-xs text-muted-foreground">{field.helpText}</p>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  Object.keys(configCredentials).map((key) => (
-                    <div key={key} className="space-y-2">
-                      <Label htmlFor={`edit-${key}`}>{key}</Label>
-                      <div className="relative">
-                        <Input
-                          id={`edit-${key}`}
-                          type={!showCredentials[key] ? "password" : "text"}
-                          value={configCredentials[key] || ""}
-                          onChange={(e) => setConfigCredentials(prev => ({
-                            ...prev,
-                            [key]: e.target.value
-                          }))}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                          onClick={() => setShowCredentials(prev => ({
-                            ...prev,
-                            [key]: !prev[key]
-                          }))}
-                        >
-                          {showCredentials[key] ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
+                    ))}
               </div>
 
               {/* Enable/Disable Toggle */}
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                   <div className="space-y-1">
-                    <Label htmlFor="edit-enabled" className="flex items-center gap-2">
+                    <Label
+                      htmlFor="edit-enabled"
+                      className="flex items-center gap-2"
+                    >
                       <Power className="h-4 w-4" />
                       Enable Integration
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      When disabled, this integration will not process any requests
+                      When disabled, this integration will not process any
+                      requests
                     </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -1827,7 +2130,12 @@ export function ApiManagementClient() {
                       type="checkbox"
                       id="edit-enabled"
                       checked={editForm.isEnabled !== false}
-                      onChange={(e) => setEditForm({ ...editForm, isEnabled: e.target.checked })}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          isEnabled: e.target.checked,
+                        })
+                      }
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -1837,25 +2145,32 @@ export function ApiManagementClient() {
             </div>
           )}
           <DialogFooter className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => {
-              setShowEditModal(false);
-              setSelectedService(null);
-              setSelectedConnection(null);
-              setEditForm({});
-              setConfigCredentials({});
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowEditModal(false);
+                setSelectedService(null);
+                setSelectedConnection(null);
+                setEditForm({});
+                setConfigCredentials({});
+              }}
+            >
               Cancel
             </Button>
             <div className="flex items-center gap-2">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={async () => {
-                  const connectionId = selectedService?.connectionId || selectedConnection?.id;
+                  const connectionId =
+                    selectedService?.connectionId || selectedConnection?.id;
                   if (connectionId) {
                     try {
-                      const res = await fetch(`/api/admin/api-connections/${connectionId}/test`, {
-                        method: "POST"
-                      });
+                      const res = await fetch(
+                        `/api/admin/api-connections/${connectionId}/test`,
+                        {
+                          method: "POST",
+                        },
+                      );
                       if (res.ok) {
                         toast.success("Connection test passed!");
                       } else {
@@ -1871,11 +2186,18 @@ export function ApiManagementClient() {
               >
                 <Play className="h-4 w-4 mr-2" /> Test Connection
               </Button>
-              <Button onClick={handleSaveEdit} disabled={saving || loadingCredentials}>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={saving || loadingCredentials}
+              >
                 {saving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+                  </>
                 ) : (
-                  <><Save className="h-4 w-4 mr-2" /> Save Changes</>
+                  <>
+                    <Save className="h-4 w-4 mr-2" /> Save Changes
+                  </>
                 )}
               </Button>
             </div>
@@ -1892,7 +2214,8 @@ export function ApiManagementClient() {
               Rotate Credentials
             </DialogTitle>
             <DialogDescription>
-              Enter new credentials to replace the existing ones for {selectedService?.name || selectedConnection?.name}
+              Enter new credentials to replace the existing ones for{" "}
+              {selectedService?.name || selectedConnection?.name}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -1901,99 +2224,131 @@ export function ApiManagementClient() {
                 <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
                 <div className="text-sm text-yellow-800">
                   <p className="font-medium">Important</p>
-                  <p className="text-xs">Rotating credentials will immediately invalidate the old credentials. Make sure you have the new credentials ready.</p>
+                  <p className="text-xs">
+                    Rotating credentials will immediately invalidate the old
+                    credentials. Make sure you have the new credentials ready.
+                  </p>
                 </div>
               </div>
             </div>
-            {selectedService?.credentialFields ? (
-              selectedService.credentialFields.map((field) => (
-                <div key={field.key} className="space-y-2">
-                  <Label htmlFor={`rotate-${field.key}`}>
-                    New {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id={`rotate-${field.key}`}
-                      type={field.type === "password" && !showCredentials[`rotate-${field.key}`] ? "password" : "text"}
-                      placeholder={`Enter new ${field.label.toLowerCase()}`}
-                      value={rotateCredentials[field.key] || ""}
-                      onChange={(e) => setRotateCredentials(prev => ({
-                        ...prev,
-                        [field.key]: e.target.value
-                      }))}
-                    />
-                    {field.type === "password" && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                        onClick={() => setShowCredentials(prev => ({
-                          ...prev,
-                          [`rotate-${field.key}`]: !prev[`rotate-${field.key}`]
-                        }))}
-                      >
-                        {showCredentials[`rotate-${field.key}`] ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : selectedConnection ? (
-              Object.keys(selectedConnection.credentials || {}).map((key) => (
-                <div key={key} className="space-y-2">
-                  <Label htmlFor={`rotate-${key}`}>New {key}</Label>
-                  <div className="relative">
-                    <Input
-                      id={`rotate-${key}`}
-                      type={!showCredentials[`rotate-${key}`] ? "password" : "text"}
-                      placeholder={`Enter new ${key.toLowerCase()}`}
-                      value={rotateCredentials[key] || ""}
-                      onChange={(e) => setRotateCredentials(prev => ({
-                        ...prev,
-                        [key]: e.target.value
-                      }))}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                      onClick={() => setShowCredentials(prev => ({
-                        ...prev,
-                        [`rotate-${key}`]: !prev[`rotate-${key}`]
-                      }))}
-                    >
-                      {showCredentials[`rotate-${key}`] ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
+            {selectedService?.credentialFields
+              ? selectedService.credentialFields.map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label htmlFor={`rotate-${field.key}`}>
+                      New {field.label}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
                       )}
-                    </Button>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id={`rotate-${field.key}`}
+                        type={
+                          field.type === "password" &&
+                          !showCredentials[`rotate-${field.key}`]
+                            ? "password"
+                            : "text"
+                        }
+                        placeholder={`Enter new ${field.label.toLowerCase()}`}
+                        value={rotateCredentials[field.key] || ""}
+                        onChange={(e) =>
+                          setRotateCredentials((prev) => ({
+                            ...prev,
+                            [field.key]: e.target.value,
+                          }))
+                        }
+                      />
+                      {field.type === "password" && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                          onClick={() =>
+                            setShowCredentials((prev) => ({
+                              ...prev,
+                              [`rotate-${field.key}`]:
+                                !prev[`rotate-${field.key}`],
+                            }))
+                          }
+                        >
+                          {showCredentials[`rotate-${field.key}`] ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : null}
+                ))
+              : selectedConnection
+                ? Object.keys(selectedConnection.credentials || {}).map(
+                    (key) => (
+                      <div key={key} className="space-y-2">
+                        <Label htmlFor={`rotate-${key}`}>New {key}</Label>
+                        <div className="relative">
+                          <Input
+                            id={`rotate-${key}`}
+                            type={
+                              !showCredentials[`rotate-${key}`]
+                                ? "password"
+                                : "text"
+                            }
+                            placeholder={`Enter new ${key.toLowerCase()}`}
+                            value={rotateCredentials[key] || ""}
+                            onChange={(e) =>
+                              setRotateCredentials((prev) => ({
+                                ...prev,
+                                [key]: e.target.value,
+                              }))
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                            onClick={() =>
+                              setShowCredentials((prev) => ({
+                                ...prev,
+                                [`rotate-${key}`]: !prev[`rotate-${key}`],
+                              }))
+                            }
+                          >
+                            {showCredentials[`rotate-${key}`] ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ),
+                  )
+                : null}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowRotateModal(false);
-              setSelectedService(null);
-              setSelectedConnection(null);
-              setRotateCredentials({});
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRotateModal(false);
+                setSelectedService(null);
+                setSelectedConnection(null);
+                setRotateCredentials({});
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleRotateCredentials} disabled={saving}>
               {saving ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Rotating...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Rotating...
+                </>
               ) : (
-                <><RotateCcw className="h-4 w-4 mr-2" /> Rotate Credentials</>
+                <>
+                  <RotateCcw className="h-4 w-4 mr-2" /> Rotate Credentials
+                </>
               )}
             </Button>
           </DialogFooter>
@@ -2009,7 +2364,8 @@ export function ApiManagementClient() {
               Add Custom API
             </DialogTitle>
             <DialogDescription>
-              Configure a custom API integration that isn't part of the built-in services
+              Configure a custom API integration that isn't part of the built-in
+              services
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -2022,7 +2378,9 @@ export function ApiManagementClient() {
                   id="custom-name"
                   placeholder="My Custom API"
                   value={customApiForm.name}
-                  onChange={(e) => setCustomApiForm({ ...customApiForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setCustomApiForm({ ...customApiForm, name: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -2033,9 +2391,18 @@ export function ApiManagementClient() {
                   id="custom-service"
                   placeholder="my-api"
                   value={customApiForm.serviceName}
-                  onChange={(e) => setCustomApiForm({ ...customApiForm, serviceName: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+                  onChange={(e) =>
+                    setCustomApiForm({
+                      ...customApiForm,
+                      serviceName: e.target.value
+                        .toLowerCase()
+                        .replace(/\s+/g, "-"),
+                    })
+                  }
                 />
-                <p className="text-xs text-muted-foreground">Unique identifier for this service</p>
+                <p className="text-xs text-muted-foreground">
+                  Unique identifier for this service
+                </p>
               </div>
             </div>
 
@@ -2045,7 +2412,12 @@ export function ApiManagementClient() {
                 id="custom-description"
                 placeholder="What does this API do?"
                 value={customApiForm.description}
-                onChange={(e) => setCustomApiForm({ ...customApiForm, description: e.target.value })}
+                onChange={(e) =>
+                  setCustomApiForm({
+                    ...customApiForm,
+                    description: e.target.value,
+                  })
+                }
                 rows={2}
               />
             </div>
@@ -2055,7 +2427,9 @@ export function ApiManagementClient() {
                 <Label htmlFor="custom-type">Type</Label>
                 <Select
                   value={customApiForm.type}
-                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, type: v as any })}
+                  onValueChange={(v) =>
+                    setCustomApiForm({ ...customApiForm, type: v as any })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -2070,7 +2444,12 @@ export function ApiManagementClient() {
                 <Label htmlFor="custom-env">Environment</Label>
                 <Select
                   value={customApiForm.environment}
-                  onValueChange={(v) => setCustomApiForm({ ...customApiForm, environment: v as any })}
+                  onValueChange={(v) =>
+                    setCustomApiForm({
+                      ...customApiForm,
+                      environment: v as any,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -2090,7 +2469,12 @@ export function ApiManagementClient() {
                 id="custom-baseUrl"
                 placeholder="https://api.example.com/v1"
                 value={customApiForm.baseUrl}
-                onChange={(e) => setCustomApiForm({ ...customApiForm, baseUrl: e.target.value })}
+                onChange={(e) =>
+                  setCustomApiForm({
+                    ...customApiForm,
+                    baseUrl: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -2106,23 +2490,34 @@ export function ApiManagementClient() {
                     <Label className="text-xs">{key}</Label>
                     <div className="relative">
                       <Input
-                        type={!showCredentials[`custom-${key}`] ? "password" : "text"}
+                        type={
+                          !showCredentials[`custom-${key}`]
+                            ? "password"
+                            : "text"
+                        }
                         placeholder={`Enter ${key}`}
                         value={customApiForm.credentials[key] || ""}
-                        onChange={(e) => setCustomApiForm({
-                          ...customApiForm,
-                          credentials: { ...customApiForm.credentials, [key]: e.target.value }
-                        })}
+                        onChange={(e) =>
+                          setCustomApiForm({
+                            ...customApiForm,
+                            credentials: {
+                              ...customApiForm.credentials,
+                              [key]: e.target.value,
+                            },
+                          })
+                        }
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                        onClick={() => setShowCredentials(prev => ({
-                          ...prev,
-                          [`custom-${key}`]: !prev[`custom-${key}`]
-                        }))}
+                        onClick={() =>
+                          setShowCredentials((prev) => ({
+                            ...prev,
+                            [`custom-${key}`]: !prev[`custom-${key}`],
+                          }))
+                        }
                       >
                         {showCredentials[`custom-${key}`] ? (
                           <EyeOff className="h-4 w-4" />
@@ -2149,29 +2544,45 @@ export function ApiManagementClient() {
                 <Input
                   placeholder="Add credential key (e.g., SECRET_KEY)"
                   value={newCredentialKey}
-                  onChange={(e) => setNewCredentialKey(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddCredentialField()}
+                  onChange={(e) =>
+                    setNewCredentialKey(e.target.value.toUpperCase())
+                  }
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && handleAddCredentialField()
+                  }
                   className="flex-1"
                 />
-                <Button type="button" variant="outline" size="sm" onClick={handleAddCredentialField}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddCredentialField}
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowCustomApiModal(false);
-              setCustomApiForm(INITIAL_CUSTOM_FORM);
-              setCustomCredentialKeys(["API_KEY"]);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCustomApiModal(false);
+                setCustomApiForm(INITIAL_CUSTOM_FORM);
+                setCustomCredentialKeys(["API_KEY"]);
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleCreateCustomApi} disabled={saving}>
               {saving ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...
+                </>
               ) : (
-                <><Plus className="h-4 w-4 mr-2" /> Create API</>
+                <>
+                  <Plus className="h-4 w-4 mr-2" /> Create API
+                </>
               )}
             </Button>
           </DialogFooter>

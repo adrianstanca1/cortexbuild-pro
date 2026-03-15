@@ -50,13 +50,13 @@ export const DEFAULT_ENTITLEMENTS: Entitlements = {
     punchLists: true,
     inspections: true,
     equipment: true,
-    meetings: true
+    meetings: true,
   },
   limits: {
     storageGB: 10,
     maxUsers: 50,
-    maxProjects: 100
-  }
+    maxProjects: 100,
+  },
 };
 
 // Module labels for display
@@ -74,7 +74,7 @@ export const MODULE_LABELS: Record<keyof ModuleEntitlements, string> = {
   punchLists: "Punch Lists",
   inspections: "Inspections",
   equipment: "Equipment",
-  meetings: "Meetings"
+  meetings: "Meetings",
 };
 
 /**
@@ -86,22 +86,23 @@ export function parseEntitlements(entitlementsJson: any): Entitlements {
   }
 
   try {
-    const parsed = typeof entitlementsJson === 'string' 
-      ? JSON.parse(entitlementsJson) 
-      : entitlementsJson;
+    const parsed =
+      typeof entitlementsJson === "string"
+        ? JSON.parse(entitlementsJson)
+        : entitlementsJson;
 
     return {
       modules: {
         ...DEFAULT_ENTITLEMENTS.modules,
-        ...(parsed.modules || {})
+        ...(parsed.modules || {}),
       },
       limits: {
         ...DEFAULT_ENTITLEMENTS.limits,
-        ...(parsed.limits || {})
-      }
+        ...(parsed.limits || {}),
+      },
     };
   } catch (error) {
-    console.error('Error parsing entitlements:', error);
+    console.error("Error parsing entitlements:", error);
     return DEFAULT_ENTITLEMENTS;
   }
 }
@@ -112,8 +113,8 @@ export function parseEntitlements(entitlementsJson: any): Entitlements {
 export function generateSlug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
     .substring(0, 50);
 }
 
@@ -122,7 +123,7 @@ export function generateSlug(name: string): string {
  */
 export function isModuleEnabledForOrg(
   entitlements: Entitlements | null | undefined,
-  moduleId: keyof ModuleEntitlements
+  moduleId: keyof ModuleEntitlements,
 ): boolean {
   const parsed = entitlements || DEFAULT_ENTITLEMENTS;
   return parsed.modules[moduleId] ?? true;
@@ -133,7 +134,7 @@ export function isModuleEnabledForOrg(
  */
 export function isWithinStorageLimit(
   entitlements: Entitlements | null | undefined,
-  usedBytes: number | bigint
+  usedBytes: number | bigint,
 ): boolean {
   const parsed = entitlements || DEFAULT_ENTITLEMENTS;
   const usedGB = Number(usedBytes) / (1024 * 1024 * 1024);
@@ -145,7 +146,7 @@ export function isWithinStorageLimit(
  */
 export function isWithinUserLimit(
   entitlements: Entitlements | null | undefined,
-  currentUsers: number
+  currentUsers: number,
 ): boolean {
   const parsed = entitlements || DEFAULT_ENTITLEMENTS;
   return currentUsers < parsed.limits.maxUsers;
@@ -156,7 +157,7 @@ export function isWithinUserLimit(
  */
 export function isWithinProjectLimit(
   entitlements: Entitlements | null | undefined,
-  currentProjects: number
+  currentProjects: number,
 ): boolean {
   const parsed = entitlements || DEFAULT_ENTITLEMENTS;
   return currentProjects < parsed.limits.maxProjects;
@@ -167,7 +168,7 @@ export function isWithinProjectLimit(
  */
 export function getRemainingStorageGB(
   entitlements: Entitlements | null | undefined,
-  usedBytes: number | bigint
+  usedBytes: number | bigint,
 ): number {
   const parsed = entitlements || DEFAULT_ENTITLEMENTS;
   const usedGB = Number(usedBytes) / (1024 * 1024 * 1024);

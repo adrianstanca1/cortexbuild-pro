@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -29,19 +29,25 @@ export async function GET(
     });
 
     if (!diary) {
-      return NextResponse.json({ error: "Site diary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Site diary not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(diary);
   } catch (error) {
     console.error("Error fetching site diary:", error);
-    return NextResponse.json({ error: "Failed to fetch site diary" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch site diary" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -52,10 +58,21 @@ export async function PATCH(
 
     const body = await request.json();
     const {
-      weatherMorning, weatherAfternoon, tempMorning, tempAfternoon,
-      workAreas, workProgress, labourCount, subcontractors, equipmentOnSite,
-      delays, healthSafety, qualityIssues, clientInstructions, generalNotes,
-      newEntry // For adding entries
+      weatherMorning,
+      weatherAfternoon,
+      tempMorning,
+      tempAfternoon,
+      workAreas,
+      workProgress,
+      labourCount,
+      subcontractors,
+      equipmentOnSite,
+      delays,
+      healthSafety,
+      qualityIssues,
+      clientInstructions,
+      generalNotes,
+      newEntry, // For adding entries
     } = body;
 
     const existingDiary = await prisma.siteDiary.findUnique({
@@ -64,7 +81,10 @@ export async function PATCH(
     });
 
     if (!existingDiary) {
-      return NextResponse.json({ error: "Site diary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Site diary not found" },
+        { status: 404 },
+      );
     }
 
     // Add new entry if provided
@@ -86,11 +106,17 @@ export async function PATCH(
       data: {
         ...(weatherMorning !== undefined && { weatherMorning }),
         ...(weatherAfternoon !== undefined && { weatherAfternoon }),
-        ...(tempMorning !== undefined && { tempMorning: tempMorning ? parseFloat(tempMorning) : null }),
-        ...(tempAfternoon !== undefined && { tempAfternoon: tempAfternoon ? parseFloat(tempAfternoon) : null }),
+        ...(tempMorning !== undefined && {
+          tempMorning: tempMorning ? parseFloat(tempMorning) : null,
+        }),
+        ...(tempAfternoon !== undefined && {
+          tempAfternoon: tempAfternoon ? parseFloat(tempAfternoon) : null,
+        }),
         ...(workAreas !== undefined && { workAreas }),
         ...(workProgress !== undefined && { workProgress }),
-        ...(labourCount !== undefined && { labourCount: parseInt(labourCount) || 0 }),
+        ...(labourCount !== undefined && {
+          labourCount: parseInt(labourCount) || 0,
+        }),
         ...(subcontractors !== undefined && { subcontractors }),
         ...(equipmentOnSite !== undefined && { equipmentOnSite }),
         ...(delays !== undefined && { delays }),
@@ -116,13 +142,16 @@ export async function PATCH(
     return NextResponse.json(diary);
   } catch (error) {
     console.error("Error updating site diary:", error);
-    return NextResponse.json({ error: "Failed to update site diary" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update site diary" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -137,7 +166,10 @@ export async function DELETE(
     });
 
     if (!diary) {
-      return NextResponse.json({ error: "Site diary not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Site diary not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.siteDiary.delete({ where: { id: id } });
@@ -152,6 +184,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting site diary:", error);
-    return NextResponse.json({ error: "Failed to delete site diary" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete site diary" },
+      { status: 500 },
+    );
   }
 }

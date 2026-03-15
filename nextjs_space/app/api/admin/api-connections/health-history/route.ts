@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const connectionId = searchParams.get("connectionId");
     const period = searchParams.get("period") || "24h"; // 24h, 7d, 30d
-    
+
     // Calculate date range
     const now = new Date();
     let startDate: Date;
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     const where: any = {
-      createdAt: { gte: startDate }
+      createdAt: { gte: startDate },
     };
     if (connectionId) {
       where.connectionId = connectionId;
@@ -42,11 +42,11 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         connection: {
-          select: { id: true, name: true, serviceName: true, status: true }
-        }
+          select: { id: true, name: true, serviceName: true, status: true },
+        },
       },
       orderBy: { createdAt: "desc" },
-      take: 500 // Limit for performance
+      take: 500, // Limit for performance
     });
 
     // Calculate uptime by service
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
           totalResponseTime: 0,
           minResponseTime: Infinity,
           maxResponseTime: 0,
-          recentChecks: []
+          recentChecks: [],
         };
       }
       const stat = serviceStats[svc];
@@ -73,14 +73,14 @@ export async function GET(req: NextRequest) {
       stat.totalResponseTime += check.responseTime;
       stat.minResponseTime = Math.min(stat.minResponseTime, check.responseTime);
       stat.maxResponseTime = Math.max(stat.maxResponseTime, check.responseTime);
-      
+
       // Keep last 24 checks for chart
       if (stat.recentChecks.length < 24) {
         stat.recentChecks.push({
           timestamp: check.createdAt,
           isHealthy: check.isHealthy,
           responseTime: check.responseTime,
-          errorMessage: check.errorMessage
+          errorMessage: check.errorMessage,
         });
       }
     }
@@ -88,33 +88,38 @@ export async function GET(req: NextRequest) {
     // Format stats
     const uptimeStats = Object.values(serviceStats).map((stat: any) => ({
       ...stat,
-      uptimePercentage: stat.totalChecks > 0 
-        ? Math.round((stat.healthyChecks / stat.totalChecks) * 100 * 100) / 100 
-        : 100,
-      avgResponseTime: stat.totalChecks > 0 
-        ? Math.round(stat.totalResponseTime / stat.totalChecks) 
-        : 0,
-      minResponseTime: stat.minResponseTime === Infinity ? 0 : stat.minResponseTime,
-      recentChecks: stat.recentChecks.reverse() // Chronological order
+      uptimePercentage:
+        stat.totalChecks > 0
+          ? Math.round((stat.healthyChecks / stat.totalChecks) * 100 * 100) /
+            100
+          : 100,
+      avgResponseTime:
+        stat.totalChecks > 0
+          ? Math.round(stat.totalResponseTime / stat.totalChecks)
+          : 0,
+      minResponseTime:
+        stat.minResponseTime === Infinity ? 0 : stat.minResponseTime,
+      recentChecks: stat.recentChecks.reverse(), // Chronological order
     }));
 
     // Calculate overall uptime
     const totalChecks = healthChecks.length;
-    const healthyChecks = healthChecks.filter(c => c.isHealthy).length;
-    const overallUptime = totalChecks > 0 
-      ? Math.round((healthyChecks / totalChecks) * 100 * 100) / 100 
-      : 100;
+    const healthyChecks = healthChecks.filter((c) => c.isHealthy).length;
+    const overallUptime =
+      totalChecks > 0
+        ? Math.round((healthyChecks / totalChecks) * 100 * 100) / 100
+        : 100;
 
     // Get incident timeline (recent failures)
     const incidents = healthChecks
-      .filter(c => !c.isHealthy)
+      .filter((c) => !c.isHealthy)
       .slice(0, 20)
-      .map(c => ({
+      .map((c) => ({
         timestamp: c.createdAt,
         service: c.connection.name,
         serviceName: c.connection.serviceName,
         errorMessage: c.errorMessage,
-        responseTime: c.responseTime
+        responseTime: c.responseTime,
       }));
 
     return NextResponse.json({
@@ -123,14 +128,17 @@ export async function GET(req: NextRequest) {
         totalChecks,
         healthyChecks,
         failedChecks: totalChecks - healthyChecks,
-        overallUptime
+        overallUptime,
       },
       uptimeStats,
-      incidents
+      incidents,
     });
   } catch (error) {
     console.error("Error fetching health history:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -150,13 +158,17 @@ export async function POST(req: NextRequest) {
       statusCode,
       errorMessage,
       checkType = "manual",
-      endpoint
+      endpoint,
     } = body;
 
-    if (!connectionId || isHealthy === undefined || responseTime === undefined) {
+    if (
+      !connectionId ||
+      isHealthy === undefined ||
+      responseTime === undefined
+    ) {
       return NextResponse.json(
         { error: "connectionId, isHealthy, and responseTime are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -168,13 +180,16 @@ export async function POST(req: NextRequest) {
         statusCode,
         errorMessage,
         checkType,
-        endpoint
-      }
+        endpoint,
+      },
     });
 
     return NextResponse.json({ success: true, healthCheck });
   } catch (error) {
     console.error("Error recording health check:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

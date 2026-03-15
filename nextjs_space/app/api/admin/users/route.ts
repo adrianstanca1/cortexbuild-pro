@@ -19,13 +19,13 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status"); // active, suspended
 
     const where: any = {};
-    
+
     if (organizationId) where.organizationId = organizationId;
     if (role) where.role = role;
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } }
+        { email: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -43,24 +43,27 @@ export async function GET(req: NextRequest) {
         updatedAt: true,
         lastLogin: true,
         organization: {
-          select: { id: true, name: true, slug: true }
+          select: { id: true, name: true, slug: true },
         },
         _count: {
           select: {
             assignedTasks: true,
             createdTasks: true,
             uploadedDocs: true,
-            activities: true
-          }
-        }
+            activities: true,
+          },
+        },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ users });
   } catch (error) {
     console.error("Error fetching users:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -75,13 +78,19 @@ export async function POST(req: NextRequest) {
     const { email, password, name, role, organizationId, phone } = body;
 
     if (!email || !password || !name || !role) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ error: "User with this email already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "User with this email already exists" },
+        { status: 409 },
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -93,7 +102,7 @@ export async function POST(req: NextRequest) {
         name,
         role,
         organizationId: organizationId || null,
-        phone: phone || null
+        phone: phone || null,
       },
       select: {
         id: true,
@@ -101,8 +110,8 @@ export async function POST(req: NextRequest) {
         name: true,
         role: true,
         organizationId: true,
-        createdAt: true
-      }
+        createdAt: true,
+      },
     });
 
     // Create team member if organization is assigned
@@ -111,8 +120,13 @@ export async function POST(req: NextRequest) {
         data: {
           userId: user.id,
           organizationId,
-          jobTitle: role === "ADMIN" ? "Administrator" : role === "PROJECT_MANAGER" ? "Project Manager" : "Team Member"
-        }
+          jobTitle:
+            role === "ADMIN"
+              ? "Administrator"
+              : role === "PROJECT_MANAGER"
+                ? "Project Manager"
+                : "Team Member",
+        },
       });
     }
 
@@ -124,13 +138,16 @@ export async function POST(req: NextRequest) {
         entityId: user.id,
         entityName: user.name,
         userId: session.user.id,
-        details: `Created user ${user.email} with role ${user.role}`
-      }
+        details: `Created user ${user.email} with role ${user.role}`,
+      },
     });
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,8 +10,9 @@ import { parseEntitlements } from "@/lib/entitlements";
 import { sendTeamMemberInvitationNotification } from "@/lib/email-notifications";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
 // GET - List team invitations for the organization
 export async function GET(req: NextRequest) {
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     const user = session.user as any;
-    
+
     // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can view invitations
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -47,31 +48,38 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         invitedBy: {
-          select: { name: true, email: true }
-        }
+          select: { name: true, email: true },
+        },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     // Get counts by status
     const counts = await prisma.teamInvitation.groupBy({
       by: ["status"],
       where: { organizationId: user.organizationId },
-      _count: { status: true }
+      _count: { status: true },
     });
 
     const statusCounts = {
       total: counts.reduce((sum: number, c: any) => sum + c._count.status, 0),
-      PENDING: counts.find((c: any) => c.status === "PENDING")?._count.status || 0,
-      ACCEPTED: counts.find((c: any) => c.status === "ACCEPTED")?._count.status || 0,
-      EXPIRED: counts.find((c: any) => c.status === "EXPIRED")?._count.status || 0,
-      REVOKED: counts.find((c: any) => c.status === "REVOKED")?._count.status || 0,
+      PENDING:
+        counts.find((c: any) => c.status === "PENDING")?._count.status || 0,
+      ACCEPTED:
+        counts.find((c: any) => c.status === "ACCEPTED")?._count.status || 0,
+      EXPIRED:
+        counts.find((c: any) => c.status === "EXPIRED")?._count.status || 0,
+      REVOKED:
+        counts.find((c: any) => c.status === "REVOKED")?._count.status || 0,
     };
 
     return NextResponse.json(bigintSafe({ invitations, counts: statusCounts }));
   } catch (error) {
     console.error("Error fetching team invitations:", error);
-    return NextResponse.json({ error: "Failed to fetch invitations" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch invitations" },
+      { status: 500 },
+    );
   }
 }
 
@@ -84,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     const user = session.user as any;
-    
+
     // Only COMPANYOWNER, ADMIN, or SUPER_ADMIN can create invitations
     if (!["SUPER_ADMIN", "COMPANY_OWNER", "ADMIN"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -98,19 +106,25 @@ export async function POST(req: NextRequest) {
     const { email, name, role, jobTitle, department } = body;
 
     if (!email || !name) {
-      return NextResponse.json({ error: "Email and name are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email and name are required" },
+        { status: 400 },
+      );
     }
 
     // Check if user already exists in the organization
     const existingUser = await prisma.user.findFirst({
       where: {
         email: email.toLowerCase(),
-        organizationId: user.organizationId
-      }
+        organizationId: user.organizationId,
+      },
     });
 
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists in this organization" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User already exists in this organization" },
+        { status: 400 },
+      );
     }
 
     // Check if there's already a pending invitation
@@ -118,12 +132,15 @@ export async function POST(req: NextRequest) {
       where: {
         email: email.toLowerCase(),
         organizationId: user.organizationId,
-        status: "PENDING"
-      }
+        status: "PENDING",
+      },
     });
 
     if (existingInvitation) {
-      return NextResponse.json({ error: "There's already a pending invitation for this email" }, { status: 400 });
+      return NextResponse.json(
+        { error: "There's already a pending invitation for this email" },
+        { status: 400 },
+      );
     }
 
     // Check organization limits
@@ -131,35 +148,47 @@ export async function POST(req: NextRequest) {
       where: { id: user.organizationId },
       include: {
         _count: { select: { teamMembers: true } },
-      }
+      },
     });
 
     if (!organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 },
+      );
     }
 
     const entitlements = parseEntitlements(organization.entitlements);
     const pendingCount = await prisma.teamInvitation.count({
-      where: { organizationId: user.organizationId, status: "PENDING" }
+      where: { organizationId: user.organizationId, status: "PENDING" },
     });
 
-    if (organization._count.teamMembers + pendingCount >= entitlements.limits.maxUsers) {
-      return NextResponse.json(bigintSafe({ 
-        error: `User limit reached (${entitlements.limits.maxUsers}). Please upgrade your plan.` 
-      }), { status: 400 });
+    if (
+      organization._count.teamMembers + pendingCount >=
+      entitlements.limits.maxUsers
+    ) {
+      return NextResponse.json(
+        bigintSafe({
+          error: `User limit reached (${entitlements.limits.maxUsers}). Please upgrade your plan.`,
+        }),
+        { status: 400 },
+      );
     }
 
     // Validate role - non-owners can only invite roles below their level
     const validRoles = ["ADMIN", "PROJECT_MANAGER", "FIELD_WORKER"];
     const inviteRole = role || "FIELD_WORKER";
-    
+
     if (!validRoles.includes(inviteRole)) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
     // ADMIN can't invite other ADMINs
     if (user.role === "ADMIN" && inviteRole === "ADMIN") {
-      return NextResponse.json({ error: "You cannot invite admin users" }, { status: 403 });
+      return NextResponse.json(
+        { error: "You cannot invite admin users" },
+        { status: 403 },
+      );
     }
 
     // Create the invitation
@@ -179,15 +208,15 @@ export async function POST(req: NextRequest) {
       },
       include: {
         organization: { select: { name: true } },
-        invitedBy: { select: { name: true } }
-      }
+        invitedBy: { select: { name: true } },
+      },
     });
 
     // Send invitation email using notification API
     try {
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
       const acceptUrl = `${baseUrl}/team-invite/accept/${invitation.token}`;
-      
+
       // Use the notification API to send the email
       const emailResult = await sendTeamMemberInvitationNotification({
         memberName: name,
@@ -198,7 +227,7 @@ export async function POST(req: NextRequest) {
         jobTitle: jobTitle || undefined,
         department: department || undefined,
         acceptUrl,
-        expiresAt
+        expiresAt,
       });
 
       if (!emailResult.success) {
@@ -219,12 +248,15 @@ export async function POST(req: NextRequest) {
         entityName: name,
         details: `Invited ${email} as ${inviteRole}`,
         userId: user.id,
-      }
+      },
     });
 
     return NextResponse.json(bigintSafe({ invitation }), { status: 201 });
   } catch (error) {
     console.error("Error creating team invitation:", error);
-    return NextResponse.json({ error: "Failed to create invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create invitation" },
+      { status: 500 },
+    );
   }
 }

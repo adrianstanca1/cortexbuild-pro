@@ -1,4 +1,3 @@
-// @ts-ignore
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type VoiceLanguage = 'en-US' | 'ro-RO' | 'de-DE' | 'fr-FR' | 'es-ES' | 'it-IT' | 'pt-PT';
@@ -32,7 +31,8 @@ export interface VoiceOptions {
 
 // Speech Recognition wrapper
 class SpeechRecognitionManager {
-  private recognition: SpeechRecognition | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private recognition: any = null;
   private isListening = false;
   private options: VoiceOptions;
 
@@ -42,7 +42,8 @@ class SpeechRecognitionManager {
   }
 
   private init() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       console.warn('Speech Recognition not supported');
       return;
@@ -68,6 +69,7 @@ class SpeechRecognitionManager {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.recognition.onresult = (event: any) => {
       let finalTranscript = '';
       let interimTranscript = '';
@@ -89,6 +91,7 @@ class SpeechRecognitionManager {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.recognition.onerror = (event: any) => {
       this.options.onError?.(event.error);
     };
@@ -248,7 +251,7 @@ export function useVoice(options: VoiceOptions = {}) {
       recognitionRef.current?.abort();
       synthesisRef.current?.stop();
     };
-  }, []);
+  }, []); // Intentionally empty - only initialize once on mount
 
   const startListening = useCallback(() => {
     recognitionRef.current?.start();

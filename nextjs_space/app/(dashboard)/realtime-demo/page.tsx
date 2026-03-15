@@ -1,40 +1,40 @@
 // app/(dashboard)/realtime-demo/page.tsx
-'use client';
+"use client";
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
-import { useSession } from 'next-auth/react';
-import RealTimeNotifications from '@/components/ui/realtime-notifications';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useRealTimeUpdates } from "@/hooks/useRealTimeUpdates";
+import { useSession } from "next-auth/react";
+import RealTimeNotifications from "@/components/ui/realtime-notifications";
 
 const RealTimeDemoPage = () => {
   const { data: session } = useSession();
   const userId = (session?.user as any)?.id || session?.user?.id;
-  const projectId = 'demo-project'; // Using a demo project ID
-  
+  const projectId = "demo-project"; // Using a demo project ID
+
   const {
     isConnected,
     tasks,
     messages,
     onlineUsers,
     sendTaskUpdate,
-    sendProjectMessage
+    sendProjectMessage,
   } = useRealTimeUpdates(projectId);
 
-  const [newMessage, setNewMessage] = React.useState('');
+  const [newMessage, setNewMessage] = React.useState("");
 
   const handleSendMessage = () => {
     if (newMessage.trim() && session?.user?.name) {
       sendProjectMessage(newMessage, session.user.name);
-      setNewMessage('');
+      setNewMessage("");
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -45,8 +45,10 @@ const RealTimeDemoPage = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Real-Time Collaboration Demo</h1>
         <div className="flex items-center gap-4">
-          <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+          <div
+            className={`h-3 w-3 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+          />
+          <span>{isConnected ? "Connected" : "Disconnected"}</span>
           <RealTimeNotifications />
         </div>
       </div>
@@ -97,10 +99,12 @@ const RealTimeDemoPage = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No messages yet</p>
+                  <p className="text-gray-500 text-center py-8">
+                    No messages yet
+                  </p>
                 )}
               </div>
-              
+
               <div className="flex gap-2">
                 <Input
                   value={newMessage}
@@ -125,20 +129,20 @@ const RealTimeDemoPage = () => {
                 onlineUsers.map((user, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                    <span>User {user.id?.substring(0, 8) ?? 'Unknown'}...</span>
+                    <span>User {user.id?.substring(0, 8) ?? "Unknown"}...</span>
                   </div>
                 ))
               ) : (
                 <p className="text-gray-500">No other users online</p>
               )}
             </div>
-            
+
             <div className="mt-6">
               <h3 className="font-medium mb-2">Send Test Notification</h3>
-              <Button 
+              <Button
                 onClick={() => {
                   // In a real implementation, this would send a notification
-                  console.log('Sending test notification...');
+                  console.log("Sending test notification...");
                 }}
                 className="w-full"
               >
@@ -150,8 +154,14 @@ const RealTimeDemoPage = () => {
       </div>
 
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>This demo shows real-time collaboration features including live task updates, instant messaging, and online user presence.</p>
-        <p className="mt-2">Open this page in multiple browsers/tabs to see the real-time updates in action!</p>
+        <p>
+          This demo shows real-time collaboration features including live task
+          updates, instant messaging, and online user presence.
+        </p>
+        <p className="mt-2">
+          Open this page in multiple browsers/tabs to see the real-time updates
+          in action!
+        </p>
       </div>
     </div>
   );

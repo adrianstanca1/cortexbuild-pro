@@ -3,12 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/encryption";
+import {
+  encryptCredentials,
+  decryptCredentials,
+  maskCredentials,
+} from "@/lib/encryption";
 
 // GET - Get single API connection details
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,43 +26,53 @@ export async function GET(
       where: { id },
       include: {
         createdBy: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true },
         },
         logs: {
           take: 10,
           orderBy: { createdAt: "desc" },
           include: {
             performedBy: {
-              select: { id: true, name: true, email: true }
-            }
-          }
-        }
-      }
+              select: { id: true, name: true, email: true },
+            },
+          },
+        },
+      },
     });
 
     if (!connection) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     const credentials = connection.credentials as Record<string, string>;
     const decrypted = decryptCredentials(credentials);
 
-    return NextResponse.json(JSON.parse(JSON.stringify({
-      connection: {
-        ...connection,
-        credentials: maskCredentials(decrypted)
-      }
-    })));
+    return NextResponse.json(
+      JSON.parse(
+        JSON.stringify({
+          connection: {
+            ...connection,
+            credentials: maskCredentials(decrypted),
+          },
+        }),
+      ),
+    );
   } catch (error) {
     console.error("Error fetching API connection:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 // PATCH - Update API connection
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -69,11 +83,14 @@ export async function PATCH(
     const { id } = await params;
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     const body = await req.json();
@@ -87,7 +104,7 @@ export async function PATCH(
       isEnabled,
       status,
       environment,
-      expiresAt
+      expiresAt,
     } = body;
 
     const updateData: any = {};
@@ -139,9 +156,9 @@ export async function PATCH(
       data: updateData,
       include: {
         createdBy: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
 
     // Log the update
@@ -153,30 +170,38 @@ export async function PATCH(
         previousStatus: existing.status,
         newStatus: connection.status,
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     const updatedCredentials = connection.credentials as Record<string, string>;
     const decrypted = decryptCredentials(updatedCredentials);
 
-    return NextResponse.json(JSON.parse(JSON.stringify({
-      connection: {
-        ...connection,
-        credentials: maskCredentials(decrypted)
-      }
-    })));
+    return NextResponse.json(
+      JSON.parse(
+        JSON.stringify({
+          connection: {
+            ...connection,
+            credentials: maskCredentials(decrypted),
+          },
+        }),
+      ),
+    );
   } catch (error) {
     console.error("Error updating API connection:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 // DELETE - Delete API connection
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -187,11 +212,14 @@ export async function DELETE(
     const { id } = await params;
 
     const existing = await prisma.apiConnection.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Connection not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Connection not found" },
+        { status: 404 },
+      );
     }
 
     // Log before deletion
@@ -202,22 +230,26 @@ export async function DELETE(
         details: {
           name: existing.name,
           serviceName: existing.serviceName,
-          environment: existing.environment
+          environment: existing.environment,
         },
         previousStatus: existing.status,
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     await prisma.apiConnection.delete({
-      where: { id }
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting API connection:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

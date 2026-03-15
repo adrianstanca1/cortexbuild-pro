@@ -3,7 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
-import { encryptCredentials, decryptCredentials, maskCredentials } from "@/lib/encryption";
+import {
+  encryptCredentials,
+  decryptCredentials,
+  maskCredentials,
+} from "@/lib/encryption";
 import { broadcastToAll } from "@/lib/realtime-clients";
 
 // GET - List all API connections
@@ -28,29 +32,34 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         createdBy: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true },
         },
         _count: {
-          select: { logs: true }
-        }
+          select: { logs: true },
+        },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     // Mask credentials for security
-    const maskedConnections = connections.map(conn => {
+    const maskedConnections = connections.map((conn) => {
       const credentials = conn.credentials as Record<string, string>;
       const decrypted = decryptCredentials(credentials);
       return {
         ...conn,
-        credentials: maskCredentials(decrypted)
+        credentials: maskCredentials(decrypted),
       };
     });
 
-    return NextResponse.json(JSON.parse(JSON.stringify({ connections: maskedConnections })));
+    return NextResponse.json(
+      JSON.parse(JSON.stringify({ connections: maskedConnections })),
+    );
   } catch (error) {
     console.error("Error fetching API connections:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -73,13 +82,13 @@ export async function POST(req: NextRequest) {
       baseUrl,
       version,
       headers,
-      expiresAt
+      expiresAt,
     } = body;
 
     if (!name || !serviceName || !credentials) {
       return NextResponse.json(
         { error: "Name, serviceName, and credentials are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -87,14 +96,16 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.apiConnection.findFirst({
       where: {
         serviceName: serviceName.toLowerCase(),
-        environment: environment || "PRODUCTION"
-      }
+        environment: environment || "PRODUCTION",
+      },
     });
 
     if (existing) {
       return NextResponse.json(
-        { error: `Connection for ${serviceName} in ${environment || 'PRODUCTION'} already exists` },
-        { status: 409 }
+        {
+          error: `Connection for ${serviceName} in ${environment || "PRODUCTION"} already exists`,
+        },
+        { status: 409 },
       );
     }
 
@@ -114,13 +125,13 @@ export async function POST(req: NextRequest) {
         headers: headers || {},
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         createdById: session.user.id,
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       include: {
         createdBy: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
 
     // Log the creation
@@ -132,13 +143,14 @@ export async function POST(req: NextRequest) {
           name,
           serviceName,
           type: type || "EXTERNAL",
-          environment: environment || "PRODUCTION"
+          environment: environment || "PRODUCTION",
         },
         newStatus: "ACTIVE",
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     // Broadcast service configured event
@@ -150,21 +162,26 @@ export async function POST(req: NextRequest) {
         name,
         environment: environment || "PRODUCTION",
         status: "ACTIVE",
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
 
     return NextResponse.json(
-      JSON.parse(JSON.stringify({
-        connection: {
-          ...connection,
-          credentials: maskCredentials(credentials)
-        }
-      })),
-      { status: 201 }
+      JSON.parse(
+        JSON.stringify({
+          connection: {
+            ...connection,
+            credentials: maskCredentials(credentials),
+          },
+        }),
+      ),
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error creating API connection:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

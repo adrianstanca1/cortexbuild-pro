@@ -7,7 +7,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,29 +18,35 @@ export async function GET(
     const costItem = await prisma.costItem.findFirst({
       where: {
         id: (await params).id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
       include: {
         project: { select: { id: true, name: true } },
         subcontractor: { select: { id: true, companyName: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     if (!costItem) {
-      return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Cost item not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(costItem);
   } catch (error) {
     console.error("Error fetching cost item:", error);
-    return NextResponse.json({ error: "Failed to fetch cost item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch cost item" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -51,17 +57,33 @@ export async function PATCH(
     const existing = await prisma.costItem.findFirst({
       where: {
         id: (await params).id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Cost item not found" },
+        { status: 404 },
+      );
     }
 
     const body = await request.json();
-    const { description, category, status, estimatedAmount, actualAmount, committedAmount, vendor, notes, subcontractorId, invoiceNumber, invoiceDate, paidDate } = body;
+    const {
+      description,
+      category,
+      status,
+      estimatedAmount,
+      actualAmount,
+      committedAmount,
+      vendor,
+      notes,
+      subcontractorId,
+      invoiceNumber,
+      invoiceDate,
+      paidDate,
+    } = body;
 
     const costItem = await prisma.costItem.update({
       where: { id: (await params).id },
@@ -69,21 +91,33 @@ export async function PATCH(
         ...(description && { description }),
         ...(category && { category }),
         ...(status && { status }),
-        ...(estimatedAmount !== undefined && { estimatedAmount: parseFloat(estimatedAmount) }),
-        ...(actualAmount !== undefined && { actualAmount: parseFloat(actualAmount) }),
-        ...(committedAmount !== undefined && { committedAmount: parseFloat(committedAmount) }),
+        ...(estimatedAmount !== undefined && {
+          estimatedAmount: parseFloat(estimatedAmount),
+        }),
+        ...(actualAmount !== undefined && {
+          actualAmount: parseFloat(actualAmount),
+        }),
+        ...(committedAmount !== undefined && {
+          committedAmount: parseFloat(committedAmount),
+        }),
         ...(vendor !== undefined && { vendor }),
         ...(notes !== undefined && { notes }),
-        ...(subcontractorId !== undefined && { subcontractorId: subcontractorId || null }),
+        ...(subcontractorId !== undefined && {
+          subcontractorId: subcontractorId || null,
+        }),
         ...(invoiceNumber !== undefined && { invoiceNumber }),
-        ...(invoiceDate !== undefined && { invoiceDate: invoiceDate ? new Date(invoiceDate) : null }),
-        ...(paidDate !== undefined && { paidDate: paidDate ? new Date(paidDate) : null })
+        ...(invoiceDate !== undefined && {
+          invoiceDate: invoiceDate ? new Date(invoiceDate) : null,
+        }),
+        ...(paidDate !== undefined && {
+          paidDate: paidDate ? new Date(paidDate) : null,
+        }),
       },
       include: {
         project: { select: { id: true, name: true } },
         subcontractor: { select: { id: true, companyName: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     // Log activity
@@ -95,25 +129,28 @@ export async function PATCH(
         entityName: costItem.description,
         details: `Updated cost item: ${costItem.description}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_updated",
-      data: { costItem, projectId: existing.projectId }
+      data: { costItem, projectId: existing.projectId },
     });
 
     return NextResponse.json(costItem);
   } catch (error) {
     console.error("Error updating cost item:", error);
-    return NextResponse.json({ error: "Failed to update cost item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update cost item" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -124,13 +161,16 @@ export async function DELETE(
     const existing = await prisma.costItem.findFirst({
       where: {
         id: (await params).id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Cost item not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Cost item not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.costItem.delete({ where: { id: (await params).id } });
@@ -143,18 +183,21 @@ export async function DELETE(
         entityName: existing.description,
         details: `Deleted cost item: ${existing.description}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "cost_item_deleted",
-      data: { id: (await params).id, projectId: existing.projectId }
+      data: { id: (await params).id, projectId: existing.projectId },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting cost item:", error);
-    return NextResponse.json({ error: "Failed to delete cost item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete cost item" },
+      { status: 500 },
+    );
   }
 }

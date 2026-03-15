@@ -643,9 +643,9 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS push_subscriptions(
     id VARCHAR(255) PRIMARY KEY,
-    userId VARCHAR(255) NOT NULL,
+    userId UUID NOT NULL,
     endpoint VARCHAR(512) UNIQUE NOT NULL,
-    \`keys\` TEXT NOT NULL,
+    keys TEXT NOT NULL,
     createdAt TEXT NOT NULL,
     FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
   )
@@ -655,7 +655,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS oauth_providers(
     id VARCHAR(255) PRIMARY KEY,
-    userId VARCHAR(255) NOT NULL,
+    userId UUID NOT NULL,
     provider VARCHAR(50) NOT NULL,
     providerId VARCHAR(255) NOT NULL,
     email VARCHAR(255),
@@ -674,7 +674,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS email_verifications(
     id VARCHAR(255) PRIMARY KEY,
-    userId VARCHAR(255) NOT NULL,
+    userId UUID NOT NULL,
     email VARCHAR(255) NOT NULL,
     token VARCHAR(255) NOT NULL UNIQUE,
     verified BOOLEAN DEFAULT FALSE,
@@ -689,7 +689,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS memberships(
       id VARCHAR(255) PRIMARY KEY,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       role VARCHAR(50) NOT NULL,
       permissions TEXT,
@@ -773,7 +773,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS shared_links(
       id VARCHAR(255) PRIMARY KEY,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       token VARCHAR(255) UNIQUE NOT NULL,
       password TEXT,
@@ -792,7 +792,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS tasks(
       id VARCHAR(255) PRIMARY KEY,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       title TEXT NOT NULL,
       description TEXT,
@@ -857,7 +857,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS documents(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       projectName TEXT,
       name TEXT NOT NULL,
       type VARCHAR(100) NOT NULL,
@@ -936,7 +936,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS rfis(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       number TEXT NOT NULL,
       subject TEXT NOT NULL,
       description TEXT,
@@ -957,7 +957,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS punch_items(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       title TEXT,
       location TEXT,
       description TEXT,
@@ -979,7 +979,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS daily_logs(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       date TEXT,
       weather TEXT,
       temperature TEXT,
@@ -1036,7 +1036,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS dayworks(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       date TEXT,
       description TEXT,
       labor TEXT,
@@ -1100,7 +1100,7 @@ async function initializeSchema(db: IDatabase) {
   await addColumnSafe('safety_incidents', 'createdAt', 'TEXT');
   await addColumnSafe('safety_incidents', 'updatedAt', 'TEXT');
   // Equipment & Mixed Migration
-  await addColumnSafe('equipment', 'projectId', 'VARCHAR(255)');
+  await addColumnSafe('equipment', 'projectId', 'UUID');
   await addColumnSafe('equipment', 'projectName', 'TEXT');
   await addColumnSafe('equipment', 'lastService', 'TEXT');
   await addColumnSafe('equipment', 'image', 'TEXT');
@@ -1150,7 +1150,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS channels(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
+      projectId UUID,
       type VARCHAR(255) DEFAULT 'general',
       name TEXT NOT NULL,
       description TEXT,
@@ -1164,7 +1164,7 @@ async function initializeSchema(db: IDatabase) {
     `);
 
   await addColumnSafe('channels', 'type', "VARCHAR(255) DEFAULT 'general'");
-  await addColumnSafe('channels', 'projectId', 'VARCHAR(255)');
+  await addColumnSafe('channels', 'projectId', 'UUID');
   await addColumnSafe('channels', 'unreadCount', 'INTEGER DEFAULT 0');
 
   // Team Messages
@@ -1172,7 +1172,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS team_messages(
       id VARCHAR(255) PRIMARY KEY,
       channelId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       userName TEXT NOT NULL,
       message TEXT NOT NULL,
       createdAt TEXT NOT NULL,
@@ -1224,7 +1224,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS defects(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       title TEXT NOT NULL,
       description TEXT,
       severity TEXT,
@@ -1244,7 +1244,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS project_risks(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       riskLevel TEXT,
       predictedDelayDays INTEGER,
       factors TEXT,
@@ -1294,7 +1294,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS audit_logs(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       userName TEXT,
       action VARCHAR(255) NOT NULL,
       resource TEXT,
@@ -1348,7 +1348,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS support_tickets(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       subject TEXT NOT NULL,
       status VARCHAR(255) NOT NULL DEFAULT 'OPEN',
       priority VARCHAR(255) NOT NULL DEFAULT 'MEDIUM',
@@ -1366,7 +1366,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS ticket_messages(
       id VARCHAR(255) PRIMARY KEY,
       ticketId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       message TEXT NOT NULL,
       isInternal BOOLEAN DEFAULT FALSE,
       createdAt TEXT NOT NULL,
@@ -1465,8 +1465,8 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS ai_assets(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
-      userId VARCHAR(255) NOT NULL,
+      projectId UUID,
+      userId UUID NOT NULL,
       type VARCHAR(50) NOT NULL,
       url TEXT,
       prompt TEXT,
@@ -1500,7 +1500,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS cost_codes(
       id VARCHAR(255) PRIMARY KEY,
-      projectId VARCHAR(255),
+      projectId UUID,
       companyId VARCHAR(255),
       code TEXT,
       description TEXT,
@@ -1519,7 +1519,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS invoices(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
+      projectId UUID,
       number TEXT,
       vendorId VARCHAR(255),
       amount REAL,
@@ -1539,7 +1539,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS expense_claims(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
+      projectId UUID,
       userId VARCHAR(255),
       description TEXT,
       amount REAL,
@@ -1559,7 +1559,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS notifications(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       type TEXT NOT NULL,
       title TEXT NOT NULL,
       message TEXT,
@@ -1577,7 +1577,7 @@ async function initializeSchema(db: IDatabase) {
       companyId VARCHAR(255) NOT NULL,
       entityType TEXT NOT NULL,
       entityId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       userName TEXT,
       parentId VARCHAR(255),
       content TEXT NOT NULL,
@@ -1594,8 +1594,8 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS activity_feed(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
-      userId VARCHAR(255) NOT NULL,
+      projectId UUID,
+      userId UUID NOT NULL,
       userName TEXT,
       action TEXT NOT NULL,
       entityType TEXT NOT NULL,
@@ -1756,8 +1756,8 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS impersonation_sessions(
       id VARCHAR(255) PRIMARY KEY,
-      adminId VARCHAR(255) NOT NULL,
-      targetUserId VARCHAR(255) NOT NULL,
+      adminId UUID NOT NULL,
+      targetUserId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       reason TEXT,
       token VARCHAR(255) UNIQUE NOT NULL,
@@ -1802,9 +1802,9 @@ async function initializeSchema(db: IDatabase) {
   // Task assignments for resource allocation (Phase 9C)
   await db.exec(`
     CREATE TABLE IF NOT EXISTS task_assignments(
-      id VARCHAR(255) PRIMARY KEY,
-      taskId VARCHAR(255) NOT NULL,
-      userId VARCHAR(255) NOT NULL,
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      taskId UUID NOT NULL,
+      userId UUID NOT NULL,
       userName TEXT,
       role TEXT,
       allocatedHours REAL,
@@ -1835,7 +1835,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS safety_checklists(
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255),
+      projectId UUID,
       name TEXT NOT NULL,
       date TEXT NOT NULL,
       inspector TEXT,
@@ -1915,8 +1915,8 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS impersonation_sessions(
       id VARCHAR(255) PRIMARY KEY,
-      adminId VARCHAR(255) NOT NULL,
-      targetUserId VARCHAR(255) NOT NULL,
+      adminId UUID NOT NULL,
+      targetUserId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       reason TEXT,
       token VARCHAR(255) UNIQUE NOT NULL,
@@ -1951,7 +1951,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS modules(
       id VARCHAR(255) PRIMARY KEY,
-      developerId VARCHAR(255) NOT NULL,
+      developerId UUID NOT NULL,
       name TEXT NOT NULL,
       slug VARCHAR(255) UNIQUE NOT NULL,
       description TEXT,
@@ -2004,7 +2004,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS optional_permissions(
       id VARCHAR(255) PRIMARY KEY,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       companyId VARCHAR(255) NOT NULL,
       permission TEXT NOT NULL,
       grantedBy VARCHAR(255) NOT NULL,
@@ -2020,7 +2020,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS emergency_access(
       id VARCHAR(255) PRIMARY KEY,
-      adminId VARCHAR(255) NOT NULL,
+      adminId UUID NOT NULL,
       targetCompanyId VARCHAR(255) NOT NULL,
       justification TEXT NOT NULL,
       grantedAt TEXT NOT NULL,
@@ -2035,7 +2035,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_dashboards(
       id VARCHAR(255) PRIMARY KEY,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       name VARCHAR(255) NOT NULL DEFAULT 'My Dashboard',
       layout TEXT NOT NULL,
       isDefault BOOLEAN DEFAULT FALSE,
@@ -2109,7 +2109,7 @@ async function initializeSchema(db: IDatabase) {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS user_sessions(
       id VARCHAR(255) PRIMARY KEY,
-      userId VARCHAR(255) NOT NULL,
+      userId UUID NOT NULL,
       ipAddress VARCHAR(255) NOT NULL,
       userAgent TEXT,
       createdAt TEXT NOT NULL,
@@ -2136,7 +2136,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS material_deliveries (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       material TEXT NOT NULL,
       quantity REAL NOT NULL,
       unit TEXT,
@@ -2156,7 +2156,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS material_inventory (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       material TEXT NOT NULL,
       quantity REAL DEFAULT 0,
       onSite REAL DEFAULT 0,
@@ -2175,7 +2175,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS material_requisitions (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       requestedBy VARCHAR(255),
       material TEXT NOT NULL,
       quantity REAL,
@@ -2195,7 +2195,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS weather_delays (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       date TEXT,
       weatherType TEXT,
       description TEXT,
@@ -2217,7 +2217,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS progress_photos (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       location TEXT,
       photoUrl TEXT NOT NULL,
       thumbnailUrl TEXT,
@@ -2241,7 +2241,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS concrete_pours (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       pourDate TEXT,
       location TEXT,
       element TEXT,
@@ -2308,7 +2308,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS payment_applications (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       subcontractorId VARCHAR(255),
       applicationNumber TEXT,
       period TEXT,
@@ -2332,7 +2332,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS pcos (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       pcoNumber TEXT,
       title TEXT,
       description TEXT,
@@ -2357,7 +2357,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS change_orders (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       pcoId VARCHAR(255),
       coNumber TEXT,
       title TEXT,
@@ -2403,7 +2403,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS ncrs (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       ncrNumber TEXT,
       title TEXT,
       description TEXT,
@@ -2435,7 +2435,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS inspections (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       inspectionNumber TEXT,
       title TEXT,
       type TEXT,
@@ -2481,7 +2481,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS submittals (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       number TEXT,
       title TEXT,
       type TEXT,
@@ -2524,7 +2524,7 @@ async function initializeSchema(db: IDatabase) {
     CREATE TABLE IF NOT EXISTS quality_issues (
       id VARCHAR(255) PRIMARY KEY,
       companyId VARCHAR(255) NOT NULL,
-      projectId VARCHAR(255) NOT NULL,
+      projectId UUID NOT NULL,
       inspectionId VARCHAR(255),
       severity TEXT,
       description TEXT,
@@ -2542,8 +2542,8 @@ async function initializeSchema(db: IDatabase) {
   // Hazards Table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS hazards(
-      id VARCHAR(255) PRIMARY KEY,
-      project_id VARCHAR(255) NOT NULL,
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL,
       company_id VARCHAR(255) NOT NULL,
       type VARCHAR(100) NOT NULL,
       severity VARCHAR(50) NOT NULL,
@@ -2568,8 +2568,8 @@ async function initializeSchema(db: IDatabase) {
   // Resource Allocations Table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS resource_allocations(
-      id VARCHAR(255) PRIMARY KEY,
-      task_id VARCHAR(255) NOT NULL,
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      task_id UUID NOT NULL,
       resource_id VARCHAR(255) NOT NULL,
       start_date VARCHAR(50) NOT NULL,
       end_date VARCHAR(50) NOT NULL,

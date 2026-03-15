@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const connectionId = searchParams.get("connectionId");
     const period = searchParams.get("period") || "24h"; // 24h, 7d, 30d
-    
+
     // Calculate date range
     const now = new Date();
     let startDate: Date;
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     }
 
     const where: any = {
-      hourBucket: { gte: startDate }
+      hourBucket: { gte: startDate },
     };
     if (connectionId) {
       where.connectionId = connectionId;
@@ -42,19 +42,32 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         connection: {
-          select: { id: true, name: true, serviceName: true, status: true }
-        }
+          select: { id: true, name: true, serviceName: true, status: true },
+        },
       },
-      orderBy: { hourBucket: "asc" }
+      orderBy: { hourBucket: "asc" },
     });
 
     // Calculate aggregates
-    const totalRequests = usageRecords.reduce((sum, r) => sum + r.requestCount, 0);
-    const totalSuccess = usageRecords.reduce((sum, r) => sum + r.successCount, 0);
+    const totalRequests = usageRecords.reduce(
+      (sum, r) => sum + r.requestCount,
+      0,
+    );
+    const totalSuccess = usageRecords.reduce(
+      (sum, r) => sum + r.successCount,
+      0,
+    );
     const totalErrors = usageRecords.reduce((sum, r) => sum + r.errorCount, 0);
-    const totalLatency = usageRecords.reduce((sum, r) => sum + r.totalLatencyMs, 0);
-    const avgLatency = totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
-    const successRate = totalRequests > 0 ? Math.round((totalSuccess / totalRequests) * 100 * 100) / 100 : 100;
+    const totalLatency = usageRecords.reduce(
+      (sum, r) => sum + r.totalLatencyMs,
+      0,
+    );
+    const avgLatency =
+      totalRequests > 0 ? Math.round(totalLatency / totalRequests) : 0;
+    const successRate =
+      totalRequests > 0
+        ? Math.round((totalSuccess / totalRequests) * 100 * 100) / 100
+        : 100;
 
     // Group by service for breakdown
     const byService: Record<string, any> = {};
@@ -68,7 +81,7 @@ export async function GET(req: NextRequest) {
           requestCount: 0,
           successCount: 0,
           errorCount: 0,
-          totalLatencyMs: 0
+          totalLatencyMs: 0,
         };
       }
       byService[svc].requestCount += record.requestCount;
@@ -80,17 +93,24 @@ export async function GET(req: NextRequest) {
     // Format service breakdown
     const serviceBreakdown = Object.values(byService).map((svc: any) => ({
       ...svc,
-      avgLatency: svc.requestCount > 0 ? Math.round(svc.totalLatencyMs / svc.requestCount) : 0,
-      successRate: svc.requestCount > 0 ? Math.round((svc.successCount / svc.requestCount) * 100 * 100) / 100 : 100
+      avgLatency:
+        svc.requestCount > 0
+          ? Math.round(svc.totalLatencyMs / svc.requestCount)
+          : 0,
+      successRate:
+        svc.requestCount > 0
+          ? Math.round((svc.successCount / svc.requestCount) * 100 * 100) / 100
+          : 100,
     }));
 
     // Generate hourly/daily timeline
-    const timeline = usageRecords.map(r => ({
+    const timeline = usageRecords.map((r) => ({
       timestamp: r.hourBucket,
       requests: r.requestCount,
       success: r.successCount,
       errors: r.errorCount,
-      avgLatency: r.requestCount > 0 ? Math.round(r.totalLatencyMs / r.requestCount) : 0
+      avgLatency:
+        r.requestCount > 0 ? Math.round(r.totalLatencyMs / r.requestCount) : 0,
     }));
 
     return NextResponse.json({
@@ -100,14 +120,17 @@ export async function GET(req: NextRequest) {
         totalSuccess,
         totalErrors,
         avgLatency,
-        successRate
+        successRate,
       },
       serviceBreakdown,
-      timeline
+      timeline,
     });
   } catch (error) {
     console.error("Error fetching analytics:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -125,11 +148,14 @@ export async function POST(req: NextRequest) {
       success,
       latencyMs,
       statusCode,
-      method = "GET"
+      method = "GET",
     } = body;
 
     if (!connectionId) {
-      return NextResponse.json({ error: "connectionId is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "connectionId is required" },
+        { status: 400 },
+      );
     }
 
     // Get current hour bucket
@@ -139,7 +165,9 @@ export async function POST(req: NextRequest) {
       now.getMonth(),
       now.getDate(),
       now.getHours(),
-      0, 0, 0
+      0,
+      0,
+      0,
     );
 
     // Upsert the usage record for this hour
@@ -147,16 +175,19 @@ export async function POST(req: NextRequest) {
       where: {
         connectionId_hourBucket: {
           connectionId,
-          hourBucket
-        }
-      }
+          hourBucket,
+        },
+      },
     });
 
-    const errorsByCode = existing?.errorsByCode as Record<string, number> || {};
-    const requestsByMethod = existing?.requestsByMethod as Record<string, number> || {};
+    const errorsByCode =
+      (existing?.errorsByCode as Record<string, number>) || {};
+    const requestsByMethod =
+      (existing?.requestsByMethod as Record<string, number>) || {};
 
     if (!success && statusCode) {
-      errorsByCode[statusCode.toString()] = (errorsByCode[statusCode.toString()] || 0) + 1;
+      errorsByCode[statusCode.toString()] =
+        (errorsByCode[statusCode.toString()] || 0) + 1;
     }
     requestsByMethod[method] = (requestsByMethod[method] || 0) + 1;
 
@@ -164,8 +195,8 @@ export async function POST(req: NextRequest) {
       where: {
         connectionId_hourBucket: {
           connectionId,
-          hourBucket
-        }
+          hourBucket,
+        },
       },
       create: {
         connectionId,
@@ -175,7 +206,7 @@ export async function POST(req: NextRequest) {
         errorCount: success ? 0 : 1,
         totalLatencyMs: latencyMs || 0,
         errorsByCode,
-        requestsByMethod
+        requestsByMethod,
       },
       update: {
         requestCount: { increment: 1 },
@@ -183,13 +214,16 @@ export async function POST(req: NextRequest) {
         errorCount: success ? undefined : { increment: 1 },
         totalLatencyMs: { increment: latencyMs || 0 },
         errorsByCode,
-        requestsByMethod
-      }
+        requestsByMethod,
+      },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error recording usage:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
