@@ -360,6 +360,9 @@ jobs:
             echo "[5/6] Running database migrations..."
             sleep 30
             docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx prisma migrate deploy" 2>/dev/null || echo "⚠️ Migrations may run on first request"
+
+            echo "[5.5/6] Running database seed..."
+            docker compose -f docker-compose.vps.yml exec -T app sh -c "cd /app && npx tsx --require dotenv/config scripts/seed.ts" 2>/dev/null || echo "Seed skipped"
             
             echo "[6/6] Verifying deployment..."
             sleep 15
