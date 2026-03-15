@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error - SpeechRecognition types may not be available in all environments
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type VoiceLanguage = 'en-US' | 'ro-RO' | 'de-DE' | 'fr-FR' | 'es-ES' | 'it-IT' | 'pt-PT';
