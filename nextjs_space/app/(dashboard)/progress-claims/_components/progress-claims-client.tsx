@@ -129,7 +129,7 @@ export function ProgressClaimsClient({
         notes: "",
       });
       toast.success("Progress claim created");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create claim");
     } finally {
       setLoading(false);
@@ -147,7 +147,7 @@ export function ProgressClaimsClient({
       const updated = await res.json();
       setClaims(claims.map((c) => (c.id === claimId ? updated : c)));
       toast.success("Claim submitted successfully");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to submit claim");
     }
   };

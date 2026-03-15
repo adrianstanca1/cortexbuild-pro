@@ -188,7 +188,7 @@ export function EquipmentClient({ equipment, projects }: EquipmentClientProps) {
       if (!res.ok) throw new Error("Failed to update status");
       toast.success("Status updated");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };

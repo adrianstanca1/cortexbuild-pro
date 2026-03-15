@@ -172,7 +172,7 @@ export function DailyChecksTab({
         const data = await toolRes.json();
         setToolChecks(data.checks || []);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Error fetching checks:", error);
     }
   }, [projectId]);
@@ -240,7 +240,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create MEWP check");
     } finally {
       setLoading(false);
@@ -276,7 +276,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create tool check");
     } finally {
       setLoading(false);

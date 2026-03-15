@@ -246,7 +246,7 @@ export default function TimeTrackingClient({
       setShowNewModal(false);
       resetForm();
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save time entry");
     } finally {
       setLoading(false);
@@ -266,7 +266,7 @@ export default function TimeTrackingClient({
         status === "APPROVED" ? "Time entry approved" : "Time entry rejected",
       );
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };
@@ -278,7 +278,7 @@ export default function TimeTrackingClient({
       if (!res.ok) throw new Error("Failed");
       toast.success("Time entry deleted");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete");
     }
   };

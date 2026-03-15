@@ -142,7 +142,7 @@ export function DrawingsClient({
         sheetSize: "",
       });
       toast.success("Drawing created successfully");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create drawing");
     } finally {
       setLoading(false);

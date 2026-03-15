@@ -126,7 +126,7 @@ export function SiteAccessTab({
       setShowSignInModal(false);
       toast.success(`${signInForm.personName} signed in`);
       resetForm();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to sign in");
     } finally {
       setLoading(false);
@@ -149,7 +149,7 @@ export function SiteAccessTab({
       setSelectedEntry(null);
       toast.success(`${selectedEntry.personName} signed out`);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to sign out");
     } finally {
       setLoading(false);

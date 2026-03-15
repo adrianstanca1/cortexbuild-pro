@@ -111,7 +111,7 @@ export function ToolboxTalksTab({
         const data = await res.json();
         setTalks(data.toolboxTalks || []);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Error fetching toolbox talks:", error);
     }
   }, [projectId]);
@@ -161,7 +161,7 @@ export function ToolboxTalksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create toolbox talk");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create toolbox talk");
     } finally {
       setLoading(false);
@@ -193,7 +193,7 @@ export function ToolboxTalksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to record signature");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to record signature");
     } finally {
       setLoading(false);
@@ -211,7 +211,7 @@ export function ToolboxTalksTab({
         toast.success("Toolbox talk started");
         fetchTalks();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to start toolbox talk");
     }
   };
@@ -227,7 +227,7 @@ export function ToolboxTalksTab({
         toast.success("Toolbox talk completed");
         fetchTalks();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to complete toolbox talk");
     }
   };

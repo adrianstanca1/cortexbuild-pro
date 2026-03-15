@@ -149,7 +149,7 @@ export function PermitsClient({
         notes: "",
       });
       toast.success("Permit created successfully");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create permit");
     } finally {
       setLoading(false);

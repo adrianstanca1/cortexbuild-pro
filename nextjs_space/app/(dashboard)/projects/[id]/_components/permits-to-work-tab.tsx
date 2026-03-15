@@ -149,7 +149,7 @@ export function PermitsToWorkTab({
       setShowHotWorkModal(false);
       toast.success("Hot Work Permit requested");
       resetHotWorkForm();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create permit");
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export function PermitsToWorkTab({
       setShowCSModal(false);
       toast.success("Confined Space Permit requested");
       resetCSForm();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create permit");
     } finally {
       setLoading(false);
@@ -211,7 +211,7 @@ export function PermitsToWorkTab({
       if (!response.ok) throw new Error("Failed");
       toast.success("Permit approved");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to approve");
     }
   };
@@ -233,7 +233,7 @@ export function PermitsToWorkTab({
       if (!response.ok) throw new Error("Failed");
       toast.success("Permit completed");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to complete");
     }
   };

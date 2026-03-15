@@ -216,7 +216,7 @@ export function MaterialsClient({
         notes: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create material");
     } finally {
       setLoading(false);
@@ -236,7 +236,7 @@ export function MaterialsClient({
       toast.success("Material updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update material");
     } finally {
       setLoading(false);
@@ -250,7 +250,7 @@ export function MaterialsClient({
       if (!res.ok) throw new Error("Failed to delete material");
       toast.success("Material deleted");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete material");
     }
   };

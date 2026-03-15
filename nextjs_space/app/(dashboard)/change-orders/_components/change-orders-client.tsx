@@ -11,12 +11,10 @@ import {
   CheckCircle,
   XCircle,
   Send,
-  PoundSterling,
   Calendar,
   ArrowRight,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
   Play,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -140,15 +138,15 @@ export function ChangeOrdersClient({
     handleChangeOrderEvent,
   );
 
-  const fetchChangeOrders = async () => {
+  const _fetchChangeOrders = async () => {
     try {
       const res = await fetch("/api/change-orders");
       if (res.ok) {
         const data = await res.json();
         setChangeOrders(data);
       }
-    } catch (error) {
-      console.error("Failed to fetch change orders:", error);
+    } catch (_error) {
+      console.error("Failed to fetch change orders:", _error);
     }
   };
 
@@ -189,7 +187,7 @@ export function ChangeOrdersClient({
         const err = await res.json();
         toast.error(err.error || "Failed to create change order");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create change order");
     } finally {
       setLoading(false);
@@ -221,7 +219,7 @@ export function ChangeOrdersClient({
       } else {
         toast.error("Failed to update change order");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update change order");
     } finally {
       setLoading(false);

@@ -221,7 +221,7 @@ export default function MilestonesClient({
       setShowNewModal(false);
       resetForm();
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save milestone");
     } finally {
       setLoading(false);
@@ -236,7 +236,7 @@ export default function MilestonesClient({
       if (!res.ok) throw new Error("Failed to delete");
       toast.success("Milestone deleted");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete milestone");
     }
   };

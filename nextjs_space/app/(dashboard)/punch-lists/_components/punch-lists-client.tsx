@@ -159,7 +159,7 @@ export function PunchListsClient({
         assignedToId: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create punch list item");
     } finally {
       setLoading(false);
@@ -178,7 +178,7 @@ export function PunchListsClient({
 
       toast.success("Status updated");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };

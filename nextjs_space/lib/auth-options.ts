@@ -6,6 +6,9 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
+// Use secure cookies only when served over HTTPS
+const isHttps = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -177,34 +180,34 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: true,
+  useSecureCookies: isHttps,
   cookies: {
     pkceCodeVerifier: {
-      name: "__Secure-next-auth.pkce.code_verifier",
+      name: isHttps ? "__Secure-next-auth.pkce.code_verifier" : "next-auth.pkce.code_verifier",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: isHttps,
       },
     },
     state: {
-      name: "__Secure-next-auth.state",
+      name: isHttps ? "__Secure-next-auth.state" : "next-auth.state",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: isHttps,
         maxAge: 900,
       },
     },
     callbackUrl: {
-      name: "__Secure-next-auth.callback-url",
+      name: isHttps ? "__Secure-next-auth.callback-url" : "next-auth.callback-url",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: true,
+        secure: isHttps,
       },
     },
   },

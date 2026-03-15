@@ -165,7 +165,7 @@ export function MeetingsClient({ meetings, projects }: MeetingsClientProps) {
         summary: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to record meeting");
     } finally {
       setLoading(false);

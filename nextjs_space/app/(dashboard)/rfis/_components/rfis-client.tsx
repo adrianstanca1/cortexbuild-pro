@@ -184,7 +184,7 @@ export function RFIsClient({
           })),
         );
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to fetch attachments:", error);
     } finally {
       setLoadingAttachments(false);
@@ -212,7 +212,7 @@ export function RFIsClient({
           ),
         );
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to save attachment:", error);
     }
   };
@@ -226,7 +226,7 @@ export function RFIsClient({
           method: "DELETE",
         },
       );
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to delete attachment:", error);
     }
   };
@@ -272,7 +272,7 @@ export function RFIsClient({
         const err = await res.json();
         toast.error(err.error || "Failed to create RFI");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create RFI");
     } finally {
       setLoading(false);
@@ -304,7 +304,7 @@ export function RFIsClient({
       } else {
         toast.error("Failed to answer RFI");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to answer RFI");
     } finally {
       setLoading(false);
@@ -330,7 +330,7 @@ export function RFIsClient({
         setSelectedRFI({ ...selectedRFI, ...updated });
         toast.success("RFI closed");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to close RFI");
     } finally {
       setLoading(false);

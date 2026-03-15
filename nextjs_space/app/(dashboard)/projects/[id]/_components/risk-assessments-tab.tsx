@@ -197,7 +197,7 @@ export function RiskAssessmentsTab({
         ],
       });
       toast.success("Risk Assessment created");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create risk assessment");
     } finally {
       setLoading(false);
@@ -215,7 +215,7 @@ export function RiskAssessmentsTab({
       const updated = await response.json();
       setAssessments((prev) => prev.map((a) => (a.id === id ? updated : a)));
       toast.success(`Status updated to ${status}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };
@@ -236,7 +236,7 @@ export function RiskAssessmentsTab({
       setShowAcknowledgeModal(false);
       toast.success("RAMS acknowledged");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to acknowledge");
     } finally {
       setLoading(false);

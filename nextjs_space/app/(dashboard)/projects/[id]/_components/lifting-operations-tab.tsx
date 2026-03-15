@@ -133,7 +133,7 @@ export function LiftingOperationsTab({
       setShowCreateModal(false);
       toast.success("Lift plan created");
       resetForm();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create lift plan");
     } finally {
       setLoading(false);
@@ -150,7 +150,7 @@ export function LiftingOperationsTab({
       if (!response.ok) throw new Error("Failed");
       toast.success("Status updated");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };

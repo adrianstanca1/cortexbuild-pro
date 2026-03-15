@@ -158,7 +158,7 @@ export function DefectsClient({
         assignedToId: "",
       });
       toast.success("Defect logged successfully");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create defect");
     } finally {
       setLoading(false);

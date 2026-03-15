@@ -183,7 +183,7 @@ export function SubcontractorsClient({
         notes: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create subcontractor");
     } finally {
       setLoading(false);
@@ -203,7 +203,7 @@ export function SubcontractorsClient({
       toast.success("Subcontractor updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update subcontractor");
     } finally {
       setLoading(false);
@@ -224,7 +224,7 @@ export function SubcontractorsClient({
       if (!res.ok) throw new Error("Failed to delete subcontractor");
       toast.success("Subcontractor deleted");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete subcontractor");
     }
   };

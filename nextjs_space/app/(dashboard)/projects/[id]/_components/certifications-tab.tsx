@@ -240,7 +240,7 @@ export function CertificationsTab({
       setShowCreateModal(false);
       toast.success("Certification added");
       resetForm();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to add certification");
     } finally {
       setLoading(false);
@@ -257,7 +257,7 @@ export function CertificationsTab({
       if (!response.ok) throw new Error("Failed");
       toast.success("Certification verified");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to verify");
     }
   };

@@ -197,7 +197,7 @@ export function SubmittalsClient({
         const err = await res.json();
         toast.error(err.error || "Failed to create submittal");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create submittal");
     } finally {
       setLoading(false);
@@ -231,7 +231,7 @@ export function SubmittalsClient({
       } else {
         toast.error("Failed to update submittal");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update submittal");
     } finally {
       setLoading(false);

@@ -74,7 +74,7 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Profile updated successfully!");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update profile");
     } finally {
       setLoading(false);
@@ -99,7 +99,7 @@ export function SettingsClient({ user, organization }: SettingsClientProps) {
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to change password");
     } finally {
       setLoading(false);

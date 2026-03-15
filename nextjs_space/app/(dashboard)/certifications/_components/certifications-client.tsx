@@ -41,7 +41,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FileUpload } from "@/components/ui/file-upload";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type CertificationType =
@@ -170,7 +169,7 @@ const statusConfig: Record<
 export function CertificationsClient({
   certifications,
   workers,
-  projects,
+  projects: _projects,
 }: CertificationsClientProps) {
   const router = useRouter();
   const [items, setItems] = useState<Certification[]>(certifications);
@@ -255,7 +254,7 @@ export function CertificationsClient({
         const err = await res.json();
         toast.error(err.error || "Failed to add certification");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to add certification");
     } finally {
       setLoading(false);

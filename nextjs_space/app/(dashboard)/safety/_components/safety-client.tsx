@@ -235,7 +235,7 @@ export function SafetyClient({
           })),
         );
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to fetch photos:", error);
     }
   };
@@ -262,7 +262,7 @@ export function SafetyClient({
         );
         toast.success("Photo added");
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to save photo:", error);
     }
   };
@@ -276,7 +276,7 @@ export function SafetyClient({
           method: "DELETE",
         },
       );
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to delete photo:", error);
     }
   };
@@ -318,7 +318,7 @@ export function SafetyClient({
         const err = await res.json();
         toast.error(err.error || "Failed to report incident");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to report incident");
     } finally {
       setLoading(false);
@@ -348,7 +348,7 @@ export function SafetyClient({
       } else {
         toast.error("Failed to update incident");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update incident");
     } finally {
       setLoading(false);

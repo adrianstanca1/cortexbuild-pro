@@ -17,7 +17,6 @@ import {
   Wind,
   CloudLightning,
   Users,
-  Truck,
   AlertTriangle,
   ChevronRight,
   Thermometer,
@@ -176,7 +175,7 @@ export function DailyReportsClient({
         );
         toast.success("Photo added");
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to save photo:", error);
     }
   };
@@ -190,7 +189,7 @@ export function DailyReportsClient({
           method: "DELETE",
         },
       );
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to delete photo:", error);
     }
   };
@@ -239,7 +238,7 @@ export function DailyReportsClient({
         const err = await res.json();
         toast.error(err.error || "Failed to create report");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create report");
     } finally {
       setLoading(false);
