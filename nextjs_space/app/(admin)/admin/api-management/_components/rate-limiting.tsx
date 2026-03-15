@@ -152,7 +152,7 @@ export function RateLimiting() {
         const error = await res.json();
         toast.error(error.error || "Failed to save configuration");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save configuration");
     } finally {
       setSaving(false);
@@ -182,7 +182,7 @@ export function RateLimiting() {
       } else {
         toast.error("Failed to remove configuration");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to remove configuration");
     }
   };

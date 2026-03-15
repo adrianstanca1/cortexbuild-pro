@@ -182,7 +182,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create user");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create user");
     } finally {
       setSaving(false);
@@ -216,7 +216,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update user");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update user");
     } finally {
       setSaving(false);
@@ -244,7 +244,7 @@ export function UsersManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to delete user");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete user");
     }
   };

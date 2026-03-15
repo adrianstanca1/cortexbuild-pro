@@ -164,7 +164,7 @@ export default function InvitationsClient() {
       } else {
         toast.error(data.error || "Failed to create invitation");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create invitation");
     } finally {
       setCreating(false);
@@ -187,7 +187,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || "Failed to resend");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to resend invitation");
     } finally {
       setActionLoading(null);
@@ -212,7 +212,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || "Failed to revoke");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to revoke invitation");
     } finally {
       setActionLoading(null);
@@ -241,7 +241,7 @@ export default function InvitationsClient() {
         const data = await res.json();
         toast.error(data.error || "Failed to delete");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete invitation");
     } finally {
       setActionLoading(null);

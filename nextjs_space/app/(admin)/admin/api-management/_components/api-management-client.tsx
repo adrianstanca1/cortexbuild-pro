@@ -283,10 +283,9 @@ export function ApiManagementClient() {
   const [logs, setLogs] = useState<ApiConnectionLog[]>([]);
   const [dependencies, setDependencies] = useState<DependencyModule[]>([]);
   const [stats, setStats] = useState<any>({});
-  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterEnv, setFilterEnv] = useState<string>("PRODUCTION");
 
@@ -295,7 +294,6 @@ export function ApiManagementClient() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRotateModal, setShowRotateModal] = useState(false);
   const [showCustomApiModal, setShowCustomApiModal] = useState(false);
-  const [showDependenciesModal, setShowDependenciesModal] = useState(false);
   const [selectedService, setSelectedService] =
     useState<ServiceDefinition | null>(null);
   const [selectedConnection, setSelectedConnection] =
@@ -334,7 +332,6 @@ export function ApiManagementClient() {
         const data = await res.json();
         setServices(data.services || []);
         setStats(data.stats || {});
-        setCategories(data.categories || []);
       }
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -446,7 +443,7 @@ export function ApiManagementClient() {
 
       fetchServices();
       fetchLogs();
-    } catch (error) {
+    } catch {
       toast.error("Failed to test connection");
     } finally {
       setTesting(null);
@@ -473,7 +470,7 @@ export function ApiManagementClient() {
 
       fetchConnections();
       fetchLogs();
-    } catch (error) {
+    } catch {
       toast.error("Failed to test connection");
     } finally {
       setTesting(null);
@@ -517,7 +514,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to configure service");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to configure service");
     } finally {
       setSaving(false);
@@ -636,7 +633,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update configuration");
     } finally {
       setSaving(false);
@@ -687,7 +684,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to rotate credentials");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to rotate credentials");
     } finally {
       setSaving(false);
@@ -722,7 +719,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to update service status");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update service");
     }
   };
@@ -749,7 +746,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to update connection status");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update connection");
     }
   };
@@ -781,7 +778,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to remove configuration");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove configuration");
     }
   };
@@ -808,7 +805,7 @@ export function ApiManagementClient() {
       } else {
         toast.error("Failed to delete connection");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete connection");
     }
   };
@@ -855,7 +852,7 @@ export function ApiManagementClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create custom API");
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to create custom API");
     } finally {
       setSaving(false);
@@ -880,12 +877,6 @@ export function ApiManagementClient() {
     const newCreds = { ...customApiForm.credentials };
     delete newCreds[key];
     setCustomApiForm({ ...customApiForm, credentials: newCreds });
-  };
-
-  // Copy to clipboard
-  const handleCopyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
   };
 
   // Filter services
@@ -1113,7 +1104,7 @@ export function ApiManagementClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredServices.map((service) => {
               const IconComponent = getIcon(service.icon);
-              const statusConfig =
+              const _statusConfig =
                 STATUS_CONFIG[service.status] || STATUS_CONFIG.NOT_CONFIGURED;
 
               return (

@@ -138,7 +138,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to create organization");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create organization");
     } finally {
       setSaving(false);
@@ -165,7 +165,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to update organization");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update organization");
     } finally {
       setSaving(false);
@@ -194,7 +194,7 @@ export function OrganizationsClient() {
         const error = await res.json();
         toast.error(error.error || "Failed to delete organization");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete organization");
     }
   };

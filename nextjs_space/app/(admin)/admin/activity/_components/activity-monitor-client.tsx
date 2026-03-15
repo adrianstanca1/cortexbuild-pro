@@ -118,6 +118,7 @@ export function ActivityMonitorClient() {
       fetchActivities(1);
     }, 300);
     return () => clearTimeout(debounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, entityFilter]);
 
   const handleRefresh = () => {

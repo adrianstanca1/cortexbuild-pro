@@ -42,13 +42,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -246,7 +239,7 @@ export function PlatformSettingsClient() {
         setHasChanges(false);
         toast.success("Configuration reset to defaults");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to reset configuration");
     } finally {
       setSaving(false);
@@ -275,7 +268,7 @@ export function PlatformSettingsClient() {
         URL.revokeObjectURL(url);
         toast.success("Configuration exported");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to export configuration");
     }
     setShowExportModal(false);
@@ -298,7 +291,7 @@ export function PlatformSettingsClient() {
         setHasChanges(false);
         toast.success("Configuration imported successfully");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Invalid configuration format");
     }
     setShowImportModal(false);
