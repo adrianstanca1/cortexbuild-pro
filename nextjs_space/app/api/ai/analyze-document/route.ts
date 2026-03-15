@@ -31,11 +31,8 @@ export async function POST(request: NextRequest) {
     } else if (fileName.endsWith('.md')) {
       textContent = await file.text();
     } else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      // For PDFs: Ollama (non-multimodal models) needs text extraction
-      // We pass the raw text — for production use a PDF parser like pdf-parse
       textContent = `[PDF file: ${file.name}]\nNote: Direct PDF parsing requires pdf-parse. Please use a text or CSV format for best results, or upgrade to a vision-capable model.`;
     } else if (fileType.startsWith('image/')) {
-      // Images are not supported without a multimodal model — provide guidance
       textContent = `[Image file: ${file.name}]\nNote: Image analysis requires a vision-capable Ollama model (e.g. llava, bakllava). Currently configured model: ${process.env.OLLAMA_MODEL || 'qwen2.5:7b'}.`;
     } else {
       return NextResponse.json(
@@ -56,7 +53,7 @@ export async function POST(request: NextRequest) {
     const messages = [
       {
         role: 'system' as const,
-        content: 'You are an AI assistant specialising in construction document analysis for CortexBuildPro. Analyse documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
+        content: 'You are an AI assistant specialising in construction document analysis for CortexBuildPro, used by AS Cladding & Roofing Ltd. Analyse documents for: compliance issues, safety concerns, cost implications, schedule impacts, and actionable insights. Be thorough but concise.'
       },
       {
         role: 'user' as const,
@@ -64,14 +61,16 @@ export async function POST(request: NextRequest) {
       }
     ];
 
-    // Stream the analysis via ollamaClient
+    // Stream the analysis via ollamaClient in SSE format
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         try {
           for await (const chunk of ollamaClient.streamChat(messages)) {
-            controller.enqueue(encoder.encode(chunk));
+            const sseData = JSON.stringify({ choices: [{ delta: { content: chunk } }] });
+            controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
           }
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         } catch (error) {
           console.error('Document analysis stream error:', error);
           controller.error(error);
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'X-AI-Provider': 'ollama',
