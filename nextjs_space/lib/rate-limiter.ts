@@ -198,7 +198,10 @@ export async function checkRateLimit(
     const response = new Response(
       JSON.stringify({
         error: "Too many requests",
-        message: result.message || config.message || "Rate limit exceeded. Please try again later.",
+        message:
+          result.message ||
+          config.message ||
+          "Rate limit exceeded. Please try again later.",
         retryAfter: retryAfterSeconds,
       }),
       {

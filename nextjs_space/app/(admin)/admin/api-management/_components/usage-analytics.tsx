@@ -5,11 +5,9 @@ import { motion } from "framer-motion";
 import {
   BarChart3,
   TrendingUp,
-  TrendingDown,
   Activity,
   CheckCircle2,
   XCircle,
-  Clock,
   RefreshCw,
   Zap,
   Server,

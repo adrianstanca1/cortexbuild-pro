@@ -28,6 +28,12 @@ export default [
       'vitest.server.config.ts',
       'vitest.setup.ts',
       'validation-script.ts',
+      'scripts/',
+      'server/',
+      '_archived_variants/',
+      'public/',
+      'simple-validation.js',
+      'types/serviceworker.d.ts',
     ]
   },
   // Base JS recommended rules
