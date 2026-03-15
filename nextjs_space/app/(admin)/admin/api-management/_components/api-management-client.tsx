@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Server,
   Plus,
@@ -22,16 +22,13 @@ import {
   Zap,
   Eye,
   EyeOff,
-  Copy,
   RotateCcw,
   Power,
   PowerOff,
   Activity,
   History,
-  Filter,
   Settings,
   ExternalLink,
-  ChevronDown,
   Terminal,
   Mail,
   Brain,
@@ -80,7 +77,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { HealthMonitoring } from "./health-monitoring";
 import { UsageAnalytics } from "./usage-analytics";
 import { RateLimiting } from "./rate-limiting";
