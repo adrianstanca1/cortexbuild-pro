@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -29,14 +29,14 @@ export async function POST(request: NextRequest) {
           tasks: true,
           manager: { select: { name: true } },
           costItems: true,
-          milestones: true
-        }
+          milestones: true,
+        },
       });
       reportData = { project };
     } else if (reportType === "budget_report") {
       const costItems = await prisma.costItem.findMany({
         where: { project: { organizationId: orgId } },
-        include: { project: { select: { name: true } } }
+        include: { project: { select: { name: true } } },
       });
       reportData = { costItems };
     } else if (reportType === "time_entries") {
@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
         include: {
           project: { select: { name: true } },
           user: { select: { name: true } },
-          task: { select: { title: true } }
+          task: { select: { title: true } },
         },
         orderBy: { date: "desc" },
-        take: 100
+        take: 100,
       });
       reportData = { timeEntries };
     } else {
@@ -56,35 +56,47 @@ export async function POST(request: NextRequest) {
       const [projects, tasks, milestones] = await Promise.all([
         prisma.project.findMany({
           where: { organizationId: orgId },
-          include: { _count: { select: { tasks: true } } }
+          include: { _count: { select: { tasks: true } } },
         }),
         prisma.task.findMany({
-          where: { project: { organizationId: orgId } }
+          where: { project: { organizationId: orgId } },
         }),
         prisma.milestone.findMany({
-          where: { project: { organizationId: orgId } }
-        })
+          where: { project: { organizationId: orgId } },
+        }),
       ]);
       reportData = { projects, tasks, milestones };
     }
 
     // Generate HTML content for PDF
-    const htmlContent = generateReportHTML(reportType, reportData, session.user.name ?? "User");
+    const htmlContent = generateReportHTML(
+      reportType,
+      reportData,
+      session.user.name ?? "User",
+    );
 
     // Call HTML2PDF API
-    const createResponse = await fetch("https://apps.abacus.ai/api/createConvertHtmlToPdfRequest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_APIKEY,
-        html_content: htmlContent,
-        pdf_options: {
-          format: "A4",
-          margin: { top: "20mm", right: "15mm", bottom: "20mm", left: "15mm" },
-          print_background: true
-        }
-      })
-    });
+    const createResponse = await fetch(
+      "https://apps.abacus.ai/api/createConvertHtmlToPdfRequest",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deployment_token: process.env.ABACUSAI_API_KEY,
+          html_content: htmlContent,
+          pdf_options: {
+            format: "A4",
+            margin: {
+              top: "20mm",
+              right: "15mm",
+              bottom: "20mm",
+              left: "15mm",
+            },
+            print_background: true,
+          },
+        }),
+      },
+    );
 
     if (!createResponse.ok) {
       throw new Error("Failed to create PDF request");
@@ -97,16 +109,19 @@ export async function POST(request: NextRequest) {
     let attempts = 0;
 
     while (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const statusResponse = await fetch("https://apps.abacus.ai/api/getConvertHtmlToPdfStatus", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          request_id,
-          deployment_token: process.env.ABACUSAI_API_KEY
-        })
-      });
+      const statusResponse = await fetch(
+        "https://apps.abacus.ai/api/getConvertHtmlToPdfStatus",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            request_id,
+            deployment_token: process.env.ABACUSAI_API_KEY,
+          }),
+        },
+      );
 
       const statusResult = await statusResponse.json();
 
@@ -116,8 +131,8 @@ export async function POST(request: NextRequest) {
         return new NextResponse(pdfArray, {
           headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="report-${format(new Date(), "yyyy-MM-dd")}.pdf"`
-          }
+            "Content-Disposition": `attachment; filename="report-${format(new Date(), "yyyy-MM-dd")}.pdf"`,
+          },
         });
       } else if (statusResult?.status === "FAILED") {
         throw new Error("PDF generation failed");
@@ -129,11 +144,18 @@ export async function POST(request: NextRequest) {
     throw new Error("PDF generation timed out");
   } catch (error) {
     console.error("Error generating PDF:", error);
-    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to generate PDF" },
+      { status: 500 },
+    );
   }
 }
 
-function generateReportHTML(reportType: string, data: any, userName: string): string {
+function generateReportHTML(
+  reportType: string,
+  data: any,
+  userName: string,
+): string {
   const date = format(new Date(), "MMMM d, yyyy");
   const styles = `
     <style>
@@ -165,10 +187,19 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
 
   if (reportType === "project_summary" && data.project) {
     const p = data.project;
-    const completedTasks = p.tasks?.filter((t: any) => t.status === "COMPLETE").length || 0;
+    const completedTasks =
+      p.tasks?.filter((t: any) => t.status === "COMPLETE").length || 0;
     const totalTasks = p.tasks?.length || 0;
-    const totalBudget = p.costItems?.reduce((sum: number, c: any) => sum + (c.estimatedAmount || 0), 0) || 0;
-    const actualSpend = p.costItems?.reduce((sum: number, c: any) => sum + (c.actualAmount || 0), 0) || 0;
+    const totalBudget =
+      p.costItems?.reduce(
+        (sum: number, c: any) => sum + (c.estimatedAmount || 0),
+        0,
+      ) || 0;
+    const actualSpend =
+      p.costItems?.reduce(
+        (sum: number, c: any) => sum + (c.actualAmount || 0),
+        0,
+      ) || 0;
 
     content = `
       <div class="section">
@@ -189,21 +220,29 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
         <table>
           <thead><tr><th>Task</th><th>Status</th><th>Priority</th><th>Due Date</th></tr></thead>
           <tbody>
-            ${(p.tasks || []).slice(0, 20).map((t: any) => `
+            ${(p.tasks || [])
+              .slice(0, 20)
+              .map(
+                (t: any) => `
               <tr>
                 <td>${t.title}</td>
-                <td><span class="badge badge-${t.status === 'COMPLETE' ? 'success' : t.status === 'IN_PROGRESS' ? 'info' : 'warning'}">${t.status}</span></td>
+                <td><span class="badge badge-${t.status === "COMPLETE" ? "success" : t.status === "IN_PROGRESS" ? "info" : "warning"}">${t.status}</span></td>
                 <td>${t.priority}</td>
                 <td>${t.dueDate ? format(new Date(t.dueDate), "MMM d, yyyy") : "N/A"}</td>
               </tr>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `;
   } else if (reportType === "budget_report") {
     const items = data.costItems || [];
-    const total = items.reduce((sum: number, c: any) => sum + (c.actualAmount || 0), 0);
+    const total = items.reduce(
+      (sum: number, c: any) => sum + (c.actualAmount || 0),
+      0,
+    );
 
     content = `
       <div class="section">
@@ -215,7 +254,10 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
         <table>
           <thead><tr><th>Description</th><th>Project</th><th>Category</th><th>Estimated</th><th>Actual</th></tr></thead>
           <tbody>
-            ${items.slice(0, 30).map((c: any) => `
+            ${items
+              .slice(0, 30)
+              .map(
+                (c: any) => `
               <tr>
                 <td>${c.description}</td>
                 <td>${c.project?.name || "N/A"}</td>
@@ -223,14 +265,19 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
                 <td>£${(c.estimatedAmount || 0).toLocaleString()}</td>
                 <td>£${(c.actualAmount || 0).toLocaleString()}</td>
               </tr>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `;
   } else if (reportType === "time_entries") {
     const entries = data.timeEntries || [];
-    const totalHours = entries.reduce((sum: number, e: any) => sum + (e.hours || 0), 0);
+    const totalHours = entries.reduce(
+      (sum: number, e: any) => sum + (e.hours || 0),
+      0,
+    );
 
     content = `
       <div class="section">
@@ -242,16 +289,21 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
         <table>
           <thead><tr><th>Date</th><th>User</th><th>Project</th><th>Task</th><th>Hours</th><th>Status</th></tr></thead>
           <tbody>
-            ${entries.slice(0, 50).map((e: any) => `
+            ${entries
+              .slice(0, 50)
+              .map(
+                (e: any) => `
               <tr>
                 <td>${format(new Date(e.date), "MMM d, yyyy")}</td>
                 <td>${e.user?.name || "N/A"}</td>
                 <td>${e.project?.name || "N/A"}</td>
                 <td>${e.task?.title || "-"}</td>
                 <td>${e.hours}h</td>
-                <td><span class="badge badge-${e.status === 'APPROVED' ? 'success' : e.status === 'REJECTED' ? 'danger' : 'warning'}">${e.status}</span></td>
+                <td><span class="badge badge-${e.status === "APPROVED" ? "success" : e.status === "REJECTED" ? "danger" : "warning"}">${e.status}</span></td>
               </tr>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
@@ -259,8 +311,12 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
   } else {
     // General overview
     const { projects = [], tasks = [], _milestones = [] } = data;
-    const activeProjects = projects.filter((p: any) => p.status === "IN_PROGRESS").length;
-    const completedTasks = tasks.filter((t: any) => t.status === "COMPLETE").length;
+    const activeProjects = projects.filter(
+      (p: any) => p.status === "IN_PROGRESS",
+    ).length;
+    const completedTasks = tasks.filter(
+      (t: any) => t.status === "COMPLETE",
+    ).length;
 
     content = `
       <div class="stat-grid">
@@ -274,13 +330,18 @@ function generateReportHTML(reportType: string, data: any, userName: string): st
         <table>
           <thead><tr><th>Name</th><th>Status</th><th>Tasks</th></tr></thead>
           <tbody>
-            ${projects.slice(0, 20).map((p: any) => `
+            ${projects
+              .slice(0, 20)
+              .map(
+                (p: any) => `
               <tr>
                 <td>${p.name}</td>
-                <td><span class="badge badge-${p.status === 'COMPLETED' ? 'success' : p.status === 'IN_PROGRESS' ? 'info' : 'warning'}">${p.status}</span></td>
+                <td><span class="badge badge-${p.status === "COMPLETED" ? "success" : p.status === "IN_PROGRESS" ? "info" : "warning"}">${p.status}</span></td>
                 <td>${p._count?.tasks || 0}</td>
               </tr>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>

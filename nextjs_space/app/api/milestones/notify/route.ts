@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -19,23 +19,35 @@ export async function POST(request: NextRequest) {
     const { milestoneId, recipientEmail } = body;
 
     if (!milestoneId) {
-      return NextResponse.json({ error: "Milestone ID required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Milestone ID required" },
+        { status: 400 },
+      );
     }
 
     // Fetch milestone details
     const milestone = await prisma.milestone.findFirst({
       where: {
         id: milestoneId,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
       include: {
-        project: { select: { id: true, name: true, manager: { select: { name: true, email: true } } } },
-        createdBy: { select: { name: true } }
-      }
+        project: {
+          select: {
+            id: true,
+            name: true,
+            manager: { select: { name: true, email: true } },
+          },
+        },
+        createdBy: { select: { name: true } },
+      },
     });
 
     if (!milestone) {
-      return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Milestone not found" },
+        { status: 404 },
+      );
     }
 
     const targetDate = new Date(milestone.targetDate);
@@ -43,8 +55,16 @@ export async function POST(request: NextRequest) {
     const isOverdue = isPast(targetDate) && milestone.status !== "COMPLETED";
 
     // Create email HTML
-    const statusColor = isOverdue ? "#dc2626" : daysUntil <= 3 ? "#f59e0b" : "#2563eb";
-    const statusText = isOverdue ? "OVERDUE" : daysUntil <= 0 ? "Due Today" : `Due in ${daysUntil} days`;
+    const statusColor = isOverdue
+      ? "#dc2626"
+      : daysUntil <= 3
+        ? "#f59e0b"
+        : "#2563eb";
+    const statusText = isOverdue
+      ? "OVERDUE"
+      : daysUntil <= 0
+        ? "Due Today"
+        : `Due in ${daysUntil} days`;
 
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 20px;">
@@ -58,12 +78,12 @@ export async function POST(request: NextRequest) {
             <span style="background: ${statusColor}; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">
               ${statusText}
             </span>
-            ${milestone.isCritical ? '<span style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">CRITICAL</span>' : ''}
+            ${milestone.isCritical ? '<span style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 8px;">CRITICAL</span>' : ""}
           </div>
 
           <h2 style="color: #1e3a5f; margin: 0 0 10px; font-size: 22px;">${milestone.name}</h2>
           
-          ${milestone.description ? `<p style="color: #64748b; margin: 0 0 20px;">${milestone.description}</p>` : ''}
+          ${milestone.description ? `<p style="color: #64748b; margin: 0 0 20px;">${milestone.description}</p>` : ""}
 
           <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
@@ -88,7 +108,7 @@ export async function POST(request: NextRequest) {
 
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
             <p style="color: #64748b; font-size: 14px; margin: 0;">
-              ${isOverdue ? 'This milestone is overdue. Please review and update the status.' : 'Please ensure this milestone stays on track.'}
+              ${isOverdue ? "This milestone is overdue. Please review and update the status." : "Please ensure this milestone stays on track."}
             </p>
           </div>
         </div>
@@ -102,29 +122,38 @@ export async function POST(request: NextRequest) {
     // Send email notification
     const appUrl = process.env.NEXTAUTH_URL || "";
     const appName = "CortexBuild Pro";
-    const email = recipientEmail || milestone.project.manager?.email || session.user.email;
+    const email =
+      recipientEmail || milestone.project.manager?.email || session.user.email;
 
-    const response = await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_APIKEY,
-        app_id: process.env.WEB_APPID,
-        notification_id: process.env.NOTIF_ID_MILESTONE_DEADLINEREMINDER,
-        subject: `${isOverdue ? "[OVERDUE]" : "[Reminder]"} Milestone: ${milestone.name}`,
-        body: htmlBody,
-        is_html: true,
-        recipient_email: email,
-        sender_email: appUrl ? `noreply@${new URL(appUrl).hostname}` : undefined,
-        sender_alias: appName
-      })
-    });
+    const response = await fetch(
+      "https://apps.abacus.ai/api/sendNotificationEmail",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deployment_token: process.env.ABACUSAI_API_KEY,
+          app_id: process.env.WEB_APP_ID,
+          notification_id: process.env.NOTIF_ID_MILESTONE_DEADLINEREMINDER,
+          subject: `${isOverdue ? "[OVERDUE]" : "[Reminder]"} Milestone: ${milestone.name}`,
+          body: htmlBody,
+          is_html: true,
+          recipient_email: email,
+          sender_email: appUrl
+            ? `noreply@${new URL(appUrl).hostname}`
+            : undefined,
+          sender_alias: appName,
+        }),
+      },
+    );
 
     const result = await response.json();
 
     if (!result.success) {
       if (result.notification_disabled) {
-        return NextResponse.json({ success: true, message: "Notification disabled by user" });
+        return NextResponse.json({
+          success: true,
+          message: "Notification disabled by user",
+        });
       }
       throw new Error(result.message || "Failed to send notification");
     }
@@ -138,14 +167,17 @@ export async function POST(request: NextRequest) {
         entityName: milestone.name,
         details: `Reminder sent to ${email}`,
         userId: session.user.id,
-        projectId: milestone.projectId
-      }
+        projectId: milestone.projectId,
+      },
     });
 
     return NextResponse.json({ success: true, message: "Notification sent" });
   } catch (error) {
     console.error("Error sending milestone notification:", error);
-    return NextResponse.json({ error: "Failed to send notification" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to send notification" },
+      { status: 500 },
+    );
   }
 }
 
@@ -164,29 +196,32 @@ export async function GET(_request: NextRequest) {
       where: {
         project: { organizationId: session.user.organizationId ?? "" },
         status: { notIn: ["COMPLETED"] },
-        targetDate: { lte: upcomingThreshold }
+        targetDate: { lte: upcomingThreshold },
       },
       include: {
-        project: { select: { id: true, name: true } }
+        project: { select: { id: true, name: true } },
       },
-      orderBy: { targetDate: "asc" }
+      orderBy: { targetDate: "asc" },
     });
 
     const categorized = {
-      overdue: milestones.filter(m => isPast(new Date(m.targetDate))),
-      dueToday: milestones.filter(m => {
+      overdue: milestones.filter((m) => isPast(new Date(m.targetDate))),
+      dueToday: milestones.filter((m) => {
         const d = new Date(m.targetDate);
         return d.toDateString() === now.toDateString();
       }),
-      upcoming: milestones.filter(m => {
+      upcoming: milestones.filter((m) => {
         const d = new Date(m.targetDate);
         return d > now && d <= upcomingThreshold;
-      })
+      }),
     };
 
     return NextResponse.json(categorized);
   } catch (error) {
     console.error("Error fetching milestone status:", error);
-    return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch milestones" },
+      { status: 500 },
+    );
   }
 }

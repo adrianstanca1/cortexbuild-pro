@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { generateSlug } from '@/lib/entitlements';
-import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { generateSlug } from "@/lib/entitlements";
+import bcrypt from "bcryptjs";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+export const dynamic = "force-dynamic";
 
 // POST /api/invitations/accept - Accept invitation and create company/owner
 export async function POST(request: NextRequest) {
@@ -17,22 +15,22 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!token || !password) {
       return NextResponse.json(
-        { error: 'Token and password are required' },
-        { status: 400 }
+        { error: "Token and password are required" },
+        { status: 400 },
       );
     }
 
     if (password !== confirmPassword) {
       return NextResponse.json(
-        { error: 'Passwords do not match' },
-        { status: 400 }
+        { error: "Passwords do not match" },
+        { status: 400 },
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Password must be at least 8 characters' },
-        { status: 400 }
+        { error: "Password must be at least 8 characters" },
+        { status: 400 },
       );
     }
 
@@ -43,33 +41,33 @@ export async function POST(request: NextRequest) {
 
     if (!invitation) {
       return NextResponse.json(
-        { error: 'Invalid invitation token' },
-        { status: 404 }
+        { error: "Invalid invitation token" },
+        { status: 404 },
       );
     }
 
-    if (invitation.status === 'ACCEPTED') {
+    if (invitation.status === "ACCEPTED") {
       return NextResponse.json(
-        { error: 'This invitation has already been accepted' },
-        { status: 400 }
+        { error: "This invitation has already been accepted" },
+        { status: 400 },
       );
     }
 
-    if (invitation.status === 'REVOKED') {
+    if (invitation.status === "REVOKED") {
       return NextResponse.json(
-        { error: 'This invitation has been revoked' },
-        { status: 400 }
+        { error: "This invitation has been revoked" },
+        { status: 400 },
       );
     }
 
     if (new Date() > invitation.expiresAt) {
       await prisma.companyInvitation.update({
         where: { id: invitation.id },
-        data: { status: 'EXPIRED' },
+        data: { status: "EXPIRED" },
       });
       return NextResponse.json(
-        { error: 'This invitation has expired' },
-        { status: 400 }
+        { error: "This invitation has expired" },
+        { status: 400 },
       );
     }
 
@@ -79,8 +77,8 @@ export async function POST(request: NextRequest) {
     });
     if (existingUser) {
       return NextResponse.json(
-        { error: 'A user with this email already exists' },
-        { status: 400 }
+        { error: "A user with this email already exists" },
+        { status: 400 },
       );
     }
 
@@ -114,7 +112,7 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           name: invitation.ownerName,
           phone: invitation.ownerPhone,
-          role: 'COMPANY_OWNER',
+          role: "COMPANY_OWNER",
           organizationId: organization.id,
         },
       });
@@ -124,8 +122,8 @@ export async function POST(request: NextRequest) {
         data: {
           userId: user.id,
           organizationId: organization.id,
-          jobTitle: 'Company Owner',
-          department: 'Management',
+          jobTitle: "Company Owner",
+          department: "Management",
         },
       });
 
@@ -133,7 +131,7 @@ export async function POST(request: NextRequest) {
       const updatedInvitation = await tx.companyInvitation.update({
         where: { id: invitation.id },
         data: {
-          status: 'ACCEPTED',
+          status: "ACCEPTED",
           acceptedAt: new Date(),
           organizationId: organization.id,
         },
@@ -142,8 +140,8 @@ export async function POST(request: NextRequest) {
       // Log activity
       await tx.activityLog.create({
         data: {
-          action: 'Company Onboarded',
-          entityType: 'Organization',
+          action: "Company Onboarded",
+          entityType: "Organization",
           entityId: organization.id,
           entityName: organization.name,
           details: `${user.name} accepted invitation and created ${organization.name}`,
@@ -156,7 +154,7 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email
     try {
-      const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
       const loginUrl = `${appUrl}/login`;
 
       const htmlBody = `
@@ -205,20 +203,20 @@ export async function POST(request: NextRequest) {
         </div>
       `;
 
-      await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
+          deployment_token: process.env.ABACUSAI_API_KEY,
           subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
           recipient_email: result.user.email,
-          sender_alias: 'CortexBuild Pro',
+          sender_alias: "CortexBuild Pro",
         }),
       });
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
+      console.error("Failed to send welcome email:", emailError);
     }
 
     // Notify super admin
@@ -232,25 +230,25 @@ export async function POST(request: NextRequest) {
         </div>
       `;
 
-      await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_APIKEY,
+          deployment_token: process.env.ABACUSAI_API_KEY,
           subject: `[Admin] New Company: ${result.organization.name}`,
           body: htmlBody,
           is_html: true,
-          recipient_email: 'adrian.stanca1@gmail.com',
-          sender_alias: 'CortexBuild Pro Admin',
+          recipient_email: "adrian.stanca1@gmail.com",
+          sender_alias: "CortexBuild Pro Admin",
         }),
       });
     } catch (e) {
-      console.error('Failed to notify admin:', e);
+      console.error("Failed to notify admin:", e);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Account created successfully',
+      message: "Account created successfully",
       organization: {
         id: result.organization.id,
         name: result.organization.name,
@@ -258,10 +256,10 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error accepting invitation:', error);
+    console.error("Error accepting invitation:", error);
     return NextResponse.json(
-      { error: 'Failed to accept invitation' },
-      { status: 500 }
+      { error: "Failed to accept invitation" },
+      { status: 500 },
     );
   }
 }
