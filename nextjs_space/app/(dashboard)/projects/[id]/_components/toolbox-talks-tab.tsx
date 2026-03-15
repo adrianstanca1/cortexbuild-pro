@@ -4,15 +4,31 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format, formatDistanceToNow } from "date-fns";
 import {
-  MessageSquare, Plus, Users, Calendar, Clock, MapPin, Check,
-  ChevronRight, Loader2, PenTool, AlertTriangle, CheckCircle2, Download
+  MessageSquare,
+  Plus,
+  Users,
+  Calendar,
+  Clock,
+  MapPin,
+  Check,
+  ChevronRight,
+  Loader2,
+  PenTool,
+  AlertTriangle,
+  CheckCircle2,
+  Download,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { SignaturePad, SignatureDisplay } from "@/components/ui/signature-pad";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { toast } from "sonner";
@@ -56,10 +72,14 @@ const statusColors: Record<string, string> = {
   SCHEDULED: "secondary",
   IN_PROGRESS: "info",
   COMPLETED: "success",
-  CANCELLED: "destructive"
+  CANCELLED: "destructive",
 };
 
-export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMembers }: ToolboxTalksTabProps) {
+export function ToolboxTalksTab({
+  projectId,
+  toolboxTalks: initialTalks,
+  teamMembers,
+}: ToolboxTalksTabProps) {
   const router = useRouter();
   const [talks, setTalks] = useState<ToolboxTalk[]>(initialTalks || []);
   const [loading, setLoading] = useState(false);
@@ -76,12 +96,12 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
     location: "",
     keyPoints: "",
     hazardsDiscussed: "",
-    safetyMeasures: ""
+    safetyMeasures: "",
   });
   const [signData, setSignData] = useState({
     name: "",
     company: "",
-    trade: ""
+    trade: "",
   });
 
   const fetchTalks = useCallback(async () => {
@@ -91,15 +111,15 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
         const data = await res.json();
         setTalks(data.toolboxTalks || []);
       }
-    } catch (error) {
-      console.error("Error fetching toolbox talks:", error);
+    } catch (_error) {
+      console.error("Error fetching toolbox talks:", _error);
     }
   }, [projectId]);
 
   useRealtimeSubscription(
     ["toolbox_talk_created", "toolbox_talk_updated", "toolbox_talk_signed"],
     fetchTalks,
-    [projectId]
+    [projectId],
   );
 
   const handleCreateTalk = async () => {
@@ -114,9 +134,11 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           date: new Date(`${newTalk.date}T${newTalk.startTime}`),
           startTime: new Date(`${newTalk.date}T${newTalk.startTime}`),
           keyPoints: newTalk.keyPoints.split("\n").filter(Boolean),
-          hazardsDiscussed: newTalk.hazardsDiscussed.split("\n").filter(Boolean),
-          safetyMeasures: newTalk.safetyMeasures.split("\n").filter(Boolean)
-        })
+          hazardsDiscussed: newTalk.hazardsDiscussed
+            .split("\n")
+            .filter(Boolean),
+          safetyMeasures: newTalk.safetyMeasures.split("\n").filter(Boolean),
+        }),
       });
 
       if (res.ok) {
@@ -131,7 +153,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           location: "",
           keyPoints: "",
           hazardsDiscussed: "",
-          safetyMeasures: ""
+          safetyMeasures: "",
         });
         fetchTalks();
         router.refresh();
@@ -139,7 +161,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
         const data = await res.json();
         toast.error(data.error || "Failed to create toolbox talk");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create toolbox talk");
     } finally {
       setLoading(false);
@@ -158,8 +180,8 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           name: signData.name,
           company: signData.company,
           trade: signData.trade,
-          signatureData
-        })
+          signatureData,
+        }),
       });
 
       if (res.ok) {
@@ -171,7 +193,7 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
         const data = await res.json();
         toast.error(data.error || "Failed to record signature");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to record signature");
     } finally {
       setLoading(false);
@@ -183,13 +205,13 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
       const res = await fetch(`/api/toolbox-talks/${talk.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "IN_PROGRESS", startTime: new Date() })
+        body: JSON.stringify({ status: "IN_PROGRESS", startTime: new Date() }),
       });
       if (res.ok) {
         toast.success("Toolbox talk started");
         fetchTalks();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to start toolbox talk");
     }
   };
@@ -199,13 +221,13 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
       const res = await fetch(`/api/toolbox-talks/${talk.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "COMPLETED", endTime: new Date() })
+        body: JSON.stringify({ status: "COMPLETED", endTime: new Date() }),
       });
       if (res.ok) {
         toast.success("Toolbox talk completed");
         fetchTalks();
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to complete toolbox talk");
     }
   };
@@ -215,8 +237,12 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Toolbox Talks</h3>
-          <p className="text-sm text-muted-foreground">Safety briefings with attendance tracking</p>
+          <h3 className="text-lg font-semibold text-foreground">
+            Toolbox Talks
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Safety briefings with attendance tracking
+          </p>
         </div>
         <Button onClick={() => setShowNewModal(true)} variant="accent">
           <Plus className="h-4 w-4 mr-2" />
@@ -230,8 +256,14 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           <Card>
             <CardContent className="py-12 text-center">
               <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No toolbox talks scheduled</p>
-              <Button onClick={() => setShowNewModal(true)} variant="outline" className="mt-4">
+              <p className="text-muted-foreground">
+                No toolbox talks scheduled
+              </p>
+              <Button
+                onClick={() => setShowNewModal(true)}
+                variant="outline"
+                className="mt-4"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Schedule First Talk
               </Button>
@@ -239,8 +271,14 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           </Card>
         ) : (
           talks.map((talk) => (
-            <Card key={talk.id} className="hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => { setSelectedTalk(talk); setShowDetailModal(true); }}>
+            <Card
+              key={talk.id}
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => {
+                setSelectedTalk(talk);
+                setShowDetailModal(true);
+              }}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -252,8 +290,12 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
                         {format(new Date(talk.date), "MMM d, yyyy")}
                       </span>
                     </div>
-                    <h4 className="font-semibold text-foreground">{talk.title}</h4>
-                    <p className="text-sm text-muted-foreground">{talk.topic}</p>
+                    <h4 className="font-semibold text-foreground">
+                      {talk.title}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {talk.topic}
+                    </p>
                     <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
@@ -267,27 +309,46 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
                       )}
                       <span className="flex items-center gap-1">
                         <PenTool className="h-3 w-3" />
-                        {talk.attendees?.filter(a => a.signedAt).length || 0} / {talk.attendees?.length || 0} signed
+                        {talk.attendees?.filter((a) => a.signedAt).length ||
+                          0}{" "}
+                        / {talk.attendees?.length || 0} signed
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     {talk.status === "SCHEDULED" && (
-                      <Button size="sm" onClick={(e) => { e.stopPropagation(); handleStartTalk(talk); }}>
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartTalk(talk);
+                        }}
+                      >
                         Start
                       </Button>
                     )}
                     {talk.status === "IN_PROGRESS" && (
                       <>
-                        <Button size="sm" variant="outline" onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedTalk(talk);
-                          setShowSignModal(true);
-                        }}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTalk(talk);
+                            setShowSignModal(true);
+                          }}
+                        >
                           <PenTool className="h-4 w-4 mr-1" />
                           Sign
                         </Button>
-                        <Button size="sm" variant="accent" onClick={(e) => { e.stopPropagation(); handleCompleteTalk(talk); }}>
+                        <Button
+                          size="sm"
+                          variant="accent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCompleteTalk(talk);
+                          }}
+                        >
                           <Check className="h-4 w-4 mr-1" />
                           Complete
                         </Button>
@@ -310,87 +371,128 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Title *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Title *
+                </label>
                 <Input
                   value={newTalk.title}
-                  onChange={(e) => setNewTalk({ ...newTalk, title: e.target.value })}
+                  onChange={(e) =>
+                    setNewTalk({ ...newTalk, title: e.target.value })
+                  }
                   placeholder="Morning Safety Briefing"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Topic *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Topic *
+                </label>
                 <Input
                   value={newTalk.topic}
-                  onChange={(e) => setNewTalk({ ...newTalk, topic: e.target.value })}
+                  onChange={(e) =>
+                    setNewTalk({ ...newTalk, topic: e.target.value })
+                  }
                   placeholder="Working at Heights"
                 />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Description</label>
+              <label className="text-sm font-medium text-foreground">
+                Description
+              </label>
               <Textarea
                 value={newTalk.description}
-                onChange={(e) => setNewTalk({ ...newTalk, description: e.target.value })}
+                onChange={(e) =>
+                  setNewTalk({ ...newTalk, description: e.target.value })
+                }
                 placeholder="Brief description of what will be covered..."
                 rows={2}
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Date *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Date *
+                </label>
                 <Input
                   type="date"
                   value={newTalk.date}
-                  onChange={(e) => setNewTalk({ ...newTalk, date: e.target.value })}
+                  onChange={(e) =>
+                    setNewTalk({ ...newTalk, date: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Start Time</label>
+                <label className="text-sm font-medium text-foreground">
+                  Start Time
+                </label>
                 <Input
                   type="time"
                   value={newTalk.startTime}
-                  onChange={(e) => setNewTalk({ ...newTalk, startTime: e.target.value })}
+                  onChange={(e) =>
+                    setNewTalk({ ...newTalk, startTime: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Location</label>
+                <label className="text-sm font-medium text-foreground">
+                  Location
+                </label>
                 <Input
                   value={newTalk.location}
-                  onChange={(e) => setNewTalk({ ...newTalk, location: e.target.value })}
+                  onChange={(e) =>
+                    setNewTalk({ ...newTalk, location: e.target.value })
+                  }
                   placeholder="Site office"
                 />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Key Points (one per line)</label>
+              <label className="text-sm font-medium text-foreground">
+                Key Points (one per line)
+              </label>
               <Textarea
                 value={newTalk.keyPoints}
-                onChange={(e) => setNewTalk({ ...newTalk, keyPoints: e.target.value })}
+                onChange={(e) =>
+                  setNewTalk({ ...newTalk, keyPoints: e.target.value })
+                }
                 placeholder="Always wear PPE\nCheck equipment before use\nReport any hazards"
                 rows={3}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Hazards Discussed (one per line)</label>
+              <label className="text-sm font-medium text-foreground">
+                Hazards Discussed (one per line)
+              </label>
               <Textarea
                 value={newTalk.hazardsDiscussed}
-                onChange={(e) => setNewTalk({ ...newTalk, hazardsDiscussed: e.target.value })}
+                onChange={(e) =>
+                  setNewTalk({ ...newTalk, hazardsDiscussed: e.target.value })
+                }
                 placeholder="Working at heights\nSlippery surfaces\nMoving machinery"
                 rows={3}
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Safety Measures (one per line)</label>
+              <label className="text-sm font-medium text-foreground">
+                Safety Measures (one per line)
+              </label>
               <Textarea
                 value={newTalk.safetyMeasures}
-                onChange={(e) => setNewTalk({ ...newTalk, safetyMeasures: e.target.value })}
+                onChange={(e) =>
+                  setNewTalk({ ...newTalk, safetyMeasures: e.target.value })
+                }
                 placeholder="Use harness when above 2m\nWear non-slip footwear\nMaintain safe distance"
                 rows={3}
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-              <Button onClick={handleCreateTalk} disabled={loading || !newTalk.title || !newTalk.topic}>
+              <Button variant="outline" onClick={() => setShowNewModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateTalk}
+                disabled={loading || !newTalk.title || !newTalk.topic}
+              >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Create Toolbox Talk
               </Button>
@@ -407,33 +509,47 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Your Name *</label>
+              <label className="text-sm font-medium text-foreground">
+                Your Name *
+              </label>
               <Input
                 value={signData.name}
-                onChange={(e) => setSignData({ ...signData, name: e.target.value })}
+                onChange={(e) =>
+                  setSignData({ ...signData, name: e.target.value })
+                }
                 placeholder="John Smith"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Company</label>
+                <label className="text-sm font-medium text-foreground">
+                  Company
+                </label>
                 <Input
                   value={signData.company}
-                  onChange={(e) => setSignData({ ...signData, company: e.target.value })}
+                  onChange={(e) =>
+                    setSignData({ ...signData, company: e.target.value })
+                  }
                   placeholder="ABC Construction"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Trade</label>
+                <label className="text-sm font-medium text-foreground">
+                  Trade
+                </label>
                 <Input
                   value={signData.trade}
-                  onChange={(e) => setSignData({ ...signData, trade: e.target.value })}
+                  onChange={(e) =>
+                    setSignData({ ...signData, trade: e.target.value })
+                  }
                   placeholder="Electrician"
                 />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Signature *</label>
+              <label className="text-sm font-medium text-foreground">
+                Signature *
+              </label>
               <SignaturePad
                 onSignature={handleSignTalk}
                 disabled={loading || !signData.name}
@@ -453,11 +569,11 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const link = document.createElement('a');
+                  const link = document.createElement("a");
                   link.href = `/api/toolbox-talks/${selectedTalk.id}/pdf`;
                   link.download = `toolbox-talk-${selectedTalk.id}.pdf`;
                   link.click();
-                  toast.success('Downloading PDF...');
+                  toast.success("Downloading PDF...");
                 }}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -470,30 +586,43 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Topic:</span>
-                  <p className="font-medium text-foreground">{selectedTalk.topic}</p>
+                  <p className="font-medium text-foreground">
+                    {selectedTalk.topic}
+                  </p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Status:</span>
-                  <Badge variant={statusColors[selectedTalk.status] as any} className="ml-2">
+                  <Badge
+                    variant={statusColors[selectedTalk.status] as any}
+                    className="ml-2"
+                  >
                     {selectedTalk.status}
                   </Badge>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Presenter:</span>
-                  <p className="font-medium text-foreground">{selectedTalk.presenter?.name}</p>
+                  <p className="font-medium text-foreground">
+                    {selectedTalk.presenter?.name}
+                  </p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Date:</span>
-                  <p className="font-medium text-foreground">{format(new Date(selectedTalk.date), "PPP")}</p>
+                  <p className="font-medium text-foreground">
+                    {format(new Date(selectedTalk.date), "PPP")}
+                  </p>
                 </div>
               </div>
 
               {selectedTalk.keyPoints?.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Key Points</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    Key Points
+                  </h4>
                   <ul className="list-disc list-inside space-y-1">
                     {selectedTalk.keyPoints.map((point, i) => (
-                      <li key={i} className="text-sm text-foreground">{point}</li>
+                      <li key={i} className="text-sm text-foreground">
+                        {point}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -507,7 +636,9 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
                   </h4>
                   <ul className="list-disc list-inside space-y-1">
                     {selectedTalk.hazardsDiscussed.map((hazard, i) => (
-                      <li key={i} className="text-sm text-foreground">{hazard}</li>
+                      <li key={i} className="text-sm text-foreground">
+                        {hazard}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -521,7 +652,9 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
                   </h4>
                   <ul className="list-disc list-inside space-y-1">
                     {selectedTalk.safetyMeasures.map((measure, i) => (
-                      <li key={i} className="text-sm text-foreground">{measure}</li>
+                      <li key={i} className="text-sm text-foreground">
+                        {measure}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -529,14 +662,23 @@ export function ToolboxTalksTab({ projectId, toolboxTalks: initialTalks, teamMem
 
               {/* Attendees */}
               <div>
-                <h4 className="font-semibold text-foreground mb-2">Attendees ({selectedTalk.attendees?.length || 0})</h4>
+                <h4 className="font-semibold text-foreground mb-2">
+                  Attendees ({selectedTalk.attendees?.length || 0})
+                </h4>
                 <div className="space-y-3">
                   {selectedTalk.attendees?.map((attendee) => (
-                    <div key={attendee.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                    <div
+                      key={attendee.id}
+                      className="flex items-center justify-between p-3 border border-border rounded-lg"
+                    >
                       <div>
-                        <p className="font-medium text-foreground">{attendee.name}</p>
+                        <p className="font-medium text-foreground">
+                          {attendee.name}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {[attendee.trade, attendee.company].filter(Boolean).join(" • ")}
+                          {[attendee.trade, attendee.company]
+                            .filter(Boolean)
+                            .join(" • ")}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

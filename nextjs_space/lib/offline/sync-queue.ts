@@ -25,7 +25,7 @@ class SyncQueue {
         this.queue = JSON.parse(saved);
       }
     } catch (_error) {
-      console.error("Failed to load sync queue:", error);
+      console.error("Failed to load sync queue:", _error);
       this.queue = [];
     }
   }
@@ -34,7 +34,7 @@ class SyncQueue {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.queue));
     } catch (_error) {
-      console.error("Failed to save sync queue:", error);
+      console.error("Failed to save sync queue:", _error);
     }
   }
 
@@ -60,7 +60,7 @@ class SyncQueue {
 
       return { queued: true, offline: !navigator.onLine };
     } catch (_error) {
-      console.error("Error queuing request:", error);
+      console.error("Error queuing request:", _error);
       return { queued: false, offline: false };
     }
   }

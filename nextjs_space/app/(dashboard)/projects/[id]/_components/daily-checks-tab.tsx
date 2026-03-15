@@ -4,16 +4,40 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-  HardHat, Wrench, Plus, Check, X, AlertTriangle, ChevronRight,
-  Loader2, Calendar, User, FileText, CheckCircle2, XCircle, Shield, Download
+  HardHat,
+  Wrench,
+  Plus,
+  Check,
+  X,
+  AlertTriangle,
+  ChevronRight,
+  Loader2,
+  Calendar,
+  User,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Shield,
+  Download,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SignaturePad, SignatureDisplay } from "@/components/ui/signature-pad";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
@@ -34,7 +58,7 @@ const CHECK_ITEMS = {
     { key: "warningAlarms", label: "Warning Alarms" },
     { key: "manualOverride", label: "Manual Override" },
     { key: "loadPlateVisible", label: "Load Plate Visible" },
-    { key: "userManualPresent", label: "User Manual Present" }
+    { key: "userManualPresent", label: "User Manual Present" },
   ],
   powerTool: [
     { key: "generalCondition", label: "General Condition" },
@@ -44,7 +68,7 @@ const CHECK_ITEMS = {
     { key: "switchesFunctional", label: "Switches Functional" },
     { key: "handlesSecure", label: "Handles Secure" },
     { key: "safetyFeatures", label: "Safety Features" },
-    { key: "patTestCurrent", label: "PAT Test Current" }
+    { key: "patTestCurrent", label: "PAT Test Current" },
   ],
   ladder: [
     { key: "generalCondition", label: "General Condition" },
@@ -52,15 +76,15 @@ const CHECK_ITEMS = {
     { key: "rungCondition", label: "Rung Condition" },
     { key: "feetCondition", label: "Feet Condition" },
     { key: "lockingMechanismOk", label: "Locking Mechanism" },
-    { key: "safetyFeatures", label: "Safety Labels" }
+    { key: "safetyFeatures", label: "Safety Labels" },
   ],
   handTool: [
     { key: "generalCondition", label: "General Condition" },
     { key: "handlesSecure", label: "Handles Secure" },
     { key: "bladeSharpness", label: "Blade/Edge Condition" },
     { key: "safetyFeatures", label: "Safety Features" },
-    { key: "storageCondition", label: "Storage Condition" }
-  ]
+    { key: "storageCondition", label: "Storage Condition" },
+  ],
 };
 
 const TOOL_TYPES = [
@@ -68,14 +92,14 @@ const TOOL_TYPES = [
   { value: "HAND_TOOL", label: "Hand Tool" },
   { value: "LADDER", label: "Ladder" },
   { value: "SCAFFOLD", label: "Scaffold" },
-  { value: "OTHER", label: "Other" }
+  { value: "OTHER", label: "Other" },
 ];
 
 const statusColors: Record<string, any> = {
   PASS: "success",
   FAIL: "destructive",
   NEEDS_ATTENTION: "warning",
-  NOT_APPLICABLE: "secondary"
+  NOT_APPLICABLE: "secondary",
 };
 
 interface DailyChecksTabProps {
@@ -89,7 +113,7 @@ export function DailyChecksTab({
   projectId,
   mewpChecks: initialMewpChecks,
   toolChecks: initialToolChecks,
-  equipment
+  equipment,
 }: DailyChecksTabProps) {
   const router = useRouter();
   const [mewpChecks, setMewpChecks] = useState(initialMewpChecks || []);
@@ -117,7 +141,7 @@ export function DailyChecksTab({
     defectsFound: "",
     actionsTaken: "",
     comments: "",
-    checkItems: {} as Record<string, string>
+    checkItems: {} as Record<string, string>,
   });
 
   // Tool check form
@@ -131,14 +155,14 @@ export function DailyChecksTab({
     defectsFound: "",
     actionsTaken: "",
     comments: "",
-    checkItems: {} as Record<string, string>
+    checkItems: {} as Record<string, string>,
   });
 
   const fetchChecks = useCallback(async () => {
     try {
       const [mewpRes, toolRes] = await Promise.all([
         fetch(`/api/mewp-checks?projectId=${projectId}`),
-        fetch(`/api/tool-checks?projectId=${projectId}`)
+        fetch(`/api/tool-checks?projectId=${projectId}`),
       ]);
       if (mewpRes.ok) {
         const data = await mewpRes.json();
@@ -148,35 +172,40 @@ export function DailyChecksTab({
         const data = await toolRes.json();
         setToolChecks(data.checks || []);
       }
-    } catch (error) {
-      console.error("Error fetching checks:", error);
+    } catch (_error) {
+      console.error("Error fetching checks:", _error);
     }
   }, [projectId]);
 
   useRealtimeSubscription(
-    ["mewp_check_completed", "mewp_check_updated", "tool_check_completed", "tool_check_updated"],
+    [
+      "mewp_check_completed",
+      "mewp_check_updated",
+      "tool_check_completed",
+      "tool_check_updated",
+    ],
     fetchChecks,
-    [projectId]
+    [projectId],
   );
 
   const handleMewpCheckItem = (key: string, value: string) => {
-    setMewpForm(prev => ({
+    setMewpForm((prev) => ({
       ...prev,
-      checkItems: { ...prev.checkItems, [key]: value }
+      checkItems: { ...prev.checkItems, [key]: value },
     }));
   };
 
   const handleToolCheckItem = (key: string, value: string) => {
-    setToolForm(prev => ({
+    setToolForm((prev) => ({
       ...prev,
-      checkItems: { ...prev.checkItems, [key]: value }
+      checkItems: { ...prev.checkItems, [key]: value },
     }));
   };
 
   const calculateOverallStatus = (items: Record<string, string>): string => {
     const values = Object.values(items);
-    if (values.some(v => v === "DEFECTIVE")) return "FAIL";
-    if (values.some(v => v === "NEEDS_REPAIR")) return "NEEDS_ATTENTION";
+    if (values.some((v) => v === "DEFECTIVE")) return "FAIL";
+    if (values.some((v) => v === "NEEDS_REPAIR")) return "NEEDS_ATTENTION";
     return "PASS";
   };
 
@@ -197,8 +226,8 @@ export function DailyChecksTab({
           ...mewpForm.checkItems,
           overallStatus,
           isSafeToUse,
-          operatorSignature: signatureData
-        })
+          operatorSignature: signatureData,
+        }),
       });
 
       if (res.ok) {
@@ -211,7 +240,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create MEWP check");
     } finally {
       setLoading(false);
@@ -233,8 +262,8 @@ export function DailyChecksTab({
           ...toolForm.checkItems,
           overallStatus,
           isSafeToUse,
-          inspectorSignature: signatureData
-        })
+          inspectorSignature: signatureData,
+        }),
       });
 
       if (res.ok) {
@@ -247,7 +276,7 @@ export function DailyChecksTab({
         const data = await res.json();
         toast.error(data.error || "Failed to create check");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create tool check");
     } finally {
       setLoading(false);
@@ -269,7 +298,7 @@ export function DailyChecksTab({
       defectsFound: "",
       actionsTaken: "",
       comments: "",
-      checkItems: {}
+      checkItems: {},
     });
   };
 
@@ -284,16 +313,20 @@ export function DailyChecksTab({
       defectsFound: "",
       actionsTaken: "",
       comments: "",
-      checkItems: {}
+      checkItems: {},
     });
   };
 
   const getToolCheckItems = () => {
     switch (toolForm.toolType) {
-      case "POWER_TOOL": return CHECK_ITEMS.powerTool;
-      case "LADDER": return CHECK_ITEMS.ladder;
-      case "HAND_TOOL": return CHECK_ITEMS.handTool;
-      default: return CHECK_ITEMS.handTool;
+      case "POWER_TOOL":
+        return CHECK_ITEMS.powerTool;
+      case "LADDER":
+        return CHECK_ITEMS.ladder;
+      case "HAND_TOOL":
+        return CHECK_ITEMS.handTool;
+      default:
+        return CHECK_ITEMS.handTool;
     }
   };
 
@@ -305,22 +338,32 @@ export function DailyChecksTab({
             <TabsTrigger value="mewp" className="flex items-center gap-2">
               <HardHat className="h-4 w-4" />
               MEWP Checks
-              <Badge variant="secondary" className="ml-1">{mewpChecks.length}</Badge>
+              <Badge variant="secondary" className="ml-1">
+                {mewpChecks.length}
+              </Badge>
             </TabsTrigger>
             <TabsTrigger value="tools" className="flex items-center gap-2">
               <Wrench className="h-4 w-4" />
               Tool Checks
-              <Badge variant="secondary" className="ml-1">{toolChecks.length}</Badge>
+              <Badge variant="secondary" className="ml-1">
+                {toolChecks.length}
+              </Badge>
             </TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
             {activeTab === "mewp" ? (
-              <Button onClick={() => setShowNewMewpModal(true)} variant="accent">
+              <Button
+                onClick={() => setShowNewMewpModal(true)}
+                variant="accent"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 New MEWP Check
               </Button>
             ) : (
-              <Button onClick={() => setShowNewToolModal(true)} variant="accent">
+              <Button
+                onClick={() => setShowNewToolModal(true)}
+                variant="accent"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 New Tool Check
               </Button>
@@ -334,7 +377,11 @@ export function DailyChecksTab({
               <CardContent className="py-12 text-center">
                 <HardHat className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground">No MEWP checks recorded</p>
-                <Button onClick={() => setShowNewMewpModal(true)} variant="outline" className="mt-4">
+                <Button
+                  onClick={() => setShowNewMewpModal(true)}
+                  variant="outline"
+                  className="mt-4"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Complete First Check
                 </Button>
@@ -342,8 +389,15 @@ export function DailyChecksTab({
             </Card>
           ) : (
             mewpChecks.map((check: any) => (
-              <Card key={check.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => { setSelectedCheck(check); setCheckType("mewp"); setShowDetailModal(true); }}>
+              <Card
+                key={check.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  setSelectedCheck(check);
+                  setCheckType("mewp");
+                  setShowDetailModal(true);
+                }}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -352,14 +406,24 @@ export function DailyChecksTab({
                           {check.overallStatus}
                         </Badge>
                         {check.isSafeToUse ? (
-                          <Badge variant="success"><CheckCircle2 className="h-3 w-3 mr-1" />Safe to Use</Badge>
+                          <Badge variant="success">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Safe to Use
+                          </Badge>
                         ) : (
-                          <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Not Safe</Badge>
+                          <Badge variant="destructive">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Not Safe
+                          </Badge>
                         )}
                       </div>
-                      <h4 className="font-semibold text-foreground">{check.equipmentName}</h4>
+                      <h4 className="font-semibold text-foreground">
+                        {check.equipmentName}
+                      </h4>
                       <p className="text-sm text-muted-foreground">
-                        {check.equipmentModel} {check.equipmentSerial && `• S/N: ${check.equipmentSerial}`}
+                        {check.equipmentModel}{" "}
+                        {check.equipmentSerial &&
+                          `• S/N: ${check.equipmentSerial}`}
                       </p>
                       <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -368,7 +432,10 @@ export function DailyChecksTab({
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(check.checkDate), "MMM d, yyyy HH:mm")}
+                          {format(
+                            new Date(check.checkDate),
+                            "MMM d, yyyy HH:mm",
+                          )}
                         </span>
                       </div>
                     </div>
@@ -386,7 +453,11 @@ export function DailyChecksTab({
               <CardContent className="py-12 text-center">
                 <Wrench className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground">No tool checks recorded</p>
-                <Button onClick={() => setShowNewToolModal(true)} variant="outline" className="mt-4">
+                <Button
+                  onClick={() => setShowNewToolModal(true)}
+                  variant="outline"
+                  className="mt-4"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Complete First Check
                 </Button>
@@ -394,8 +465,15 @@ export function DailyChecksTab({
             </Card>
           ) : (
             toolChecks.map((check: any) => (
-              <Card key={check.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => { setSelectedCheck(check); setCheckType("tool"); setShowDetailModal(true); }}>
+              <Card
+                key={check.id}
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  setSelectedCheck(check);
+                  setCheckType("tool");
+                  setShowDetailModal(true);
+                }}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -403,16 +481,27 @@ export function DailyChecksTab({
                         <Badge variant={statusColors[check.overallStatus]}>
                           {check.overallStatus}
                         </Badge>
-                        <Badge variant="secondary">{check.toolType.replace("_", " ")}</Badge>
+                        <Badge variant="secondary">
+                          {check.toolType.replace("_", " ")}
+                        </Badge>
                         {check.isSafeToUse ? (
-                          <Badge variant="success"><CheckCircle2 className="h-3 w-3 mr-1" />OK</Badge>
+                          <Badge variant="success">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            OK
+                          </Badge>
                         ) : (
-                          <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Defective</Badge>
+                          <Badge variant="destructive">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Defective
+                          </Badge>
                         )}
                       </div>
-                      <h4 className="font-semibold text-foreground">{check.toolName}</h4>
+                      <h4 className="font-semibold text-foreground">
+                        {check.toolName}
+                      </h4>
                       <p className="text-sm text-muted-foreground">
-                        {check.manufacturer} {check.toolSerial && `• S/N: ${check.toolSerial}`}
+                        {check.manufacturer}{" "}
+                        {check.toolSerial && `• S/N: ${check.toolSerial}`}
                       </p>
                       <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
@@ -421,7 +510,10 @@ export function DailyChecksTab({
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(check.checkDate), "MMM d, yyyy HH:mm")}
+                          {format(
+                            new Date(check.checkDate),
+                            "MMM d, yyyy HH:mm",
+                          )}
                         </span>
                       </div>
                     </div>
@@ -446,37 +538,64 @@ export function DailyChecksTab({
           <div className="space-y-6 py-4">
             {/* Equipment Info */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Equipment Information</h4>
+              <h4 className="font-semibold text-foreground">
+                Equipment Information
+              </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Equipment Name *</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Equipment Name *
+                  </label>
                   <Input
                     value={mewpForm.equipmentName}
-                    onChange={(e) => setMewpForm({ ...mewpForm, equipmentName: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        equipmentName: e.target.value,
+                      })
+                    }
                     placeholder="Cherry Picker / Scissor Lift"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Serial Number</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Serial Number
+                  </label>
                   <Input
                     value={mewpForm.equipmentSerial}
-                    onChange={(e) => setMewpForm({ ...mewpForm, equipmentSerial: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        equipmentSerial: e.target.value,
+                      })
+                    }
                     placeholder="SN-12345"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Model</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Model
+                  </label>
                   <Input
                     value={mewpForm.equipmentModel}
-                    onChange={(e) => setMewpForm({ ...mewpForm, equipmentModel: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        equipmentModel: e.target.value,
+                      })
+                    }
                     placeholder="JLG 460SJ"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Location</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Location
+                  </label>
                   <Input
                     value={mewpForm.location}
-                    onChange={(e) => setMewpForm({ ...mewpForm, location: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({ ...mewpForm, location: e.target.value })
+                    }
                     placeholder="North facade"
                   />
                 </div>
@@ -485,37 +604,64 @@ export function DailyChecksTab({
 
             {/* Weather & Operator */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Operator & Conditions</h4>
+              <h4 className="font-semibold text-foreground">
+                Operator & Conditions
+              </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">IPAF/Operator Cert Number</label>
+                  <label className="text-sm font-medium text-foreground">
+                    IPAF/Operator Cert Number
+                  </label>
                   <Input
                     value={mewpForm.operatorCertNumber}
-                    onChange={(e) => setMewpForm({ ...mewpForm, operatorCertNumber: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        operatorCertNumber: e.target.value,
+                      })
+                    }
                     placeholder="IPAF-12345"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Cert Expiry Date</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Cert Expiry Date
+                  </label>
                   <Input
                     type="date"
                     value={mewpForm.certExpiryDate}
-                    onChange={(e) => setMewpForm({ ...mewpForm, certExpiryDate: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        certExpiryDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Weather Conditions</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Weather Conditions
+                  </label>
                   <Input
                     value={mewpForm.weatherConditions}
-                    onChange={(e) => setMewpForm({ ...mewpForm, weatherConditions: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({
+                        ...mewpForm,
+                        weatherConditions: e.target.value,
+                      })
+                    }
                     placeholder="Clear, 15°C"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Wind Speed</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Wind Speed
+                  </label>
                   <Input
                     value={mewpForm.windSpeed}
-                    onChange={(e) => setMewpForm({ ...mewpForm, windSpeed: e.target.value })}
+                    onChange={(e) =>
+                      setMewpForm({ ...mewpForm, windSpeed: e.target.value })
+                    }
                     placeholder="5 mph"
                   />
                 </div>
@@ -524,32 +670,57 @@ export function DailyChecksTab({
 
             {/* Check Items */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Pre-Use Inspection Checklist</h4>
+              <h4 className="font-semibold text-foreground">
+                Pre-Use Inspection Checklist
+              </h4>
               <div className="grid gap-3">
                 {CHECK_ITEMS.mewp.map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                    <span className="text-sm font-medium text-foreground">{item.label}</span>
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between p-3 border border-border rounded-lg"
+                  >
+                    <span className="text-sm font-medium text-foreground">
+                      {item.label}
+                    </span>
                     <div className="flex gap-2">
-                      {["OK", "DEFECTIVE", "NEEDS_REPAIR", "NA"].map((status) => (
-                        <Button
-                          key={status}
-                          type="button"
-                          size="sm"
-                          variant={mewpForm.checkItems[item.key] === status ? "default" : "outline"}
-                          className={mewpForm.checkItems[item.key] === status ? (
-                            status === "OK" ? "bg-green-500 hover:bg-green-600" :
-                            status === "DEFECTIVE" ? "bg-red-500 hover:bg-red-600" :
-                            status === "NEEDS_REPAIR" ? "bg-amber-500 hover:bg-amber-600" :
-                            ""
-                          ) : ""}
-                          onClick={() => handleMewpCheckItem(item.key, status)}
-                        >
-                          {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
-                           status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
-                           "N/A"}
-                        </Button>
-                      ))}
+                      {["OK", "DEFECTIVE", "NEEDS_REPAIR", "NA"].map(
+                        (status) => (
+                          <Button
+                            key={status}
+                            type="button"
+                            size="sm"
+                            variant={
+                              mewpForm.checkItems[item.key] === status
+                                ? "default"
+                                : "outline"
+                            }
+                            className={
+                              mewpForm.checkItems[item.key] === status
+                                ? status === "OK"
+                                  ? "bg-green-500 hover:bg-green-600"
+                                  : status === "DEFECTIVE"
+                                    ? "bg-red-500 hover:bg-red-600"
+                                    : status === "NEEDS_REPAIR"
+                                      ? "bg-amber-500 hover:bg-amber-600"
+                                      : ""
+                                : ""
+                            }
+                            onClick={() =>
+                              handleMewpCheckItem(item.key, status)
+                            }
+                          >
+                            {status === "OK" ? (
+                              <Check className="h-4 w-4" />
+                            ) : status === "DEFECTIVE" ? (
+                              <X className="h-4 w-4" />
+                            ) : status === "NEEDS_REPAIR" ? (
+                              <AlertTriangle className="h-4 w-4" />
+                            ) : (
+                              "N/A"
+                            )}
+                          </Button>
+                        ),
+                      )}
                     </div>
                   </div>
                 ))}
@@ -559,19 +730,27 @@ export function DailyChecksTab({
             {/* Defects & Comments */}
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Defects Found</label>
+                <label className="text-sm font-medium text-foreground">
+                  Defects Found
+                </label>
                 <Textarea
                   value={mewpForm.defectsFound}
-                  onChange={(e) => setMewpForm({ ...mewpForm, defectsFound: e.target.value })}
+                  onChange={(e) =>
+                    setMewpForm({ ...mewpForm, defectsFound: e.target.value })
+                  }
                   placeholder="List any defects found during inspection..."
                   rows={2}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Actions Taken</label>
+                <label className="text-sm font-medium text-foreground">
+                  Actions Taken
+                </label>
                 <Textarea
                   value={mewpForm.actionsTaken}
-                  onChange={(e) => setMewpForm({ ...mewpForm, actionsTaken: e.target.value })}
+                  onChange={(e) =>
+                    setMewpForm({ ...mewpForm, actionsTaken: e.target.value })
+                  }
                   placeholder="Describe actions taken to address defects..."
                   rows={2}
                 />
@@ -580,9 +759,12 @@ export function DailyChecksTab({
 
             {/* Signature */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Operator Signature</h4>
+              <h4 className="font-semibold text-foreground">
+                Operator Signature
+              </h4>
               <p className="text-sm text-muted-foreground">
-                I confirm I have completed this pre-use inspection and the equipment is safe/unsafe to use as indicated.
+                I confirm I have completed this pre-use inspection and the
+                equipment is safe/unsafe to use as indicated.
               </p>
               <SignaturePad
                 onSignature={handleCreateMewpCheck}
@@ -605,21 +787,35 @@ export function DailyChecksTab({
           <div className="space-y-6 py-4">
             {/* Tool Info */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Tool Information</h4>
+              <h4 className="font-semibold text-foreground">
+                Tool Information
+              </h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Tool Name *</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Tool Name *
+                  </label>
                   <Input
                     value={toolForm.toolName}
-                    onChange={(e) => setToolForm({ ...toolForm, toolName: e.target.value })}
+                    onChange={(e) =>
+                      setToolForm({ ...toolForm, toolName: e.target.value })
+                    }
                     placeholder="DeWalt Drill"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Tool Type *</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Tool Type *
+                  </label>
                   <Select
                     value={toolForm.toolType}
-                    onValueChange={(value) => setToolForm({ ...toolForm, toolType: value, checkItems: {} })}
+                    onValueChange={(value) =>
+                      setToolForm({
+                        ...toolForm,
+                        toolType: value,
+                        checkItems: {},
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -634,18 +830,26 @@ export function DailyChecksTab({
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Serial Number</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Serial Number
+                  </label>
                   <Input
                     value={toolForm.toolSerial}
-                    onChange={(e) => setToolForm({ ...toolForm, toolSerial: e.target.value })}
+                    onChange={(e) =>
+                      setToolForm({ ...toolForm, toolSerial: e.target.value })
+                    }
                     placeholder="SN-12345"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Asset Tag</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Asset Tag
+                  </label>
                   <Input
                     value={toolForm.toolAssetTag}
-                    onChange={(e) => setToolForm({ ...toolForm, toolAssetTag: e.target.value })}
+                    onChange={(e) =>
+                      setToolForm({ ...toolForm, toolAssetTag: e.target.value })
+                    }
                     placeholder="TOOL-001"
                   />
                 </div>
@@ -654,32 +858,57 @@ export function DailyChecksTab({
 
             {/* Check Items */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Inspection Checklist</h4>
+              <h4 className="font-semibold text-foreground">
+                Inspection Checklist
+              </h4>
               <div className="grid gap-3">
                 {getToolCheckItems().map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                    <span className="text-sm font-medium text-foreground">{item.label}</span>
+                  <div
+                    key={item.key}
+                    className="flex items-center justify-between p-3 border border-border rounded-lg"
+                  >
+                    <span className="text-sm font-medium text-foreground">
+                      {item.label}
+                    </span>
                     <div className="flex gap-2">
-                      {["OK", "DEFECTIVE", "NEEDS_REPAIR", "NA"].map((status) => (
-                        <Button
-                          key={status}
-                          type="button"
-                          size="sm"
-                          variant={toolForm.checkItems[item.key] === status ? "default" : "outline"}
-                          className={toolForm.checkItems[item.key] === status ? (
-                            status === "OK" ? "bg-green-500 hover:bg-green-600" :
-                            status === "DEFECTIVE" ? "bg-red-500 hover:bg-red-600" :
-                            status === "NEEDS_REPAIR" ? "bg-amber-500 hover:bg-amber-600" :
-                            ""
-                          ) : ""}
-                          onClick={() => handleToolCheckItem(item.key, status)}
-                        >
-                          {status === "OK" ? <Check className="h-4 w-4" /> :
-                           status === "DEFECTIVE" ? <X className="h-4 w-4" /> :
-                           status === "NEEDS_REPAIR" ? <AlertTriangle className="h-4 w-4" /> :
-                           "N/A"}
-                        </Button>
-                      ))}
+                      {["OK", "DEFECTIVE", "NEEDS_REPAIR", "NA"].map(
+                        (status) => (
+                          <Button
+                            key={status}
+                            type="button"
+                            size="sm"
+                            variant={
+                              toolForm.checkItems[item.key] === status
+                                ? "default"
+                                : "outline"
+                            }
+                            className={
+                              toolForm.checkItems[item.key] === status
+                                ? status === "OK"
+                                  ? "bg-green-500 hover:bg-green-600"
+                                  : status === "DEFECTIVE"
+                                    ? "bg-red-500 hover:bg-red-600"
+                                    : status === "NEEDS_REPAIR"
+                                      ? "bg-amber-500 hover:bg-amber-600"
+                                      : ""
+                                : ""
+                            }
+                            onClick={() =>
+                              handleToolCheckItem(item.key, status)
+                            }
+                          >
+                            {status === "OK" ? (
+                              <Check className="h-4 w-4" />
+                            ) : status === "DEFECTIVE" ? (
+                              <X className="h-4 w-4" />
+                            ) : status === "NEEDS_REPAIR" ? (
+                              <AlertTriangle className="h-4 w-4" />
+                            ) : (
+                              "N/A"
+                            )}
+                          </Button>
+                        ),
+                      )}
                     </div>
                   </div>
                 ))}
@@ -689,10 +918,14 @@ export function DailyChecksTab({
             {/* Defects & Comments */}
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Defects Found</label>
+                <label className="text-sm font-medium text-foreground">
+                  Defects Found
+                </label>
                 <Textarea
                   value={toolForm.defectsFound}
-                  onChange={(e) => setToolForm({ ...toolForm, defectsFound: e.target.value })}
+                  onChange={(e) =>
+                    setToolForm({ ...toolForm, defectsFound: e.target.value })
+                  }
                   placeholder="List any defects found..."
                   rows={2}
                 />
@@ -701,7 +934,9 @@ export function DailyChecksTab({
 
             {/* Signature */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-foreground">Inspector Signature</h4>
+              <h4 className="font-semibold text-foreground">
+                Inspector Signature
+              </h4>
               <SignaturePad
                 onSignature={handleCreateToolCheck}
                 disabled={loading || !toolForm.toolName}
@@ -716,21 +951,24 @@ export function DailyChecksTab({
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="flex flex-row items-center justify-between">
             <DialogTitle>
-              {checkType === "mewp" ? "MEWP Check Details" : "Tool Check Details"}
+              {checkType === "mewp"
+                ? "MEWP Check Details"
+                : "Tool Check Details"}
             </DialogTitle>
             {selectedCheck && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  const apiPath = checkType === "mewp" 
-                    ? `/api/mewp-checks/${selectedCheck.id}/pdf`
-                    : `/api/tool-checks/${selectedCheck.id}/pdf`;
-                  const link = document.createElement('a');
+                  const apiPath =
+                    checkType === "mewp"
+                      ? `/api/mewp-checks/${selectedCheck.id}/pdf`
+                      : `/api/tool-checks/${selectedCheck.id}/pdf`;
+                  const link = document.createElement("a");
                   link.href = apiPath;
                   link.download = `${checkType}-check-${selectedCheck.id}.pdf`;
                   link.click();
-                  toast.success('Downloading PDF...');
+                  toast.success("Downloading PDF...");
                 }}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -769,13 +1007,16 @@ export function DailyChecksTab({
                     {checkType === "mewp" ? "Operator" : "Inspector"}:
                   </span>
                   <p className="font-medium text-foreground">
-                    {selectedCheck.operator?.name || selectedCheck.inspector?.name}
+                    {selectedCheck.operator?.name ||
+                      selectedCheck.inspector?.name}
                   </p>
                 </div>
                 {selectedCheck.location && (
                   <div>
                     <span className="text-muted-foreground">Location:</span>
-                    <p className="font-medium text-foreground">{selectedCheck.location}</p>
+                    <p className="font-medium text-foreground">
+                      {selectedCheck.location}
+                    </p>
                   </div>
                 )}
               </div>
@@ -794,7 +1035,9 @@ export function DailyChecksTab({
 
               {selectedCheck.actionsTaken && (
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Actions Taken</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    Actions Taken
+                  </h4>
                   <p className="text-sm text-foreground bg-muted p-3 rounded-lg">
                     {selectedCheck.actionsTaken}
                   </p>
@@ -802,20 +1045,34 @@ export function DailyChecksTab({
               )}
 
               {/* Signature */}
-              {(selectedCheck.operatorSignature || selectedCheck.inspectorSignature) && (
+              {(selectedCheck.operatorSignature ||
+                selectedCheck.inspectorSignature) && (
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Signature</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    Signature
+                  </h4>
                   <SignatureDisplay
-                    signatureData={selectedCheck.operatorSignature || selectedCheck.inspectorSignature}
-                    name={selectedCheck.operator?.name || selectedCheck.inspector?.name}
-                    timestamp={selectedCheck.operatorSignedAt || selectedCheck.inspectorSignedAt}
+                    signatureData={
+                      selectedCheck.operatorSignature ||
+                      selectedCheck.inspectorSignature
+                    }
+                    name={
+                      selectedCheck.operator?.name ||
+                      selectedCheck.inspector?.name
+                    }
+                    timestamp={
+                      selectedCheck.operatorSignedAt ||
+                      selectedCheck.inspectorSignedAt
+                    }
                   />
                 </div>
               )}
 
               {checkType === "mewp" && selectedCheck.supervisorSignature && (
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Supervisor Sign-off</h4>
+                  <h4 className="font-semibold text-foreground mb-2">
+                    Supervisor Sign-off
+                  </h4>
                   <SignatureDisplay
                     signatureData={selectedCheck.supervisorSignature}
                     name={selectedCheck.supervisor?.name}

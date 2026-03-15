@@ -30,7 +30,7 @@ export default async function AIInsightsPage() {
       ? prisma.rFI.count({
           where: {
             project: { organizationId: orgId },
-            status: { in: ["OPEN", "PENDING"] },
+            status: { in: ["OPEN", "DRAFT"] },
           },
         })
       : Promise.resolve(0),
