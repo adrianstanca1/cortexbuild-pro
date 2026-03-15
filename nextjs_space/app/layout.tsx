@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
@@ -28,7 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* 
         <script src="https://apps.abacus.ai/chatllm/appllm-lib.js" async></script>
+        Temporarily commented out to debug white page issue
+        */}
       </head>
       <body className="font-sans antialiased">
         <Providers>
