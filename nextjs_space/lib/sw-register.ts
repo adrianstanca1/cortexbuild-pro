@@ -12,7 +12,7 @@ export function registerServiceWorker() {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        console.log("SW registered:", registration.scope);
+        console.warn("[SW] Registered:", registration.scope);
 
         // Set up message listener from service worker
         navigator.serviceWorker.addEventListener("message", (event) => {
@@ -20,7 +20,7 @@ export function registerServiceWorker() {
             processQueuedRequests();
           } else if (event.data?.type === "NETWORK_RESTORED") {
             // Optionally show notification that network is restored
-            console.log("Network restored, processing queue...");
+            console.warn("[SW] Network restored, processing queue...");
             processQueuedRequests();
           }
         });
@@ -32,7 +32,7 @@ export function registerServiceWorker() {
           ).sync
             .register("offline-sync")
             .catch((error) => {
-              console.log("Background sync registration failed:", error);
+              console.warn("[SW] Background sync registration failed:", error);
             });
         }
 
@@ -53,18 +53,21 @@ export function registerServiceWorker() {
                       minInterval: 12 * 60 * 60 * 1000,
                     })
                     .catch((error) => {
-                      console.log("Periodic sync registration failed:", error);
+                      console.warn(
+                        "[SW] Periodic sync registration failed:",
+                        error,
+                      );
                     });
                 }
               })
               .catch((error) => {
-                console.log("Permission query failed:", error);
+                console.warn("[SW] Permission query failed:", error);
               });
           }
         }
       })
       .catch((error) => {
-        console.log("SW registration failed:", error);
+        console.warn("[SW] Registration failed:", error);
       });
   }
 }
@@ -85,21 +88,21 @@ export async function processQueuedRequests() {
   try {
     const queueLength = await getQueueLength();
     if (queueLength === 0) {
-      console.log("Sync queue is empty");
+      console.warn("[SW] Sync queue is empty");
       return { processed: 0, failed: 0 };
     }
 
-    console.log(`Processing ${queueLength} queued requests...`);
+    console.warn(`[SW] Processing ${queueLength} queued requests...`);
     const result = await processSyncQueue();
-    console.log(
-      `Sync complete: ${result.processed} processed, ${result.failed} failed`,
+    console.warn(
+      `[SW] Sync complete: ${result.processed} processed, ${result.failed} failed`,
     );
 
     // Optionally notify user of sync results
     if (result.processed > 0 || result.failed > 0) {
       // In a real app, you might show a toast or notification here
-      console.log(
-        `Sync completed: ${result.processed} successful, ${result.failed} failed`,
+      console.warn(
+        `[SW] Sync completed: ${result.processed} successful, ${result.failed} failed`,
       );
     }
 
