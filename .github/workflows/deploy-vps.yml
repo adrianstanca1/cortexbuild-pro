@@ -182,12 +182,12 @@ jobs:
             echo "[4/8] Fetching application..."
             if [ -d "$DEPLOY_DIR/.git" ]; then
               cd "$DEPLOY_DIR"
-              git fetch origin
+              git fetch --depth 1 origin
               git checkout -B main origin/main
               git reset --hard origin/main
             else
               rm -rf "$DEPLOY_DIR"
-              git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
+              git clone --depth 1 -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
               cd "$DEPLOY_DIR"
             fi
             echo "  ✅ Repository ready at $(git log --oneline -1)"
