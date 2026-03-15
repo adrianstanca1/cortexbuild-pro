@@ -48,9 +48,11 @@ export class GlobalErrorBoundary extends Component<GlobalErrorBoundaryProps, Glo
     });
 
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.group('Error Boundary Catch');
       console.error('Error:', error);
       console.error('Component Stack:', errorInfo.componentStack);
+      // eslint-disable-next-line no-console
       console.groupEnd();
     }
   }
