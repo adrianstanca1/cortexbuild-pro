@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useCallback, useState } from 'react';
-import { RealtimeEvent, RealtimeEventType, createRealtimeConnection } from '@/lib/realtime';
+import { useEffect, useRef, useCallback, useState } from "react";
+import {
+  RealtimeEvent,
+  RealtimeEventType,
+  createRealtimeConnection,
+} from "@/lib/realtime";
 
-export function useRealtimeSubscription(eventTypes: RealtimeEventType[], callback: () => void) {
+export function useRealtimeSubscription(
+  eventTypes: RealtimeEventType[],
+  callback: () => void,
+) {
   const { lastEvent } = useRealtime();
   useEffect(() => {
     if (lastEvent && eventTypes.includes(lastEvent.type as RealtimeEventType)) {
@@ -17,13 +24,16 @@ export function useRealtime(onEvent?: (event: RealtimeEvent) => void) {
   const [isConnected, setIsConnected] = useState(false);
   const [lastEvent, setLastEvent] = useState<RealtimeEvent | null>(null);
 
-  const handleMessage = useCallback((event: RealtimeEvent) => {
-    setLastEvent(event);
-    if (event.type === 'connected') {
-      setIsConnected(true);
-    }
-    onEvent?.(event);
-  }, [onEvent]);
+  const handleMessage = useCallback(
+    (event: RealtimeEvent) => {
+      setLastEvent(event);
+      if (event.type === "connected") {
+        setIsConnected(true);
+      }
+      onEvent?.(event);
+    },
+    [onEvent],
+  );
 
   const handleError = useCallback(() => {
     setIsConnected(false);
@@ -31,13 +41,19 @@ export function useRealtime(onEvent?: (event: RealtimeEvent) => void) {
     setTimeout(() => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
-        eventSourceRef.current = createRealtimeConnection(handleMessage, handleError);
+        eventSourceRef.current = createRealtimeConnection(
+          handleMessage,
+          handleError,
+        );
       }
     }, 5000);
   }, [handleMessage]);
 
   useEffect(() => {
-    eventSourceRef.current = createRealtimeConnection(handleMessage, handleError);
+    eventSourceRef.current = createRealtimeConnection(
+      handleMessage,
+      handleError,
+    );
 
     return () => {
       if (eventSourceRef.current) {

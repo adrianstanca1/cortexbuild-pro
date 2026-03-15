@@ -20,7 +20,6 @@ import {
   PackageCheck,
   FileEdit,
   ShieldAlert,
-  ClipboardList,
   Zap,
   AlertTriangle,
   CheckCircle2,
@@ -28,14 +27,10 @@ import {
   Radio,
   Server,
   Gauge,
-  Bell,
   Globe,
   BarChart3,
-  PieChart,
-  TrendingDown,
   Eye,
-  Settings,
-  Terminal
+  Terminal,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,10 +46,23 @@ interface SystemHealth {
   timestamp: string;
   realtime: { connectedClients: number; sseStatus: string };
   users: { total: number; activeToday: number; activeThisWeek: number };
-  organizations: { total: number; breakdown: { id: string; name: string; users: number; projects: number }[] };
+  organizations: {
+    total: number;
+    breakdown: { id: string; name: string; users: number; projects: number }[];
+  };
   projects: { total: number; active: number; completion: number };
-  activity: { lastHour: number; last24Hours: number; trends: { date: string; count: number }[] };
-  alerts: { overdueTasks: number; openRFIs: number; pendingSubmittals: number; unresolvedIncidents: number; pendingTasks: number };
+  activity: {
+    lastHour: number;
+    last24Hours: number;
+    trends: { date: string; count: number }[];
+  };
+  alerts: {
+    overdueTasks: number;
+    openRFIs: number;
+    pendingSubmittals: number;
+    unresolvedIncidents: number;
+    pendingTasks: number;
+  };
   database: { status: string; responseTime: string };
 }
 
@@ -88,8 +96,18 @@ interface PlatformStats {
   tasksByStatus: { status: string; count: number }[];
   recentUsers: number;
   activeUsers: number;
-  organizations: { id: string; name: string; slug: string; userCount: number; projectCount: number }[];
-  storage: { totalDocuments: number; totalPhotos: number; totalAttachments: number };
+  organizations: {
+    id: string;
+    name: string;
+    slug: string;
+    userCount: number;
+    projectCount: number;
+  }[];
+  storage: {
+    totalDocuments: number;
+    totalPhotos: number;
+    totalAttachments: number;
+  };
 }
 
 export function AdminDashboardClient() {
@@ -105,7 +123,7 @@ export function AdminDashboardClient() {
       const [statsRes, healthRes, feedRes] = await Promise.all([
         fetch("/api/admin/stats"),
         fetch("/api/admin/system-health"),
-        fetch("/api/admin/live-feed?limit=20")
+        fetch("/api/admin/live-feed?limit=20"),
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
@@ -148,13 +166,13 @@ export function AdminDashboardClient() {
   const statusColors = {
     healthy: "text-green-500 bg-green-500/10",
     warning: "text-yellow-500 bg-yellow-500/10",
-    critical: "text-red-500 bg-red-500/10"
+    critical: "text-red-500 bg-red-500/10",
   };
 
   const statusIcons = {
     healthy: CheckCircle2,
     warning: AlertTriangle,
-    critical: XCircle
+    critical: XCircle,
   };
 
   const StatusIcon = health ? statusIcons[health.status] : CheckCircle2;
@@ -171,10 +189,14 @@ export function AdminDashboardClient() {
   };
 
   const getActionColor = (action: string) => {
-    if (action.includes("created") || action.includes("added")) return "text-green-500 bg-green-500/10";
-    if (action.includes("updated") || action.includes("modified")) return "text-blue-500 bg-blue-500/10";
-    if (action.includes("deleted") || action.includes("removed")) return "text-red-500 bg-red-500/10";
-    if (action.includes("error") || action.includes("failed")) return "text-red-500 bg-red-500/10";
+    if (action.includes("created") || action.includes("added"))
+      return "text-green-500 bg-green-500/10";
+    if (action.includes("updated") || action.includes("modified"))
+      return "text-blue-500 bg-blue-500/10";
+    if (action.includes("deleted") || action.includes("removed"))
+      return "text-red-500 bg-red-500/10";
+    if (action.includes("error") || action.includes("failed"))
+      return "text-red-500 bg-red-500/10";
     return "text-gray-500 bg-gray-500/10";
   };
 
@@ -190,19 +212,31 @@ export function AdminDashboardClient() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Command Center
             </h1>
-            <p className="text-gray-500 mt-1">Real-time platform monitoring & control</p>
+            <p className="text-gray-500 mt-1">
+              Real-time platform monitoring & control
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {health && (
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${statusColors[health.status]}`}>
+            <div
+              className={`flex items-center gap-2 px-4 py-2 rounded-full ${statusColors[health.status]}`}
+            >
               <StatusIcon className="h-5 w-5" />
               <span className="font-medium capitalize">{health.status}</span>
-              <Badge variant="outline" className="ml-2">{health.healthScore}%</Badge>
+              <Badge variant="outline" className="ml-2">
+                {health.healthScore}%
+              </Badge>
             </div>
           )}
-          <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            disabled={refreshing}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -226,139 +260,202 @@ export function AdminDashboardClient() {
         <TabsContent value="command-center" className="space-y-6 mt-6">
           {/* System Status Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className={`border-l-4 ${health?.status === "healthy" ? "border-l-green-500" : health?.status === "warning" ? "border-l-yellow-500" : "border-l-red-500"}`}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Card
+                className={`border-l-4 ${health?.status === "healthy" ? "border-l-green-500" : health?.status === "warning" ? "border-l-yellow-500" : "border-l-red-500"}`}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500">System Health</p>
-                      <p className="text-2xl font-bold mt-1">{health?.healthScore ?? 0}%</p>
+                      <p className="text-2xl font-bold mt-1">
+                        {health?.healthScore ?? 0}%
+                      </p>
                     </div>
-                    <div className={`p-3 rounded-full ${statusColors[health?.status || "healthy"]}`}>
+                    <div
+                      className={`p-3 rounded-full ${statusColors[health?.status || "healthy"]}`}
+                    >
                       <StatusIcon className="h-6 w-6" />
                     </div>
                   </div>
-                  <Progress value={health?.healthScore ?? 0} className="mt-3 h-2" />
+                  <Progress
+                    value={health?.healthScore ?? 0}
+                    className="mt-3 h-2"
+                  />
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <Card className="border-l-4 border-l-blue-500">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500">Live Connections</p>
-                      <p className="text-2xl font-bold mt-1">{health?.realtime.connectedClients ?? 0}</p>
+                      <p className="text-2xl font-bold mt-1">
+                        {health?.realtime.connectedClients ?? 0}
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-blue-500/10">
                       <Radio className="h-6 w-6 text-blue-500" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">SSE: {health?.realtime.sseStatus || "N/A"}</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    SSE: {health?.realtime.sseStatus || "N/A"}
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <Card className="border-l-4 border-l-purple-500">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-500">Active Users Today</p>
-                      <p className="text-2xl font-bold mt-1">{health?.users.activeToday ?? 0}</p>
+                      <p className="text-sm text-gray-500">
+                        Active Users Today
+                      </p>
+                      <p className="text-2xl font-bold mt-1">
+                        {health?.users.activeToday ?? 0}
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-purple-500/10">
                       <UserCheck className="h-6 w-6 text-purple-500" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">{health?.users.activeThisWeek ?? 0} active this week</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {health?.users.activeThisWeek ?? 0} active this week
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
               <Card className="border-l-4 border-l-green-500">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-500">Database</p>
-                      <p className="text-2xl font-bold mt-1 capitalize">{health?.database.status || "N/A"}</p>
+                      <p className="text-2xl font-bold mt-1 capitalize">
+                        {health?.database.status || "N/A"}
+                      </p>
                     </div>
                     <div className="p-3 rounded-full bg-green-500/10">
                       <Database className="h-6 w-6 text-green-500" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Response: {health?.database.responseTime || "N/A"}</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Response: {health?.database.responseTime || "N/A"}
+                  </p>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
 
           {/* Alerts Panel */}
-          {health && (health.alerts.overdueTasks > 0 || health.alerts.unresolvedIncidents > 0 || health.alerts.openRFIs > 10) && (
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <Card className="border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                    <AlertTriangle className="h-5 w-5" />
-                    Platform Alerts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {health.alerts.overdueTasks > 0 && (
-                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
-                        <Clock className="h-5 w-5 text-red-500" />
-                        <div>
-                          <p className="font-semibold">{health.alerts.overdueTasks}</p>
-                          <p className="text-xs text-gray-500">Overdue Tasks</p>
+          {health &&
+            (health.alerts.overdueTasks > 0 ||
+              health.alerts.unresolvedIncidents > 0 ||
+              health.alerts.openRFIs > 10) && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <Card className="border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                      <AlertTriangle className="h-5 w-5" />
+                      Platform Alerts
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {health.alerts.overdueTasks > 0 && (
+                        <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                          <Clock className="h-5 w-5 text-red-500" />
+                          <div>
+                            <p className="font-semibold">
+                              {health.alerts.overdueTasks}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Overdue Tasks
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {health.alerts.unresolvedIncidents > 0 && (
-                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
-                        <ShieldAlert className="h-5 w-5 text-red-500" />
-                        <div>
-                          <p className="font-semibold">{health.alerts.unresolvedIncidents}</p>
-                          <p className="text-xs text-gray-500">Open Incidents</p>
+                      )}
+                      {health.alerts.unresolvedIncidents > 0 && (
+                        <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                          <ShieldAlert className="h-5 w-5 text-red-500" />
+                          <div>
+                            <p className="font-semibold">
+                              {health.alerts.unresolvedIncidents}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Open Incidents
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {health.alerts.openRFIs > 0 && (
-                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
-                        <FileQuestion className="h-5 w-5 text-yellow-500" />
-                        <div>
-                          <p className="font-semibold">{health.alerts.openRFIs}</p>
-                          <p className="text-xs text-gray-500">Open RFIs</p>
+                      )}
+                      {health.alerts.openRFIs > 0 && (
+                        <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                          <FileQuestion className="h-5 w-5 text-yellow-500" />
+                          <div>
+                            <p className="font-semibold">
+                              {health.alerts.openRFIs}
+                            </p>
+                            <p className="text-xs text-gray-500">Open RFIs</p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {health.alerts.pendingSubmittals > 0 && (
-                      <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
-                        <PackageCheck className="h-5 w-5 text-blue-500" />
-                        <div>
-                          <p className="font-semibold">{health.alerts.pendingSubmittals}</p>
-                          <p className="text-xs text-gray-500">Pending Submittals</p>
+                      )}
+                      {health.alerts.pendingSubmittals > 0 && (
+                        <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                          <PackageCheck className="h-5 w-5 text-blue-500" />
+                          <div>
+                            <p className="font-semibold">
+                              {health.alerts.pendingSubmittals}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Pending Submittals
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
 
           {/* Main Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-purple-100 text-sm">Total Users</p>
-                      <p className="text-3xl font-bold mt-1">{stats?.totals.users ?? 0}</p>
+                      <p className="text-3xl font-bold mt-1">
+                        {stats?.totals.users ?? 0}
+                      </p>
                       <p className="text-purple-200 text-sm mt-2">
                         <UserCheck className="inline h-4 w-4 mr-1" />
                         {stats?.activeUsers ?? 0} active this week
@@ -370,14 +467,20 @@ export function AdminDashboardClient() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-blue-100 text-sm">Organizations</p>
-                      <p className="text-3xl font-bold mt-1">{stats?.totals.organizations ?? 0}</p>
+                      <p className="text-3xl font-bold mt-1">
+                        {stats?.totals.organizations ?? 0}
+                      </p>
                       <p className="text-blue-200 text-sm mt-2">
                         <Globe className="inline h-4 w-4 mr-1" />
                         Multi-tenant platform
@@ -389,14 +492,20 @@ export function AdminDashboardClient() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-green-100 text-sm">Total Projects</p>
-                      <p className="text-3xl font-bold mt-1">{stats?.totals.projects ?? 0}</p>
+                      <p className="text-3xl font-bold mt-1">
+                        {stats?.totals.projects ?? 0}
+                      </p>
                       <p className="text-green-200 text-sm mt-2">
                         <TrendingUp className="inline h-4 w-4 mr-1" />
                         {health?.projects.active ?? 0} active
@@ -408,14 +517,20 @@ export function AdminDashboardClient() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
               <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-orange-100 text-sm">Activity (24h)</p>
-                      <p className="text-3xl font-bold mt-1">{health?.activity.last24Hours ?? 0}</p>
+                      <p className="text-3xl font-bold mt-1">
+                        {health?.activity.last24Hours ?? 0}
+                      </p>
                       <p className="text-orange-200 text-sm mt-2">
                         <Zap className="inline h-4 w-4 mr-1" />
                         {health?.activity.lastHour ?? 0} last hour
@@ -431,12 +546,42 @@ export function AdminDashboardClient() {
           {/* Secondary Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              { label: "Tasks", value: stats?.totals.tasks ?? 0, icon: ListTodo, color: "text-indigo-500" },
-              { label: "Documents", value: stats?.totals.documents ?? 0, icon: FileText, color: "text-blue-500" },
-              { label: "RFIs", value: stats?.totals.rfis ?? 0, icon: FileQuestion, color: "text-purple-500" },
-              { label: "Submittals", value: stats?.totals.submittals ?? 0, icon: PackageCheck, color: "text-green-500" },
-              { label: "Change Orders", value: stats?.totals.changeOrders ?? 0, icon: FileEdit, color: "text-orange-500" },
-              { label: "Safety Incidents", value: stats?.totals.safetyIncidents ?? 0, icon: ShieldAlert, color: "text-red-500" }
+              {
+                label: "Tasks",
+                value: stats?.totals.tasks ?? 0,
+                icon: ListTodo,
+                color: "text-indigo-500",
+              },
+              {
+                label: "Documents",
+                value: stats?.totals.documents ?? 0,
+                icon: FileText,
+                color: "text-blue-500",
+              },
+              {
+                label: "RFIs",
+                value: stats?.totals.rfis ?? 0,
+                icon: FileQuestion,
+                color: "text-purple-500",
+              },
+              {
+                label: "Submittals",
+                value: stats?.totals.submittals ?? 0,
+                icon: PackageCheck,
+                color: "text-green-500",
+              },
+              {
+                label: "Change Orders",
+                value: stats?.totals.changeOrders ?? 0,
+                icon: FileEdit,
+                color: "text-orange-500",
+              },
+              {
+                label: "Safety Incidents",
+                value: stats?.totals.safetyIncidents ?? 0,
+                icon: ShieldAlert,
+                color: "text-red-500",
+              },
             ].map((stat, index) => {
               const Icon = stat.icon;
               return (
@@ -468,7 +613,9 @@ export function AdminDashboardClient() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Manage Users</h3>
-                    <p className="text-sm text-gray-500">Create, edit, suspend users</p>
+                    <p className="text-sm text-gray-500">
+                      Create, edit, suspend users
+                    </p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 ml-auto text-gray-400 group-hover:text-purple-500" />
                 </CardContent>
@@ -483,7 +630,9 @@ export function AdminDashboardClient() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Organizations</h3>
-                    <p className="text-sm text-gray-500">Manage companies & tenants</p>
+                    <p className="text-sm text-gray-500">
+                      Manage companies & tenants
+                    </p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 ml-auto text-gray-400 group-hover:text-blue-500" />
                 </CardContent>
@@ -498,7 +647,9 @@ export function AdminDashboardClient() {
                   </div>
                   <div>
                     <h3 className="font-semibold">System Health</h3>
-                    <p className="text-sm text-gray-500">Monitor platform status</p>
+                    <p className="text-sm text-gray-500">
+                      Monitor platform status
+                    </p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 ml-auto text-gray-400 group-hover:text-green-500" />
                 </CardContent>
@@ -513,7 +664,9 @@ export function AdminDashboardClient() {
                   </div>
                   <div>
                     <h3 className="font-semibold">Audit Logs</h3>
-                    <p className="text-sm text-gray-500">Track all platform activity</p>
+                    <p className="text-sm text-gray-500">
+                      Track all platform activity
+                    </p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 ml-auto text-gray-400 group-hover:text-orange-500" />
                 </CardContent>
@@ -541,23 +694,38 @@ export function AdminDashboardClient() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Organization</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Users</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-500">Projects</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-500">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500">
+                        Organization
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500">
+                        Users
+                      </th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-500">
+                        Projects
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-500">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {stats?.organizations.slice(0, 5).map((org) => (
-                      <tr key={org.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <tr
+                        key={org.id}
+                        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                              <span className="text-white font-bold">{org.name.charAt(0)}</span>
+                              <span className="text-white font-bold">
+                                {org.name.charAt(0)}
+                              </span>
                             </div>
                             <div>
                               <span className="font-medium">{org.name}</span>
-                              <p className="text-xs text-gray-500">{org.slug}</p>
+                              <p className="text-xs text-gray-500">
+                                {org.slug}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -569,7 +737,9 @@ export function AdminDashboardClient() {
                         </td>
                         <td className="py-3 px-4 text-right">
                           <Link href={`/admin/organizations?id=${org.id}`}>
-                            <Button variant="ghost" size="sm">View</Button>
+                            <Button variant="ghost" size="sm">
+                              View
+                            </Button>
                           </Link>
                         </td>
                       </tr>
@@ -595,14 +765,21 @@ export function AdminDashboardClient() {
               <CardContent>
                 <div className="space-y-4">
                   {stats?.usersByRole.map((role) => {
-                    const percentage = (stats?.totals.users ?? 0) > 0
-                      ? Math.round((role.count / (stats?.totals.users ?? 1)) * 100)
-                      : 0;
+                    const percentage =
+                      (stats?.totals.users ?? 0) > 0
+                        ? Math.round(
+                            (role.count / (stats?.totals.users ?? 1)) * 100,
+                          )
+                        : 0;
                     return (
                       <div key={role.role}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium">{role.role.replace("_", " ")}</span>
-                          <span className="text-sm text-gray-500">{role.count} ({percentage}%)</span>
+                          <span className="text-sm font-medium">
+                            {role.role.replace("_", " ")}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {role.count} ({percentage}%)
+                          </span>
                         </div>
                         <Progress value={percentage} className="h-2" />
                       </div>
@@ -623,24 +800,32 @@ export function AdminDashboardClient() {
               <CardContent>
                 <div className="space-y-4">
                   {stats?.projectsByStatus.map((status) => {
-                    const percentage = (stats?.totals.projects ?? 0) > 0
-                      ? Math.round((status.count / (stats?.totals.projects ?? 1)) * 100)
-                      : 0;
+                    const percentage =
+                      (stats?.totals.projects ?? 0) > 0
+                        ? Math.round(
+                            (status.count / (stats?.totals.projects ?? 1)) *
+                              100,
+                          )
+                        : 0;
                     const colors: Record<string, string> = {
                       PLANNING: "bg-gray-500",
                       IN_PROGRESS: "bg-blue-500",
                       ON_HOLD: "bg-yellow-500",
                       COMPLETED: "bg-green-500",
-                      ARCHIVED: "bg-gray-400"
+                      ARCHIVED: "bg-gray-400",
                     };
                     return (
                       <div key={status.status}>
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${colors[status.status] || "bg-gray-400"}`} />
+                            <span
+                              className={`w-2 h-2 rounded-full ${colors[status.status] || "bg-gray-400"}`}
+                            />
                             {status.status.replace("_", " ")}
                           </span>
-                          <span className="text-sm text-gray-500">{status.count} ({percentage}%)</span>
+                          <span className="text-sm text-gray-500">
+                            {status.count} ({percentage}%)
+                          </span>
                         </div>
                         <Progress value={percentage} className="h-2" />
                       </div>
@@ -664,25 +849,34 @@ export function AdminDashboardClient() {
                     <span className="text-sm flex items-center gap-2">
                       <FileText className="h-4 w-4 text-blue-500" /> Documents
                     </span>
-                    <Badge variant="secondary">{stats?.storage.totalDocuments ?? 0}</Badge>
+                    <Badge variant="secondary">
+                      {stats?.storage.totalDocuments ?? 0}
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <span className="text-sm flex items-center gap-2">
                       <Eye className="h-4 w-4 text-green-500" /> Photos
                     </span>
-                    <Badge variant="secondary">{stats?.storage.totalPhotos ?? 0}</Badge>
+                    <Badge variant="secondary">
+                      {stats?.storage.totalPhotos ?? 0}
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <span className="text-sm flex items-center gap-2">
-                      <FileEdit className="h-4 w-4 text-orange-500" /> Attachments
+                      <FileEdit className="h-4 w-4 text-orange-500" />{" "}
+                      Attachments
                     </span>
-                    <Badge variant="secondary">{stats?.storage.totalAttachments ?? 0}</Badge>
+                    <Badge variant="secondary">
+                      {stats?.storage.totalAttachments ?? 0}
+                    </Badge>
                   </div>
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">Total Files</span>
                       <span className="text-lg font-bold">
-                        {(stats?.storage.totalDocuments ?? 0) + (stats?.storage.totalPhotos ?? 0) + (stats?.storage.totalAttachments ?? 0)}
+                        {(stats?.storage.totalDocuments ?? 0) +
+                          (stats?.storage.totalPhotos ?? 0) +
+                          (stats?.storage.totalAttachments ?? 0)}
                       </span>
                     </div>
                   </div>
@@ -701,12 +895,18 @@ export function AdminDashboardClient() {
               <CardContent>
                 <div className="space-y-2">
                   {health?.activity.trends.map((trend, idx) => {
-                    const maxCount = Math.max(...(health?.activity.trends.map(t => t.count) || [1]));
-                    const percentage = maxCount > 0 ? (trend.count / maxCount) * 100 : 0;
+                    const maxCount = Math.max(
+                      ...(health?.activity.trends.map((t) => t.count) || [1]),
+                    );
+                    const percentage =
+                      maxCount > 0 ? (trend.count / maxCount) * 100 : 0;
                     return (
                       <div key={idx} className="flex items-center gap-3">
                         <span className="text-xs text-gray-500 w-20">
-                          {new Date(trend.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}
+                          {new Date(trend.date).toLocaleDateString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                          })}
                         </span>
                         <div className="flex-1 h-6 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
                           <div
@@ -714,7 +914,9 @@ export function AdminDashboardClient() {
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
-                        <span className="text-sm font-medium w-12 text-right">{trend.count}</span>
+                        <span className="text-sm font-medium w-12 text-right">
+                          {trend.count}
+                        </span>
                       </div>
                     );
                   })}
@@ -759,8 +961,12 @@ export function AdminDashboardClient() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium">{activity.user?.name || "System"}</span>
-                            <span className="text-gray-500">{activity.action.replace(/_/g, " ")}</span>
+                            <span className="font-medium">
+                              {activity.user?.name || "System"}
+                            </span>
+                            <span className="text-gray-500">
+                              {activity.action.replace(/_/g, " ")}
+                            </span>
                             {activity.organization && (
                               <Badge variant="outline" className="text-xs">
                                 {activity.organization.name}
@@ -779,7 +985,9 @@ export function AdminDashboardClient() {
                           )}
                         </div>
                         <div className="text-xs text-gray-400 whitespace-nowrap">
-                          {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(activity.createdAt), {
+                            addSuffix: true,
+                          })}
                         </div>
                       </motion.div>
                     );

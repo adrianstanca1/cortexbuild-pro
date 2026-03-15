@@ -19,7 +19,13 @@ export default async function CompanyDashboardPage() {
   }
 
   // Fetch organization with all related data
-  const [organizationData, teamMembers, projects, recentActivity, pendingInvitations] = await Promise.all([
+  const [
+    organizationData,
+    teamMembers,
+    projects,
+    recentActivity,
+    pendingInvitations,
+  ] = await Promise.all([
     prisma.organization.findUnique({
       where: { id: user.organizationId },
       include: {
@@ -28,9 +34,9 @@ export default async function CompanyDashboardPage() {
             users: true,
             projects: true,
             teamMembers: true,
-          }
-        }
-      }
+          },
+        },
+      },
     }),
     prisma.teamMember.findMany({
       where: { organizationId: user.organizationId },
@@ -42,57 +48,61 @@ export default async function CompanyDashboardPage() {
             email: true,
             role: true,
             lastLogin: true,
-          }
-        }
+          },
+        },
       },
       take: 5,
-      orderBy: { invitedAt: "desc" }
+      orderBy: { invitedAt: "desc" },
     }),
     prisma.project.findMany({
       where: { organizationId: user.organizationId },
       include: {
         _count: {
-          select: { tasks: true }
+          select: { tasks: true },
         },
         manager: {
-          select: { name: true }
-        }
+          select: { name: true },
+        },
       },
       take: 5,
-      orderBy: { updatedAt: "desc" }
+      orderBy: { updatedAt: "desc" },
     }),
     prisma.activityLog.findMany({
       where: {
-        user: { organizationId: user.organizationId }
+        user: { organizationId: user.organizationId },
       },
       include: {
         user: {
-          select: { name: true }
-        }
+          select: { name: true },
+        },
       },
       take: 10,
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     }),
     prisma.teamInvitation.count({
       where: {
         organizationId: user.organizationId,
-        status: "PENDING"
-      }
-    })
+        status: "PENDING",
+      },
+    }),
   ]);
 
   // Convert BigInt to Number for serialization
-  const organization = organizationData ? {
-    ...organizationData,
-    storageUsedBytes: Number(organizationData.storageUsedBytes),
-  } : null;
+  const organization = organizationData
+    ? {
+        ...organizationData,
+        storageUsedBytes: Number(organizationData.storageUsedBytes),
+      }
+    : null;
 
   const entitlements = parseEntitlements(organization?.entitlements);
 
   const stats = {
     totalMembers: organization?._count.teamMembers || 0,
     totalProjects: organization?._count.projects || 0,
-    storageUsedGB: organization ? organization.storageUsedBytes / (1024 * 1024 * 1024) : 0,
+    storageUsedGB: organization
+      ? organization.storageUsedBytes / (1024 * 1024 * 1024)
+      : 0,
     maxUsers: entitlements.limits.maxUsers,
     maxProjects: entitlements.limits.maxProjects,
     storageGB: entitlements.limits.storageGB,

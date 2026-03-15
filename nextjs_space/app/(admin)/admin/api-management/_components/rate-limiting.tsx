@@ -14,7 +14,7 @@ import {
   Clock,
   Zap,
   Server,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,9 @@ export function RateLimiting() {
   const [rateLimits, setRateLimits] = useState<RateLimitConfig[]>([]);
   const [connections, setConnections] = useState<ApiConnection[]>([]);
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [selectedConfig, setSelectedConfig] = useState<RateLimitConfig | null>(null);
+  const [selectedConfig, setSelectedConfig] = useState<RateLimitConfig | null>(
+    null,
+  );
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
   const [formData, setFormData] = useState({
     requestsPerMinute: 60,
@@ -89,7 +91,7 @@ export function RateLimiting() {
     throttleOnLimit: true,
     alertOnThreshold: true,
     alertThreshold: 80,
-    isEnabled: true
+    isEnabled: true,
   });
 
   const fetchRateLimits = useCallback(async () => {
@@ -139,8 +141,8 @@ export function RateLimiting() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           connectionId,
-          ...formData
-        })
+          ...formData,
+        }),
       });
 
       if (res.ok) {
@@ -161,14 +163,21 @@ export function RateLimiting() {
   };
 
   const handleDeleteConfig = async (config: RateLimitConfig) => {
-    if (!confirm(`Remove rate limit configuration for "${config.connection.name}"?`)) {
+    if (
+      !confirm(
+        `Remove rate limit configuration for "${config.connection.name}"?`,
+      )
+    ) {
       return;
     }
 
     try {
-      const res = await fetch(`/api/admin/api-connections/rate-limits?connectionId=${config.connectionId}`, {
-        method: "DELETE"
-      });
+      const res = await fetch(
+        `/api/admin/api-connections/rate-limits?connectionId=${config.connectionId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (res.ok) {
         toast.success("Rate limit configuration removed");
@@ -191,7 +200,7 @@ export function RateLimiting() {
       throttleOnLimit: config.throttleOnLimit,
       alertOnThreshold: config.alertOnThreshold,
       alertThreshold: config.alertThreshold,
-      isEnabled: config.isEnabled
+      isEnabled: config.isEnabled,
     });
     setShowConfigModal(true);
   };
@@ -207,7 +216,7 @@ export function RateLimiting() {
       throttleOnLimit: true,
       alertOnThreshold: true,
       alertThreshold: 80,
-      isEnabled: true
+      isEnabled: true,
     });
     setShowConfigModal(true);
   };
@@ -220,7 +229,7 @@ export function RateLimiting() {
 
   // Get connections without rate limit configs
   const availableConnections = connections.filter(
-    c => !rateLimits.some(rl => rl.connectionId === c.id)
+    (c) => !rateLimits.some((rl) => rl.connectionId === c.id),
   );
 
   if (loading) {
@@ -237,13 +246,18 @@ export function RateLimiting() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-semibold">Rate Limiting Configuration</h3>
-          <p className="text-sm text-muted-foreground">Manage request limits for your API integrations</p>
+          <p className="text-sm text-muted-foreground">
+            Manage request limits for your API integrations
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={fetchRateLimits}>
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <Button onClick={openNewModal} disabled={availableConnections.length === 0}>
+          <Button
+            onClick={openNewModal}
+            disabled={availableConnections.length === 0}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Configure Rate Limit
           </Button>
@@ -263,11 +277,16 @@ export function RateLimiting() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Gauge className="h-4 w-4 text-muted-foreground" />
-                    <CardTitle className="text-base">{config.connection.name}</CardTitle>
+                    <CardTitle className="text-base">
+                      {config.connection.name}
+                    </CardTitle>
                   </div>
                   <div className="flex items-center gap-2">
                     {config.isNearLimit && (
-                      <Badge variant="outline" className="text-yellow-600 border-yellow-400">
+                      <Badge
+                        variant="outline"
+                        className="text-yellow-600 border-yellow-400"
+                      >
                         <AlertTriangle className="h-3 w-3 mr-1" />
                         Near Limit
                       </Badge>
@@ -284,37 +303,52 @@ export function RateLimiting() {
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-muted-foreground">Per Minute</span>
-                        <span>{config.currentMinuteUsage} / {config.requestsPerMinute}</span>
+                        <span className="text-muted-foreground">
+                          Per Minute
+                        </span>
+                        <span>
+                          {config.currentMinuteUsage} /{" "}
+                          {config.requestsPerMinute}
+                        </span>
                       </div>
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all ${getUsageColor(config.minuteUsagePct, config.alertThreshold)}`}
-                          style={{ width: `${Math.min(config.minuteUsagePct, 100)}%` }}
+                          style={{
+                            width: `${Math.min(config.minuteUsagePct, 100)}%`,
+                          }}
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">Per Hour</span>
-                        <span>{config.currentHourUsage} / {config.requestsPerHour}</span>
+                        <span>
+                          {config.currentHourUsage} / {config.requestsPerHour}
+                        </span>
                       </div>
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all ${getUsageColor(config.hourUsagePct, config.alertThreshold)}`}
-                          style={{ width: `${Math.min(config.hourUsagePct, 100)}%` }}
+                          style={{
+                            width: `${Math.min(config.hourUsagePct, 100)}%`,
+                          }}
                         />
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-muted-foreground">Per Day</span>
-                        <span>{config.currentDayUsage} / {config.requestsPerDay}</span>
+                        <span>
+                          {config.currentDayUsage} / {config.requestsPerDay}
+                        </span>
                       </div>
                       <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all ${getUsageColor(config.dayUsagePct, config.alertThreshold)}`}
-                          style={{ width: `${Math.min(config.dayUsagePct, 100)}%` }}
+                          style={{
+                            width: `${Math.min(config.dayUsagePct, 100)}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -367,7 +401,9 @@ export function RateLimiting() {
         <div className="text-center py-12 text-muted-foreground">
           <Gauge className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>No rate limit configurations</p>
-          <p className="text-sm">Configure rate limits to protect your API integrations</p>
+          <p className="text-sm">
+            Configure rate limits to protect your API integrations
+          </p>
         </div>
       )}
 
@@ -391,7 +427,10 @@ export function RateLimiting() {
             {!selectedConfig && (
               <div className="space-y-2">
                 <Label>API Connection</Label>
-                <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
+                <Select
+                  value={selectedConnectionId}
+                  onValueChange={setSelectedConnectionId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a connection" />
                   </SelectTrigger>
@@ -414,7 +453,12 @@ export function RateLimiting() {
                   id="rpm"
                   type="number"
                   value={formData.requestsPerMinute}
-                  onChange={(e) => setFormData({ ...formData, requestsPerMinute: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      requestsPerMinute: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -423,7 +467,12 @@ export function RateLimiting() {
                   id="rph"
                   type="number"
                   value={formData.requestsPerHour}
-                  onChange={(e) => setFormData({ ...formData, requestsPerHour: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      requestsPerHour: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -432,7 +481,12 @@ export function RateLimiting() {
                   id="rpd"
                   type="number"
                   value={formData.requestsPerDay}
-                  onChange={(e) => setFormData({ ...formData, requestsPerDay: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      requestsPerDay: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -444,7 +498,12 @@ export function RateLimiting() {
                   id="burst"
                   type="number"
                   value={formData.burstLimit}
-                  onChange={(e) => setFormData({ ...formData, burstLimit: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      burstLimit: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -453,7 +512,12 @@ export function RateLimiting() {
                   id="threshold"
                   type="number"
                   value={formData.alertThreshold}
-                  onChange={(e) => setFormData({ ...formData, alertThreshold: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      alertThreshold: parseInt(e.target.value) || 0,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -463,31 +527,43 @@ export function RateLimiting() {
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Throttle on Limit</Label>
-                  <p className="text-xs text-muted-foreground">Slow down requests when limit is reached</p>
+                  <p className="text-xs text-muted-foreground">
+                    Slow down requests when limit is reached
+                  </p>
                 </div>
                 <Switch
                   checked={formData.throttleOnLimit}
-                  onCheckedChange={(checked) => setFormData({ ...formData, throttleOnLimit: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, throttleOnLimit: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Alert on Threshold</Label>
-                  <p className="text-xs text-muted-foreground">Send alerts when approaching limit</p>
+                  <p className="text-xs text-muted-foreground">
+                    Send alerts when approaching limit
+                  </p>
                 </div>
                 <Switch
                   checked={formData.alertOnThreshold}
-                  onCheckedChange={(checked) => setFormData({ ...formData, alertOnThreshold: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, alertOnThreshold: checked })
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Enable Rate Limiting</Label>
-                  <p className="text-xs text-muted-foreground">Enforce configured limits</p>
+                  <p className="text-xs text-muted-foreground">
+                    Enforce configured limits
+                  </p>
                 </div>
                 <Switch
                   checked={formData.isEnabled}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isEnabled: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isEnabled: checked })
+                  }
                 />
               </div>
             </div>
@@ -499,9 +575,13 @@ export function RateLimiting() {
             </Button>
             <Button onClick={handleSaveConfig} disabled={saving}>
               {saving ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+                </>
               ) : (
-                <><Save className="h-4 w-4 mr-2" /> Save Configuration</>
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Save Configuration
+                </>
               )}
             </Button>
           </DialogFooter>

@@ -1,14 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
-import { DateRange } from 'react-day-picker';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { AlertTriangle, CheckCircle, Info, CreditCard, Calendar, Users, FileText, Database } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
+import { DateRange } from "react-day-picker";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  CreditCard,
+  Calendar,
+  Users,
+  FileText,
+  Database,
+} from "lucide-react";
 
 // Define TypeScript interfaces for props
 interface UsageMetrics {
@@ -25,7 +51,7 @@ interface SubscriptionPlan {
   maxUsers: number;
   maxProjects: number;
   price: number;
-  billingCycle: 'monthly' | 'annual';
+  billingCycle: "monthly" | "annual";
 }
 
 interface BillingInfo {
@@ -51,45 +77,100 @@ interface CompanyUsageClientProps {
   error?: string;
 }
 
-export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps) {
+export function CompanyUsageClient({
+  usageData,
+  error,
+}: CompanyUsageClientProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
-    to: new Date()
+    to: new Date(),
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'billing'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "history" | "billing"
+  >("overview");
 
   // Filter historical data based on date range
-  const filteredHistory = usageData?.historicalUsage.filter(item => {
-    if (!dateRange?.from || !dateRange?.to) return true;
-    const itemDate = new Date(item.date);
-    return itemDate >= dateRange.from && itemDate <= dateRange.to;
-  }) || [];
+  const filteredHistory =
+    usageData?.historicalUsage.filter((item) => {
+      if (!dateRange?.from || !dateRange?.to) return true;
+      const itemDate = new Date(item.date);
+      return itemDate >= dateRange.from && itemDate <= dateRange.to;
+    }) || [];
 
   // Calculate billing cycle progress
-  const billingCycleProgress = usageData ? {
-    daysPassed: Math.min(99, Math.max(0,
-      Math.floor((new Date().getTime() - new Date(usageData.billing.currentCycleStart).getTime()) /
-        (new Date(usageData.billing.currentCycleEnd).getTime() - new Date(usageData.billing.currentCycleStart).getTime()) * 100)
-    )),
-    daysRemaining: Math.max(0,
-      Math.floor((new Date(usageData.billing.currentCycleEnd).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-    )
-  } : { daysPassed: 0, daysRemaining: 0 };
+  const billingCycleProgress = usageData
+    ? {
+        daysPassed: Math.min(
+          99,
+          Math.max(
+            0,
+            Math.floor(
+              ((new Date().getTime() -
+                new Date(usageData.billing.currentCycleStart).getTime()) /
+                (new Date(usageData.billing.currentCycleEnd).getTime() -
+                  new Date(usageData.billing.currentCycleStart).getTime())) *
+                100,
+            ),
+          ),
+        ),
+        daysRemaining: Math.max(
+          0,
+          Math.floor(
+            (new Date(usageData.billing.currentCycleEnd).getTime() -
+              new Date().getTime()) /
+              (1000 * 60 * 60 * 24),
+          ),
+        ),
+      }
+    : { daysPassed: 0, daysRemaining: 0 };
 
   // Calculate usage percentages
-  const apiUsagePercentage = usageData ? Math.min(100, (usageData.metrics.apiCalls / usageData.subscription.maxApiCalls) * 100) : 0;
-  const storageUsagePercentage = usageData ? Math.min(100, (usageData.metrics.storageUsedMB / usageData.subscription.maxStorageMB) * 100) : 0;
-  const usersUsagePercentage = usageData ? Math.min(100, (usageData.metrics.activeUsers / usageData.subscription.maxUsers) * 100) : 0;
-  const projectsUsagePercentage = usageData ? Math.min(100, (usageData.metrics.projectsCreated / usageData.subscription.maxProjects) * 100) : 0;
+  const apiUsagePercentage = usageData
+    ? Math.min(
+        100,
+        (usageData.metrics.apiCalls / usageData.subscription.maxApiCalls) * 100,
+      )
+    : 0;
+  const storageUsagePercentage = usageData
+    ? Math.min(
+        100,
+        (usageData.metrics.storageUsedMB /
+          usageData.subscription.maxStorageMB) *
+          100,
+      )
+    : 0;
+  const usersUsagePercentage = usageData
+    ? Math.min(
+        100,
+        (usageData.metrics.activeUsers / usageData.subscription.maxUsers) * 100,
+      )
+    : 0;
+  const projectsUsagePercentage = usageData
+    ? Math.min(
+        100,
+        (usageData.metrics.projectsCreated /
+          usageData.subscription.maxProjects) *
+          100,
+      )
+    : 0;
 
   if (error) {
     return (
-      <div className="container mx-auto py-8" role="alert" aria-live="assertive">
+      <div
+        className="container mx-auto py-8"
+        role="alert"
+        aria-live="assertive"
+      >
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md flex items-start">
-          <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" aria-hidden="true" />
+          <AlertTriangle
+            className="h-5 w-5 text-red-500 mr-3 mt-0.5"
+            aria-hidden="true"
+          />
           <div>
-            <h3 className="font-medium text-red-800">Error Loading Usage Data</h3>
+            <h3 className="font-medium text-red-800">
+              Error Loading Usage Data
+            </h3>
             <p className="text-red-600 mt-1">{error}</p>
             <Button
               variant="outline"
@@ -121,8 +202,12 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Company Usage Dashboard</h1>
-          <p className="text-gray-600">Monitor your usage, track limits, and manage your subscription</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Company Usage Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Monitor your usage, track limits, and manage your subscription
+          </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
           <DatePickerWithRange
@@ -130,7 +215,10 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
             onChange={setDateRange}
             className="w-full md:w-auto"
           />
-          <Select value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+          <Select
+            value={activeTab}
+            onValueChange={(value: any) => setActiveTab(value)}
+          >
             <SelectTrigger className="w-[180px]" aria-label="Select view mode">
               <SelectValue placeholder="View Mode" />
             </SelectTrigger>
@@ -145,34 +233,40 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
 
       {/* Navigation Tabs */}
       <div className="border-b border-gray-200 mb-8">
-        <nav className="-mb-px flex space-x-8" aria-label="Usage dashboard tabs">
+        <nav
+          className="-mb-px flex space-x-8"
+          aria-label="Usage dashboard tabs"
+        >
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`${activeTab === 'overview'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            aria-current={activeTab === 'overview' ? 'page' : undefined}
+            onClick={() => setActiveTab("overview")}
+            className={`${
+              activeTab === "overview"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            aria-current={activeTab === "overview" ? "page" : undefined}
           >
             Overview
           </button>
           <button
-            onClick={() => setActiveTab('history')}
-            className={`${activeTab === 'history'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            aria-current={activeTab === 'history' ? 'page' : undefined}
+            onClick={() => setActiveTab("history")}
+            className={`${
+              activeTab === "history"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            aria-current={activeTab === "history" ? "page" : undefined}
           >
             Usage History
           </button>
           <button
-            onClick={() => setActiveTab('billing')}
-            className={`${activeTab === 'billing'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-            aria-current={activeTab === 'billing' ? 'page' : undefined}
+            onClick={() => setActiveTab("billing")}
+            className={`${
+              activeTab === "billing"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            aria-current={activeTab === "billing" ? "page" : undefined}
           >
             Billing
           </button>
@@ -180,7 +274,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'overview' && (
+      {activeTab === "overview" && (
         <div className="space-y-8">
           {/* Current Plan Card */}
           <Card>
@@ -191,9 +285,10 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                   Current Plan: {usageData.subscription.name}
                 </span>
                 <span className="text-2xl font-bold">
-                  ${usageData.subscription.price}/{
-                    usageData.subscription.billingCycle === 'monthly' ? 'month' : 'year'
-                  }
+                  ${usageData.subscription.price}/
+                  {usageData.subscription.billingCycle === "monthly"
+                    ? "month"
+                    : "year"}
                 </span>
               </CardTitle>
             </CardHeader>
@@ -204,19 +299,24 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       <Info className="h-4 w-4 text-blue-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">API Calls</span>
+                      <span className="text-sm font-medium text-gray-500">
+                        API Calls
+                      </span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.apiCalls} / {usageData.subscription.maxApiCalls}
+                      {usageData.metrics.apiCalls} /{" "}
+                      {usageData.subscription.maxApiCalls}
                     </span>
                   </div>
                   <Progress
                     value={apiUsagePercentage}
-                    className={`h-2 ${apiUsagePercentage > 90 ? 'bg-red-500' : apiUsagePercentage > 75 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                    className={`h-2 ${apiUsagePercentage > 90 ? "bg-red-500" : apiUsagePercentage > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
                     aria-label={`API calls usage: ${apiUsagePercentage}%`}
                   />
                   {apiUsagePercentage > 90 && (
-                    <p className="text-xs text-red-500 mt-1">Approaching limit!</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Approaching limit!
+                    </p>
                   )}
                 </div>
 
@@ -225,19 +325,24 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       <Database className="h-4 w-4 text-blue-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Storage</span>
+                      <span className="text-sm font-medium text-gray-500">
+                        Storage
+                      </span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.storageUsedMB.toFixed(2)} / {usageData.subscription.maxStorageMB} MB
+                      {usageData.metrics.storageUsedMB.toFixed(2)} /{" "}
+                      {usageData.subscription.maxStorageMB} MB
                     </span>
                   </div>
                   <Progress
                     value={storageUsagePercentage}
-                    className={`h-2 ${storageUsagePercentage > 90 ? 'bg-red-500' : storageUsagePercentage > 75 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                    className={`h-2 ${storageUsagePercentage > 90 ? "bg-red-500" : storageUsagePercentage > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
                     aria-label={`Storage usage: ${storageUsagePercentage}%`}
                   />
                   {storageUsagePercentage > 90 && (
-                    <p className="text-xs text-red-500 mt-1">Approaching limit!</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Approaching limit!
+                    </p>
                   )}
                 </div>
 
@@ -246,19 +351,24 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       <Users className="h-4 w-4 text-blue-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Active Users</span>
+                      <span className="text-sm font-medium text-gray-500">
+                        Active Users
+                      </span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.activeUsers} / {usageData.subscription.maxUsers}
+                      {usageData.metrics.activeUsers} /{" "}
+                      {usageData.subscription.maxUsers}
                     </span>
                   </div>
                   <Progress
                     value={usersUsagePercentage}
-                    className={`h-2 ${usersUsagePercentage > 90 ? 'bg-red-500' : usersUsagePercentage > 75 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                    className={`h-2 ${usersUsagePercentage > 90 ? "bg-red-500" : usersUsagePercentage > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
                     aria-label={`Users usage: ${usersUsagePercentage}%`}
                   />
                   {usersUsagePercentage > 90 && (
-                    <p className="text-xs text-red-500 mt-1">Approaching limit!</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Approaching limit!
+                    </p>
                   )}
                 </div>
 
@@ -267,19 +377,24 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       <FileText className="h-4 w-4 text-blue-500 mr-2" />
-                      <span className="text-sm font-medium text-gray-500">Projects</span>
+                      <span className="text-sm font-medium text-gray-500">
+                        Projects
+                      </span>
                     </div>
                     <span className="text-sm font-semibold">
-                      {usageData.metrics.projectsCreated} / {usageData.subscription.maxProjects}
+                      {usageData.metrics.projectsCreated} /{" "}
+                      {usageData.subscription.maxProjects}
                     </span>
                   </div>
                   <Progress
                     value={projectsUsagePercentage}
-                    className={`h-2 ${projectsUsagePercentage > 90 ? 'bg-red-500' : projectsUsagePercentage > 75 ? 'bg-yellow-500' : 'bg-blue-500'}`}
+                    className={`h-2 ${projectsUsagePercentage > 90 ? "bg-red-500" : projectsUsagePercentage > 75 ? "bg-yellow-500" : "bg-blue-500"}`}
                     aria-label={`Projects usage: ${projectsUsagePercentage}%`}
                   />
                   {projectsUsagePercentage > 90 && (
-                    <p className="text-xs text-red-500 mt-1">Approaching limit!</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Approaching limit!
+                    </p>
                   )}
                 </div>
               </div>
@@ -311,7 +426,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
         </div>
       )}
 
-      {activeTab === 'history' && (
+      {activeTab === "history" && (
         <div className="space-y-8">
           {/* Usage Charts */}
           <Card>
@@ -335,7 +450,12 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                             <p className="font-semibold">{label}</p>
                             {payload.map((item: any) => (
                               <p key={item.dataKey} className="text-sm">
-                                <span style={{ color: item.stroke }} className="mr-2">●</span>
+                                <span
+                                  style={{ color: item.stroke }}
+                                  className="mr-2"
+                                >
+                                  ●
+                                </span>
                                 {item.dataKey}: {item.value}
                               </p>
                             ))}
@@ -378,21 +498,31 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold">
-                    {filteredHistory.reduce((sum, day) => sum + day.apiCalls, 0)}
+                    {filteredHistory.reduce(
+                      (sum, day) => sum + day.apiCalls,
+                      0,
+                    )}
                   </p>
                   <p className="text-sm text-gray-500">Total API Calls</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold">
-                    {filteredHistory.reduce((sum, day) => sum + day.storageUsedMB, 0).toFixed(2)}
+                    {filteredHistory
+                      .reduce((sum, day) => sum + day.storageUsedMB, 0)
+                      .toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-500">Total Storage (MB)</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold">
                     {filteredHistory.length > 0
-                      ? (filteredHistory.reduce((sum, day) => sum + day.apiCalls, 0) / filteredHistory.length).toFixed(1)
-                      : '0'}
+                      ? (
+                          filteredHistory.reduce(
+                            (sum, day) => sum + day.apiCalls,
+                            0,
+                          ) / filteredHistory.length
+                        ).toFixed(1)
+                      : "0"}
                   </p>
                   <p className="text-sm text-gray-500">Avg Daily Calls</p>
                 </div>
@@ -402,7 +532,7 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
         </div>
       )}
 
-      {activeTab === 'billing' && (
+      {activeTab === "billing" && (
         <div className="space-y-8">
           {/* Billing Cycle Progress */}
           <Card>
@@ -417,29 +547,48 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-gray-500">
-                      Cycle: {new Date(usageData.billing.currentCycleStart).toLocaleDateString()} to {new Date(usageData.billing.currentCycleEnd).toLocaleDateString()}
+                      Cycle:{" "}
+                      {new Date(
+                        usageData.billing.currentCycleStart,
+                      ).toLocaleDateString()}{" "}
+                      to{" "}
+                      {new Date(
+                        usageData.billing.currentCycleEnd,
+                      ).toLocaleDateString()}
                     </span>
                     <span className="text-sm font-semibold">
                       {billingCycleProgress.daysPassed}% Complete
                     </span>
                   </div>
-                  <Progress value={billingCycleProgress.daysPassed} className="h-3 bg-blue-500" />
+                  <Progress
+                    value={billingCycleProgress.daysPassed}
+                    className="h-3 bg-blue-500"
+                  />
                   <p className="text-sm text-gray-500 mt-2">
-                    {billingCycleProgress.daysRemaining} days remaining in this billing cycle
+                    {billingCycleProgress.daysRemaining} days remaining in this
+                    billing cycle
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Payment Method</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Payment Method
+                    </p>
                     <div className="flex items-center">
                       <CreditCard className="h-4 w-4 text-gray-400 mr-2" />
                       <span>{usageData.billing.paymentMethod}</span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Next Payment</p>
-                    <p>{new Date(usageData.billing.nextPaymentDate).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Next Payment
+                    </p>
+                    <p>
+                      {new Date(
+                        usageData.billing.nextPaymentDate,
+                      ).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -454,22 +603,41 @@ export function CompanyUsageClient({ usageData, error }: CompanyUsageClientProps
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold mb-3">Current Plan: {usageData.subscription.name}</h3>
+                  <h3 className="font-semibold mb-3">
+                    Current Plan: {usageData.subscription.name}
+                  </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="font-medium">Included Features:</p>
                       <ul className="space-y-1 mt-2 text-gray-600">
-                        <li>• {usageData.subscription.maxApiCalls.toLocaleString()} API calls/month</li>
-                        <li>• {usageData.subscription.maxStorageMB} MB storage</li>
-                        <li>• {usageData.subscription.maxUsers} team members</li>
+                        <li>
+                          •{" "}
+                          {usageData.subscription.maxApiCalls.toLocaleString()}{" "}
+                          API calls/month
+                        </li>
+                        <li>
+                          • {usageData.subscription.maxStorageMB} MB storage
+                        </li>
+                        <li>
+                          • {usageData.subscription.maxUsers} team members
+                        </li>
                         <li>• {usageData.subscription.maxProjects} projects</li>
                       </ul>
                     </div>
                     <div>
                       <p className="font-medium">Billing:</p>
                       <ul className="space-y-1 mt-2 text-gray-600">
-                        <li>• ${usageData.subscription.price} per {usageData.subscription.billingCycle}</li>
-                        <li>• {usageData.subscription.billingCycle === 'annual' ? '10%' : '0'} discount for annual billing</li>
+                        <li>
+                          • ${usageData.subscription.price} per{" "}
+                          {usageData.subscription.billingCycle}
+                        </li>
+                        <li>
+                          •{" "}
+                          {usageData.subscription.billingCycle === "annual"
+                            ? "10%"
+                            : "0"}{" "}
+                          discount for annual billing
+                        </li>
                         <li>• Cancel anytime</li>
                       </ul>
                     </div>

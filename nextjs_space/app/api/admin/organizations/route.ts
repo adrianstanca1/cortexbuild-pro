@@ -6,9 +6,11 @@ import { prisma } from "@/lib/db";
 
 // Helper to safely serialize data with BigInt values
 function serializeData(data: any): any {
-  return JSON.parse(JSON.stringify(data, (_, value) =>
-    typeof value === "bigint" ? Number(value) : value
-  ));
+  return JSON.parse(
+    JSON.stringify(data, (_, value) =>
+      typeof value === "bigint" ? Number(value) : value,
+    ),
+  );
 }
 
 export async function GET(req: NextRequest) {
@@ -25,7 +27,7 @@ export async function GET(req: NextRequest) {
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
-        { slug: { contains: search, mode: "insensitive" } }
+        { slug: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -38,49 +40,52 @@ export async function GET(req: NextRequest) {
             name: true,
             email: true,
             role: true,
-            lastLogin: true
-          }
+            lastLogin: true,
+          },
         },
         projects: {
           select: {
             id: true,
             name: true,
             status: true,
-            budget: true
-          }
+            budget: true,
+          },
         },
         _count: {
           select: {
             users: true,
             projects: true,
-            teamMembers: true
-          }
-        }
+            teamMembers: true,
+          },
+        },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     // Calculate additional stats for each organization
     const orgsWithStats = await Promise.all(
       organizations.map(async (org) => {
-        const projectIds = org.projects.map(p => p.id);
-        
+        const projectIds = org.projects.map((p) => p.id);
+
         // Handle empty projectIds array
-        const [taskCount, documentCount, rfiCount, totalBudget] = await Promise.all([
-          projectIds.length > 0 
-            ? prisma.task.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          projectIds.length > 0 
-            ? prisma.document.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          projectIds.length > 0 
-            ? prisma.rFI.count({ where: { projectId: { in: projectIds } } })
-            : Promise.resolve(0),
-          prisma.project.aggregate({
-            where: { organizationId: org.id },
-            _sum: { budget: true }
-          })
-        ]);
+        const [taskCount, documentCount, rfiCount, totalBudget] =
+          await Promise.all([
+            projectIds.length > 0
+              ? prisma.task.count({ where: { projectId: { in: projectIds } } })
+              : Promise.resolve(0),
+            projectIds.length > 0
+              ? prisma.document.count({
+                  where: { projectId: { in: projectIds } },
+                })
+              : Promise.resolve(0),
+            projectIds.length > 0
+              ? prisma.rFI.count({ where: { projectId: { in: projectIds } } })
+              : Promise.resolve(0),
+            prisma.project.aggregate({
+              where: { organizationId: org.id },
+              _sum: { budget: true },
+            }),
+          ]);
 
         return {
           ...org,
@@ -88,23 +93,26 @@ export async function GET(req: NextRequest) {
           _count: {
             users: Number(org._count.users),
             projects: Number(org._count.projects),
-            teamMembers: Number(org._count.teamMembers)
+            teamMembers: Number(org._count.teamMembers),
           },
           stats: {
             taskCount: Number(taskCount),
             documentCount: Number(documentCount),
             rfiCount: Number(rfiCount),
-            totalBudget: Number(totalBudget._sum.budget || 0)
-          }
+            totalBudget: Number(totalBudget._sum.budget || 0),
+          },
         };
-      })
+      }),
     );
 
     // Use custom serializer to handle any remaining BigInt values
     return NextResponse.json(serializeData({ organizations: orgsWithStats }));
   } catch (error) {
     console.error("Error fetching organizations:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -119,21 +127,29 @@ export async function POST(req: NextRequest) {
     const { name, slug, logoUrl } = body;
 
     if (!name || !slug) {
-      return NextResponse.json({ error: "Name and slug are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Name and slug are required" },
+        { status: 400 },
+      );
     }
 
     // Check slug uniqueness
-    const existingOrg = await prisma.organization.findUnique({ where: { slug } });
+    const existingOrg = await prisma.organization.findUnique({
+      where: { slug },
+    });
     if (existingOrg) {
-      return NextResponse.json({ error: "Organization with this slug already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Organization with this slug already exists" },
+        { status: 409 },
+      );
     }
 
     const organization = await prisma.organization.create({
       data: {
         name,
         slug: slug.toLowerCase().replace(/\s+/g, "-"),
-        logoUrl: logoUrl || null
-      }
+        logoUrl: logoUrl || null,
+      },
     });
 
     // Log activity
@@ -144,13 +160,16 @@ export async function POST(req: NextRequest) {
         entityId: organization.id,
         entityName: organization.name,
         userId: session.user.id,
-        details: `Created organization ${organization.name}`
-      }
+        details: `Created organization ${organization.name}`,
+      },
     });
 
     return NextResponse.json({ organization }, { status: 201 });
   } catch (error) {
     console.error("Error creating organization:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

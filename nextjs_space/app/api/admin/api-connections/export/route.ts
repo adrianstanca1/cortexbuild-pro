@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
     }
 
     const searchParams = req.nextUrl.searchParams;
-    const includeCredentials = searchParams.get("includeCredentials") === "true";
+    const includeCredentials =
+      searchParams.get("includeCredentials") === "true";
     const environment = searchParams.get("environment");
     const format = searchParams.get("format") || "json"; // json or csv
 
@@ -25,12 +26,14 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         rateLimitConfig: true,
-        _count: { select: { logs: true, healthChecks: true, usageRecords: true } }
-      }
+        _count: {
+          select: { logs: true, healthChecks: true, usageRecords: true },
+        },
+      },
     });
 
     // Prepare export data
-    const exportData = connections.map(conn => {
+    const exportData = connections.map((conn) => {
       const base = {
         id: conn.id,
         name: conn.name,
@@ -44,14 +47,16 @@ export async function GET(req: NextRequest) {
         status: conn.status,
         isEnabled: conn.isEnabled,
         expiresAt: conn.expiresAt,
-        rateLimits: conn.rateLimitConfig ? {
-          requestsPerMinute: conn.rateLimitConfig.requestsPerMinute,
-          requestsPerHour: conn.rateLimitConfig.requestsPerHour,
-          requestsPerDay: conn.rateLimitConfig.requestsPerDay,
-          burstLimit: conn.rateLimitConfig.burstLimit,
-          alertThreshold: conn.rateLimitConfig.alertThreshold
-        } : null,
-        stats: conn._count
+        rateLimits: conn.rateLimitConfig
+          ? {
+              requestsPerMinute: conn.rateLimitConfig.requestsPerMinute,
+              requestsPerHour: conn.rateLimitConfig.requestsPerHour,
+              requestsPerDay: conn.rateLimitConfig.requestsPerDay,
+              burstLimit: conn.rateLimitConfig.burstLimit,
+              alertThreshold: conn.rateLimitConfig.alertThreshold,
+            }
+          : null,
+        stats: conn._count,
       };
 
       // Only include decrypted credentials if explicitly requested (sensitive!)
@@ -71,37 +76,50 @@ export async function GET(req: NextRequest) {
           count: connections.length,
           includeCredentials,
           environment: environment || "all",
-          exportedBy: session.user.email
+          exportedBy: session.user.email,
         },
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     if (format === "csv") {
-      const headers = ["id", "name", "serviceName", "type", "environment", "status", "baseUrl", "isEnabled"];
+      const headers = [
+        "id",
+        "name",
+        "serviceName",
+        "type",
+        "environment",
+        "status",
+        "baseUrl",
+        "isEnabled",
+      ];
       const csvRows = [
         headers.join(","),
-        ...exportData.map(conn => 
-          headers.map(h => JSON.stringify((conn as any)[h] ?? "")).join(",")
-        )
+        ...exportData.map((conn) =>
+          headers.map((h) => JSON.stringify((conn as any)[h] ?? "")).join(","),
+        ),
       ];
       return new NextResponse(csvRows.join("\n"), {
         headers: {
           "Content-Type": "text/csv",
-          "Content-Disposition": `attachment; filename="api-connections-export.csv"`
-        }
+          "Content-Disposition": `attachment; filename="api-connections-export.csv"`,
+        },
       });
     }
 
     return NextResponse.json({
       exportedAt: new Date().toISOString(),
       count: exportData.length,
-      connections: exportData
+      connections: exportData,
     });
   } catch (error) {
     console.error("Error exporting API connections:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

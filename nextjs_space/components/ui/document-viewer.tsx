@@ -2,7 +2,17 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { X, Download, ExternalLink, FileText, Image as ImageIcon, Loader2, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import {
+  X,
+  Download,
+  ExternalLink,
+  FileText,
+  Image as ImageIcon,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+  RotateCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -17,7 +27,11 @@ interface DocumentViewerProps {
   } | null;
 }
 
-export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProps) {
+export function DocumentViewer({
+  isOpen,
+  onClose,
+  document,
+}: DocumentViewerProps) {
   const [loading, setLoading] = useState(false);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,13 +69,16 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
       setZoom(100);
       setRotation(0);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, document?.id]);
 
-  const isPDF = document?.mimeType?.includes("pdf") || document?.name?.toLowerCase().endsWith(".pdf");
-  const isImage = document?.mimeType?.startsWith("image/") || 
-    ["jpg", "jpeg", "png", "gif", "webp", "svg"].some(ext => 
-      document?.name?.toLowerCase().endsWith(`.${ext}`)
+  const isPDF =
+    document?.mimeType?.includes("pdf") ||
+    document?.name?.toLowerCase().endsWith(".pdf");
+  const isImage =
+    document?.mimeType?.startsWith("image/") ||
+    ["jpg", "jpeg", "png", "gif", "webp", "svg"].some((ext) =>
+      document?.name?.toLowerCase().endsWith(`.${ext}`),
     );
 
   const handleDownload = () => {
@@ -100,30 +117,57 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
             ) : (
               <FileText className="h-5 w-5 text-gray-500" />
             )}
-            <span className="font-medium text-gray-900 truncate max-w-md" title={document?.name}>
+            <span
+              className="font-medium text-gray-900 truncate max-w-md"
+              title={document?.name}
+            >
               {document?.name || "Document"}
             </span>
           </div>
           <div className="flex items-center gap-2">
             {isImage && (
               <>
-                <Button variant="ghost" size="sm" onClick={() => setZoom(z => Math.max(25, z - 25))}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setZoom((z) => Math.max(25, z - 25))}
+                >
                   <ZoomOut className="h-4 w-4" />
                 </Button>
-                <span className="text-sm text-gray-500 w-12 text-center">{zoom}%</span>
-                <Button variant="ghost" size="sm" onClick={() => setZoom(z => Math.min(200, z + 25))}>
+                <span className="text-sm text-gray-500 w-12 text-center">
+                  {zoom}%
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setZoom((z) => Math.min(200, z + 25))}
+                >
                   <ZoomIn className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setRotation(r => (r + 90) % 360)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRotation((r) => (r + 90) % 360)}
+                >
                   <RotateCw className="h-4 w-4" />
                 </Button>
                 <div className="w-px h-6 bg-gray-200 mx-2" />
               </>
             )}
-            <Button variant="ghost" size="sm" onClick={handleOpenExternal} disabled={!fileUrl}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleOpenExternal}
+              disabled={!fileUrl}
+            >
               <ExternalLink className="h-4 w-4 mr-1" /> Open
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!fileUrl}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDownload}
+              disabled={!fileUrl}
+            >
               <Download className="h-4 w-4 mr-1" /> Download
             </Button>
             <Button variant="ghost" size="icon" onClick={handleClose}>
@@ -143,7 +187,9 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
             <div className="text-center">
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-4">{error}</p>
-              <Button variant="outline" onClick={fetchFileUrl}>Try Again</Button>
+              <Button variant="outline" onClick={fetchFileUrl}>
+                Try Again
+              </Button>
             </div>
           ) : !fileUrl ? (
             <div className="text-center">
@@ -157,9 +203,9 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
               title={document?.name}
             />
           ) : isImage ? (
-            <div 
+            <div
               className="flex items-center justify-center w-full h-full"
-              style={{ overflow: 'auto' }}
+              style={{ overflow: "auto" }}
             >
               <Image
                 src={fileUrl}
@@ -167,15 +213,19 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
                 className="max-w-none shadow-lg rounded-lg"
                 style={{
                   transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-                  transition: 'transform 0.2s ease'
+                  transition: "transform 0.2s ease",
                 }}
               />
             </div>
           ) : (
             <div className="text-center bg-white p-8 rounded-lg shadow-lg">
               <FileText className="h-20 w-20 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Preview not available</h3>
-              <p className="text-gray-500 mb-4">This file type cannot be previewed in the browser.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Preview not available
+              </h3>
+              <p className="text-gray-500 mb-4">
+                This file type cannot be previewed in the browser.
+              </p>
               <div className="flex justify-center gap-3">
                 <Button variant="outline" onClick={handleOpenExternal}>
                   <ExternalLink className="h-4 w-4 mr-2" /> Open in New Tab

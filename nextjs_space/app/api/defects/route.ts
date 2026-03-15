@@ -11,7 +11,7 @@ import {
 } from "@/lib/api-utils";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
@@ -19,15 +19,11 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
 
   const { projectId, status, priority, trade } = parseQueryParams(request);
 
-  const where = buildOrgScopedWhere(
-    context!.organizationId!,
-    projectId,
-    {
-      ...(status && { status }),
-      ...(priority && { priority }),
-      ...(trade && { trade }),
-    }
-  );
+  const where = buildOrgScopedWhere(context!.organizationId!, projectId, {
+    ...(status && { status }),
+    ...(priority && { priority }),
+    ...(trade && { trade }),
+  });
 
   const defects = await prisma.defect.findMany({
     where,
@@ -47,8 +43,17 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
 
   const body = await request.json();
   const {
-    projectId, title, description, location, floor, room,
-    trade, priority, dueDate, responsibleParty, assignedToId
+    projectId,
+    title,
+    description,
+    location,
+    floor,
+    room,
+    trade,
+    priority,
+    dueDate,
+    responsibleParty,
+    assignedToId,
   } = body;
 
   if (!projectId || !title) {
@@ -87,10 +92,14 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
   if (defect.project.organizationId) {
     broadcastToOrganization(defect.project.organizationId, {
       type: "defect_created",
-      data: { id: defect.id, number: defect.number, title: defect.title, projectName: defect.project.name },
+      data: {
+        id: defect.id,
+        number: defect.number,
+        title: defect.title,
+        projectName: defect.project.name,
+      },
     });
   }
 
   return NextResponse.json(defect, { status: 201 });
 });
-

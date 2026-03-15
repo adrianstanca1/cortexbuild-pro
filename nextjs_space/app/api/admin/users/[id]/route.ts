@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,9 +23,9 @@ export async function GET(
           include: {
             organization: true,
             projectAssignments: {
-              include: { project: true }
-            }
-          }
+              include: { project: true },
+            },
+          },
         },
         _count: {
           select: {
@@ -35,10 +35,10 @@ export async function GET(
             activities: true,
             createdRFIs: true,
             dailyReports: true,
-            reportedIncidents: true
-          }
-        }
-      }
+            reportedIncidents: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -50,13 +50,16 @@ export async function GET(
     return NextResponse.json({ user: userWithoutPassword });
   } catch (error) {
     console.error("Error fetching user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,9 +68,12 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, email, role, organizationId, phone, password, suspended } = body;
+    const { name, email, role, organizationId, phone, password, suspended } =
+      body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id: (await params).id } });
+    const existingUser = await prisma.user.findUnique({
+      where: { id: (await params).id },
+    });
     if (!existingUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -76,7 +82,10 @@ export async function PATCH(
     if (email && email !== existingUser.email) {
       const emailExists = await prisma.user.findUnique({ where: { email } });
       if (emailExists) {
-        return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+        return NextResponse.json(
+          { error: "Email already in use" },
+          { status: 409 },
+        );
       }
     }
 
@@ -84,7 +93,8 @@ export async function PATCH(
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) updateData.role = role;
-    if (organizationId !== undefined) updateData.organizationId = organizationId || null;
+    if (organizationId !== undefined)
+      updateData.organizationId = organizationId || null;
     if (phone !== undefined) updateData.phone = phone;
     if (password) {
       updateData.password = await bcrypt.hash(password, 12);
@@ -101,28 +111,44 @@ export async function PATCH(
         organizationId: true,
         phone: true,
         updatedAt: true,
-        organization: { select: { id: true, name: true } }
-      }
+        organization: { select: { id: true, name: true } },
+      },
     });
 
     // Handle organization change - update team membership
-    if (organizationId !== undefined && organizationId !== existingUser.organizationId) {
+    if (
+      organizationId !== undefined &&
+      organizationId !== existingUser.organizationId
+    ) {
       // Remove old team membership
       if (existingUser.organizationId) {
         await prisma.teamMember.deleteMany({
-          where: { userId: (await params).id, organizationId: existingUser.organizationId }
+          where: {
+            userId: (await params).id,
+            organizationId: existingUser.organizationId,
+          },
         });
       }
       // Create new team membership
       if (organizationId) {
         await prisma.teamMember.upsert({
-          where: { userId_organizationId: { userId: (await params).id, organizationId } },
+          where: {
+            userId_organizationId: {
+              userId: (await params).id,
+              organizationId,
+            },
+          },
           update: {},
           create: {
             userId: (await params).id,
             organizationId,
-            jobTitle: role === "ADMIN" ? "Administrator" : role === "PROJECT_MANAGER" ? "Project Manager" : "Team Member"
-          }
+            jobTitle:
+              role === "ADMIN"
+                ? "Administrator"
+                : role === "PROJECT_MANAGER"
+                  ? "Project Manager"
+                  : "Team Member",
+          },
         });
       }
     }
@@ -135,20 +161,23 @@ export async function PATCH(
         entityId: user.id,
         entityName: user.name,
         userId: session.user.id,
-        details: `Updated user ${user.email}`
-      }
+        details: `Updated user ${user.email}`,
+      },
     });
 
     return NextResponse.json({ user });
   } catch (error) {
     console.error("Error updating user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -158,16 +187,23 @@ export async function DELETE(
 
     // Prevent self-deletion
     if ((await params).id === session.user.id) {
-      return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot delete your own account" },
+        { status: 400 },
+      );
     }
 
-    const user = await prisma.user.findUnique({ where: { id: (await params).id } });
+    const user = await prisma.user.findUnique({
+      where: { id: (await params).id },
+    });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Delete related team memberships first
-    await prisma.teamMember.deleteMany({ where: { userId: (await params).id } });
+    await prisma.teamMember.deleteMany({
+      where: { userId: (await params).id },
+    });
 
     // Delete user
     await prisma.user.delete({ where: { id: (await params).id } });
@@ -179,13 +215,16 @@ export async function DELETE(
         entityType: "User",
         entityName: user.name,
         userId: session.user.id,
-        details: `Deleted user ${user.email}`
-      }
+        details: `Deleted user ${user.email}`,
+      },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

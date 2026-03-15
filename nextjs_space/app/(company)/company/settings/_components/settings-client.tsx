@@ -12,7 +12,13 @@ import {
   MapPin,
   AlertCircle,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +30,10 @@ interface CompanySettingsClientProps {
   userRole: string;
 }
 
-export function CompanySettingsClient({ organization, userRole }: CompanySettingsClientProps) {
+export function CompanySettingsClient({
+  organization,
+  userRole,
+}: CompanySettingsClientProps) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: organization?.name || "",
@@ -61,8 +70,12 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Organization Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your organization&apos;s profile and settings</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Organization Settings
+        </h1>
+        <p className="text-gray-500 mt-1">
+          Manage your organization&apos;s profile and settings
+        </p>
       </div>
 
       {!isOwner && (
@@ -70,7 +83,9 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
           <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-medium text-amber-800">Read-only access</p>
-            <p className="text-sm text-amber-700">Only Company Owners can modify organization settings.</p>
+            <p className="text-sm text-amber-700">
+              Only Company Owners can modify organization settings.
+            </p>
           </div>
         </div>
       )}
@@ -81,7 +96,9 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
             <Building2 className="h-5 w-5" />
             Organization Profile
           </CardTitle>
-          <CardDescription>Basic information about your organization</CardDescription>
+          <CardDescription>
+            Basic information about your organization
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Logo Section */}
@@ -122,8 +139,14 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
           {/* Slug (Read-only) */}
           <div className="space-y-2">
             <Label>Organization Slug</Label>
-            <Input value={organization?.slug || ""} disabled className="bg-gray-50" />
-            <p className="text-xs text-gray-500">This is used in URLs and cannot be changed</p>
+            <Input
+              value={organization?.slug || ""}
+              disabled
+              className="bg-gray-50"
+            />
+            <p className="text-xs text-gray-500">
+              This is used in URLs and cannot be changed
+            </p>
           </div>
 
           {/* Description */}
@@ -132,7 +155,9 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
             <Textarea
               id="description"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               placeholder="Brief description of your organization..."
               rows={3}
               disabled={!isOwner}
@@ -144,7 +169,9 @@ export function CompanySettingsClient({ organization, userRole }: CompanySetting
       <Card>
         <CardHeader>
           <CardTitle>Contact Information</CardTitle>
-          <CardDescription>How people can reach your organization</CardDescription>
+          <CardDescription>
+            How people can reach your organization
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

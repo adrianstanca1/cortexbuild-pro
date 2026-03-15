@@ -18,22 +18,24 @@ export default async function ProjectsPage() {
           id: true,
           status: true,
           priority: true,
-          dueDate: true
-        }
+          dueDate: true,
+        },
       },
-      _count: { 
-        select: { 
-          tasks: true, 
-          documents: true, 
+      _count: {
+        select: {
+          tasks: true,
+          documents: true,
           teamMembers: true,
           rfis: true,
           changeOrders: true,
-          safetyIncidents: true
-        } 
-      }
+          safetyIncidents: true,
+        },
+      },
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
-  return <ProjectsClient projects={JSON.parse(JSON.stringify(projects ?? []))} />;
+  return (
+    <ProjectsClient projects={JSON.parse(JSON.stringify(projects ?? []))} />
+  );
 }

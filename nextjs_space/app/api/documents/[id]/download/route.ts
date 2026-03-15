@@ -5,12 +5,11 @@ import { prisma } from "@/lib/db";
 import { getFileUrl } from "@/lib/s3";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -22,12 +21,15 @@ export async function GET(
     const document = await prisma.document.findUnique({
       where: { id: id ?? "" },
       include: {
-        project: { select: { organizationId: true } }
-      }
+        project: { select: { organizationId: true } },
+      },
     });
 
     if (!document) {
-      return NextResponse.json({ error: "Document not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Document not found" },
+        { status: 404 },
+      );
     }
 
     // Verify user belongs to same organization
@@ -38,13 +40,16 @@ export async function GET(
 
     const url = await getFileUrl(document.cloudStoragePath, document.isPublic);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       url,
       name: document.name,
-      mimeType: document.mimeType
+      mimeType: document.mimeType,
     });
   } catch (error) {
     console.error("Document download error:", error);
-    return NextResponse.json({ error: "Failed to get download URL" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to get download URL" },
+      { status: 500 },
+    );
   }
 }

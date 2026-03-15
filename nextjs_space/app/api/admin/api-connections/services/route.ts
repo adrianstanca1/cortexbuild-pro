@@ -6,7 +6,7 @@ import {
   serviceRegistry,
   getAllServiceInstances,
   ServiceEnvironment,
-  PLATFORM_SERVICES
+  PLATFORM_SERVICES,
 } from "@/lib/service-registry";
 import { prisma } from "@/lib/db";
 
@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
     }
 
     const searchParams = req.nextUrl.searchParams;
-    const environment = searchParams.get("environment") as ServiceEnvironment | null;
+    const environment = searchParams.get(
+      "environment",
+    ) as ServiceEnvironment | null;
     const category = searchParams.get("category");
     const includeCustom = searchParams.get("includeCustom") !== "false";
 
@@ -28,44 +30,55 @@ export async function GET(req: NextRequest) {
 
     // Filter by category if specified
     let filteredInstances = category
-      ? instances.filter(i => i.definition.category === category)
+      ? instances.filter((i) => i.definition.category === category)
       : instances;
 
     // Filter out custom services if not requested
     if (!includeCustom) {
-      filteredInstances = filteredInstances.filter(i => i.definition.isBuiltIn);
+      filteredInstances = filteredInstances.filter(
+        (i) => i.definition.isBuiltIn,
+      );
     }
 
     // Get summary stats
     const stats = {
       total: filteredInstances.length,
-      active: filteredInstances.filter(i => i.status === "ACTIVE").length,
-      inactive: filteredInstances.filter(i => i.status === "INACTIVE").length,
-      disconnected: filteredInstances.filter(i => i.status === "DISCONNECTED").length,
-      notConfigured: filteredInstances.filter(i => i.status === "NOT_CONFIGURED").length,
-      coreServices: filteredInstances.filter(i => i.definition.isPlatformCore).length,
-      coreActive: filteredInstances.filter(i => i.definition.isPlatformCore && i.status === "ACTIVE").length
+      active: filteredInstances.filter((i) => i.status === "ACTIVE").length,
+      inactive: filteredInstances.filter((i) => i.status === "INACTIVE").length,
+      disconnected: filteredInstances.filter((i) => i.status === "DISCONNECTED")
+        .length,
+      notConfigured: filteredInstances.filter(
+        (i) => i.status === "NOT_CONFIGURED",
+      ).length,
+      coreServices: filteredInstances.filter((i) => i.definition.isPlatformCore)
+        .length,
+      coreActive: filteredInstances.filter(
+        (i) => i.definition.isPlatformCore && i.status === "ACTIVE",
+      ).length,
     };
 
     // Get categories for filtering
-    const categories = [...new Set(PLATFORM_SERVICES.map(s => s.category))];
+    const categories = [...new Set(PLATFORM_SERVICES.map((s) => s.category))];
 
     return NextResponse.json({
-      services: filteredInstances.map(i => ({
+      services: filteredInstances.map((i) => ({
         ...i.definition,
         status: i.status,
         environment: i.environment,
         isConfigured: i.isConfigured,
         connectionId: i.connectionId,
         lastValidatedAt: i.lastValidatedAt,
-        lastErrorMessage: i.lastErrorMessage
+        lastErrorMessage: i.lastErrorMessage,
       })),
       stats,
-      categories
+      categories,
     });
   } catch (error) {
     console.error("Error fetching services:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -85,7 +98,7 @@ export async function POST(req: NextRequest) {
     if (!service) {
       return NextResponse.json(
         { error: `Service '${serviceId}' not found` },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -93,24 +106,24 @@ export async function POST(req: NextRequest) {
     const existing = await prisma.apiConnection.findFirst({
       where: {
         serviceName: serviceId.toLowerCase(),
-        environment
-      }
+        environment,
+      },
     });
 
     if (existing) {
       return NextResponse.json(
         { error: `Service already configured for ${environment}` },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // Validate required credentials
-    const requiredFields = service.credentialFields.filter(f => f.required);
+    const requiredFields = service.credentialFields.filter((f) => f.required);
     for (const field of requiredFields) {
       if (!credentials[field.key]) {
         return NextResponse.json(
           { error: `Missing required credential: ${field.label}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -129,8 +142,8 @@ export async function POST(req: NextRequest) {
         credentials: encryptCredentials(credentials),
         baseUrl: service.baseUrl,
         status: "ACTIVE",
-        createdById: session.user.id
-      }
+        createdById: session.user.id,
+      },
     });
 
     // Log the creation
@@ -141,30 +154,36 @@ export async function POST(req: NextRequest) {
         details: {
           serviceId,
           environment,
-          method: "platform_services"
+          method: "platform_services",
         },
         newStatus: "ACTIVE",
         performedById: session.user.id,
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
-        userAgent: req.headers.get("user-agent")
-      }
+        ipAddress:
+          req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip"),
+        userAgent: req.headers.get("user-agent"),
+      },
     });
 
     return NextResponse.json(
-      JSON.parse(JSON.stringify({
-        success: true,
-        connection: {
-          id: connection.id,
-          name: connection.name,
-          serviceName: connection.serviceName,
-          status: connection.status,
-          environment: connection.environment
-        }
-      })),
-      { status: 201 }
+      JSON.parse(
+        JSON.stringify({
+          success: true,
+          connection: {
+            id: connection.id,
+            name: connection.name,
+            serviceName: connection.serviceName,
+            status: connection.status,
+            environment: connection.environment,
+          },
+        }),
+      ),
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error configuring service:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

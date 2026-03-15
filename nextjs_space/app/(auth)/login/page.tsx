@@ -4,7 +4,17 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { HardHat, Mail, Lock, Loader2, ArrowRight, CheckCircle, Building2, Shield, Users } from "lucide-react";
+import {
+  HardHat,
+  Mail,
+  Lock,
+  Loader2,
+  ArrowRight,
+  CheckCircle,
+  Building2,
+  Shield,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -12,7 +22,7 @@ import { toast } from "sonner";
 const features = [
   { icon: Building2, text: "Manage unlimited projects" },
   { icon: Users, text: "Real-time team collaboration" },
-  { icon: Shield, text: "Enterprise-grade security" }
+  { icon: Shield, text: "Enterprise-grade security" },
 ];
 
 export default function LoginPage() {
@@ -28,7 +38,7 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
-        redirect: false
+        redirect: false,
       });
 
       if (result?.error) {
@@ -47,7 +57,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #5f46e5 0%, #7c3aed 50%, #4f46e5 100%)' }}>
+      <div
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #5f46e5 0%, #7c3aed 50%, #4f46e5 100%)",
+        }}
+      >
         {/* Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
@@ -55,7 +71,7 @@ export default function LoginPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/10 rounded-full" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-white/10 rounded-full" />
         </div>
-        
+
         <div className="relative z-10 flex flex-col justify-between p-12">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
@@ -64,17 +80,24 @@ export default function LoginPage() {
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-xl font-bold text-white">CortexBuild</span>
-              <span className="bg-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full text-slate-900">PRO</span>
+              <span className="bg-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full text-slate-900">
+                PRO
+              </span>
             </div>
           </Link>
-          
+
           {/* Main Content */}
           <div className="space-y-8">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-4">Welcome back to your projects</h1>
-              <p className="text-lg text-white/90">Sign in to continue managing your construction projects efficiently.</p>
+              <h1 className="text-4xl font-bold text-white mb-4">
+                Welcome back to your projects
+              </h1>
+              <p className="text-lg text-white/90">
+                Sign in to continue managing your construction projects
+                efficiently.
+              </p>
             </div>
-            
+
             <div className="space-y-4">
               {features.map((feature, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -86,44 +109,71 @@ export default function LoginPage() {
               ))}
             </div>
           </div>
-          
+
           {/* Footer */}
-          <p className="text-white/70 text-sm">&copy; 2026 CortexBuild Pro. All rights reserved.</p>
+          <p className="text-white/70 text-sm">
+            &copy; 2026 CortexBuild Pro. All rights reserved.
+          </p>
         </div>
       </div>
-      
+
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-slate-50">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #5f46e5, #7c3aed)' }}>
+              <div
+                className="p-2 rounded-xl"
+                style={{
+                  background: "linear-gradient(135deg, #5f46e5, #7c3aed)",
+                }}
+              >
                 <HardHat className="h-6 w-6 text-white" />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xl font-bold" style={{ color: '#1e293b' }}>CortexBuild</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)' }}>PRO</span>
+                <span
+                  className="text-xl font-bold"
+                  style={{ color: "#1e293b" }}
+                >
+                  CortexBuild
+                </span>
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+                  style={{
+                    background: "linear-gradient(135deg, #f59e0b, #ea580c)",
+                  }}
+                >
+                  PRO
+                </span>
               </div>
             </Link>
           </div>
-          
+
           <div className="text-center lg:text-left mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Sign in to your account</h2>
-            <p className="text-slate-500 mt-2">Enter your credentials to access your dashboard</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              Sign in to your account
+            </h2>
+            <p className="text-slate-500 mt-2">
+              Enter your credentials to access your dashboard
+            </p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Email address</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Email address
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                   <Input
                     type="email"
                     placeholder="you@company.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     className="pl-12 h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
                     required
                   />
@@ -132,8 +182,13 @@ export default function LoginPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-slate-700">Password</label>
-                  <button type="button" className="text-sm text-primary hover:text-primary/80 font-medium">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    className="text-sm text-primary hover:text-primary/80 font-medium"
+                  >
                     Forgot password?
                   </button>
                 </div>
@@ -143,22 +198,29 @@ export default function LoginPage() {
                     type="password"
                     placeholder="••••••••"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className="pl-12 h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
                     required
                   />
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-semibold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5" 
+              <Button
+                type="submit"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-semibold shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5"
                 disabled={loading}
               >
                 {loading ? (
-                  <><Loader2 className="h-5 w-5 animate-spin mr-2" /> Signing in...</>
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" /> Signing
+                    in...
+                  </>
                 ) : (
-                  <>Sign In <ArrowRight className="h-5 w-5 ml-2" /></>
+                  <>
+                    Sign In <ArrowRight className="h-5 w-5 ml-2" />
+                  </>
                 )}
               </Button>
             </form>
@@ -166,13 +228,16 @@ export default function LoginPage() {
             <div className="mt-6 pt-6 border-t border-slate-100 text-center">
               <p className="text-sm text-slate-600">
                 Don&apos;t have an account?{" "}
-                <Link href="/signup" className="text-primary font-semibold hover:text-primary/80 transition-colors">
+                <Link
+                  href="/signup"
+                  className="text-primary font-semibold hover:text-primary/80 transition-colors"
+                >
                   Create account
                 </Link>
               </p>
             </div>
           </div>
-          
+
           {/* Trust Indicators */}
           <div className="mt-8 flex items-center justify-center gap-6 text-sm text-slate-400">
             <div className="flex items-center gap-1.5">

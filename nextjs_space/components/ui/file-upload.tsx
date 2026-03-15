@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { Upload, FileIcon, Loader2, Download, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { useState, useRef } from "react";
+import { Upload, FileIcon, Loader2, Download, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface FileItem {
   id?: string;
@@ -33,9 +33,9 @@ export function FileUpload({
   onDelete,
   maxFiles = 5,
   maxSize = 50,
-  accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt',
+  accept = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt",
   disabled = false,
-  isPublic = false
+  isPublic = false,
 }: FileUploadProps) {
   const [_uploading, setUploading] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +57,7 @@ export function FileUpload({
     }
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -68,59 +68,59 @@ export function FileUpload({
       name: file.name,
       fileSize: file.size,
       mimeType: file.type,
-      isUploading: true
+      isUploading: true,
     };
 
     onFilesChange([...files, newFile]);
-    setUploading(prev => [...prev, tempId]);
+    setUploading((prev) => [...prev, tempId]);
 
     try {
       // Get presigned URL
-      const presignedRes = await fetch('/api/upload/presigned', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const presignedRes = await fetch("/api/upload/presigned", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fileName: file.name,
           contentType: file.type,
-          isPublic
-        })
+          isPublic,
+        }),
       });
 
-      if (!presignedRes.ok) throw new Error('Failed to get upload URL');
+      if (!presignedRes.ok) throw new Error("Failed to get upload URL");
       const { uploadUrl, cloud_storage_path } = await presignedRes.json();
 
       // Check if content-disposition header is needed
       const urlParams = new URL(uploadUrl).searchParams;
-      const signedHeaders = urlParams.get('X-Amz-SignedHeaders') || '';
-      const headers: Record<string, string> = { 'Content-Type': file.type };
-      if (signedHeaders.includes('content-disposition')) {
-        headers['Content-Disposition'] = 'attachment';
+      const signedHeaders = urlParams.get("X-Amz-SignedHeaders") || "";
+      const headers: Record<string, string> = { "Content-Type": file.type };
+      if (signedHeaders.includes("content-disposition")) {
+        headers["Content-Disposition"] = "attachment";
       }
 
       // Upload to S3
       const uploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
+        method: "PUT",
         headers,
-        body: file
+        body: file,
       });
 
-      if (!uploadRes.ok) throw new Error('Upload failed');
+      if (!uploadRes.ok) throw new Error("Upload failed");
 
       const completedFile: FileItem = {
         ...newFile,
         cloud_storage_path,
-        isUploading: false
+        isUploading: false,
       };
 
-      onFilesChange(files.filter(f => f.id !== tempId).concat(completedFile));
+      onFilesChange(files.filter((f) => f.id !== tempId).concat(completedFile));
       onUploadComplete?.(completedFile);
       toast.success(`${file.name} uploaded`);
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
       toast.error(`Failed to upload ${file.name}`);
-      onFilesChange(files.filter(f => f.id !== tempId));
+      onFilesChange(files.filter((f) => f.id !== tempId));
     } finally {
-      setUploading(prev => prev.filter(id => id !== tempId));
+      setUploading((prev) => prev.filter((id) => id !== tempId));
     }
   };
 
@@ -128,34 +128,39 @@ export function FileUpload({
     if (!file.cloud_storage_path) return;
 
     try {
-      const res = await fetch('/api/upload/file-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cloud_storage_path: file.cloud_storage_path, isPublic })
+      const res = await fetch("/api/upload/file-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cloud_storage_path: file.cloud_storage_path,
+          isPublic,
+        }),
       });
 
-      if (!res.ok) throw new Error('Failed to get download URL');
+      if (!res.ok) throw new Error("Failed to get download URL");
       const { url } = await res.json();
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = file.name;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download file');
+      console.error("Download error:", error);
+      toast.error("Failed to download file");
     }
   };
 
   const handleDelete = (file: FileItem) => {
-    onFilesChange(files.filter(f => f.id !== file.id && f.name !== file.name));
+    onFilesChange(
+      files.filter((f) => f.id !== file.id && f.name !== file.name),
+    );
     onDelete?.(file);
   };
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return '';
+    if (!bytes) return "";
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -172,7 +177,7 @@ export function FileUpload({
         className="hidden"
         disabled={disabled}
       />
-      
+
       {files.length < maxFiles && (
         <Button
           type="button"
@@ -183,7 +188,9 @@ export function FileUpload({
         >
           <Upload className="w-5 h-5" />
           <span className="text-sm">Click to upload files</span>
-          <span className="text-xs text-muted-foreground">Max {maxSize}MB per file</span>
+          <span className="text-xs text-muted-foreground">
+            Max {maxSize}MB per file
+          </span>
         </Button>
       )}
 
@@ -198,7 +205,9 @@ export function FileUpload({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{file.name}</p>
                 {file.fileSize && (
-                  <p className="text-xs text-muted-foreground">{formatFileSize(file.fileSize)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatFileSize(file.fileSize)}
+                  </p>
                 )}
               </div>
               {file.isUploading ? (

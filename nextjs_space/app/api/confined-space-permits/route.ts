@@ -1,37 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/db';
-import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId');
-    const status = searchParams.get('status');
+    const projectId = searchParams.get("projectId");
+    const status = searchParams.get("status");
 
     const where: any = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else if (session.user.organizationId) {
       const projects = await prisma.project.findMany({
         where: { organizationId: session.user.organizationId },
-        select: { id: true }
+        select: { id: true },
       });
-      where.projectId = { in: projects.map(p => p.id) };
+      where.projectId = { in: projects.map((p) => p.id) };
     }
-    
+
     if (status) {
       where.status = status;
     }
@@ -41,15 +39,18 @@ export async function GET(request: NextRequest) {
       include: {
         project: { select: { id: true, name: true } },
         requestedBy: { select: { id: true, name: true } },
-        approvedBy: { select: { id: true, name: true } }
+        approvedBy: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(permits);
   } catch (error) {
-    console.error('Error fetching confined space permits:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error fetching confined space permits:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -57,15 +58,15 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const data = await request.json();
 
     const lastPermit = await prisma.confinedSpacePermit.findFirst({
       where: { projectId: data.projectId },
-      orderBy: { number: 'desc' },
-      select: { number: true }
+      orderBy: { number: "desc" },
+      select: { number: true },
     });
     const number = (lastPermit?.number || 0) + 1;
 
@@ -99,33 +100,36 @@ export async function POST(request: NextRequest) {
         projectId: data.projectId,
         requestedById: session.user.id,
         requesterSignature: data.requesterSignature,
-        requesterSignedAt: data.requesterSignature ? new Date() : null
+        requesterSignedAt: data.requesterSignature ? new Date() : null,
       },
       include: {
         project: { select: { id: true, name: true, organizationId: true } },
-        requestedBy: { select: { id: true, name: true } }
-      }
+        requestedBy: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
       data: {
-        action: 'created',
-        entityType: 'ConfinedSpacePermit',
+        action: "created",
+        entityType: "ConfinedSpacePermit",
         entityId: permit.id,
         entityName: `Confined Space Permit #${number}`,
         userId: session.user.id,
-        projectId: data.projectId
-      }
+        projectId: data.projectId,
+      },
     });
 
     broadcastToOrganization(permit.project.organizationId, {
-      type: 'confined_space_permit_created',
-      data: permit
+      type: "confined_space_permit_created",
+      data: permit,
     });
 
     return NextResponse.json(permit, { status: 201 });
   } catch (error) {
-    console.error('Error creating confined space permit:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error creating confined space permit:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

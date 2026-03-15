@@ -37,8 +37,12 @@ export default async function SiteDiaryPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Site Diary</h1>
-        <p className="text-muted-foreground">Daily site records, weather, and progress tracking</p>
+        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+          Site Diary
+        </h1>
+        <p className="text-muted-foreground">
+          Daily site records, weather, and progress tracking
+        </p>
       </div>
       <SiteDiaryClient
         diaries={JSON.parse(JSON.stringify(diaries))}

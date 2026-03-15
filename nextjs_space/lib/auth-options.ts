@@ -10,63 +10,70 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [GoogleProvider({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          allowDangerousEmailAccountLinking: true,
-        })]
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
       : []),
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-      ? [GithubProvider({
-          clientId: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-          allowDangerousEmailAccountLinking: true,
-        } as any)]
+      ? [
+          GithubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            allowDangerousEmailAccountLinking: true,
+          } as any),
+        ]
       : []),
     CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-          include: { organization: true }
+          include: { organization: true },
         });
-        
+
         if (!user || !user.password) {
           return null;
         }
-        
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
         if (!isValid) {
           return null;
         }
-        
+
         await prisma.user.update({
           where: { id: user.id },
-          data: { lastLogin: new Date() }
+          data: { lastLogin: new Date() },
         });
-        
+
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
           organizationId: user.organizationId,
-          avatarUrl: user.avatarUrl
+          avatarUrl: user.avatarUrl,
         } as any;
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60
+    maxAge: 30 * 24 * 60 * 60,
   },
   events: {
     async createUser({ user }) {
@@ -90,21 +97,28 @@ export const authOptions: NextAuthOptions = {
           slug,
           entitlements: {
             modules: {
-              projects: true, tasks: true, team: true, documents: true,
-              safety: true, reports: true, rfis: true, submittals: true,
-              changeOrders: true, dailyReports: true
+              projects: true,
+              tasks: true,
+              team: true,
+              documents: true,
+              safety: true,
+              reports: true,
+              rfis: true,
+              submittals: true,
+              changeOrders: true,
+              dailyReports: true,
             },
-            limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 }
-          }
-        }
+            limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 },
+          },
+        },
       });
 
       await prisma.user.update({
         where: { id: user.id },
         data: {
           role: "COMPANY_OWNER",
-          organizationId: org.id
-        }
+          organizationId: org.id,
+        },
       });
 
       // Create team member record
@@ -112,10 +126,10 @@ export const authOptions: NextAuthOptions = {
         data: {
           userId: user.id,
           organizationId: org.id,
-          jobTitle: "Owner"
-        }
+          jobTitle: "Owner",
+        },
       });
-    }
+    },
   },
   callbacks: {
     async jwt({ token, user, account }) {
@@ -126,10 +140,19 @@ export const authOptions: NextAuthOptions = {
         token.avatarUrl = (user as any).avatarUrl;
       }
       // For Google OAuth, fetch user data from database if not present in token
-      if (account?.provider === "google" && token.email && !token.organizationId) {
+      if (
+        account?.provider === "google" &&
+        token.email &&
+        !token.organizationId
+      ) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
-          select: { id: true, role: true, organizationId: true, avatarUrl: true }
+          select: {
+            id: true,
+            role: true,
+            organizationId: true,
+            avatarUrl: true,
+          },
         });
         if (dbUser) {
           token.id = dbUser.id;
@@ -148,41 +171,41 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).avatarUrl = token.avatarUrl;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
   useSecureCookies: true,
   cookies: {
     pkceCodeVerifier: {
-      name: '__Secure-next-auth.pkce.code_verifier',
+      name: "__Secure-next-auth.pkce.code_verifier",
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true
-      }
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+      },
     },
     state: {
-      name: '__Secure-next-auth.state',
+      name: "__Secure-next-auth.state",
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
+        sameSite: "lax",
+        path: "/",
         secure: true,
-        maxAge: 900
-      }
+        maxAge: 900,
+      },
     },
     callbackUrl: {
-      name: '__Secure-next-auth.callback-url',
+      name: "__Secure-next-auth.callback-url",
       options: {
         httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true
-      }
-    }
-  }
+        sameSite: "lax",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
 };

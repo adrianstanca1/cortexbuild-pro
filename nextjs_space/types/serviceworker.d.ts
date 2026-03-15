@@ -37,8 +37,14 @@ interface FetchEvent extends Event {
   preloadResponse: Promise<Response | undefined>;
 }
 
-declare function addEventListener(type: 'sync', listener: (event: SyncEvent) => void): void;
-declare function addEventListener(type: 'periodicsync', listener: (event: PeriodicSyncEvent) => void): void;
+declare function addEventListener(
+  type: "sync",
+  listener: (event: SyncEvent) => void,
+): void;
+declare function addEventListener(
+  type: "periodicsync",
+  listener: (event: PeriodicSyncEvent) => void,
+): void;
 
 // Web Speech API type declarations
 interface SpeechRecognition extends EventTarget {

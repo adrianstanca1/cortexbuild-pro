@@ -12,7 +12,7 @@ import {
   Clock,
   RefreshCw,
   Zap,
-  Server
+  Server,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,15 +55,19 @@ export function UsageAnalytics() {
     totalSuccess: 0,
     totalErrors: 0,
     avgLatency: 0,
-    successRate: 100
+    successRate: 100,
   });
-  const [serviceBreakdown, setServiceBreakdown] = useState<ServiceBreakdown[]>([]);
+  const [serviceBreakdown, setServiceBreakdown] = useState<ServiceBreakdown[]>(
+    [],
+  );
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/api-connections/analytics?period=${period}`);
+      const res = await fetch(
+        `/api/admin/api-connections/analytics?period=${period}`,
+      );
       if (res.ok) {
         const data = await res.json();
         setSummary(data.summary || {});
@@ -88,7 +92,7 @@ export function UsageAnalytics() {
     return "text-red-600";
   };
 
-  const maxRequests = Math.max(...timeline.map(t => t.requests), 1);
+  const maxRequests = Math.max(...timeline.map((t) => t.requests), 1);
 
   if (loading) {
     return (
@@ -128,7 +132,9 @@ export function UsageAnalytics() {
                 <Activity className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{summary.totalRequests.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {summary.totalRequests.toLocaleString()}
+                </p>
                 <p className="text-xs text-muted-foreground">Total Requests</p>
               </div>
             </div>
@@ -141,7 +147,9 @@ export function UsageAnalytics() {
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600">{summary.totalSuccess.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {summary.totalSuccess.toLocaleString()}
+                </p>
                 <p className="text-xs text-muted-foreground">Successful</p>
               </div>
             </div>
@@ -154,7 +162,9 @@ export function UsageAnalytics() {
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-600">{summary.totalErrors.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {summary.totalErrors.toLocaleString()}
+                </p>
                 <p className="text-xs text-muted-foreground">Errors</p>
               </div>
             </div>
@@ -180,7 +190,9 @@ export function UsageAnalytics() {
                 <TrendingUp className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${getSuccessRateColor(summary.successRate)}`}>
+                <p
+                  className={`text-2xl font-bold ${getSuccessRateColor(summary.successRate)}`}
+                >
                   {summary.successRate}%
                 </p>
                 <p className="text-xs text-muted-foreground">Success Rate</p>
@@ -208,7 +220,10 @@ export function UsageAnalytics() {
                 >
                   <div
                     className="w-full bg-primary/80 rounded-t transition-all group-hover:bg-primary"
-                    style={{ height: `${(entry.requests / maxRequests) * 100}%`, minHeight: entry.requests > 0 ? '4px' : '0' }}
+                    style={{
+                      height: `${(entry.requests / maxRequests) * 100}%`,
+                      minHeight: entry.requests > 0 ? "4px" : "0",
+                    }}
                   />
                   {/* Tooltip */}
                   <div className="absolute bottom-full mb-2 hidden group-hover:block z-10">
@@ -222,8 +237,17 @@ export function UsageAnalytics() {
               ))}
             </div>
             <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>{timeline[0] && format(new Date(timeline[0].timestamp), "MMM d, HH:mm")}</span>
-              <span>{timeline[timeline.length - 1] && format(new Date(timeline[timeline.length - 1].timestamp), "MMM d, HH:mm")}</span>
+              <span>
+                {timeline[0] &&
+                  format(new Date(timeline[0].timestamp), "MMM d, HH:mm")}
+              </span>
+              <span>
+                {timeline[timeline.length - 1] &&
+                  format(
+                    new Date(timeline[timeline.length - 1].timestamp),
+                    "MMM d, HH:mm",
+                  )}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -253,32 +277,43 @@ export function UsageAnalytics() {
                       {service.serviceName}
                     </Badge>
                   </div>
-                  <Badge className={service.successRate >= 99 ? "bg-green-100 text-green-800" : service.successRate >= 95 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}>
+                  <Badge
+                    className={
+                      service.successRate >= 99
+                        ? "bg-green-100 text-green-800"
+                        : service.successRate >= 95
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                    }
+                  >
                     {service.successRate}% success
                   </Badge>
                 </div>
                 <div className="grid grid-cols-4 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground text-xs">Requests</p>
-                    <p className="font-semibold">{service.requestCount.toLocaleString()}</p>
+                    <p className="font-semibold">
+                      {service.requestCount.toLocaleString()}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Success</p>
-                    <p className="font-semibold text-green-600">{service.successCount.toLocaleString()}</p>
+                    <p className="font-semibold text-green-600">
+                      {service.successCount.toLocaleString()}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Errors</p>
-                    <p className="font-semibold text-red-600">{service.errorCount.toLocaleString()}</p>
+                    <p className="font-semibold text-red-600">
+                      {service.errorCount.toLocaleString()}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Avg Latency</p>
                     <p className="font-semibold">{service.avgLatency}ms</p>
                   </div>
                 </div>
-                <Progress
-                  value={service.successRate}
-                  className="h-1.5 mt-3"
-                />
+                <Progress value={service.successRate} className="h-1.5 mt-3" />
               </motion.div>
             ))}
           </div>
@@ -287,7 +322,9 @@ export function UsageAnalytics() {
             <div className="text-center py-8 text-muted-foreground">
               <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>No usage data available</p>
-              <p className="text-sm">API requests will be tracked automatically</p>
+              <p className="text-sm">
+                API requests will be tracked automatically
+              </p>
             </div>
           )}
         </CardContent>

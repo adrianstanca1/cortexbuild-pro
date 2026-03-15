@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
@@ -13,11 +13,17 @@ export async function POST(req: NextRequest) {
     const { token, password } = body;
 
     if (!token || !password) {
-      return NextResponse.json({ error: "Token and password are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Token and password are required" },
+        { status: 400 },
+      );
     }
 
     if (password.length < 8) {
-      return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 },
+      );
     }
 
     // Find invitation
@@ -25,41 +31,58 @@ export async function POST(req: NextRequest) {
       where: { token },
       include: {
         organization: true,
-        invitedBy: { select: { name: true, email: true } }
-      }
+        invitedBy: { select: { name: true, email: true } },
+      },
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invalid invitation" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invalid invitation" },
+        { status: 404 },
+      );
     }
 
     if (invitation.status !== "PENDING") {
-      return NextResponse.json({ error: "This invitation is no longer valid" }, { status: 410 });
+      return NextResponse.json(
+        { error: "This invitation is no longer valid" },
+        { status: 410 },
+      );
     }
 
     if (invitation.expiresAt < new Date()) {
       await prisma.teamInvitation.update({
         where: { id: invitation.id },
-        data: { status: "EXPIRED" }
+        data: { status: "EXPIRED" },
       });
-      return NextResponse.json({ error: "Invitation has expired" }, { status: 410 });
+      return NextResponse.json(
+        { error: "Invitation has expired" },
+        { status: 410 },
+      );
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: invitation.email }
+      where: { email: invitation.email },
     });
 
     if (existingUser) {
       // If user exists but in different org, we can't add them
       if (existingUser.organizationId !== invitation.organizationId) {
-        return NextResponse.json({ 
-          error: "An account with this email already exists. Please contact support." 
-        }, { status: 409 });
+        return NextResponse.json(
+          {
+            error:
+              "An account with this email already exists. Please contact support.",
+          },
+          { status: 409 },
+        );
       }
-      return NextResponse.json({ 
-        error: "An account with this email already exists. Please login instead." 
-      }, { status: 409 });
+      return NextResponse.json(
+        {
+          error:
+            "An account with this email already exists. Please login instead.",
+        },
+        { status: 409 },
+      );
     }
 
     // Hash password
@@ -75,7 +98,7 @@ export async function POST(req: NextRequest) {
           password: hashedPassword,
           role: invitation.role,
           organizationId: invitation.organizationId,
-        }
+        },
       });
 
       // Create team member record
@@ -85,7 +108,7 @@ export async function POST(req: NextRequest) {
           organizationId: invitation.organizationId,
           jobTitle: invitation.jobTitle,
           department: invitation.department,
-        }
+        },
       });
 
       // Update invitation status
@@ -94,7 +117,7 @@ export async function POST(req: NextRequest) {
         data: {
           status: "ACCEPTED",
           acceptedAt: new Date(),
-        }
+        },
       });
 
       // Log activity
@@ -106,7 +129,7 @@ export async function POST(req: NextRequest) {
           entityName: newUser.name,
           details: `${invitation.email} accepted invitation as ${invitation.role}`,
           userId: newUser.id,
-        }
+        },
       });
 
       return newUser;
@@ -115,12 +138,12 @@ export async function POST(req: NextRequest) {
     // Send welcome email
     try {
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-      
+
       await fetch("https://apps.abacus.ai/api/sendEmail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
+          Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
         },
         body: JSON.stringify({
           toEmails: [invitation.email],
@@ -150,8 +173,8 @@ export async function POST(req: NextRequest) {
                 </div>
               </div>
             </div>
-          `
-        })
+          `,
+        }),
       });
 
       // Notify the inviter
@@ -159,7 +182,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
+          Authorization: `Bearer ${process.env.ABACUSAI_API_KEY}`,
         },
         body: JSON.stringify({
           toEmails: [invitation.invitedBy.email],
@@ -183,25 +206,31 @@ export async function POST(req: NextRequest) {
                 </div>
               </div>
             </div>
-          `
-        })
+          `,
+        }),
       });
     } catch (emailError) {
       console.error("Email sending error:", emailError);
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Account created successfully",
-      user: {
-        id: result.id,
-        email: result.email,
-        name: result.name,
-        role: result.role,
-      }
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Account created successfully",
+        user: {
+          id: result.id,
+          email: result.email,
+          name: result.name,
+          role: result.role,
+        },
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error("Error accepting invitation:", error);
-    return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to accept invitation" },
+      { status: 500 },
+    );
   }
 }

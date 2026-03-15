@@ -19,18 +19,18 @@ export async function POST(request: Request) {
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already in use" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,13 +53,20 @@ export async function POST(request: Request) {
         slug,
         entitlements: {
           modules: {
-            projects: true, tasks: true, team: true, documents: true,
-            safety: true, reports: true, rfis: true, submittals: true,
-            changeOrders: true, dailyReports: true
+            projects: true,
+            tasks: true,
+            team: true,
+            documents: true,
+            safety: true,
+            reports: true,
+            rfis: true,
+            submittals: true,
+            changeOrders: true,
+            dailyReports: true,
           },
-          limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 }
-        }
-      }
+          limits: { maxUsers: 50, maxProjects: 100, storageGB: 10 },
+        },
+      },
     });
 
     const user = await prisma.user.create({
@@ -68,8 +75,8 @@ export async function POST(request: Request) {
         email,
         password: hashedPassword,
         role: "COMPANY_OWNER",
-        organizationId: org.id
-      }
+        organizationId: org.id,
+      },
     });
 
     // Create team member record
@@ -77,8 +84,8 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         organizationId: org.id,
-        jobTitle: "Owner"
-      }
+        jobTitle: "Owner",
+      },
     });
 
     return NextResponse.json({
@@ -87,14 +94,14 @@ export async function POST(request: Request) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Failed to create account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

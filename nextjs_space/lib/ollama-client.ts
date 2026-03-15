@@ -54,8 +54,10 @@ class OllamaClient {
   private defaultModel: string;
 
   constructor(baseUrl?: string, defaultModel?: string) {
-    this.baseUrl = baseUrl || process.env.OLLAMA_URL || "http://host.docker.internal:11434";
-    this.defaultModel = defaultModel || process.env.OLLAMA_MODEL || "qwen2.5:7b";
+    this.baseUrl =
+      baseUrl || process.env.OLLAMA_URL || "http://host.docker.internal:11434";
+    this.defaultModel =
+      defaultModel || process.env.OLLAMA_MODEL || "qwen2.5:7b";
   }
 
   /**
@@ -69,10 +71,10 @@ class OllamaClient {
       topK?: number;
       topP?: number;
       stream?: boolean;
-    }
+    },
   ): Promise<string> {
     const model = options?.model || this.defaultModel;
-    
+
     try {
       const requestBody: OllamaGenerateRequest = {
         model,
@@ -93,7 +95,7 @@ class OllamaClient {
 
       if (!response.ok) {
         throw new Error(
-          `Ollama API error: ${response.status} ${response.statusText}`
+          `Ollama API error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -120,7 +122,7 @@ class OllamaClient {
       model?: string;
       temperature?: number;
       stream?: boolean;
-    }
+    },
   ): Promise<string> {
     const model = options?.model || this.defaultModel;
 
@@ -142,7 +144,7 @@ class OllamaClient {
 
       if (!response.ok) {
         throw new Error(
-          `Ollama API error: ${response.status} ${response.statusText}`
+          `Ollama API error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -166,7 +168,7 @@ class OllamaClient {
   async analyzeDocument(
     content: string,
     customPrompt?: string,
-    model?: string
+    model?: string,
   ): Promise<string> {
     const prompt =
       customPrompt ||
@@ -196,7 +198,7 @@ Analysis:`;
     options?: {
       model?: string;
       temperature?: number;
-    }
+    },
   ): AsyncGenerator<string> {
     const model = options?.model || this.defaultModel;
 
@@ -218,7 +220,7 @@ Analysis:`;
 
       if (!response.ok) {
         throw new Error(
-          `Ollama API error: ${response.status} ${response.statusText}`
+          `Ollama API error: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -283,7 +285,9 @@ Analysis:`;
         return [this.defaultModel];
       }
 
-      const data = (await response.json()) as { models: Array<{ name: string }> };
+      const data = (await response.json()) as {
+        models: Array<{ name: string }>;
+      };
       return data.models?.map((m) => m.name) || [this.defaultModel];
     } catch (error) {
       console.warn("Failed to get available models:", error);
@@ -301,23 +305,45 @@ Analysis:`;
   /**
    * Complete a prompt (wrapper for generateText for compatibility)
    */
-  async complete(options: { prompt: string; model?: string; temperature?: number }): Promise<{ success: boolean; data?: string; error?: string; responseTime?: number }> {
+  async complete(options: {
+    prompt: string;
+    model?: string;
+    temperature?: number;
+  }): Promise<{
+    success: boolean;
+    data?: string;
+    error?: string;
+    responseTime?: number;
+  }> {
     const startTime = Date.now();
     try {
       const result = await this.generateText(options.prompt, {
         model: options.model,
         temperature: options.temperature,
       });
-      return { success: true, data: result, responseTime: Date.now() - startTime };
+      return {
+        success: true,
+        data: result,
+        responseTime: Date.now() - startTime,
+      };
     } catch (error) {
-      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+      return {
+        success: false,
+        error: String(error),
+        responseTime: Date.now() - startTime,
+      };
     }
   }
 
   /**
    * Generate embeddings using nomic-embed-text or similar model
    */
-  async embed(options: { input: string | string[]; model?: string }): Promise<{ success: boolean; data?: { embeddings: number[][] }; error?: string; responseTime?: number }> {
+  async embed(options: { input: string | string[]; model?: string }): Promise<{
+    success: boolean;
+    data?: { embeddings: number[][] };
+    error?: string;
+    responseTime?: number;
+  }> {
     const startTime = Date.now();
     const model = options.model || "nomic-embed-text";
 
@@ -336,17 +362,36 @@ Analysis:`;
       }
 
       const data = await response.json();
-      const embeddings = Array.isArray(data.embeddings) ? data.embeddings : [data.embedding];
-      return { success: true, data: { embeddings }, responseTime: Date.now() - startTime };
+      const embeddings = Array.isArray(data.embeddings)
+        ? data.embeddings
+        : [data.embedding];
+      return {
+        success: true,
+        data: { embeddings },
+        responseTime: Date.now() - startTime,
+      };
     } catch (error) {
-      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+      return {
+        success: false,
+        error: String(error),
+        responseTime: Date.now() - startTime,
+      };
     }
   }
 
   /**
    * Vision model for image analysis (uses llava or similar)
    */
-  async vision(options: { image: string; prompt?: string; model?: string }): Promise<{ success: boolean; data?: { description: string }; error?: string; responseTime?: number }> {
+  async vision(options: {
+    image: string;
+    prompt?: string;
+    model?: string;
+  }): Promise<{
+    success: boolean;
+    data?: { description: string };
+    error?: string;
+    responseTime?: number;
+  }> {
     const startTime = Date.now();
     const model = options.model || "llava";
 
@@ -367,9 +412,17 @@ Analysis:`;
       }
 
       const data = await response.json();
-      return { success: true, data: { description: data.response || "" }, responseTime: Date.now() - startTime };
+      return {
+        success: true,
+        data: { description: data.response || "" },
+        responseTime: Date.now() - startTime,
+      };
     } catch (error) {
-      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+      return {
+        success: false,
+        error: String(error),
+        responseTime: Date.now() - startTime,
+      };
     }
   }
 }
@@ -378,4 +431,3 @@ Analysis:`;
 export const ollamaClient = new OllamaClient();
 
 export default OllamaClient;
-

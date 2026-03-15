@@ -5,17 +5,16 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
-
-
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -27,41 +26,47 @@ export async function GET(
     const subcontractor = await prisma.subcontractor.findFirst({
       where: {
         id: id,
-        organizationId: session.user.organizationId ?? ""
+        organizationId: session.user.organizationId ?? "",
       },
       include: {
         contracts: {
           include: {
-            project: { select: { id: true, name: true } }
-          }
+            project: { select: { id: true, name: true } },
+          },
         },
         costItems: {
           include: {
-            project: { select: { id: true, name: true } }
+            project: { select: { id: true, name: true } },
           },
           take: 10,
-          orderBy: { createdAt: "desc" }
+          orderBy: { createdAt: "desc" },
         },
         _count: {
-          select: { contracts: true, costItems: true }
-        }
-      }
+          select: { contracts: true, costItems: true },
+        },
+      },
     });
 
     if (!subcontractor) {
-      return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Subcontractor not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(subcontractor);
   } catch (error) {
     console.error("Error fetching subcontractor:", error);
-    return NextResponse.json({ error: "Failed to fetch subcontractor" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch subcontractor" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -73,18 +78,29 @@ export async function PATCH(
     const existing = await prisma.subcontractor.findFirst({
       where: {
         id: id,
-        organizationId: session.user.organizationId ?? ""
-      }
+        organizationId: session.user.organizationId ?? "",
+      },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Subcontractor not found" },
+        { status: 404 },
+      );
     }
 
     const body = await request.json();
     const {
-      companyName, contactName, email, phone, address, trade,
-      licenseNumber, insuranceExpiry, rating, notes
+      companyName,
+      contactName,
+      email,
+      phone,
+      address,
+      trade,
+      licenseNumber,
+      insuranceExpiry,
+      rating,
+      notes,
     } = body;
 
     const subcontractor = await prisma.subcontractor.update({
@@ -97,20 +113,24 @@ export async function PATCH(
         ...(address !== undefined && { address }),
         ...(trade && { trade }),
         ...(licenseNumber !== undefined && { licenseNumber }),
-        ...(insuranceExpiry !== undefined && { insuranceExpiry: insuranceExpiry ? new Date(insuranceExpiry) : null }),
-        ...(rating !== undefined && { rating: rating ? parseInt(rating) : null }),
-        ...(notes !== undefined && { notes })
+        ...(insuranceExpiry !== undefined && {
+          insuranceExpiry: insuranceExpiry ? new Date(insuranceExpiry) : null,
+        }),
+        ...(rating !== undefined && {
+          rating: rating ? parseInt(rating) : null,
+        }),
+        ...(notes !== undefined && { notes }),
       },
       include: {
         contracts: {
           include: {
-            project: { select: { id: true, name: true } }
-          }
+            project: { select: { id: true, name: true } },
+          },
         },
         _count: {
-          select: { contracts: true, costItems: true }
-        }
-      }
+          select: { contracts: true, costItems: true },
+        },
+      },
     });
 
     await prisma.activityLog.create({
@@ -120,25 +140,28 @@ export async function PATCH(
         entityId: subcontractor.id,
         entityName: subcontractor.companyName,
         details: `Updated subcontractor: ${subcontractor.companyName}`,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "subcontractor_updated",
-      data: { subcontractor }
+      data: { subcontractor },
     });
 
     return NextResponse.json(subcontractor);
   } catch (error) {
     console.error("Error updating subcontractor:", error);
-    return NextResponse.json({ error: "Failed to update subcontractor" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update subcontractor" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -150,12 +173,15 @@ export async function DELETE(
     const existing = await prisma.subcontractor.findFirst({
       where: {
         id: id,
-        organizationId: session.user.organizationId ?? ""
-      }
+        organizationId: session.user.organizationId ?? "",
+      },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Subcontractor not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Subcontractor not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.subcontractor.delete({ where: { id: id } });
@@ -167,18 +193,21 @@ export async function DELETE(
         entityId: id,
         entityName: existing.companyName,
         details: `Deleted subcontractor: ${existing.companyName}`,
-        userId: session.user.id
-      }
+        userId: session.user.id,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "subcontractor_deleted",
-      data: { id: id }
+      data: { id: id },
     });
 
     return NextResponse.json(bigintSafe({ success: true }));
   } catch (error) {
     console.error("Error deleting subcontractor:", error);
-    return NextResponse.json({ error: "Failed to delete subcontractor" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete subcontractor" },
+      { status: 500 },
+    );
   }
 }

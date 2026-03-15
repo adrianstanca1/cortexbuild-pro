@@ -1,14 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { ZodSchema } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { ZodSchema } from "zod";
+import { PrismaClient } from "@prisma/client";
 
 // Helper to safely serialize data with BigInt values
 export function serializeData<T>(data: T): T {
-  return JSON.parse(JSON.stringify(data, (_, value) =>
-    typeof value === "bigint" ? Number(value) : value
-  ));
+  return JSON.parse(
+    JSON.stringify(data, (_, value) =>
+      typeof value === "bigint" ? Number(value) : value,
+    ),
+  );
 }
 
 export interface ApiContext {
@@ -34,30 +36,31 @@ export interface ApiResponse<T = unknown> {
 
 // Standard API error responses
 export const ApiErrors = {
-  UNAUTHORIZED: { status: 401, message: 'Unauthorized access' },
-  FORBIDDEN: { status: 403, message: 'Insufficient permissions' },
-  NOT_FOUND: { status: 404, message: 'Resource not found' },
-  BAD_REQUEST: { status: 400, message: 'Invalid request data' },
-  CONFLICT: { status: 409, message: 'Resource conflict' },
-  INTERNAL_ERROR: { status: 500, message: 'Internal server error' },
+  UNAUTHORIZED: { status: 401, message: "Unauthorized access" },
+  FORBIDDEN: { status: 403, message: "Insufficient permissions" },
+  NOT_FOUND: { status: 404, message: "Resource not found" },
+  BAD_REQUEST: { status: 400, message: "Invalid request data" },
+  CONFLICT: { status: 409, message: "Resource conflict" },
+  INTERNAL_ERROR: { status: 500, message: "Internal server error" },
 };
 
 // Create standardized error response
 export function errorResponse(
   error: keyof typeof ApiErrors | string,
-  details?: string
+  details?: string,
 ): NextResponse<ApiResponse> {
-  const errorInfo = typeof error === 'string' && error in ApiErrors
-    ? ApiErrors[error as keyof typeof ApiErrors]
-    : { status: 400, message: error };
-  
+  const errorInfo =
+    typeof error === "string" && error in ApiErrors
+      ? ApiErrors[error as keyof typeof ApiErrors]
+      : { status: 400, message: error };
+
   return NextResponse.json(
     {
       success: false,
       error: errorInfo.message,
       message: details || errorInfo.message,
     },
-    { status: errorInfo.status }
+    { status: errorInfo.status },
   );
 }
 
@@ -65,7 +68,7 @@ export function errorResponse(
 export function successResponse<T>(
   data: T,
   message?: string,
-  pagination?: ApiResponse['pagination']
+  pagination?: ApiResponse["pagination"],
 ): NextResponse<ApiResponse<T>> {
   return NextResponse.json({
     success: true,
@@ -78,27 +81,27 @@ export function successResponse<T>(
 // Validate request body against Zod schema
 export async function validateBody<T>(
   request: NextRequest,
-  schema: ZodSchema<T>
+  schema: ZodSchema<T>,
 ): Promise<{ data: T | null; error: NextResponse | null }> {
   try {
     const body = await request.json();
     const result = schema.safeParse(body);
-    
+
     if (!result.success) {
       const errorMessages = result.error.errors
-        .map((e) => `${e.path.join('.')}: ${e.message}`)
-        .join(', ');
+        .map((e) => `${e.path.join(".")}: ${e.message}`)
+        .join(", ");
       return {
         data: null,
-        error: errorResponse('BAD_REQUEST', errorMessages),
+        error: errorResponse("BAD_REQUEST", errorMessages),
       };
     }
-    
+
     return { data: result.data, error: null };
   } catch {
     return {
       data: null,
-      error: errorResponse('BAD_REQUEST', 'Invalid JSON body'),
+      error: errorResponse("BAD_REQUEST", "Invalid JSON body"),
     };
   }
 }
@@ -110,11 +113,11 @@ export async function getApiContext(): Promise<{
   error: NextResponse | null;
 }> {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
-    return { context: null, error: errorResponse('UNAUTHORIZED') };
+    return { context: null, error: errorResponse("UNAUTHORIZED") };
   }
-  
+
   const user = session.user as {
     id: string;
     organizationId?: string;
@@ -122,25 +125,22 @@ export async function getApiContext(): Promise<{
     name?: string;
     email?: string;
   };
-  
+
   // No longer require organizationId - allow undefined for backward compatibility
   return {
     context: {
       userId: user.id,
       organizationId: user.organizationId,
-      userRole: user.role || 'FIELD_WORKER',
-      userName: user.name || 'Unknown',
-      userEmail: user.email || '',
+      userRole: user.role || "FIELD_WORKER",
+      userName: user.name || "Unknown",
+      userEmail: user.email || "",
     },
     error: null,
   };
 }
 
 // Check if user has required role
-export function hasRole(
-  userRole: string,
-  requiredRoles: string[]
-): boolean {
+export function hasRole(userRole: string, requiredRoles: string[]): boolean {
   const roleHierarchy: Record<string, number> = {
     SUPER_ADMIN: 5,
     COMPANY_OWNER: 4,
@@ -148,12 +148,12 @@ export function hasRole(
     PROJECT_MANAGER: 2,
     FIELD_WORKER: 1,
   };
-  
+
   const userLevel = roleHierarchy[userRole] || 0;
   const minRequired = Math.min(
-    ...requiredRoles.map((r) => roleHierarchy[r] || 0)
+    ...requiredRoles.map((r) => roleHierarchy[r] || 0),
   );
-  
+
   return userLevel >= minRequired;
 }
 
@@ -164,9 +164,12 @@ export function getPagination(request: NextRequest): {
   skip: number;
 } {
   const { searchParams } = new URL(request.url);
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)));
-  
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(
+    100,
+    Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+  );
+
   return {
     page,
     limit,
@@ -180,9 +183,9 @@ export function getDateRange(request: NextRequest): {
   endDate?: Date;
 } {
   const { searchParams } = new URL(request.url);
-  const start = searchParams.get('startDate');
-  const end = searchParams.get('endDate');
-  
+  const start = searchParams.get("startDate");
+  const end = searchParams.get("endDate");
+
   return {
     startDate: start ? new Date(start) : undefined,
     endDate: end ? new Date(end) : undefined,
@@ -191,19 +194,19 @@ export function getDateRange(request: NextRequest): {
 
 // Wrap async handler with error catching
 export function withErrorHandler<T>(
-  handler: (request: NextRequest, context?: T) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: T) => Promise<NextResponse>,
 ) {
   return async (request: NextRequest, context?: T): Promise<NextResponse> => {
     try {
       return await handler(request, context);
     } catch (error) {
       // Log to proper logging service in production
-      if (process.env.NODE_ENV === 'development') {
-        console.error('API Error:', error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("API Error:", error);
       }
       return errorResponse(
-        'INTERNAL_ERROR',
-        error instanceof Error ? error.message : 'Unknown error'
+        "INTERNAL_ERROR",
+        error instanceof Error ? error.message : "Unknown error",
       );
     }
   };
@@ -218,7 +221,7 @@ export async function logActivity(
   details: string,
   entityId?: string,
   entityName?: string,
-  projectId?: string
+  projectId?: string,
 ): Promise<void> {
   try {
     await prisma.activityLog.create({
@@ -234,36 +237,43 @@ export async function logActivity(
     });
   } catch (error) {
     // Silently fail activity logging to prevent disrupting the main operation
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Failed to log activity:', error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Failed to log activity:", error);
     }
   }
 }
 
 // Input sanitization helper
 export function sanitizeInput(input: string): string {
-  return input.trim().replace(/[<>]/g, '');
+  return input.trim().replace(/[<>]/g, "");
 }
 
 // Sanitize common entity fields
 // Note: Preserves original behavior - only converts empty strings to null after trim
 // Matches original logic: "field?.trim() || null"
 export function sanitizeEntityFields<T extends Record<string, unknown>>(
-  fields: T
+  fields: T,
 ): T {
   const sanitized = { ...fields } as Record<string, unknown>;
-  
+
   // Common string fields to sanitize
-  const stringFields = ['name', 'title', 'description', 'location', 'clientName', 'clientEmail'];
-  
+  const stringFields = [
+    "name",
+    "title",
+    "description",
+    "location",
+    "clientName",
+    "clientEmail",
+  ];
+
   for (const key of stringFields) {
-    if (key in sanitized && typeof sanitized[key] === 'string') {
+    if (key in sanitized && typeof sanitized[key] === "string") {
       const trimmed = (sanitized[key] as string).trim();
       // Explicitly convert empty strings to null, matching original behavior
-      sanitized[key] = (trimmed === '' ? null : trimmed);
+      sanitized[key] = trimmed === "" ? null : trimmed;
     }
   }
-  
+
   return sanitized as T;
 }
 
@@ -280,10 +290,10 @@ export function broadcastEntityEvent(
     [key: string]: unknown;
   },
   userId: string,
-  additionalData?: Record<string, unknown>
+  additionalData?: Record<string, unknown>,
 ): void {
   if (!organizationId) return;
-  
+
   broadcast(organizationId, {
     type: eventType,
     timestamp: new Date().toISOString(),
@@ -302,15 +312,19 @@ export function broadcastEntityEvent(
 
 // Wrapper for authenticated API handlers with error handling
 export function withAuthHandler(
-  handler: (request: NextRequest, context: ApiContext, params?: unknown) => Promise<NextResponse>
+  handler: (
+    request: NextRequest,
+    context: ApiContext,
+    params?: unknown,
+  ) => Promise<NextResponse>,
 ) {
   return withErrorHandler(async (request: NextRequest, params?: unknown) => {
     const { context, error } = await getApiContext();
-    
+
     if (error) {
       return error;
     }
-    
+
     return handler(request, context!, params);
   });
 }
@@ -328,18 +342,18 @@ export async function getOrganizationContext(): Promise<{
   error: NextResponse | null;
 }> {
   const { context, error } = await getApiContext();
-  
+
   if (error) {
     return { context: null, error };
   }
-  
+
   if (!context!.organizationId) {
     return {
       context: null,
-      error: errorResponse('FORBIDDEN', 'User must belong to an organization'),
+      error: errorResponse("FORBIDDEN", "User must belong to an organization"),
     };
   }
-  
+
   return { context, error: null };
 }
 
@@ -350,18 +364,18 @@ export async function getOrganizationContext(): Promise<{
 export function buildOrgScopedWhere(
   organizationId: string,
   projectId?: string | null,
-  additionalFilters?: Record<string, unknown>
+  additionalFilters?: Record<string, unknown>,
 ): Record<string, unknown> {
   const where: Record<string, unknown> = {
     ...additionalFilters,
   };
-  
+
   if (projectId) {
     where.projectId = projectId;
   } else {
     where.project = { organizationId };
   }
-  
+
   return where;
 }
 
@@ -378,13 +392,13 @@ export function parseQueryParams(request: NextRequest): {
   searchParams: URLSearchParams;
 } {
   const { searchParams } = new URL(request.url);
-  
+
   return {
-    projectId: searchParams.get('projectId') || undefined,
-    status: searchParams.get('status') || undefined,
-    type: searchParams.get('type') || undefined,
-    priority: searchParams.get('priority') || undefined,
-    trade: searchParams.get('trade') || undefined,
+    projectId: searchParams.get("projectId") || undefined,
+    status: searchParams.get("status") || undefined,
+    type: searchParams.get("type") || undefined,
+    priority: searchParams.get("priority") || undefined,
+    trade: searchParams.get("trade") || undefined,
     searchParams,
   };
 }

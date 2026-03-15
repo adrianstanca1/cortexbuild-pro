@@ -3,7 +3,10 @@
 import { cn } from "@/lib/utils";
 
 // Base skeleton with shimmer animation
-export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Skeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
@@ -11,7 +14,7 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
         "after:absolute after:inset-0 after:-translate-x-full",
         "after:animate-[shimmer_2s_infinite]",
         "after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent",
-        className
+        className,
       )}
       {...props}
     />
@@ -84,7 +87,7 @@ export function DashboardSkeleton() {
         </div>
         <Skeleton className="h-10 w-32" />
       </div>
-      
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (

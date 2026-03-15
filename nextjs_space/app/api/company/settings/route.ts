@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const user = session.user as any;
-    
+
     // Only COMPANY_OWNER or SUPER_ADMIN can update settings
     if (!["SUPER_ADMIN", "COMPANY_OWNER"].includes(user.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -31,7 +31,10 @@ export async function PATCH(req: NextRequest) {
 
     // Validate name is not empty
     if (name !== undefined && !name.trim()) {
-      return NextResponse.json({ error: "Organization name cannot be empty" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Organization name cannot be empty" },
+        { status: 400 },
+      );
     }
 
     const updated = await prisma.organization.update({
@@ -40,7 +43,7 @@ export async function PATCH(req: NextRequest) {
         ...(name && { name: name.trim() }),
         // Note: These fields would need to be added to the schema if not present
         // For now, we'll only update the name
-      }
+      },
     });
 
     // Log activity
@@ -51,13 +54,16 @@ export async function PATCH(req: NextRequest) {
         entityId: user.organizationId,
         entityName: updated.name,
         userId: user.id,
-      }
+      },
     });
 
     return NextResponse.json({ organization: updated });
   } catch (error) {
     console.error("Error updating organization settings:", error);
-    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update settings" },
+      { status: 500 },
+    );
   }
 }
 
@@ -80,12 +86,18 @@ export async function GET(_req: NextRequest) {
     });
 
     if (!organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ organization });
   } catch (error) {
     console.error("Error fetching organization settings:", error);
-    return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch settings" },
+      { status: 500 },
+    );
   }
 }

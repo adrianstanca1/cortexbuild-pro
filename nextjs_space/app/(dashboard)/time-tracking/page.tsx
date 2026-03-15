@@ -15,12 +15,12 @@ export default async function TimeTrackingPage() {
     prisma.project.findMany({
       where: { organizationId: session.user.organizationId },
       select: { id: true, name: true },
-      orderBy: { name: "asc" }
+      orderBy: { name: "asc" },
     }),
     prisma.task.findMany({
       where: { project: { organizationId: session.user.organizationId } },
       select: { id: true, title: true, projectId: true },
-      orderBy: { title: "asc" }
+      orderBy: { title: "asc" },
     }),
     prisma.timeEntry.findMany({
       where: { project: { organizationId: session.user.organizationId } },
@@ -28,15 +28,15 @@ export default async function TimeTrackingPage() {
         project: { select: { id: true, name: true } },
         task: { select: { id: true, title: true } },
         user: { select: { id: true, name: true, email: true } },
-        approvedBy: { select: { id: true, name: true } }
+        approvedBy: { select: { id: true, name: true } },
       },
       orderBy: { date: "desc" },
-      take: 100
+      take: 100,
     }),
     prisma.teamMember.findMany({
       where: { organizationId: session.user.organizationId },
-      include: { user: { select: { id: true, name: true, email: true } } }
-    })
+      include: { user: { select: { id: true, name: true, email: true } } },
+    }),
   ]);
 
   return (

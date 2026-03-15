@@ -5,12 +5,11 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -24,28 +23,34 @@ export async function GET(
     const check = await prisma.toolCheck.findFirst({
       where: {
         id: id,
-        project: { organizationId: orgId }
+        project: { organizationId: orgId },
       },
       include: {
         project: { select: { id: true, name: true } },
-        inspector: { select: { id: true, name: true, email: true } }
-      }
+        inspector: { select: { id: true, name: true, email: true } },
+      },
     });
 
     if (!check) {
-      return NextResponse.json({ error: "Tool check not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Tool check not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ check });
   } catch (error) {
     console.error("Error fetching tool check:", error);
-    return NextResponse.json({ error: "Failed to fetch tool check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch tool check" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -58,11 +63,14 @@ export async function PATCH(
     const body = await request.json();
 
     const existing = await prisma.toolCheck.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id: id, project: { organizationId: orgId } },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Tool check not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Tool check not found" },
+        { status: 404 },
+      );
     }
 
     const check = await prisma.toolCheck.update({
@@ -70,18 +78,21 @@ export async function PATCH(
       data: body,
       include: {
         project: { select: { id: true, name: true } },
-        inspector: { select: { id: true, name: true } }
-      }
+        inspector: { select: { id: true, name: true } },
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "tool_check_updated",
-      data: { check }
+      data: { check },
     });
 
     return NextResponse.json({ check });
   } catch (error) {
     console.error("Error updating tool check:", error);
-    return NextResponse.json({ error: "Failed to update tool check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update tool check" },
+      { status: 500 },
+    );
   }
 }

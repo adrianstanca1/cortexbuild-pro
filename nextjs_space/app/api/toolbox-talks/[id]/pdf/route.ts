@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { format } from "date-fns";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -26,14 +26,17 @@ export async function GET(
         presenter: { select: { name: true, email: true } },
         attendees: {
           include: {
-            user: { select: { name: true, email: true } }
-          }
-        }
-      }
+            user: { select: { name: true, email: true } },
+          },
+        },
+      },
     });
 
     if (!toolboxTalk) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     const orgId = (session.user as any).organizationId;
@@ -44,24 +47,33 @@ export async function GET(
     const htmlContent = generateToolboxTalkPDF(toolboxTalk);
 
     // Create PDF request
-    const createResponse = await fetch('https://apps.abacus.ai/api/createConvertHtmlToPdfRequest', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_APIKEY,
-        html_content: htmlContent,
-        pdf_options: { format: 'A4', print_background: true },
-        base_url: process.env.NEXTAUTH_URL || '',
-      }),
-    });
+    const createResponse = await fetch(
+      "https://apps.abacus.ai/api/createConvertHtmlToPdfRequest",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deployment_token: process.env.ABACUSAI_APIKEY,
+          html_content: htmlContent,
+          pdf_options: { format: "A4", print_background: true },
+          base_url: process.env.NEXTAUTH_URL || "",
+        }),
+      },
+    );
 
     if (!createResponse.ok) {
-      return NextResponse.json({ error: 'Failed to create PDF request' }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to create PDF request" },
+        { status: 500 },
+      );
     }
 
     const { request_id } = await createResponse.json();
     if (!request_id) {
-      return NextResponse.json({ error: 'No request ID returned' }, { status: 500 });
+      return NextResponse.json(
+        { error: "No request ID returned" },
+        { status: 500 },
+      );
     }
 
     // Poll for status
@@ -69,54 +81,73 @@ export async function GET(
     let attempts = 0;
 
     while (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const statusResponse = await fetch('https://apps.abacus.ai/api/getConvertHtmlToPdfStatus', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id, deployment_token: process.env.ABACUSAI_API_KEY }),
-      });
+      const statusResponse = await fetch(
+        "https://apps.abacus.ai/api/getConvertHtmlToPdfStatus",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            request_id,
+            deployment_token: process.env.ABACUSAI_API_KEY,
+          }),
+        },
+      );
 
       const statusResult = await statusResponse.json();
-      const status = statusResult?.status || 'FAILED';
+      const status = statusResult?.status || "FAILED";
       const result = statusResult?.result || null;
 
-      if (status === 'SUCCESS' && result?.result) {
-        const pdfBuffer = Buffer.from(result.result, 'base64');
+      if (status === "SUCCESS" && result?.result) {
+        const pdfBuffer = Buffer.from(result.result, "base64");
         const pdfArray = new Uint8Array(pdfBuffer);
-        const filename = `toolbox-talk-${toolboxTalk.title.replace(/[^a-zA-Z0-9]/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
-        
+        const filename = `toolbox-talk-${toolboxTalk.title.replace(/[^a-zA-Z0-9]/g, "-")}-${format(new Date(), "yyyy-MM-dd")}.pdf`;
+
         return new NextResponse(pdfArray, {
           headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${filename}"`,
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `attachment; filename="${filename}"`,
           },
         });
-      } else if (status === 'FAILED') {
-        return NextResponse.json({ error: 'PDF generation failed' }, { status: 500 });
+      } else if (status === "FAILED") {
+        return NextResponse.json(
+          { error: "PDF generation failed" },
+          { status: 500 },
+        );
       }
       attempts++;
     }
 
-    return NextResponse.json({ error: 'PDF generation timed out' }, { status: 500 });
+    return NextResponse.json(
+      { error: "PDF generation timed out" },
+      { status: 500 },
+    );
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error generating PDF:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
 function generateToolboxTalkPDF(talk: any) {
-  const attendeeRows = talk.attendees.map((a: any, i: number) => `
+  const attendeeRows = talk.attendees
+    .map(
+      (a: any, i: number) => `
     <tr>
       <td style="padding: 8px; border: 1px solid #ddd;">${i + 1}</td>
-      <td style="padding: 8px; border: 1px solid #ddd;">${a.user?.name || a.guestName || 'Unknown'}</td>
-      <td style="padding: 8px; border: 1px solid #ddd;">${a.user?.email || a.guestEmail || '-'}</td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${a.user?.name || a.guestName || "Unknown"}</td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${a.user?.email || a.guestEmail || "-"}</td>
       <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
         ${a.signatureData ? `<img src="${a.signatureData}" style="max-height: 40px; max-width: 120px;" alt="Signature"/>` : '<span style="color: #999;">Not signed</span>'}
       </td>
-      <td style="padding: 8px; border: 1px solid #ddd;">${a.signedAt ? format(new Date(a.signedAt), 'dd/MM/yyyy HH:mm') : '-'}</td>
+      <td style="padding: 8px; border: 1px solid #ddd;">${a.signedAt ? format(new Date(a.signedAt), "dd/MM/yyyy HH:mm") : "-"}</td>
     </tr>
-  `).join('');
+  `,
+    )
+    .join("");
 
   const keyPoints = talk.keyPoints || [];
   const hazards = talk.hazardsDiscussed || [];
@@ -158,12 +189,12 @@ function generateToolboxTalkPDF(talk: any) {
           <div class="subtitle">Toolbox Talk Record</div>
         </div>
         <div style="text-align: right;">
-          <div class="subtitle">Generated: ${format(new Date(), 'dd/MM/yyyy HH:mm')}</div>
+          <div class="subtitle">Generated: ${format(new Date(), "dd/MM/yyyy HH:mm")}</div>
         </div>
       </div>
 
       <div class="title">${talk.title}</div>
-      <span class="status-badge status-${talk.status.toLowerCase().replace('_', '-')}">${talk.status.replace('_', ' ')}</span>
+      <span class="status-badge status-${talk.status.toLowerCase().replace("_", "-")}">${talk.status.replace("_", " ")}</span>
 
       <div class="section" style="margin-top: 25px;">
         <div class="section-title">Talk Details</div>
@@ -174,19 +205,19 @@ function generateToolboxTalkPDF(talk: any) {
           </div>
           <div class="info-item">
             <div class="info-label">Date & Time</div>
-            <div class="info-value">${format(new Date(talk.date), 'dd/MM/yyyy')} at ${talk.time || 'N/A'}</div>
+            <div class="info-value">${format(new Date(talk.date), "dd/MM/yyyy")} at ${talk.time || "N/A"}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Topic</div>
-            <div class="info-value">${talk.topic || '-'}</div>
+            <div class="info-value">${talk.topic || "-"}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Location</div>
-            <div class="info-value">${talk.location || '-'}</div>
+            <div class="info-value">${talk.location || "-"}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Presenter</div>
-            <div class="info-value">${talk.presenter?.name || 'Not assigned'}</div>
+            <div class="info-value">${talk.presenter?.name || "Not assigned"}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Total Attendees</div>
@@ -195,33 +226,49 @@ function generateToolboxTalkPDF(talk: any) {
         </div>
       </div>
 
-      ${talk.description ? `
+      ${
+        talk.description
+          ? `
       <div class="section">
         <div class="section-title">Description</div>
         <p>${talk.description}</p>
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
-      ${keyPoints.length > 0 ? `
+      ${
+        keyPoints.length > 0
+          ? `
       <div class="section">
         <div class="section-title">Key Points Discussed</div>
-        ${keyPoints.map((p: string) => `<div class="list-item">${p}</div>`).join('')}
+        ${keyPoints.map((p: string) => `<div class="list-item">${p}</div>`).join("")}
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
-      ${hazards.length > 0 ? `
+      ${
+        hazards.length > 0
+          ? `
       <div class="section">
         <div class="section-title">Hazards Discussed</div>
-        ${hazards.map((h: string) => `<div class="list-item hazard-item">${h}</div>`).join('')}
+        ${hazards.map((h: string) => `<div class="list-item hazard-item">${h}</div>`).join("")}
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
-      ${safetyMeasures.length > 0 ? `
+      ${
+        safetyMeasures.length > 0
+          ? `
       <div class="section">
         <div class="section-title">Safety Measures</div>
-        ${safetyMeasures.map((s: string) => `<div class="list-item safety-item">${s}</div>`).join('')}
+        ${safetyMeasures.map((s: string) => `<div class="list-item safety-item">${s}</div>`).join("")}
       </div>
-      ` : ''}
+      `
+          : ""
+      }
 
       <div class="section">
         <div class="section-title">Attendance Register</div>

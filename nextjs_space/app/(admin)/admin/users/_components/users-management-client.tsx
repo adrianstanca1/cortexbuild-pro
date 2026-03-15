@@ -21,7 +21,7 @@ import {
   X,
   Check,
   Eye,
-  Key
+  Key,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ const roleColors: Record<string, string> = {
   SUPER_ADMIN: "bg-purple-100 text-purple-800",
   ADMIN: "bg-blue-100 text-blue-800",
   PROJECT_MANAGER: "bg-green-100 text-green-800",
-  FIELD_WORKER: "bg-orange-100 text-orange-800"
+  FIELD_WORKER: "bg-orange-100 text-orange-800",
 };
 
 export function UsersManagementClient() {
@@ -102,7 +102,7 @@ export function UsersManagementClient() {
     name: "",
     role: "FIELD_WORKER",
     organizationId: "",
-    phone: ""
+    phone: "",
   });
 
   const fetchUsers = async () => {
@@ -162,14 +162,21 @@ export function UsersManagementClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          organizationId: formData.organizationId || null
-        })
+          organizationId: formData.organizationId || null,
+        }),
       });
 
       if (res.ok) {
         toast.success("User created successfully");
         setShowCreateModal(false);
-        setFormData({ email: "", password: "", name: "", role: "FIELD_WORKER", organizationId: "", phone: "" });
+        setFormData({
+          email: "",
+          password: "",
+          name: "",
+          role: "FIELD_WORKER",
+          organizationId: "",
+          phone: "",
+        });
         fetchUsers();
       } else {
         const error = await res.json();
@@ -196,8 +203,8 @@ export function UsersManagementClient() {
           role: formData.role,
           organizationId: formData.organizationId || null,
           phone: formData.phone || null,
-          ...(formData.password ? { password: formData.password } : {})
-        })
+          ...(formData.password ? { password: formData.password } : {}),
+        }),
       });
 
       if (res.ok) {
@@ -217,13 +224,17 @@ export function UsersManagementClient() {
   };
 
   const handleDeleteUser = async (user: User) => {
-    if (!confirm(`Are you sure you want to delete ${user.name}? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete ${user.name}? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
     try {
       const res = await fetch(`/api/admin/users/${user.id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       if (res.ok) {
@@ -246,7 +257,7 @@ export function UsersManagementClient() {
       name: user.name,
       role: user.role,
       organizationId: user.organizationId || "",
-      phone: user.phone || ""
+      phone: user.phone || "",
     });
     setShowEditModal(true);
   };
@@ -272,7 +283,9 @@ export function UsersManagementClient() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             User Management
           </h1>
-          <p className="text-gray-500 mt-1">Manage all platform users across organizations</p>
+          <p className="text-gray-500 mt-1">
+            Manage all platform users across organizations
+          </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -314,7 +327,9 @@ export function UsersManagementClient() {
               <SelectContent>
                 <SelectItem value="all">All Organizations</SelectItem>
                 {organizations.map((org) => (
-                  <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                  <SelectItem key={org.id} value={org.id}>
+                    {org.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -329,12 +344,24 @@ export function UsersManagementClient() {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="text-left py-4 px-6 font-medium text-gray-500">User</th>
-                  <th className="text-left py-4 px-6 font-medium text-gray-500">Role</th>
-                  <th className="text-left py-4 px-6 font-medium text-gray-500">Organization</th>
-                  <th className="text-left py-4 px-6 font-medium text-gray-500">Last Login</th>
-                  <th className="text-center py-4 px-6 font-medium text-gray-500">Activity</th>
-                  <th className="text-right py-4 px-6 font-medium text-gray-500">Actions</th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">
+                    User
+                  </th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">
+                    Role
+                  </th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">
+                    Organization
+                  </th>
+                  <th className="text-left py-4 px-6 font-medium text-gray-500">
+                    Last Login
+                  </th>
+                  <th className="text-center py-4 px-6 font-medium text-gray-500">
+                    Activity
+                  </th>
+                  <th className="text-right py-4 px-6 font-medium text-gray-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -357,7 +384,11 @@ export function UsersManagementClient() {
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <Badge className={roleColors[user.role] || "bg-gray-100 text-gray-800"}>
+                      <Badge
+                        className={
+                          roleColors[user.role] || "bg-gray-100 text-gray-800"
+                        }
+                      >
                         {user.role.replace("_", " ")}
                       </Badge>
                     </td>
@@ -375,7 +406,9 @@ export function UsersManagementClient() {
                       {user.lastLogin ? (
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-gray-400" />
-                          {formatDistanceToNow(new Date(user.lastLogin), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(user.lastLogin), {
+                            addSuffix: true,
+                          })}
                         </div>
                       ) : (
                         <span className="text-gray-400 text-sm">Never</span>
@@ -394,7 +427,9 @@ export function UsersManagementClient() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openDetailModal(user)}>
+                          <DropdownMenuItem
+                            onClick={() => openDetailModal(user)}
+                          >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
@@ -441,7 +476,9 @@ export function UsersManagementClient() {
               <Label>Full Name *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="John Doe"
               />
             </div>
@@ -450,7 +487,9 @@ export function UsersManagementClient() {
               <Input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="john@example.com"
               />
             </div>
@@ -459,34 +498,48 @@ export function UsersManagementClient() {
               <Input
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 placeholder="••••••••"
               />
             </div>
             <div>
               <Label>Role *</Label>
-              <Select value={formData.role} onValueChange={(v) => setFormData({ ...formData, role: v })}>
+              <Select
+                value={formData.role}
+                onValueChange={(v) => setFormData({ ...formData, role: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
                   <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
+                  <SelectItem value="PROJECT_MANAGER">
+                    Project Manager
+                  </SelectItem>
                   <SelectItem value="FIELD_WORKER">Field Worker</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Organization</Label>
-              <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v })}>
+              <Select
+                value={formData.organizationId}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, organizationId: v })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select organization" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">No Organization</SelectItem>
                   {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -495,16 +548,30 @@ export function UsersManagementClient() {
               <Label>Phone</Label>
               <Input
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 placeholder="+1 234 567 8900"
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setShowCreateModal(false)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCreateModal(false)}
+              >
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={handleCreateUser} disabled={saving}>
-                {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              <Button
+                className="flex-1"
+                onClick={handleCreateUser}
+                disabled={saving}
+              >
+                {saving ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
                 Create User
               </Button>
             </div>
@@ -526,7 +593,9 @@ export function UsersManagementClient() {
               <Label>Full Name *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </div>
             <div>
@@ -534,7 +603,9 @@ export function UsersManagementClient() {
               <Input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
             <div>
@@ -542,34 +613,48 @@ export function UsersManagementClient() {
               <Input
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 placeholder="••••••••"
               />
             </div>
             <div>
               <Label>Role *</Label>
-              <Select value={formData.role} onValueChange={(v) => setFormData({ ...formData, role: v })}>
+              <Select
+                value={formData.role}
+                onValueChange={(v) => setFormData({ ...formData, role: v })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
                   <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="PROJECT_MANAGER">Project Manager</SelectItem>
+                  <SelectItem value="PROJECT_MANAGER">
+                    Project Manager
+                  </SelectItem>
                   <SelectItem value="FIELD_WORKER">Field Worker</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label>Organization</Label>
-              <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v })}>
+              <Select
+                value={formData.organizationId}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, organizationId: v })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select organization" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">No Organization</SelectItem>
                   {organizations.map((org) => (
-                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -578,15 +663,29 @@ export function UsersManagementClient() {
               <Label>Phone</Label>
               <Input
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setShowEditModal(false)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowEditModal(false)}
+              >
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={handleUpdateUser} disabled={saving}>
-                {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              <Button
+                className="flex-1"
+                onClick={handleUpdateUser}
+                disabled={saving}
+              >
+                {saving ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
                 Update User
               </Button>
             </div>
@@ -621,23 +720,30 @@ export function UsersManagementClient() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <p className="text-xs text-gray-500">Organization</p>
-                  <p className="font-medium">{selectedUser.organization?.name || "None"}</p>
+                  <p className="font-medium">
+                    {selectedUser.organization?.name || "None"}
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <p className="text-xs text-gray-500">Phone</p>
-                  <p className="font-medium">{selectedUser.phone || "Not set"}</p>
+                  <p className="font-medium">
+                    {selectedUser.phone || "Not set"}
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <p className="text-xs text-gray-500">Created</p>
-                  <p className="font-medium">{format(new Date(selectedUser.createdAt), "MMM d, yyyy")}</p>
+                  <p className="font-medium">
+                    {format(new Date(selectedUser.createdAt), "MMM d, yyyy")}
+                  </p>
                 </div>
                 <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <p className="text-xs text-gray-500">Last Login</p>
                   <p className="font-medium">
-                    {selectedUser.lastLogin 
-                      ? formatDistanceToNow(new Date(selectedUser.lastLogin), { addSuffix: true })
-                      : "Never"
-                    }
+                    {selectedUser.lastLogin
+                      ? formatDistanceToNow(new Date(selectedUser.lastLogin), {
+                          addSuffix: true,
+                        })
+                      : "Never"}
                   </p>
                 </div>
               </div>
@@ -646,33 +752,49 @@ export function UsersManagementClient() {
                 <h4 className="font-medium mb-3">Activity Summary</h4>
                 <div className="grid grid-cols-4 gap-2">
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-2xl font-bold">{selectedUser._count.assignedTasks}</p>
+                    <p className="text-2xl font-bold">
+                      {selectedUser._count.assignedTasks}
+                    </p>
                     <p className="text-xs text-gray-500">Assigned Tasks</p>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-2xl font-bold">{selectedUser._count.createdTasks}</p>
+                    <p className="text-2xl font-bold">
+                      {selectedUser._count.createdTasks}
+                    </p>
                     <p className="text-xs text-gray-500">Created Tasks</p>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-2xl font-bold">{selectedUser._count.uploadedDocs}</p>
+                    <p className="text-2xl font-bold">
+                      {selectedUser._count.uploadedDocs}
+                    </p>
                     <p className="text-xs text-gray-500">Documents</p>
                   </div>
                   <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-2xl font-bold">{selectedUser._count.activities}</p>
+                    <p className="text-2xl font-bold">
+                      {selectedUser._count.activities}
+                    </p>
                     <p className="text-xs text-gray-500">Activities</p>
                   </div>
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => {
-                  setShowDetailModal(false);
-                  openEditModal(selectedUser);
-                }}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    openEditModal(selectedUser);
+                  }}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit User
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShowDetailModal(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDetailModal(false)}
+                >
                   Close
                 </Button>
               </div>

@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Building2
+  Building2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ const entityIcons: Record<string, any> = {
   Document: FileText,
   User: User,
   TeamMember: Users,
-  Organization: Building2
+  Organization: Building2,
 };
 
 const entityColors: Record<string, string> = {
@@ -71,12 +71,17 @@ const entityColors: Record<string, string> = {
   Document: "bg-orange-100 text-orange-600",
   User: "bg-purple-100 text-purple-600",
   TeamMember: "bg-teal-100 text-teal-600",
-  Organization: "bg-indigo-100 text-indigo-600"
+  Organization: "bg-indigo-100 text-indigo-600",
 };
 
 export function ActivityMonitorClient() {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 50, total: 0, totalPages: 0 });
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    limit: 50,
+    total: 0,
+    totalPages: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [entityFilter, setEntityFilter] = useState<string>("all");
@@ -139,7 +144,9 @@ export function ActivityMonitorClient() {
           <p className="text-gray-500 mt-1">Real-time platform activity logs</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={refreshing}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       </div>
@@ -167,7 +174,7 @@ export function ActivityMonitorClient() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {activities.filter(a => a.entityType === "Project").length}
+                  {activities.filter((a) => a.entityType === "Project").length}
                 </p>
                 <p className="text-sm text-gray-500">Project Actions</p>
               </div>
@@ -182,7 +189,7 @@ export function ActivityMonitorClient() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {activities.filter(a => a.entityType === "Task").length}
+                  {activities.filter((a) => a.entityType === "Task").length}
                 </p>
                 <p className="text-sm text-gray-500">Task Actions</p>
               </div>
@@ -197,7 +204,7 @@ export function ActivityMonitorClient() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {activities.filter(a => a.entityType === "User").length}
+                  {activities.filter((a) => a.entityType === "User").length}
                 </p>
                 <p className="text-sm text-gray-500">User Actions</p>
               </div>
@@ -251,7 +258,9 @@ export function ActivityMonitorClient() {
           <div className="space-y-4">
             {activities.map((activity, index) => {
               const Icon = entityIcons[activity.entityType] || Activity;
-              const colorClass = entityColors[activity.entityType] || "bg-gray-100 text-gray-600";
+              const colorClass =
+                entityColors[activity.entityType] ||
+                "bg-gray-100 text-gray-600";
 
               return (
                 <motion.div
@@ -268,10 +277,15 @@ export function ActivityMonitorClient() {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="font-medium">
-                          <span className="text-purple-600">{activity.user.name}</span>
-                          {" "}{activity.action}
+                          <span className="text-purple-600">
+                            {activity.user.name}
+                          </span>{" "}
+                          {activity.action}
                           {activity.entityName && (
-                            <span className="font-semibold"> "{activity.entityName}"</span>
+                            <span className="font-semibold">
+                              {" "}
+                              "{activity.entityName}"
+                            </span>
                           )}
                         </p>
                         <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
@@ -284,11 +298,15 @@ export function ActivityMonitorClient() {
                           )}
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(activity.createdAt), {
+                              addSuffix: true,
+                            })}
                           </span>
                         </div>
                         {activity.details && (
-                          <p className="text-sm text-gray-500 mt-1">{activity.details}</p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {activity.details}
+                          </p>
                         )}
                       </div>
                       <span className="text-xs text-gray-400">
@@ -312,7 +330,8 @@ export function ActivityMonitorClient() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-6 border-t">
               <p className="text-sm text-gray-500">
-                Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+                Page {pagination.page} of {pagination.totalPages} (
+                {pagination.total} total)
               </p>
               <div className="flex gap-2">
                 <Button

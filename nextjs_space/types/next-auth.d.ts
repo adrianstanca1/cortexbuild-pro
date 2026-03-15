@@ -12,7 +12,7 @@ declare module "next-auth" {
       avatarUrl: string | null;
     };
   }
-  
+
   interface User {
     id: string;
     role: UserRole;

@@ -5,7 +5,7 @@ import {
   processQueuedRequests,
   getQueueLength,
   getSyncStatus,
-  manualSync
+  manualSync,
 } from "@/lib/offline/sync-queue";
 
 export function useOfflineSync() {
@@ -77,7 +77,7 @@ export function useOfflineSync() {
     manualSync: handleManualSync,
     // Expose individual functions for advanced usage
     processQueuedRequests,
-    getQueueLength
+    getQueueLength,
   };
 }
 

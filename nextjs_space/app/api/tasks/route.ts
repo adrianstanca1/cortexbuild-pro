@@ -18,8 +18,8 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
 
   // Add pagination support
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const page = parseInt(searchParams.get("page") || "1");
+  const pageSize = parseInt(searchParams.get("pageSize") || "50");
   const skip = (page - 1) * pageSize;
 
   // Get tasks with pagination
@@ -28,31 +28,39 @@ export const GET = withAuthHandler(async (request: NextRequest, context) => {
       where: { project: { organizationId: context.organizationId } },
       include: {
         project: { select: { id: true, name: true } },
-        assignee: { select: { id: true, name: true, avatarUrl: true } }
+        assignee: { select: { id: true, name: true, avatarUrl: true } },
       },
       orderBy: { createdAt: "desc" },
       take: pageSize,
-      skip: skip
+      skip: skip,
     }),
     prisma.task.count({
-      where: { project: { organizationId: context.organizationId } }
-    })
+      where: { project: { organizationId: context.organizationId } },
+    }),
   ]);
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     tasks,
     pagination: {
       page,
       pageSize,
       totalCount,
-      totalPages: Math.ceil(totalCount / pageSize)
-    }
+      totalPages: Math.ceil(totalCount / pageSize),
+    },
   });
 });
 
 export const POST = withAuthHandler(async (request: NextRequest, context) => {
   const body = await request.json();
-  const { title, description, projectId, assigneeId, priority, status, dueDate } = body;
+  const {
+    title,
+    description,
+    projectId,
+    assigneeId,
+    priority,
+    status,
+    dueDate,
+  } = body;
 
   if (!title?.trim()) {
     return errorResponse("BAD_REQUEST", "Task title is required");
@@ -76,12 +84,12 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
       creatorId: context.userId || null,
       priority: priority || "MEDIUM",
       status: status || "TODO",
-      dueDate: dueDate ? new Date(dueDate) : null
+      dueDate: dueDate ? new Date(dueDate) : null,
     },
     include: {
       project: { select: { id: true, name: true, organizationId: true } },
-      assignee: { select: { id: true, name: true } }
-    }
+      assignee: { select: { id: true, name: true } },
+    },
   });
 
   // Log activity
@@ -93,14 +101,14 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
     `Created task: ${task.title}`,
     task.id,
     task.title,
-    projectId
+    projectId,
   );
 
   // Broadcast real-time event
   broadcastEntityEvent(
     broadcastToOrganization,
     context.organizationId,
-    'task_created',
+    "task_created",
     {
       id: task.id,
       title: task.title,
@@ -109,9 +117,9 @@ export const POST = withAuthHandler(async (request: NextRequest, context) => {
       projectId: task.projectId,
       projectName: task.project?.name,
       assigneeId: task.assigneeId,
-      assigneeName: task.assignee?.name
+      assigneeName: task.assignee?.name,
     },
-    context.userId
+    context.userId,
   );
 
   return NextResponse.json({ task });

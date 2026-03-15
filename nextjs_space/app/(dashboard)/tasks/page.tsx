@@ -14,19 +14,21 @@ export default async function TasksPage() {
       where: orgId ? { project: { organizationId: orgId } } : {},
       include: {
         project: { select: { id: true, name: true } },
-        assignee: { select: { id: true, name: true, avatarUrl: true } }
+        assignee: { select: { id: true, name: true, avatarUrl: true } },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     }),
     prisma.project.findMany({
-      where: orgId ? { organizationId: orgId, status: { not: "ARCHIVED" } } : {},
-      select: { id: true, name: true }
-    })
+      where: orgId
+        ? { organizationId: orgId, status: { not: "ARCHIVED" } }
+        : {},
+      select: { id: true, name: true },
+    }),
   ]);
 
   const teamMembers = await prisma.teamMember.findMany({
     where: orgId ? { organizationId: orgId } : {},
-    include: { user: { select: { id: true, name: true } } }
+    include: { user: { select: { id: true, name: true } } },
   });
 
   return (

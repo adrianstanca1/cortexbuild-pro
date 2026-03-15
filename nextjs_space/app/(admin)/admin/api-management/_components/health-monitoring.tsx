@@ -13,7 +13,7 @@ import {
   TrendingDown,
   Heart,
   Zap,
-  Server
+  Server,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ export function HealthMonitoring() {
     totalChecks: 0,
     healthyChecks: 0,
     failedChecks: 0,
-    overallUptime: 100
+    overallUptime: 100,
   });
   const [uptimeStats, setUptimeStats] = useState<UptimeStat[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -71,7 +71,9 @@ export function HealthMonitoring() {
   const fetchHealthData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/api-connections/health-history?period=${period}`);
+      const res = await fetch(
+        `/api/admin/api-connections/health-history?period=${period}`,
+      );
       if (res.ok) {
         const data = await res.json();
         setSummary(data.summary || {});
@@ -140,7 +142,9 @@ export function HealthMonitoring() {
                 <Heart className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${getUptimeColor(summary.overallUptime)}`}>
+                <p
+                  className={`text-2xl font-bold ${getUptimeColor(summary.overallUptime)}`}
+                >
                   {summary.overallUptime}%
                 </p>
                 <p className="text-xs text-muted-foreground">Overall Uptime</p>
@@ -168,7 +172,9 @@ export function HealthMonitoring() {
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600">{summary.healthyChecks}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {summary.healthyChecks}
+                </p>
                 <p className="text-xs text-muted-foreground">Healthy</p>
               </div>
             </div>
@@ -181,7 +187,9 @@ export function HealthMonitoring() {
                 <XCircle className="h-5 w-5 text-red-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-red-600">{summary.failedChecks}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {summary.failedChecks}
+                </p>
                 <p className="text-xs text-muted-foreground">Failed</p>
               </div>
             </div>
@@ -224,11 +232,13 @@ export function HealthMonitoring() {
                     ))}
                     {stat.recentChecks.length === 0 && (
                       <div className="h-6 flex-1 rounded-sm bg-gray-200 flex items-center justify-center">
-                        <span className="text-xs text-muted-foreground">No data</span>
+                        <span className="text-xs text-muted-foreground">
+                          No data
+                        </span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Response Time Stats */}
                   <div className="grid grid-cols-3 gap-2 text-center text-xs">
                     <div>
@@ -267,7 +277,10 @@ export function HealthMonitoring() {
           <CardContent>
             <div className="space-y-3">
               {incidents.map((incident, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100"
+                >
                   <XCircle className="h-4 w-4 text-red-500 mt-0.5" />
                   <div className="flex-1">
                     <p className="font-medium text-sm">{incident.service}</p>
@@ -275,7 +288,9 @@ export function HealthMonitoring() {
                       {incident.errorMessage || "Connection failed"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(incident.timestamp), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(incident.timestamp), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                   <Badge variant="outline" className="text-[10px]">
@@ -292,7 +307,9 @@ export function HealthMonitoring() {
         <div className="text-center py-12 text-muted-foreground">
           <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>No health check data available</p>
-          <p className="text-sm">Test your API connections to start monitoring</p>
+          <p className="text-sm">
+            Test your API connections to start monitoring
+          </p>
         </div>
       )}
     </div>

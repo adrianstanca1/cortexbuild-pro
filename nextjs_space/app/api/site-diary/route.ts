@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -21,13 +21,13 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get("endDate");
 
     const where: any = {};
-    
+
     if (projectId) {
       where.projectId = projectId;
     } else {
       where.project = { organizationId: session.user.organizationId };
     }
-    
+
     if (startDate || endDate) {
       where.date = {};
       if (startDate) where.date.gte = new Date(startDate);
@@ -47,7 +47,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(diaries);
   } catch (error) {
     console.error("Error fetching site diaries:", error);
-    return NextResponse.json({ error: "Failed to fetch site diaries" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch site diaries" },
+      { status: 500 },
+    );
   }
 }
 
@@ -60,13 +63,29 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      projectId, date, weatherMorning, weatherAfternoon, tempMorning, tempAfternoon,
-      workAreas, workProgress, labourCount, subcontractors, equipmentOnSite,
-      delays, healthSafety, qualityIssues, clientInstructions, generalNotes
+      projectId,
+      date,
+      weatherMorning,
+      weatherAfternoon,
+      tempMorning,
+      tempAfternoon,
+      workAreas,
+      workProgress,
+      labourCount,
+      subcontractors,
+      equipmentOnSite,
+      delays,
+      healthSafety,
+      qualityIssues,
+      clientInstructions,
+      generalNotes,
     } = body;
 
     if (!projectId || !date) {
-      return NextResponse.json({ error: "Project ID and date are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project ID and date are required" },
+        { status: 400 },
+      );
     }
 
     const diary = await prisma.siteDiary.create({
@@ -99,13 +118,20 @@ export async function POST(request: NextRequest) {
     if (diary.project.organizationId) {
       broadcastToOrganization(diary.project.organizationId, {
         type: "site_diary_created",
-        data: { id: diary.id, date: diary.date, projectName: diary.project.name },
+        data: {
+          id: diary.id,
+          date: diary.date,
+          projectName: diary.project.name,
+        },
       });
     }
 
     return NextResponse.json(diary, { status: 201 });
   } catch (error) {
     console.error("Error creating site diary:", error);
-    return NextResponse.json({ error: "Failed to create site diary" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create site diary" },
+      { status: 500 },
+    );
   }
 }

@@ -5,8 +5,19 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
-  Package, Plus, Search, Truck, CheckCircle, Clock, AlertTriangle,
-  Edit2, Trash2, Loader2, MapPin, Calendar, ArrowRight
+  Package,
+  Plus,
+  Search,
+  Truck,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  Edit2,
+  Trash2,
+  Loader2,
+  MapPin,
+  Calendar,
+  ArrowRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,24 +73,65 @@ interface Project {
   name: string;
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  PLANNED: { label: "Planned", color: "bg-gray-100 text-gray-700", icon: Clock },
-  ORDERED: { label: "Ordered", color: "bg-blue-100 text-blue-700", icon: Package },
-  SHIPPED: { label: "Shipped", color: "bg-purple-100 text-purple-700", icon: Truck },
-  DELIVERED: { label: "Delivered", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  INSTALLED: { label: "Installed", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle },
-  RETURNED: { label: "Returned", color: "bg-red-100 text-red-700", icon: AlertTriangle },
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; color: string; icon: any }
+> = {
+  PLANNED: {
+    label: "Planned",
+    color: "bg-gray-100 text-gray-700",
+    icon: Clock,
+  },
+  ORDERED: {
+    label: "Ordered",
+    color: "bg-blue-100 text-blue-700",
+    icon: Package,
+  },
+  SHIPPED: {
+    label: "Shipped",
+    color: "bg-purple-100 text-purple-700",
+    icon: Truck,
+  },
+  DELIVERED: {
+    label: "Delivered",
+    color: "bg-green-100 text-green-700",
+    icon: CheckCircle,
+  },
+  INSTALLED: {
+    label: "Installed",
+    color: "bg-emerald-100 text-emerald-700",
+    icon: CheckCircle,
+  },
+  RETURNED: {
+    label: "Returned",
+    color: "bg-red-100 text-red-700",
+    icon: AlertTriangle,
+  },
 };
 
-const UNITS = ["each", "sqft", "linear ft", "cubic yard", "ton", "gallon", "box", "pallet", "roll"];
+const UNITS = [
+  "each",
+  "sqft",
+  "linear ft",
+  "cubic yard",
+  "ton",
+  "gallon",
+  "box",
+  "pallet",
+  "roll",
+];
 
 export function MaterialsClient({
   initialMaterials,
   initialSummary,
-  projects
+  projects,
 }: {
   initialMaterials: Material[];
-  initialSummary: { totalValue: number; totalOrdered: number; totalReceived: number };
+  initialSummary: {
+    totalValue: number;
+    totalOrdered: number;
+    totalReceived: number;
+  };
   projects: Project[];
 }) {
   const router = useRouter();
@@ -107,7 +159,7 @@ export function MaterialsClient({
     leadTime: "",
     expectedDate: "",
     location: "",
-    notes: ""
+    notes: "",
   });
 
   const handleMaterialEvent = useCallback(() => {
@@ -116,15 +168,18 @@ export function MaterialsClient({
 
   useRealtimeSubscription(
     ["material_created", "material_updated", "material_deleted"],
-    handleMaterialEvent
+    handleMaterialEvent,
   );
 
   const filteredMaterials = materials.filter((item) => {
-    const matchesSearch = item.name?.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch =
+      item.name?.toLowerCase().includes(search.toLowerCase()) ||
       item.supplier?.toLowerCase().includes(search.toLowerCase()) ||
       item.sku?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-    const matchesProject = projectFilter === "all" || item.projectId === projectFilter;
+    const matchesStatus =
+      statusFilter === "all" || item.status === statusFilter;
+    const matchesProject =
+      projectFilter === "all" || item.projectId === projectFilter;
     return matchesSearch && matchesStatus && matchesProject;
   });
 
@@ -138,15 +193,27 @@ export function MaterialsClient({
       const res = await fetch("/api/materials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem)
+        body: JSON.stringify(newItem),
       });
       if (!res.ok) throw new Error("Failed to create material");
       toast.success("Material created successfully");
       setShowNewModal(false);
       setNewItem({
-        projectId: "", name: "", description: "", sku: "", category: "", unit: "each",
-        quantityNeeded: "", quantityOrdered: "", unitCost: "", status: "PLANNED",
-        supplier: "", leadTime: "", expectedDate: "", location: "", notes: ""
+        projectId: "",
+        name: "",
+        description: "",
+        sku: "",
+        category: "",
+        unit: "each",
+        quantityNeeded: "",
+        quantityOrdered: "",
+        unitCost: "",
+        status: "PLANNED",
+        supplier: "",
+        leadTime: "",
+        expectedDate: "",
+        location: "",
+        notes: "",
       });
       router.refresh();
     } catch (error) {
@@ -163,7 +230,7 @@ export function MaterialsClient({
       const res = await fetch(`/api/materials/${selectedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedItem)
+        body: JSON.stringify(selectedItem),
       });
       if (!res.ok) throw new Error("Failed to update material");
       toast.success("Material updated successfully");
@@ -191,7 +258,7 @@ export function MaterialsClient({
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "GBP"
+      currency: "GBP",
     }).format(amount);
   };
 
@@ -204,7 +271,9 @@ export function MaterialsClient({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Materials</p>
-                <p className="text-2xl font-bold text-gray-900">{materials.length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {materials.length}
+                </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <Package className="h-6 w-6 text-blue-600" />
@@ -218,7 +287,9 @@ export function MaterialsClient({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Value</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalValue)}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {formatCurrency(summary.totalValue)}
+                </p>
               </div>
               <div className="p-3 bg-green-100 rounded-full">
                 <Package className="h-6 w-6 text-green-600" />
@@ -233,7 +304,11 @@ export function MaterialsClient({
               <div>
                 <p className="text-sm text-gray-500">Ordered</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {materials.filter(m => m.status === "ORDERED" || m.status === "SHIPPED").length}
+                  {
+                    materials.filter(
+                      (m) => m.status === "ORDERED" || m.status === "SHIPPED",
+                    ).length
+                  }
                 </p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
@@ -249,7 +324,12 @@ export function MaterialsClient({
               <div>
                 <p className="text-sm text-gray-500">Delivered</p>
                 <p className="text-2xl font-bold text-emerald-600">
-                  {materials.filter(m => m.status === "DELIVERED" || m.status === "INSTALLED").length}
+                  {
+                    materials.filter(
+                      (m) =>
+                        m.status === "DELIVERED" || m.status === "INSTALLED",
+                    ).length
+                  }
                 </p>
               </div>
               <div className="p-3 bg-emerald-100 rounded-full">
@@ -279,7 +359,9 @@ export function MaterialsClient({
             <SelectContent>
               <SelectItem value="all">All Projects</SelectItem>
               {projects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -290,7 +372,9 @@ export function MaterialsClient({
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                <SelectItem key={key} value={key}>
+                  {val.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -311,11 +395,13 @@ export function MaterialsClient({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMaterials.map((material) => {
-            const statusConfig = STATUS_CONFIG[material.status] || STATUS_CONFIG.PLANNED;
+            const statusConfig =
+              STATUS_CONFIG[material.status] || STATUS_CONFIG.PLANNED;
             const StatusIcon = statusConfig.icon;
-            const receivedPercent = material.quantityNeeded > 0 
-              ? (material.quantityReceived / material.quantityNeeded) * 100 
-              : 0;
+            const receivedPercent =
+              material.quantityNeeded > 0
+                ? (material.quantityReceived / material.quantityNeeded) * 100
+                : 0;
 
             return (
               <motion.div
@@ -327,9 +413,13 @@ export function MaterialsClient({
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{material.name}</h3>
+                        <h3 className="font-semibold text-gray-900">
+                          {material.name}
+                        </h3>
                         {material.sku && (
-                          <p className="text-xs text-gray-500">SKU: {material.sku}</p>
+                          <p className="text-xs text-gray-500">
+                            SKU: {material.sku}
+                          </p>
                         )}
                       </div>
                       <Badge className={statusConfig.color}>
@@ -338,13 +428,16 @@ export function MaterialsClient({
                       </Badge>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-3">{material.project?.name}</p>
+                    <p className="text-sm text-gray-600 mb-3">
+                      {material.project?.name}
+                    </p>
 
                     <div className="space-y-2 mb-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-500">Quantity</span>
                         <span className="font-medium">
-                          {material.quantityReceived} / {material.quantityNeeded} {material.unit}
+                          {material.quantityReceived} /{" "}
+                          {material.quantityNeeded} {material.unit}
                         </span>
                       </div>
                       <Progress value={receivedPercent} className="h-2" />
@@ -353,11 +446,15 @@ export function MaterialsClient({
                     <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                       <div>
                         <span className="text-gray-500">Unit Cost</span>
-                        <p className="font-medium">{formatCurrency(material.unitCost)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(material.unitCost)}
+                        </p>
                       </div>
                       <div>
                         <span className="text-gray-500">Total</span>
-                        <p className="font-medium">{formatCurrency(material.totalCost)}</p>
+                        <p className="font-medium">
+                          {formatCurrency(material.totalCost)}
+                        </p>
                       </div>
                     </div>
 
@@ -370,7 +467,8 @@ export function MaterialsClient({
                     {material.expectedDate && (
                       <div className="flex items-center gap-1 text-xs text-gray-500 mb-3">
                         <Calendar className="h-3 w-3" />
-                        Expected: {format(new Date(material.expectedDate), "MMM d, yyyy")}
+                        Expected:{" "}
+                        {format(new Date(material.expectedDate), "MMM d, yyyy")}
                       </div>
                     )}
 
@@ -410,11 +508,18 @@ export function MaterialsClient({
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
             <div>
               <label className="text-sm font-medium">Project *</label>
-              <Select value={newItem.projectId} onValueChange={(v) => setNewItem({ ...newItem, projectId: v })}>
-                <SelectTrigger><SelectValue placeholder="Select project" /></SelectTrigger>
+              <Select
+                value={newItem.projectId}
+                onValueChange={(v) => setNewItem({ ...newItem, projectId: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -424,7 +529,9 @@ export function MaterialsClient({
                 <label className="text-sm font-medium">Name *</label>
                 <Input
                   value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, name: e.target.value })
+                  }
                   placeholder="e.g., Steel Beams"
                 />
               </div>
@@ -432,7 +539,9 @@ export function MaterialsClient({
                 <label className="text-sm font-medium">SKU</label>
                 <Input
                   value={newItem.sku}
-                  onChange={(e) => setNewItem({ ...newItem, sku: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, sku: e.target.value })
+                  }
                   placeholder="Optional"
                 />
               </div>
@@ -441,7 +550,9 @@ export function MaterialsClient({
               <label className="text-sm font-medium">Description</label>
               <Input
                 value={newItem.description}
-                onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, description: e.target.value })
+                }
                 placeholder="Material description"
               />
             </div>
@@ -451,17 +562,26 @@ export function MaterialsClient({
                 <Input
                   type="number"
                   value={newItem.quantityNeeded}
-                  onChange={(e) => setNewItem({ ...newItem, quantityNeeded: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, quantityNeeded: e.target.value })
+                  }
                   placeholder="0"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Unit</label>
-                <Select value={newItem.unit} onValueChange={(v) => setNewItem({ ...newItem, unit: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={newItem.unit}
+                  onValueChange={(v) => setNewItem({ ...newItem, unit: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {UNITS.map((u) => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
+                      <SelectItem key={u} value={u}>
+                        {u}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -471,7 +591,9 @@ export function MaterialsClient({
                 <Input
                   type="number"
                   value={newItem.unitCost}
-                  onChange={(e) => setNewItem({ ...newItem, unitCost: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, unitCost: e.target.value })
+                  }
                   placeholder="0.00"
                 />
               </div>
@@ -481,17 +603,26 @@ export function MaterialsClient({
                 <label className="text-sm font-medium">Supplier</label>
                 <Input
                   value={newItem.supplier}
-                  onChange={(e) => setNewItem({ ...newItem, supplier: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, supplier: e.target.value })
+                  }
                   placeholder="Supplier name"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
-                <Select value={newItem.status} onValueChange={(v) => setNewItem({ ...newItem, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={newItem.status}
+                  onValueChange={(v) => setNewItem({ ...newItem, status: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                      <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {val.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -503,7 +634,9 @@ export function MaterialsClient({
                 <Input
                   type="number"
                   value={newItem.leadTime}
-                  onChange={(e) => setNewItem({ ...newItem, leadTime: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, leadTime: e.target.value })
+                  }
                   placeholder="e.g., 14"
                 />
               </div>
@@ -512,7 +645,9 @@ export function MaterialsClient({
                 <Input
                   type="date"
                   value={newItem.expectedDate}
-                  onChange={(e) => setNewItem({ ...newItem, expectedDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, expectedDate: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -520,7 +655,9 @@ export function MaterialsClient({
               <label className="text-sm font-medium">Storage Location</label>
               <Input
                 value={newItem.location}
-                onChange={(e) => setNewItem({ ...newItem, location: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, location: e.target.value })
+                }
                 placeholder="e.g., Warehouse A, Bay 5"
               />
             </div>
@@ -528,14 +665,18 @@ export function MaterialsClient({
               <label className="text-sm font-medium">Notes</label>
               <Textarea
                 value={newItem.notes}
-                onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, notes: e.target.value })
+                }
                 placeholder="Additional notes..."
                 rows={2}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowNewModal(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleCreate} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Create
@@ -556,7 +697,9 @@ export function MaterialsClient({
                 <label className="text-sm font-medium">Name</label>
                 <Input
                   value={selectedItem.name}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, name: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({ ...selectedItem, name: e.target.value })
+                  }
                 />
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -565,7 +708,12 @@ export function MaterialsClient({
                   <Input
                     type="number"
                     value={selectedItem.quantityNeeded}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, quantityNeeded: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        quantityNeeded: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -573,7 +721,12 @@ export function MaterialsClient({
                   <Input
                     type="number"
                     value={selectedItem.quantityOrdered}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, quantityOrdered: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        quantityOrdered: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -581,7 +734,12 @@ export function MaterialsClient({
                   <Input
                     type="number"
                     value={selectedItem.quantityReceived}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, quantityReceived: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        quantityReceived: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -591,16 +749,30 @@ export function MaterialsClient({
                   <Input
                     type="number"
                     value={selectedItem.unitCost}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, unitCost: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        unitCost: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Status</label>
-                  <Select value={selectedItem.status} onValueChange={(v) => setSelectedItem({ ...selectedItem, status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={selectedItem.status}
+                    onValueChange={(v) =>
+                      setSelectedItem({ ...selectedItem, status: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                        <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                        <SelectItem key={key} value={key}>
+                          {val.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -610,20 +782,32 @@ export function MaterialsClient({
                 <label className="text-sm font-medium">Supplier</label>
                 <Input
                   value={selectedItem.supplier || ""}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, supplier: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({
+                      ...selectedItem,
+                      supplier: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Location</label>
                 <Input
                   value={selectedItem.location || ""}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, location: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({
+                      ...selectedItem,
+                      location: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditModal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleUpdate} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Save Changes

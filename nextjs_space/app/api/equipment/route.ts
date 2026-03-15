@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { broadcastToOrganization } from '@/lib/realtime-clients';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import { broadcastToOrganization } from "@/lib/realtime-clients";
 import {
   getOrganizationContext,
   parseQueryParams,
   successResponse,
   errorResponse,
   withAuthHandler,
-} from '@/lib/api-utils';
+} from "@/lib/api-utils";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export const GET = withAuthHandler(async (request: NextRequest) => {
   const { context, error } = await getOrganizationContext();
   if (error) return error;
 
   const { status, searchParams } = parseQueryParams(request);
-  const category = searchParams.get('category');
+  const category = searchParams.get("category");
 
   const where: any = { organizationId: context!.organizationId };
   if (status) where.status = status;
@@ -27,9 +27,9 @@ export const GET = withAuthHandler(async (request: NextRequest) => {
     where,
     include: {
       currentProject: { select: { id: true, name: true } },
-      _count: { select: { maintenanceLogs: true, usageLogs: true } }
+      _count: { select: { maintenanceLogs: true, usageLogs: true } },
     },
-    orderBy: { name: 'asc' }
+    orderBy: { name: "asc" },
   });
 
   return successResponse(equipment);
@@ -40,7 +40,18 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
   if (error) return error;
 
   const body = await request.json();
-  const { name, equipmentNumber, category, manufacturer, model, serialNumber, purchaseDate, purchaseCost, notes, nextServiceDate } = body;
+  const {
+    name,
+    equipmentNumber,
+    category,
+    manufacturer,
+    model,
+    serialNumber,
+    purchaseDate,
+    purchaseCost,
+    notes,
+    nextServiceDate,
+  } = body;
 
   try {
     const equipment = await prisma.equipment.create({
@@ -55,33 +66,36 @@ export const POST = withAuthHandler(async (request: NextRequest) => {
         purchaseCost,
         notes,
         nextServiceDate: nextServiceDate ? new Date(nextServiceDate) : null,
-        organizationId: context!.organizationId!
-      }
+        organizationId: context!.organizationId!,
+      },
     });
 
     // Log activity
     await prisma.activityLog.create({
       data: {
-        action: 'added',
-        entityType: 'equipment',
+        action: "added",
+        entityType: "equipment",
         entityId: equipment.id,
         entityName: equipment.name,
-        userId: context!.userId
-      }
+        userId: context!.userId,
+      },
     });
 
     // Broadcast real-time event
     broadcastToOrganization(context!.organizationId!, {
-      type: 'equipment_added',
-      payload: { id: equipment.id, name: equipment.name, category: equipment.category }
+      type: "equipment_added",
+      payload: {
+        id: equipment.id,
+        name: equipment.name,
+        category: equipment.category,
+      },
     });
 
     return NextResponse.json(equipment, { status: 201 });
   } catch (error: any) {
-    if (error.code === 'P2002') {
-      return errorResponse('CONFLICT', 'Equipment number already exists');
+    if (error.code === "P2002") {
+      return errorResponse("CONFLICT", "Equipment number already exists");
     }
     throw error; // Let withErrorHandler handle other errors
   }
 });
-

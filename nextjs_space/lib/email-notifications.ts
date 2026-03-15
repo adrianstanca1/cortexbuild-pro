@@ -1,11 +1,11 @@
 // Email notification helper functions for CortexBuild Pro
 
-import { 
+import {
   generateCompanyInvitationEmail,
   generateTeamInvitationEmail,
   type CompanyInvitationTemplateParams,
-  type TeamInvitationTemplateParams
-} from './email-templates';
+  type TeamInvitationTemplateParams,
+} from "./email-templates";
 
 interface NotificationResult {
   success: boolean;
@@ -30,27 +30,30 @@ async function sendNotificationEmail(params: {
   senderEmail?: string;
 }): Promise<NotificationResult> {
   try {
-    const response = await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: params.notificationId,
-        subject: params.subject,
-        body: params.htmlBody,
-        is_html: true,
-        recipient_email: params.recipientEmail,
-        sender_alias: params.senderAlias || 'CortexBuild Pro',
-        ...(params.senderEmail && { sender_email: params.senderEmail }),
-      }),
-    });
+    const response = await fetch(
+      "https://apps.abacus.ai/api/sendNotificationEmail",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deployment_token: process.env.ABACUSAI_API_KEY,
+          app_id: process.env.WEB_APP_ID,
+          notification_id: params.notificationId,
+          subject: params.subject,
+          body: params.htmlBody,
+          is_html: true,
+          recipient_email: params.recipientEmail,
+          sender_alias: params.senderAlias || "CortexBuild Pro",
+          ...(params.senderEmail && { sender_email: params.senderEmail }),
+        }),
+      },
+    );
 
     const result = await response.json();
     return result;
   } catch (error) {
     // console.error('Error sending notification:', error);
-    return { success: false, message: 'Failed to send notification' };
+    return { success: false, message: "Failed to send notification" };
   }
 }
 
@@ -59,10 +62,10 @@ async function sendNotificationEmail(params: {
 // =====================================================
 
 export async function sendCompanyInvitationNotification(
-  invitation: CompanyInvitationTemplateParams
+  invitation: CompanyInvitationTemplateParams,
 ): Promise<NotificationResult> {
   const htmlBody = generateCompanyInvitationEmail(invitation);
-  
+
   return sendNotificationEmail({
     notificationId: process.env.NOTIF_ID_COMPANYINVITATION,
     subject: `🏗️ You're invited to join ${invitation.companyName} on CortexBuild Pro`,
@@ -76,10 +79,10 @@ export async function sendCompanyInvitationNotification(
 // =====================================================
 
 export async function sendTeamMemberInvitationNotification(
-  invitation: TeamInvitationTemplateParams
+  invitation: TeamInvitationTemplateParams,
 ): Promise<NotificationResult> {
   const htmlBody = generateTeamInvitationEmail(invitation);
-  
+
   return sendNotificationEmail({
     notificationId: process.env.NOTIF_ID_TEAM_MEMBERINVITATION,
     subject: `👋 You're invited to join ${invitation.organizationName} on CortexBuild Pro`,
@@ -103,15 +106,15 @@ export async function sendTaskAssignmentNotification(
     assignerName: string;
   },
   recipientEmail: string,
-  recipientName: string
+  recipientName: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
   const priorityColors: Record<string, { bg: string; text: string }> = {
-    HIGH: { bg: '#fef2f2', text: '#dc2626' },
-    MEDIUM: { bg: '#fef3c7', text: '#d97706' },
-    LOW: { bg: '#dcfce7', text: '#22c55e' },
-    URGENT: { bg: '#fef2f2', text: '#dc2626' }
+    HIGH: { bg: "#fef2f2", text: "#dc2626" },
+    MEDIUM: { bg: "#fef3c7", text: "#d97706" },
+    LOW: { bg: "#dcfce7", text: "#22c55e" },
+    URGENT: { bg: "#fef2f2", text: "#dc2626" },
   };
   const colors = priorityColors[task.priority] || priorityColors.MEDIUM;
 
@@ -131,20 +134,24 @@ export async function sendTaskAssignmentNotification(
           <span style="background: ${colors.bg}; color: ${colors.text}; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 12px;">
             ${task.priority} PRIORITY
           </span>
-          ${task.description ? `<p style="color: #6b7280; margin-top: 15px;">${task.description}</p>` : ''}
+          ${task.description ? `<p style="color: #6b7280; margin-top: 15px;">${task.description}</p>` : ""}
           <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <tr>
               <td style="padding: 8px 0; color: #6b7280; width: 100px;">Project:</td>
               <td style="padding: 8px 0; font-weight: 600;">${task.projectName}</td>
             </tr>
-            ${task.dueDate ? `
+            ${
+              task.dueDate
+                ? `
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Due Date:</td>
               <td style="padding: 8px 0; font-weight: 600; color: #dc2626;">
-                ${new Date(task.dueDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                ${new Date(task.dueDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
               </td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
           </table>
         </div>
 
@@ -164,7 +171,7 @@ export async function sendTaskAssignmentNotification(
     subject: `📋 New Task Assigned: ${task.title}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -174,7 +181,7 @@ export async function sendTaskAssignmentNotification(
 
 export async function sendSafetyAlertNotification(
   alert: {
-    type: 'INCIDENT' | 'HAZARD' | 'NEAR_MISS' | 'HIGH_RISK';
+    type: "INCIDENT" | "HAZARD" | "NEAR_MISS" | "HIGH_RISK";
     title: string;
     description: string;
     severity: string;
@@ -183,15 +190,18 @@ export async function sendSafetyAlertNotification(
     reportedBy: string;
     reportedAt: Date;
   },
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
-  const typeLabels: Record<string, { emoji: string; label: string; color: string }> = {
-    INCIDENT: { emoji: '🚨', label: 'Safety Incident', color: '#dc2626' },
-    HAZARD: { emoji: '⚠️', label: 'Hazard Identified', color: '#f59e0b' },
-    NEAR_MISS: { emoji: '🔔', label: 'Near Miss', color: '#f97316' },
-    HIGH_RISK: { emoji: '🛑', label: 'High Risk Alert', color: '#dc2626' }
+  const typeLabels: Record<
+    string,
+    { emoji: string; label: string; color: string }
+  > = {
+    INCIDENT: { emoji: "🚨", label: "Safety Incident", color: "#dc2626" },
+    HAZARD: { emoji: "⚠️", label: "Hazard Identified", color: "#f59e0b" },
+    NEAR_MISS: { emoji: "🔔", label: "Near Miss", color: "#f97316" },
+    HIGH_RISK: { emoji: "🛑", label: "High Risk Alert", color: "#dc2626" },
   };
   const typeInfo = typeLabels[alert.type] || typeLabels.HAZARD;
 
@@ -215,12 +225,16 @@ export async function sendSafetyAlertNotification(
               <td style="padding: 8px 0; color: #6b7280;">Severity:</td>
               <td style="padding: 8px 0; font-weight: 700; color: ${typeInfo.color};">${alert.severity}</td>
             </tr>
-            ${alert.location ? `
+            ${
+              alert.location
+                ? `
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Location:</td>
               <td style="padding: 8px 0;">${alert.location}</td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Reported By:</td>
               <td style="padding: 8px 0;">${alert.reportedBy}</td>
@@ -253,7 +267,7 @@ export async function sendSafetyAlertNotification(
     subject: `${typeInfo.emoji} URGENT: ${typeInfo.label} - ${alert.title}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `safety@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `safety@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -272,16 +286,16 @@ export async function sendProjectStatusUpdateNotification(
     notes?: string;
   },
   recipientEmail: string,
-  recipientName: string
+  recipientName: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
   const statusColors: Record<string, { bg: string; text: string }> = {
-    COMPLETED: { bg: '#dcfce7', text: '#22c55e' },
-    IN_PROGRESS: { bg: '#dbeafe', text: '#3b82f6' },
-    ON_HOLD: { bg: '#fef3c7', text: '#d97706' },
-    PLANNING: { bg: '#f3e8ff', text: '#7c3aed' },
-    CANCELLED: { bg: '#fef2f2', text: '#dc2626' }
+    COMPLETED: { bg: "#dcfce7", text: "#22c55e" },
+    IN_PROGRESS: { bg: "#dbeafe", text: "#3b82f6" },
+    ON_HOLD: { bg: "#fef3c7", text: "#d97706" },
+    PLANNING: { bg: "#f3e8ff", text: "#7c3aed" },
+    CANCELLED: { bg: "#fef2f2", text: "#dc2626" },
   };
   const colors = statusColors[update.newStatus] || statusColors.IN_PROGRESS;
 
@@ -297,29 +311,41 @@ export async function sendProjectStatusUpdateNotification(
           <h2 style="color: #1f2937; margin: 0 0 15px 0;">${update.projectName}</h2>
           
           <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
-            ${update.previousStatus ? `
+            ${
+              update.previousStatus
+                ? `
             <span style="background: #f3f4f6; color: #6b7280; padding: 6px 12px; border-radius: 8px; font-size: 14px;">
               ${update.previousStatus}
             </span>
             <span style="color: #6b7280;">→</span>
-            ` : ''}
+            `
+                : ""
+            }
             <span style="background: ${colors.bg}; color: ${colors.text}; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 14px;">
               ${update.newStatus}
             </span>
           </div>
 
-          ${update.milestone ? `
+          ${
+            update.milestone
+              ? `
           <div style="background: #f3e8ff; padding: 12px; border-radius: 8px; margin-top: 15px;">
             <strong style="color: #7c3aed;">🎯 Milestone:</strong> ${update.milestone}
           </div>
-          ` : ''}
+          `
+              : ""
+          }
 
-          ${update.notes ? `
+          ${
+            update.notes
+              ? `
           <p style="color: #6b7280; margin-top: 15px; font-style: italic;">"${update.notes}"</p>
-          ` : ''}
+          `
+              : ""
+          }
 
           <p style="color: #9ca3af; font-size: 14px; margin-top: 15px;">
-            Updated by <strong>${update.updatedBy}</strong> on ${new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+            Updated by <strong>${update.updatedBy}</strong> on ${new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
           </p>
         </div>
 
@@ -339,7 +365,7 @@ export async function sendProjectStatusUpdateNotification(
     subject: `📊 Project Update: ${update.projectName} - ${update.newStatus}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -358,16 +384,16 @@ export async function sendDailyReportSubmittedNotification(
     workPerformed?: string;
     safetyIncidents: number;
   },
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 30px; border-radius: 12px 12px 0 0;">
         <h1 style="color: white; margin: 0; font-size: 24px;">📝 Daily Site Report Submitted</h1>
         <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
-          ${new Date(report.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          ${new Date(report.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </div>
       <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
@@ -379,32 +405,44 @@ export async function sendDailyReportSubmittedNotification(
               <td style="padding: 10px 0; color: #6b7280; width: 140px;">Submitted By:</td>
               <td style="padding: 10px 0; font-weight: 600;">${report.submittedBy}</td>
             </tr>
-            ${report.weather ? `
+            ${
+              report.weather
+                ? `
             <tr>
               <td style="padding: 10px 0; color: #6b7280;">Weather:</td>
               <td style="padding: 10px 0;">${report.weather}</td>
             </tr>
-            ` : ''}
-            ${report.workersOnSite !== undefined ? `
+            `
+                : ""
+            }
+            ${
+              report.workersOnSite !== undefined
+                ? `
             <tr>
               <td style="padding: 10px 0; color: #6b7280;">Workers On Site:</td>
               <td style="padding: 10px 0; font-weight: 600; color: #059669;">${report.workersOnSite}</td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 10px 0; color: #6b7280;">Safety Incidents:</td>
-              <td style="padding: 10px 0; font-weight: 700; color: ${report.safetyIncidents > 0 ? '#dc2626' : '#22c55e'};">
-                ${report.safetyIncidents > 0 ? `⚠️ ${report.safetyIncidents}` : '✓ None'}
+              <td style="padding: 10px 0; font-weight: 700; color: ${report.safetyIncidents > 0 ? "#dc2626" : "#22c55e"};">
+                ${report.safetyIncidents > 0 ? `⚠️ ${report.safetyIncidents}` : "✓ None"}
               </td>
             </tr>
           </table>
 
-          ${report.workPerformed ? `
+          ${
+            report.workPerformed
+              ? `
           <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
             <strong style="color: #374151;">Work Performed:</strong>
-            <p style="color: #4b5563; margin: 10px 0 0 0;">${report.workPerformed.substring(0, 200)}${report.workPerformed.length > 200 ? '...' : ''}</p>
+            <p style="color: #4b5563; margin: 10px 0 0 0;">${report.workPerformed.substring(0, 200)}${report.workPerformed.length > 200 ? "..." : ""}</p>
           </div>
-          ` : ''}
+          `
+              : ""
+          }
         </div>
 
         <div style="text-align: center; margin-top: 25px;">
@@ -420,10 +458,10 @@ export async function sendDailyReportSubmittedNotification(
 
   return sendNotificationEmail({
     notificationId: process.env.NOTIF_ID_DAILY_REPORTSUBMITTED,
-    subject: `📝 Daily Report: ${report.projectName} - ${new Date(report.date).toLocaleDateString('en-GB')}`,
+    subject: `📝 Daily Report: ${report.projectName} - ${new Date(report.date).toLocaleDateString("en-GB")}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `reports@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `reports@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -442,9 +480,9 @@ export async function sendToolboxTalkCompletedNotification(
     projectName: string;
     completedAt: Date;
   },
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -462,15 +500,15 @@ export async function sendToolboxTalkCompletedNotification(
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Topic:</td>
-              <td style="padding: 8px 0;">${talk.topic || 'General Safety'}</td>
+              <td style="padding: 8px 0;">${talk.topic || "General Safety"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Location:</td>
-              <td style="padding: 8px 0;">${talk.location || 'On-site'}</td>
+              <td style="padding: 8px 0;">${talk.location || "On-site"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Presenter:</td>
-              <td style="padding: 8px 0;">${talk.presenterName || 'Not specified'}</td>
+              <td style="padding: 8px 0;">${talk.presenterName || "Not specified"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Attendees:</td>
@@ -499,7 +537,7 @@ export async function sendToolboxTalkCompletedNotification(
     subject: `✅ Toolbox Talk Completed: ${talk.title}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -515,12 +553,22 @@ export async function sendMEWPCheckCompletedNotification(
     checkDate: Date;
     defectsFound?: string | null;
   },
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
-  const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';
-  const statusBg = check.overallStatus === 'PASS' ? '#dcfce7' : check.overallStatus === 'FAIL' ? '#fef2f2' : '#fef3c7';
+  const statusColor =
+    check.overallStatus === "PASS"
+      ? "#22c55e"
+      : check.overallStatus === "FAIL"
+        ? "#ef4444"
+        : "#f59e0b";
+  const statusBg =
+    check.overallStatus === "PASS"
+      ? "#dcfce7"
+      : check.overallStatus === "FAIL"
+        ? "#fef2f2"
+        : "#fef3c7";
 
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -543,11 +591,11 @@ export async function sendMEWPCheckCompletedNotification(
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Serial Number:</td>
-              <td style="padding: 8px 0;">${check.serialNumber || 'N/A'}</td>
+              <td style="padding: 8px 0;">${check.serialNumber || "N/A"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Operator:</td>
-              <td style="padding: 8px 0;">${check.operatorName || 'Not specified'}</td>
+              <td style="padding: 8px 0;">${check.operatorName || "Not specified"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Check Date:</td>
@@ -555,19 +603,23 @@ export async function sendMEWPCheckCompletedNotification(
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Safe to Use:</td>
-              <td style="padding: 8px 0; font-weight: 700; color: ${check.safeToUse ? '#22c55e' : '#ef4444'};">
-                ${check.safeToUse ? '✓ YES' : '✗ NO'}
+              <td style="padding: 8px 0; font-weight: 700; color: ${check.safeToUse ? "#22c55e" : "#ef4444"};">
+                ${check.safeToUse ? "✓ YES" : "✗ NO"}
               </td>
             </tr>
           </table>
         </div>
 
-        ${check.defectsFound ? `
+        ${
+          check.defectsFound
+            ? `
         <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
           <strong style="color: #dc2626;">⚠️ Defects Found:</strong>
           <p style="margin: 10px 0 0 0; color: #7f1d1d;">${check.defectsFound}</p>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <div style="text-align: center; margin-top: 25px;">
           <a href="${appUrl}/projects" style="display: inline-block; background: #f97316; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">View Report</a>
@@ -585,7 +637,7 @@ export async function sendMEWPCheckCompletedNotification(
     subject: `🚧 MEWP Check ${check.overallStatus}: ${check.equipmentName}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }
 
@@ -602,19 +654,29 @@ export async function sendToolCheckCompletedNotification(
     checkDate: Date;
     defectsFound?: string | null;
   },
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<NotificationResult> {
-  const appUrl = process.env.NEXTAUTH_URL || '';
+  const appUrl = process.env.NEXTAUTH_URL || "";
 
-  const statusColor = check.overallStatus === 'PASS' ? '#22c55e' : check.overallStatus === 'FAIL' ? '#ef4444' : '#f59e0b';
-  const statusBg = check.overallStatus === 'PASS' ? '#dcfce7' : check.overallStatus === 'FAIL' ? '#fef2f2' : '#fef3c7';
+  const statusColor =
+    check.overallStatus === "PASS"
+      ? "#22c55e"
+      : check.overallStatus === "FAIL"
+        ? "#ef4444"
+        : "#f59e0b";
+  const statusBg =
+    check.overallStatus === "PASS"
+      ? "#dcfce7"
+      : check.overallStatus === "FAIL"
+        ? "#fef2f2"
+        : "#fef3c7";
 
   const toolTypeLabels: Record<string, string> = {
-    POWER_TOOL: 'Power Tool',
-    HAND_TOOL: 'Hand Tool',
-    LADDER: 'Ladder',
-    SCAFFOLD: 'Scaffold',
-    OTHER: 'Other'
+    POWER_TOOL: "Power Tool",
+    HAND_TOOL: "Hand Tool",
+    LADDER: "Ladder",
+    SCAFFOLD: "Scaffold",
+    OTHER: "Other",
   };
 
   const htmlBody = `
@@ -643,11 +705,11 @@ export async function sendToolCheckCompletedNotification(
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Serial Number:</td>
-              <td style="padding: 8px 0;">${check.serialNumber || 'N/A'}</td>
+              <td style="padding: 8px 0;">${check.serialNumber || "N/A"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Inspector:</td>
-              <td style="padding: 8px 0;">${check.inspectorName || 'Not specified'}</td>
+              <td style="padding: 8px 0;">${check.inspectorName || "Not specified"}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Check Date:</td>
@@ -655,19 +717,23 @@ export async function sendToolCheckCompletedNotification(
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280;">Safe to Use:</td>
-              <td style="padding: 8px 0; font-weight: 700; color: ${check.safeToUse ? '#22c55e' : '#ef4444'};">
-                ${check.safeToUse ? '✓ YES' : '✗ NO'}
+              <td style="padding: 8px 0; font-weight: 700; color: ${check.safeToUse ? "#22c55e" : "#ef4444"};">
+                ${check.safeToUse ? "✓ YES" : "✗ NO"}
               </td>
             </tr>
           </table>
         </div>
 
-        ${check.defectsFound ? `
+        ${
+          check.defectsFound
+            ? `
         <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 20px 0;">
           <strong style="color: #dc2626;">⚠️ Defects Found:</strong>
           <p style="margin: 10px 0 0 0; color: #7f1d1d;">${check.defectsFound}</p>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <div style="text-align: center; margin-top: 25px;">
           <a href="${appUrl}/projects" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">View Report</a>
@@ -685,6 +751,6 @@ export async function sendToolCheckCompletedNotification(
     subject: `🛠️ Tool Check ${check.overallStatus}: ${check.toolName}`,
     htmlBody,
     recipientEmail,
-    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : 'cortexbuild.app'}`,
+    senderEmail: `noreply@${appUrl ? new URL(appUrl).hostname : "cortexbuild.app"}`,
   });
 }

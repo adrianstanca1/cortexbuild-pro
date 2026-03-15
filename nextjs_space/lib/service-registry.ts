@@ -7,13 +7,19 @@ import { prisma } from "@/lib/db";
 import { decryptCredentials } from "@/lib/encryption";
 
 // Service status types
-export type ServiceStatus = "ACTIVE" | "INACTIVE" | "DISCONNECTED" | "INVALID" | "EXPIRED" | "NOT_CONFIGURED";
+export type ServiceStatus =
+  | "ACTIVE"
+  | "INACTIVE"
+  | "DISCONNECTED"
+  | "INVALID"
+  | "EXPIRED"
+  | "NOT_CONFIGURED";
 
 // Environment types
 export type ServiceEnvironment = "DEVELOPMENT" | "STAGING" | "PRODUCTION";
 
 // Service category types
-export type ServiceCategory = 
+export type ServiceCategory =
   | "EMAIL"
   | "AI_PROCESSING"
   | "PAYMENTS"
@@ -62,7 +68,9 @@ export interface ServiceDefinition {
   testEndpoint?: string;
   testMethod?: "GET" | "POST" | "HEAD";
   testHeaders?: Record<string, string>;
-  healthCheckFn?: (credentials: Record<string, string>) => Promise<{ success: boolean; message?: string; responseTime?: number }>;
+  healthCheckFn?: (
+    credentials: Record<string, string>,
+  ) => Promise<{ success: boolean; message?: string; responseTime?: number }>;
 }
 
 // Runtime service instance with status
@@ -86,55 +94,129 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
   {
     id: "sendgrid",
     name: "SendGrid",
-    description: "Transactional email delivery for invitations, notifications, and alerts",
+    description:
+      "Transactional email delivery for invitations, notifications, and alerts",
     category: "EMAIL",
     icon: "Mail",
     baseUrl: "https://api.sendgrid.com/v3",
     docsUrl: "https://docs.sendgrid.com/api-reference",
     credentialFields: [
-      { key: "apiKey", label: "API Key", type: "password", required: true, placeholder: "SG.xxxx", helpText: "SendGrid API key starting with SG." },
-      { key: "fromEmail", label: "From Email", type: "text", required: false, placeholder: "noreply@yourdomain.com" },
-      { key: "fromName", label: "From Name", type: "text", required: false, placeholder: "CortexBuild Pro" }
+      {
+        key: "apiKey",
+        label: "API Key",
+        type: "password",
+        required: true,
+        placeholder: "SG.xxxx",
+        helpText: "SendGrid API key starting with SG.",
+      },
+      {
+        key: "fromEmail",
+        label: "From Email",
+        type: "text",
+        required: false,
+        placeholder: "noreply@yourdomain.com",
+      },
+      {
+        key: "fromName",
+        label: "From Name",
+        type: "text",
+        required: false,
+        placeholder: "CortexBuild Pro",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: true,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "company-invitations", moduleName: "Company Invitations", usageDescription: "Send invitation emails to new company owners", isRequired: true },
-      { moduleId: "team-invitations", moduleName: "Team Invitations", usageDescription: "Send team member invitation emails", isRequired: true },
-      { moduleId: "notifications", moduleName: "Notifications", usageDescription: "Email notifications for system events", isRequired: false },
-      { moduleId: "password-reset", moduleName: "Password Reset", usageDescription: "Password reset email delivery", isRequired: true }
+      {
+        moduleId: "company-invitations",
+        moduleName: "Company Invitations",
+        usageDescription: "Send invitation emails to new company owners",
+        isRequired: true,
+      },
+      {
+        moduleId: "team-invitations",
+        moduleName: "Team Invitations",
+        usageDescription: "Send team member invitation emails",
+        isRequired: true,
+      },
+      {
+        moduleId: "notifications",
+        moduleName: "Notifications",
+        usageDescription: "Email notifications for system events",
+        isRequired: false,
+      },
+      {
+        moduleId: "password-reset",
+        moduleName: "Password Reset",
+        usageDescription: "Password reset email delivery",
+        isRequired: true,
+      },
     ],
     testEndpoint: "/mail/send",
-    testMethod: "POST"
+    testMethod: "POST",
   },
 
   // AI PROCESSING SERVICES
   {
     id: "openai",
     name: "OpenAI / Abacus AI",
-    description: "AI-powered document analysis, intelligent suggestions, and natural language processing",
+    description:
+      "AI-powered document analysis, intelligent suggestions, and natural language processing",
     category: "AI_PROCESSING",
     icon: "Brain",
     baseUrl: "https://api.openai.com/v1",
     docsUrl: "https://platform.openai.com/docs/api-reference",
     credentialFields: [
-      { key: "apiKey", label: "API Key", type: "password", required: true, placeholder: "sk-xxxx" },
-      { key: "organizationId", label: "Organization ID", type: "text", required: false, placeholder: "org-xxxx" },
-      { key: "model", label: "Default Model", type: "text", required: false, placeholder: "gpt-4" }
+      {
+        key: "apiKey",
+        label: "API Key",
+        type: "password",
+        required: true,
+        placeholder: "sk-xxxx",
+      },
+      {
+        key: "organizationId",
+        label: "Organization ID",
+        type: "text",
+        required: false,
+        placeholder: "org-xxxx",
+      },
+      {
+        key: "model",
+        label: "Default Model",
+        type: "text",
+        required: false,
+        placeholder: "gpt-4",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: false,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "ai-assistant", moduleName: "AI Assistant", usageDescription: "Intelligent project assistant and recommendations", isRequired: true },
-      { moduleId: "document-analysis", moduleName: "Document Analysis", usageDescription: "AI-powered document parsing and extraction", isRequired: false },
-      { moduleId: "project-intelligence", moduleName: "Project Intelligence", usageDescription: "Risk analysis and predictive insights", isRequired: false }
+      {
+        moduleId: "ai-assistant",
+        moduleName: "AI Assistant",
+        usageDescription: "Intelligent project assistant and recommendations",
+        isRequired: true,
+      },
+      {
+        moduleId: "document-analysis",
+        moduleName: "Document Analysis",
+        usageDescription: "AI-powered document parsing and extraction",
+        isRequired: false,
+      },
+      {
+        moduleId: "project-intelligence",
+        moduleName: "Project Intelligence",
+        usageDescription: "Risk analysis and predictive insights",
+        isRequired: false,
+      },
     ],
     testEndpoint: "/models",
-    testMethod: "GET"
+    testMethod: "GET",
   },
 
   // PAYMENT SERVICES
@@ -147,20 +229,48 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     baseUrl: "https://api.stripe.com/v1",
     docsUrl: "https://stripe.com/docs/api",
     credentialFields: [
-      { key: "secretKey", label: "Secret Key", type: "password", required: true, placeholder: "sk_live_xxxx" },
-      { key: "publishableKey", label: "Publishable Key", type: "text", required: true, placeholder: "pk_live_xxxx" },
-      { key: "webhookSecret", label: "Webhook Secret", type: "password", required: false, placeholder: "whsec_xxxx" }
+      {
+        key: "secretKey",
+        label: "Secret Key",
+        type: "password",
+        required: true,
+        placeholder: "sk_live_xxxx",
+      },
+      {
+        key: "publishableKey",
+        label: "Publishable Key",
+        type: "text",
+        required: true,
+        placeholder: "pk_live_xxxx",
+      },
+      {
+        key: "webhookSecret",
+        label: "Webhook Secret",
+        type: "password",
+        required: false,
+        placeholder: "whsec_xxxx",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: false,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "billing", moduleName: "Billing & Subscriptions", usageDescription: "Process subscription payments", isRequired: true },
-      { moduleId: "invoicing", moduleName: "Invoicing", usageDescription: "Generate and process invoices", isRequired: false }
+      {
+        moduleId: "billing",
+        moduleName: "Billing & Subscriptions",
+        usageDescription: "Process subscription payments",
+        isRequired: true,
+      },
+      {
+        moduleId: "invoicing",
+        moduleName: "Invoicing",
+        usageDescription: "Generate and process invoices",
+        isRequired: false,
+      },
     ],
     testEndpoint: "/balance",
-    testMethod: "GET"
+    testMethod: "GET",
   },
 
   // CLOUD STORAGE
@@ -173,20 +283,51 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     baseUrl: "",
     docsUrl: "https://docs.aws.amazon.com/s3/",
     credentialFields: [
-      { key: "accessKeyId", label: "Access Key ID", type: "text", required: true },
-      { key: "secretAccessKey", label: "Secret Access Key", type: "password", required: true },
-      { key: "region", label: "Region", type: "text", required: true, placeholder: "us-east-1" },
-      { key: "bucketName", label: "Bucket Name", type: "text", required: true }
+      {
+        key: "accessKeyId",
+        label: "Access Key ID",
+        type: "text",
+        required: true,
+      },
+      {
+        key: "secretAccessKey",
+        label: "Secret Access Key",
+        type: "password",
+        required: true,
+      },
+      {
+        key: "region",
+        label: "Region",
+        type: "text",
+        required: true,
+        placeholder: "us-east-1",
+      },
+      { key: "bucketName", label: "Bucket Name", type: "text", required: true },
     ],
     isBuiltIn: true,
     isPlatformCore: true,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "documents", moduleName: "Document Management", usageDescription: "Store and retrieve project documents", isRequired: true },
-      { moduleId: "photos", moduleName: "Photo Gallery", usageDescription: "Store project and safety photos", isRequired: true },
-      { moduleId: "daily-reports", moduleName: "Daily Reports", usageDescription: "Store daily report attachments", isRequired: false }
-    ]
+      {
+        moduleId: "documents",
+        moduleName: "Document Management",
+        usageDescription: "Store and retrieve project documents",
+        isRequired: true,
+      },
+      {
+        moduleId: "photos",
+        moduleName: "Photo Gallery",
+        usageDescription: "Store project and safety photos",
+        isRequired: true,
+      },
+      {
+        moduleId: "daily-reports",
+        moduleName: "Daily Reports",
+        usageDescription: "Store daily report attachments",
+        isRequired: false,
+      },
+    ],
   },
 
   // DATABASE
@@ -198,15 +339,26 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     icon: "Database",
     baseUrl: "",
     credentialFields: [
-      { key: "connectionString", label: "Connection String", type: "password", required: true, placeholder: "postgresql://user:pass@host:5432/db" }
+      {
+        key: "connectionString",
+        label: "Connection String",
+        type: "password",
+        required: true,
+        placeholder: "postgresql://user:pass@host:5432/db",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: true,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "all", moduleName: "All Modules", usageDescription: "Core data persistence layer", isRequired: true }
-    ]
+      {
+        moduleId: "all",
+        moduleName: "All Modules",
+        usageDescription: "Core data persistence layer",
+        isRequired: true,
+      },
+    ],
   },
 
   // COMMUNICATION
@@ -219,20 +371,47 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     baseUrl: "https://api.twilio.com/2010-04-01",
     docsUrl: "https://www.twilio.com/docs/api",
     credentialFields: [
-      { key: "accountSid", label: "Account SID", type: "text", required: true, placeholder: "ACxxxx" },
-      { key: "authToken", label: "Auth Token", type: "password", required: true },
-      { key: "phoneNumber", label: "Phone Number", type: "text", required: false, placeholder: "+1234567890" }
+      {
+        key: "accountSid",
+        label: "Account SID",
+        type: "text",
+        required: true,
+        placeholder: "ACxxxx",
+      },
+      {
+        key: "authToken",
+        label: "Auth Token",
+        type: "password",
+        required: true,
+      },
+      {
+        key: "phoneNumber",
+        label: "Phone Number",
+        type: "text",
+        required: false,
+        placeholder: "+1234567890",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: false,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "sms-alerts", moduleName: "SMS Alerts", usageDescription: "Send SMS notifications for critical events", isRequired: true },
-      { moduleId: "safety", moduleName: "Safety Module", usageDescription: "Emergency SMS alerts for safety incidents", isRequired: false }
+      {
+        moduleId: "sms-alerts",
+        moduleName: "SMS Alerts",
+        usageDescription: "Send SMS notifications for critical events",
+        isRequired: true,
+      },
+      {
+        moduleId: "safety",
+        moduleName: "Safety Module",
+        usageDescription: "Emergency SMS alerts for safety incidents",
+        isRequired: false,
+      },
     ],
     testEndpoint: "/Accounts/{accountSid}.json",
-    testMethod: "GET"
+    testMethod: "GET",
   },
 
   // PUSH NOTIFICATIONS
@@ -246,16 +425,31 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     docsUrl: "https://firebase.google.com/docs/cloud-messaging",
     credentialFields: [
       { key: "projectId", label: "Project ID", type: "text", required: true },
-      { key: "privateKey", label: "Private Key", type: "password", required: true },
-      { key: "clientEmail", label: "Client Email", type: "text", required: true }
+      {
+        key: "privateKey",
+        label: "Private Key",
+        type: "password",
+        required: true,
+      },
+      {
+        key: "clientEmail",
+        label: "Client Email",
+        type: "text",
+        required: true,
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: false,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "push-notifications", moduleName: "Push Notifications", usageDescription: "Real-time push notifications", isRequired: true }
-    ]
+      {
+        moduleId: "push-notifications",
+        moduleName: "Push Notifications",
+        usageDescription: "Real-time push notifications",
+        isRequired: true,
+      },
+    ],
   },
 
   // WEBHOOKS (Internal)
@@ -267,15 +461,26 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     icon: "Webhook",
     baseUrl: "",
     credentialFields: [
-      { key: "signingSecret", label: "Signing Secret", type: "password", required: true, helpText: "HMAC secret for webhook signatures" }
+      {
+        key: "signingSecret",
+        label: "Signing Secret",
+        type: "password",
+        required: true,
+        helpText: "HMAC secret for webhook signatures",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: true,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["PRODUCTION"],
     dependencies: [
-      { moduleId: "external-integrations", moduleName: "External Integrations", usageDescription: "Trigger webhooks on system events", isRequired: true }
-    ]
+      {
+        moduleId: "external-integrations",
+        moduleName: "External Integrations",
+        usageDescription: "Trigger webhooks on system events",
+        isRequired: true,
+      },
+    ],
   },
 
   // REAL-TIME
@@ -292,10 +497,25 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["DEVELOPMENT", "STAGING", "PRODUCTION"],
     dependencies: [
-      { moduleId: "dashboard", moduleName: "Dashboard", usageDescription: "Live dashboard updates", isRequired: true },
-      { moduleId: "tasks", moduleName: "Tasks", usageDescription: "Real-time task updates", isRequired: true },
-      { moduleId: "notifications", moduleName: "Notifications", usageDescription: "Instant notification delivery", isRequired: true }
-    ]
+      {
+        moduleId: "dashboard",
+        moduleName: "Dashboard",
+        usageDescription: "Live dashboard updates",
+        isRequired: true,
+      },
+      {
+        moduleId: "tasks",
+        moduleName: "Tasks",
+        usageDescription: "Real-time task updates",
+        isRequired: true,
+      },
+      {
+        moduleId: "notifications",
+        moduleName: "Notifications",
+        usageDescription: "Instant notification delivery",
+        isRequired: true,
+      },
+    ],
   },
 
   // ANALYTICS
@@ -308,16 +528,27 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     baseUrl: "",
     docsUrl: "https://developers.google.com/analytics",
     credentialFields: [
-      { key: "measurementId", label: "Measurement ID", type: "text", required: true, placeholder: "G-XXXXXXXXXX" }
+      {
+        key: "measurementId",
+        label: "Measurement ID",
+        type: "text",
+        required: true,
+        placeholder: "G-XXXXXXXXXX",
+      },
     ],
     isBuiltIn: true,
     isPlatformCore: false,
     defaultEnvironment: "PRODUCTION",
     supportedEnvironments: ["PRODUCTION"],
     dependencies: [
-      { moduleId: "analytics", moduleName: "Platform Analytics", usageDescription: "Track user behavior and platform usage", isRequired: true }
-    ]
-  }
+      {
+        moduleId: "analytics",
+        moduleName: "Platform Analytics",
+        usageDescription: "Track user behavior and platform usage",
+        isRequired: true,
+      },
+    ],
+  },
 ];
 
 // =====================================================
@@ -330,7 +561,7 @@ class ServiceRegistry {
 
   constructor() {
     // Initialize with built-in services
-    PLATFORM_SERVICES.forEach(service => {
+    PLATFORM_SERVICES.forEach((service) => {
       this.services.set(service.id, service);
     });
   }
@@ -342,12 +573,14 @@ class ServiceRegistry {
 
   // Get service by ID
   getService(id: string): ServiceDefinition | undefined {
-    return this.services.get(id) || this.customServices.find(s => s.id === id);
+    return (
+      this.services.get(id) || this.customServices.find((s) => s.id === id)
+    );
   }
 
   // Get services by category
   getServicesByCategory(category: ServiceCategory): ServiceDefinition[] {
-    return this.getAllServices().filter(s => s.category === category);
+    return this.getAllServices().filter((s) => s.category === category);
   }
 
   // Get built-in platform services
@@ -357,7 +590,7 @@ class ServiceRegistry {
 
   // Get core platform services (required for operation)
   getCoreServices(): ServiceDefinition[] {
-    return PLATFORM_SERVICES.filter(s => s.isPlatformCore);
+    return PLATFORM_SERVICES.filter((s) => s.isPlatformCore);
   }
 
   // Register a custom service dynamically
@@ -370,7 +603,7 @@ class ServiceRegistry {
 
   // Unregister a custom service
   unregisterService(id: string): boolean {
-    const index = this.customServices.findIndex(s => s.id === id);
+    const index = this.customServices.findIndex((s) => s.id === id);
     if (index !== -1) {
       this.customServices.splice(index, 1);
       return true;
@@ -386,8 +619,10 @@ class ServiceRegistry {
 
   // Get services required by a specific module
   getServicesForModule(moduleId: string): ServiceDefinition[] {
-    return this.getAllServices().filter(service =>
-      service.dependencies.some(dep => dep.moduleId === moduleId || dep.moduleId === "all")
+    return this.getAllServices().filter((service) =>
+      service.dependencies.some(
+        (dep) => dep.moduleId === moduleId || dep.moduleId === "all",
+      ),
     );
   }
 }
@@ -413,7 +648,7 @@ export interface ServiceCredentials {
  */
 export async function getServiceCredentials(
   serviceId: string,
-  environment: ServiceEnvironment = "PRODUCTION"
+  environment: ServiceEnvironment = "PRODUCTION",
 ): Promise<ServiceCredentials | null> {
   try {
     const connection = await prisma.apiConnection.findFirst({
@@ -421,9 +656,9 @@ export async function getServiceCredentials(
         serviceName: serviceId.toLowerCase(),
         environment,
         isEnabled: true,
-        status: { in: ["ACTIVE", "INACTIVE"] } // Allow INACTIVE for testing
+        status: { in: ["ACTIVE", "INACTIVE"] }, // Allow INACTIVE for testing
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     if (!connection) {
@@ -438,7 +673,7 @@ export async function getServiceCredentials(
       environment: connection.environment as ServiceEnvironment,
       baseUrl: connection.baseUrl || "",
       isActive: connection.status === "ACTIVE",
-      connectionId: connection.id
+      connectionId: connection.id,
     };
   } catch (error) {
     // console.error(`Error fetching credentials for service ${serviceId}:`, error);
@@ -451,7 +686,7 @@ export async function getServiceCredentials(
  */
 export async function isServiceConfigured(
   serviceId: string,
-  environment: ServiceEnvironment = "PRODUCTION"
+  environment: ServiceEnvironment = "PRODUCTION",
 ): Promise<boolean> {
   const credentials = await getServiceCredentials(serviceId, environment);
   return credentials !== null && credentials.isActive;
@@ -461,7 +696,7 @@ export async function isServiceConfigured(
  * Get all service instances with their current status
  */
 export async function getAllServiceInstances(
-  environment?: ServiceEnvironment
+  environment?: ServiceEnvironment,
 ): Promise<ServiceInstance[]> {
   const services = serviceRegistry.getAllServices();
   const instances: ServiceInstance[] = [];
@@ -469,13 +704,15 @@ export async function getAllServiceInstances(
   // Fetch all connections at once for efficiency
   const connections = await prisma.apiConnection.findMany({
     where: environment ? { environment } : {},
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 
   for (const service of services) {
     const envToCheck = environment || service.defaultEnvironment;
     const connection = connections.find(
-      c => c.serviceName === service.id.toLowerCase() && c.environment === envToCheck
+      (c) =>
+        c.serviceName === service.id.toLowerCase() &&
+        c.environment === envToCheck,
     );
 
     let status: ServiceStatus = "NOT_CONFIGURED";
@@ -506,7 +743,10 @@ export async function getAllServiceInstances(
     }
 
     // Special handling for internal services that don't need external credentials
-    if (service.category === "INTERNAL" && service.credentialFields.length === 0) {
+    if (
+      service.category === "INTERNAL" &&
+      service.credentialFields.length === 0
+    ) {
       status = "ACTIVE";
     }
 
@@ -514,10 +754,13 @@ export async function getAllServiceInstances(
       definition: service,
       status,
       environment: envToCheck,
-      isConfigured: !!connection || (service.category === "INTERNAL" && service.credentialFields.length === 0),
+      isConfigured:
+        !!connection ||
+        (service.category === "INTERNAL" &&
+          service.credentialFields.length === 0),
       connectionId: connection?.id,
       lastValidatedAt: connection?.lastValidatedAt || undefined,
-      lastErrorMessage: connection?.lastErrorMessage || undefined
+      lastErrorMessage: connection?.lastErrorMessage || undefined,
     });
   }
 
@@ -533,7 +776,7 @@ export async function logServiceUsage(
   details: any,
   success: boolean,
   responseTime?: number,
-  errorMessage?: string
+  errorMessage?: string,
 ): Promise<void> {
   try {
     await prisma.apiConnectionLog.create({
@@ -543,8 +786,8 @@ export async function logServiceUsage(
         details,
         testSuccess: success,
         testResponseTime: responseTime,
-        testErrorMessage: errorMessage
-      }
+        testErrorMessage: errorMessage,
+      },
     });
 
     // Update connection status based on result
@@ -554,8 +797,8 @@ export async function logServiceUsage(
         data: {
           consecutiveErrors: { increment: 1 },
           lastErrorMessage: errorMessage,
-          status: "ERROR"
-        }
+          status: "ERROR",
+        },
       });
     } else {
       await prisma.apiConnection.update({
@@ -563,8 +806,8 @@ export async function logServiceUsage(
         data: {
           consecutiveErrors: 0,
           lastValidatedAt: new Date(),
-          status: "ACTIVE"
-        }
+          status: "ACTIVE",
+        },
       });
     }
   } catch (error) {

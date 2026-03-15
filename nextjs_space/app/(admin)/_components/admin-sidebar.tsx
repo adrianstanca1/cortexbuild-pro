@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
+  
   Users,
   Building2,
   Activity,
@@ -16,20 +16,70 @@ import {
   Eye,
   Settings,
   Terminal,
-  Key
+  Key,
 } from "lucide-react";
 
 const adminNavItems = [
-  { href: "/admin", label: "Command Center", icon: Terminal, description: "Dashboard overview" },
-  { href: "/admin/system-health", label: "System Health", icon: Server, description: "Monitor services" },
-  { href: "/admin/api-management", label: "API Management", icon: Key, description: "API connections" },
-  { href: "/admin/users", label: "User Management", icon: Users, description: "Manage users" },
-  { href: "/admin/organizations", label: "Organizations", icon: Building2, description: "Manage tenants" },
-  { href: "/admin/invitations", label: "Invitations", icon: Mail, description: "Pending invites" },
-  { href: "/admin/audit-logs", label: "Audit Logs", icon: Eye, description: "Activity tracking" },
-  { href: "/admin/activity", label: "Activity Monitor", icon: Activity, description: "Real-time events" },
-  { href: "/admin/storage", label: "Storage & Data", icon: Database, description: "File management" },
-  { href: "/admin/platform-settings", label: "Platform Settings", icon: Settings, description: "Configuration" },
+  {
+    href: "/admin",
+    label: "Command Center",
+    icon: Terminal,
+    description: "Dashboard overview",
+  },
+  {
+    href: "/admin/system-health",
+    label: "System Health",
+    icon: Server,
+    description: "Monitor services",
+  },
+  {
+    href: "/admin/api-management",
+    label: "API Management",
+    icon: Key,
+    description: "API connections",
+  },
+  {
+    href: "/admin/users",
+    label: "User Management",
+    icon: Users,
+    description: "Manage users",
+  },
+  {
+    href: "/admin/organizations",
+    label: "Organizations",
+    icon: Building2,
+    description: "Manage tenants",
+  },
+  {
+    href: "/admin/invitations",
+    label: "Invitations",
+    icon: Mail,
+    description: "Pending invites",
+  },
+  {
+    href: "/admin/audit-logs",
+    label: "Audit Logs",
+    icon: Eye,
+    description: "Activity tracking",
+  },
+  {
+    href: "/admin/activity",
+    label: "Activity Monitor",
+    icon: Activity,
+    description: "Real-time events",
+  },
+  {
+    href: "/admin/storage",
+    label: "Storage & Data",
+    icon: Database,
+    description: "File management",
+  },
+  {
+    href: "/admin/platform-settings",
+    label: "Platform Settings",
+    icon: Settings,
+    description: "Configuration",
+  },
 ];
 
 export function AdminSidebar() {
@@ -47,13 +97,14 @@ export function AdminSidebar() {
             <p className="text-xs text-gray-500">Control Panel</p>
           </div>
         </div>
-        
+
         <nav className="space-y-1">
           {adminNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || 
+            const isActive =
+              pathname === item.href ||
               (item.href !== "/admin" && pathname.startsWith(item.href));
-            
+
             return (
               <Link
                 key={item.href}
@@ -62,7 +113,7 @@ export function AdminSidebar() {
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
                   isActive
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20"
-                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white",
                 )}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />

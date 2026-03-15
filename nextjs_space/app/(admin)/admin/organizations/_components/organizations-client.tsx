@@ -17,7 +17,7 @@ import {
   RefreshCw,
   Check,
   Eye,
-  X
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,12 @@ interface Organization {
   logoUrl: string | null;
   createdAt: string;
   users: { id: string; name: string; email: string; role: string }[];
-  projects: { id: string; name: string; status: string; budget: number | null }[];
+  projects: {
+    id: string;
+    name: string;
+    status: string;
+    budget: number | null;
+  }[];
   _count: { users: number; projects: number; teamMembers: number };
   stats: {
     taskCount: number;
@@ -69,7 +74,7 @@ export function OrganizationsClient() {
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
-    logoUrl: ""
+    logoUrl: "",
   });
 
   const fetchOrganizations = async () => {
@@ -80,7 +85,7 @@ export function OrganizationsClient() {
 
       const res = await fetch(`/api/admin/organizations?${params}`);
       const data = await res.json();
-      
+
       if (res.ok) {
         setOrganizations(data.organizations || []);
       } else {
@@ -124,7 +129,7 @@ export function OrganizationsClient() {
       const res = await fetch("/api/admin/organizations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (res.ok) {
@@ -151,7 +156,7 @@ export function OrganizationsClient() {
       const res = await fetch(`/api/admin/organizations/${selectedOrg.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (res.ok) {
@@ -182,7 +187,7 @@ export function OrganizationsClient() {
 
     try {
       const res = await fetch(`/api/admin/organizations/${org.id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       if (res.ok) {
@@ -202,7 +207,7 @@ export function OrganizationsClient() {
     setFormData({
       name: org.name,
       slug: org.slug,
-      logoUrl: org.logoUrl || ""
+      logoUrl: org.logoUrl || "",
     });
     setShowEditModal(true);
   };
@@ -213,7 +218,10 @@ export function OrganizationsClient() {
   };
 
   const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
   };
 
   if (loading) {
@@ -232,7 +240,9 @@ export function OrganizationsClient() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Organizations
           </h1>
-          <p className="text-gray-500 mt-1">Manage tenant organizations on the platform</p>
+          <p className="text-gray-500 mt-1">
+            Manage tenant organizations on the platform
+          </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -294,7 +304,9 @@ export function OrganizationsClient() {
                       <DropdownMenuItem
                         onClick={() => handleDeleteOrg(org)}
                         className="text-red-600"
-                        disabled={org._count.users > 0 || org._count.projects > 0}
+                        disabled={
+                          org._count.users > 0 || org._count.projects > 0
+                        }
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
@@ -308,21 +320,27 @@ export function OrganizationsClient() {
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Users className="h-4 w-4 text-purple-500" />
-                      <span className="text-lg font-bold">{org._count.users}</span>
+                      <span className="text-lg font-bold">
+                        {org._count.users}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-500">Users</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <FolderKanban className="h-4 w-4 text-green-500" />
-                      <span className="text-lg font-bold">{org._count.projects}</span>
+                      <span className="text-lg font-bold">
+                        {org._count.projects}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-500">Projects</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <ListTodo className="h-4 w-4 text-blue-500" />
-                      <span className="text-lg font-bold">{org.stats.taskCount}</span>
+                      <span className="text-lg font-bold">
+                        {org.stats.taskCount}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-500">Tasks</p>
                   </div>
@@ -337,7 +355,9 @@ export function OrganizationsClient() {
                   </div>
                   <div className="flex items-center justify-between text-sm mt-1">
                     <span className="text-gray-500">Documents</span>
-                    <span className="font-medium">{org.stats.documentCount}</span>
+                    <span className="font-medium">
+                      {org.stats.documentCount}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -381,25 +401,43 @@ export function OrganizationsClient() {
               <Label>Slug *</Label>
               <Input
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, slug: e.target.value })
+                }
                 placeholder="acme-construction"
               />
-              <p className="text-xs text-gray-500 mt-1">URL-friendly identifier for the organization</p>
+              <p className="text-xs text-gray-500 mt-1">
+                URL-friendly identifier for the organization
+              </p>
             </div>
             <div>
               <Label>Logo URL</Label>
               <Input
                 value={formData.logoUrl}
-                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, logoUrl: e.target.value })
+                }
                 placeholder="https://cdn.logojoy.com/wp-content/uploads/20220329172812/app-logo-color-combinations-600x371.jpeg"
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setShowCreateModal(false)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowCreateModal(false)}
+              >
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={handleCreateOrg} disabled={saving}>
-                {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              <Button
+                className="flex-1"
+                onClick={handleCreateOrg}
+                disabled={saving}
+              >
+                {saving ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
                 Create
               </Button>
             </div>
@@ -421,29 +459,47 @@ export function OrganizationsClient() {
               <Label>Organization Name *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Slug *</Label>
               <Input
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, slug: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Logo URL</Label>
               <Input
                 value={formData.logoUrl}
-                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, logoUrl: e.target.value })
+                }
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setShowEditModal(false)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowEditModal(false)}
+              >
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={handleUpdateOrg} disabled={saving}>
-                {saving ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              <Button
+                className="flex-1"
+                onClick={handleUpdateOrg}
+                disabled={saving}
+              >
+                {saving ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
                 Update
               </Button>
             </div>
@@ -470,7 +526,8 @@ export function OrganizationsClient() {
                   <h3 className="text-xl font-semibold">{selectedOrg.name}</h3>
                   <p className="text-gray-500">Slug: {selectedOrg.slug}</p>
                   <p className="text-sm text-gray-400">
-                    Created: {format(new Date(selectedOrg.createdAt), "MMM d, yyyy")}
+                    Created:{" "}
+                    {format(new Date(selectedOrg.createdAt), "MMM d, yyyy")}
                   </p>
                 </div>
               </div>
@@ -478,31 +535,44 @@ export function OrganizationsClient() {
               <div className="grid grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <Users className="h-6 w-6 mx-auto text-purple-500" />
-                  <p className="text-2xl font-bold mt-2">{selectedOrg._count.users}</p>
+                  <p className="text-2xl font-bold mt-2">
+                    {selectedOrg._count.users}
+                  </p>
                   <p className="text-xs text-gray-500">Users</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                   <FolderKanban className="h-6 w-6 mx-auto text-green-500" />
-                  <p className="text-2xl font-bold mt-2">{selectedOrg._count.projects}</p>
+                  <p className="text-2xl font-bold mt-2">
+                    {selectedOrg._count.projects}
+                  </p>
                   <p className="text-xs text-gray-500">Projects</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <ListTodo className="h-6 w-6 mx-auto text-blue-500" />
-                  <p className="text-2xl font-bold mt-2">{selectedOrg.stats.taskCount}</p>
+                  <p className="text-2xl font-bold mt-2">
+                    {selectedOrg.stats.taskCount}
+                  </p>
                   <p className="text-xs text-gray-500">Tasks</p>
                 </div>
                 <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                   <FileText className="h-6 w-6 mx-auto text-orange-500" />
-                  <p className="text-2xl font-bold mt-2">{selectedOrg.stats.documentCount}</p>
+                  <p className="text-2xl font-bold mt-2">
+                    {selectedOrg.stats.documentCount}
+                  </p>
                   <p className="text-xs text-gray-500">Documents</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium mb-3">Users ({selectedOrg.users.length})</h4>
+                <h4 className="font-medium mb-3">
+                  Users ({selectedOrg.users.length})
+                </h4>
                 <div className="max-h-40 overflow-y-auto space-y-2">
                   {selectedOrg.users.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                    >
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm font-medium">
                           {user.name[0]}
@@ -512,20 +582,31 @@ export function OrganizationsClient() {
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
                       </div>
-                      <Badge variant="outline">{user.role.replace("_", " ")}</Badge>
+                      <Badge variant="outline">
+                        {user.role.replace("_", " ")}
+                      </Badge>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium mb-3">Projects ({selectedOrg.projects.length})</h4>
+                <h4 className="font-medium mb-3">
+                  Projects ({selectedOrg.projects.length})
+                </h4>
                 <div className="max-h-40 overflow-y-auto space-y-2">
                   {selectedOrg.projects.map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                      <span className="text-sm font-medium">{project.name}</span>
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded"
+                    >
+                      <span className="text-sm font-medium">
+                        {project.name}
+                      </span>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{project.status.replace("_", " ")}</Badge>
+                        <Badge variant="outline">
+                          {project.status.replace("_", " ")}
+                        </Badge>
                         {project.budget && (
                           <span className="text-sm text-gray-500">
                             £{project.budget.toLocaleString()}
@@ -538,14 +619,22 @@ export function OrganizationsClient() {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => {
-                  setShowDetailModal(false);
-                  openEditModal(selectedOrg);
-                }}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    openEditModal(selectedOrg);
+                  }}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Organization
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShowDetailModal(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDetailModal(false)}
+                >
                   Close
                 </Button>
               </div>

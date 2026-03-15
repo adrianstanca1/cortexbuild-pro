@@ -29,8 +29,10 @@ export interface TeamInvitationTemplateParams {
 /**
  * Generate company invitation email HTML
  */
-export function generateCompanyInvitationEmail(params: CompanyInvitationTemplateParams): string {
-  const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+export function generateCompanyInvitationEmail(
+  params: CompanyInvitationTemplateParams,
+): string {
+  const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const inviteUrl = params.inviteUrl || `${appUrl}/join`;
 
   return `
@@ -67,8 +69,10 @@ export function generateCompanyInvitationEmail(params: CompanyInvitationTemplate
 /**
  * Generate team invitation email HTML
  */
-export function generateTeamInvitationEmail(params: TeamInvitationTemplateParams): string {
-  const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+export function generateTeamInvitationEmail(
+  params: TeamInvitationTemplateParams,
+): string {
+  const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const inviteUrl = params.inviteUrl || `${appUrl}/join`;
 
   return `
@@ -83,14 +87,18 @@ export function generateTeamInvitationEmail(params: TeamInvitationTemplateParams
           You have been invited to join the team at <strong>${params.organizationName}</strong> on CortexBuild Pro.
         </p>
 
-        ${params.teamName ? `
+        ${
+          params.teamName
+            ? `
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8b5cf6;">
           <p style="color: #6b7280; margin: 0;">
             <strong>Team:</strong> ${params.teamName}<br/>
             <strong>Organization:</strong> ${params.organizationName}
           </p>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <div style="text-align: center; margin-top: 25px;">
           <a href="${inviteUrl}" style="display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Accept Invitation</a>

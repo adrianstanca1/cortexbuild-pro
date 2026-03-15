@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { io, Socket } from 'socket.io-client';
+import * as React from "react";
+import { io, Socket } from "socket.io-client";
 
 interface Task {
   id: string;
@@ -37,7 +37,9 @@ interface UseRealTimeUpdatesReturn {
   sendProjectMessage: (content: string, author: string) => void;
 }
 
-export function useRealTimeUpdates(projectId: string): UseRealTimeUpdatesReturn {
+export function useRealTimeUpdates(
+  projectId: string,
+): UseRealTimeUpdatesReturn {
   const [isConnected, setIsConnected] = React.useState(false);
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [messages, setMessages] = React.useState<Message[]>([]);
@@ -45,24 +47,25 @@ export function useRealTimeUpdates(projectId: string): UseRealTimeUpdatesReturn 
   const socketRef = React.useRef<Socket | null>(null);
 
   React.useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
     const socket = io(socketUrl, {
-      transports: ['websocket'],
+      transports: ["websocket"],
       autoConnect: true,
     });
 
     socketRef.current = socket;
 
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       setIsConnected(true);
-      socket.emit('join-project', projectId);
+      socket.emit("join-project", projectId);
     });
 
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       setIsConnected(false);
     });
 
-    socket.on('task-updated', (updatedTask: Task) => {
+    socket.on("task-updated", (updatedTask: Task) => {
       setTasks((prev) => {
         const index = prev.findIndex((t) => t.id === updatedTask.id);
         if (index >= 0) {
@@ -74,11 +77,11 @@ export function useRealTimeUpdates(projectId: string): UseRealTimeUpdatesReturn 
       });
     });
 
-    socket.on('new-message', (message: Message) => {
+    socket.on("new-message", (message: Message) => {
       setMessages((prev) => [...prev, message]);
     });
 
-    socket.on('users-online', (users: OnlineUser[]) => {
+    socket.on("users-online", (users: OnlineUser[]) => {
       setOnlineUsers(users);
     });
 
@@ -87,24 +90,30 @@ export function useRealTimeUpdates(projectId: string): UseRealTimeUpdatesReturn 
     };
   }, [projectId]);
 
-  const sendTaskUpdate = React.useCallback((task: Partial<Task>) => {
-    if (socketRef.current) {
-      socketRef.current.emit('task-update', { projectId, task });
-    }
-  }, [projectId]);
+  const sendTaskUpdate = React.useCallback(
+    (task: Partial<Task>) => {
+      if (socketRef.current) {
+        socketRef.current.emit("task-update", { projectId, task });
+      }
+    },
+    [projectId],
+  );
 
-  const sendProjectMessage = React.useCallback((content: string, author: string) => {
-    if (socketRef.current) {
-      const message: Message = {
-        id: Date.now().toString(),
-        content,
-        author,
-        timestamp: new Date(),
-      };
-      socketRef.current.emit('project-message', { projectId, message });
-      setMessages((prev) => [...prev, message]);
-    }
-  }, [projectId]);
+  const sendProjectMessage = React.useCallback(
+    (content: string, author: string) => {
+      if (socketRef.current) {
+        const message: Message = {
+          id: Date.now().toString(),
+          content,
+          author,
+          timestamp: new Date(),
+        };
+        socketRef.current.emit("project-message", { projectId, message });
+        setMessages((prev) => [...prev, message]);
+      }
+    },
+    [projectId],
+  );
 
   return {
     isConnected,

@@ -3,11 +3,33 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, formatDistanceToNow, isPast, isToday, isFuture, addDays } from "date-fns";
 import {
-  Flag, Plus, Search, Filter, Calendar, CheckCircle2, Clock,
-  AlertTriangle, Target, MoreVertical, Edit, Trash2, ChevronRight,
-  FolderKanban, Loader2, AlertCircle, TrendingUp, Milestone as MilestoneIcon
+  format,
+  formatDistanceToNow,
+  isPast,
+  isToday,
+  isFuture,
+  addDays,
+} from "date-fns";
+import {
+  Flag,
+  Plus,
+  Search,
+  Filter,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  Target,
+  MoreVertical,
+  Edit,
+  Trash2,
+  ChevronRight,
+  FolderKanban,
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  Milestone as MilestoneIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,19 +41,19 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
@@ -68,21 +90,46 @@ interface MilestonesClientProps {
 }
 
 const statusConfig = {
-  NOT_STARTED: { label: "Not Started", color: "bg-gray-100 text-gray-800", icon: Clock },
-  IN_PROGRESS: { label: "In Progress", color: "bg-blue-100 text-blue-800", icon: TrendingUp },
-  COMPLETED: { label: "Completed", color: "bg-green-100 text-green-800", icon: CheckCircle2 },
-  DELAYED: { label: "Delayed", color: "bg-red-100 text-red-800", icon: AlertTriangle },
-  AT_RISK: { label: "At Risk", color: "bg-amber-100 text-amber-800", icon: AlertCircle }
+  NOT_STARTED: {
+    label: "Not Started",
+    color: "bg-gray-100 text-gray-800",
+    icon: Clock,
+  },
+  IN_PROGRESS: {
+    label: "In Progress",
+    color: "bg-blue-100 text-blue-800",
+    icon: TrendingUp,
+  },
+  COMPLETED: {
+    label: "Completed",
+    color: "bg-green-100 text-green-800",
+    icon: CheckCircle2,
+  },
+  DELAYED: {
+    label: "Delayed",
+    color: "bg-red-100 text-red-800",
+    icon: AlertTriangle,
+  },
+  AT_RISK: {
+    label: "At Risk",
+    color: "bg-amber-100 text-amber-800",
+    icon: AlertCircle,
+  },
 };
 
-export default function MilestonesClient({ projects, initialMilestones }: MilestonesClientProps) {
+export default function MilestonesClient({
+  projects,
+  initialMilestones,
+}: MilestonesClientProps) {
   const router = useRouter();
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [showNewModal, setShowNewModal] = useState(false);
-  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"timeline" | "list">("timeline");
   const [formData, setFormData] = useState({
@@ -93,7 +140,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
     status: "NOT_STARTED",
     percentComplete: "0",
     isCritical: false,
-    notes: ""
+    notes: "",
   });
 
   const handleRealtimeEvent = useCallback(() => {
@@ -102,12 +149,15 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
 
   useRealtimeSubscription(
     ["milestone_created", "milestone_updated", "milestone_deleted"],
-    handleRealtimeEvent
+    handleRealtimeEvent,
   );
 
-  const filteredMilestones = milestones.filter(m => {
-    if (search && !m.name.toLowerCase().includes(search.toLowerCase()) &&
-        !m.description?.toLowerCase().includes(search.toLowerCase())) {
+  const filteredMilestones = milestones.filter((m) => {
+    if (
+      search &&
+      !m.name.toLowerCase().includes(search.toLowerCase()) &&
+      !m.description?.toLowerCase().includes(search.toLowerCase())
+    ) {
       return false;
     }
     if (statusFilter !== "all" && m.status !== statusFilter) return false;
@@ -124,7 +174,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       status: "NOT_STARTED",
       percentComplete: "0",
       isCritical: false,
-      notes: ""
+      notes: "",
     });
     setEditingMilestone(null);
   };
@@ -139,7 +189,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       status: milestone.status,
       percentComplete: String(milestone.percentComplete),
       isCritical: milestone.isCritical,
-      notes: milestone.notes || ""
+      notes: milestone.notes || "",
     });
     setShowNewModal(true);
   };
@@ -152,20 +202,22 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
 
     setLoading(true);
     try {
-      const url = editingMilestone 
-        ? `/api/milestones/${editingMilestone.id}` 
+      const url = editingMilestone
+        ? `/api/milestones/${editingMilestone.id}`
         : "/api/milestones";
       const method = editingMilestone ? "PATCH" : "POST";
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (!res.ok) throw new Error("Failed to save milestone");
 
-      toast.success(editingMilestone ? "Milestone updated" : "Milestone created");
+      toast.success(
+        editingMilestone ? "Milestone updated" : "Milestone created",
+      );
       setShowNewModal(false);
       resetForm();
       router.refresh();
@@ -201,23 +253,36 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
   // Stats
   const stats = {
     total: milestones.length,
-    completed: milestones.filter(m => m.status === "COMPLETED").length,
-    inProgress: milestones.filter(m => m.status === "IN_PROGRESS").length,
-    atRisk: milestones.filter(m => m.status === "AT_RISK" || m.status === "DELAYED").length,
-    critical: milestones.filter(m => m.isCritical && m.status !== "COMPLETED").length
+    completed: milestones.filter((m) => m.status === "COMPLETED").length,
+    inProgress: milestones.filter((m) => m.status === "IN_PROGRESS").length,
+    atRisk: milestones.filter(
+      (m) => m.status === "AT_RISK" || m.status === "DELAYED",
+    ).length,
+    critical: milestones.filter((m) => m.isCritical && m.status !== "COMPLETED")
+      .length,
   };
 
-  const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+  const completionRate =
+    stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Milestones</h1>
-          <p className="text-gray-600 dark:text-gray-400">Track project milestones and deadlines</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Milestones
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Track project milestones and deadlines
+          </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowNewModal(true); }}>
+        <Button
+          onClick={() => {
+            resetForm();
+            setShowNewModal(true);
+          }}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Milestone
         </Button>
@@ -311,8 +376,10 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Projects</SelectItem>
-                {projects.map(p => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                {projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -323,7 +390,9 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 {Object.entries(statusConfig).map(([key, val]) => (
-                  <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                  <SelectItem key={key} value={key}>
+                    {val.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -338,9 +407,19 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
             <Card>
               <CardContent className="py-12 text-center">
                 <Flag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">No milestones found</h3>
-                <p className="text-gray-500 mt-1">Create your first milestone to start tracking progress</p>
-                <Button className="mt-4" onClick={() => { resetForm(); setShowNewModal(true); }}>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  No milestones found
+                </h3>
+                <p className="text-gray-500 mt-1">
+                  Create your first milestone to start tracking progress
+                </p>
+                <Button
+                  className="mt-4"
+                  onClick={() => {
+                    resetForm();
+                    setShowNewModal(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Milestone
                 </Button>
@@ -350,7 +429,7 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
             filteredMilestones.map((milestone, index) => {
               const StatusIcon = statusConfig[milestone.status].icon;
               const urgency = getMilestoneUrgency(milestone);
-              
+
               return (
                 <motion.div
                   key={milestone.id}
@@ -359,11 +438,17 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className={`hover:shadow-md transition-shadow ${
-                    urgency === "overdue" ? "border-l-4 border-l-red-500" :
-                    urgency === "today" ? "border-l-4 border-l-amber-500" :
-                    urgency === "completed" ? "border-l-4 border-l-green-500" : ""
-                  }`}>
+                  <Card
+                    className={`hover:shadow-md transition-shadow ${
+                      urgency === "overdue"
+                        ? "border-l-4 border-l-red-500"
+                        : urgency === "today"
+                          ? "border-l-4 border-l-amber-500"
+                          : urgency === "completed"
+                            ? "border-l-4 border-l-green-500"
+                            : ""
+                    }`}
+                  >
                     <CardContent className="py-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -372,14 +457,18 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                               {milestone.name}
                             </h3>
                             {milestone.isCritical && (
-                              <Badge variant="destructive" className="text-xs">Critical</Badge>
+                              <Badge variant="destructive" className="text-xs">
+                                Critical
+                              </Badge>
                             )}
-                            <Badge className={statusConfig[milestone.status].color}>
+                            <Badge
+                              className={statusConfig[milestone.status].color}
+                            >
                               <StatusIcon className="h-3 w-3 mr-1" />
                               {statusConfig[milestone.status].label}
                             </Badge>
                           </div>
-                          
+
                           {milestone.description && (
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                               {milestone.description}
@@ -393,10 +482,17 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                             </div>
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
-                              {format(new Date(milestone.targetDate), "MMM d, yyyy")}
+                              {format(
+                                new Date(milestone.targetDate),
+                                "MMM d, yyyy",
+                              )}
                               {urgency === "overdue" && (
                                 <span className="text-red-500 ml-1">
-                                  ({formatDistanceToNow(new Date(milestone.targetDate))} overdue)
+                                  (
+                                  {formatDistanceToNow(
+                                    new Date(milestone.targetDate),
+                                  )}{" "}
+                                  overdue)
                                 </span>
                               )}
                             </div>
@@ -406,9 +502,14 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                           <div className="mt-3">
                             <div className="flex items-center justify-between text-sm mb-1">
                               <span className="text-gray-500">Progress</span>
-                              <span className="font-medium">{milestone.percentComplete}%</span>
+                              <span className="font-medium">
+                                {milestone.percentComplete}%
+                              </span>
                             </div>
-                            <Progress value={milestone.percentComplete} className="h-2" />
+                            <Progress
+                              value={milestone.percentComplete}
+                              className="h-2"
+                            />
                           </div>
                         </div>
 
@@ -419,7 +520,9 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditModal(milestone)}>
+                            <DropdownMenuItem
+                              onClick={() => openEditModal(milestone)}
+                            >
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
@@ -443,17 +546,27 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
       </div>
 
       {/* Create/Edit Modal */}
-      <Dialog open={showNewModal} onOpenChange={(open) => { setShowNewModal(open); if (!open) resetForm(); }}>
+      <Dialog
+        open={showNewModal}
+        onOpenChange={(open) => {
+          setShowNewModal(open);
+          if (!open) resetForm();
+        }}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingMilestone ? "Edit Milestone" : "Add New Milestone"}</DialogTitle>
+            <DialogTitle>
+              {editingMilestone ? "Edit Milestone" : "Add New Milestone"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Name *</label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Milestone name"
               />
             </div>
@@ -461,14 +574,18 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
               <label className="text-sm font-medium">Project *</label>
               <Select
                 value={formData.projectId}
-                onValueChange={(val) => setFormData({ ...formData, projectId: val })}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, projectId: val })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -477,7 +594,9 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
               <label className="text-sm font-medium">Description</label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Milestone description"
                 rows={2}
               />
@@ -488,21 +607,27 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                 <Input
                   type="date"
                   value={formData.targetDate}
-                  onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, targetDate: e.target.value })
+                  }
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
                 <Select
                   value={formData.status}
-                  onValueChange={(val) => setFormData({ ...formData, status: val })}
+                  onValueChange={(val) =>
+                    setFormData({ ...formData, status: val })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(statusConfig).map(([key, val]) => (
-                      <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {val.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -516,7 +641,12 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                   min="0"
                   max="100"
                   value={formData.percentComplete}
-                  onChange={(e) => setFormData({ ...formData, percentComplete: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      percentComplete: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="flex items-center gap-2 pt-6">
@@ -524,23 +654,35 @@ export default function MilestonesClient({ projects, initialMilestones }: Milest
                   type="checkbox"
                   id="isCritical"
                   checked={formData.isCritical}
-                  onChange={(e) => setFormData({ ...formData, isCritical: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isCritical: e.target.checked })
+                  }
                   className="rounded"
                 />
-                <label htmlFor="isCritical" className="text-sm font-medium">Critical Milestone</label>
+                <label htmlFor="isCritical" className="text-sm font-medium">
+                  Critical Milestone
+                </label>
               </div>
             </div>
             <div>
               <label className="text-sm font-medium">Notes</label>
               <Textarea
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 placeholder="Additional notes"
                 rows={2}
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => { setShowNewModal(false); resetForm(); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowNewModal(false);
+                  resetForm();
+                }}
+              >
                 Cancel
               </Button>
               <Button onClick={handleSubmit} disabled={loading}>

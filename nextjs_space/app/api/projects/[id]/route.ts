@@ -7,10 +7,14 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
-
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -24,8 +28,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         manager: { select: { id: true, name: true, email: true } },
         tasks: { include: { assignee: { select: { id: true, name: true } } } },
         documents: true,
-        _count: { select: { tasks: true, documents: true } }
-      }
+        _count: { select: { tasks: true, documents: true } },
+      },
     });
 
     if (!project) {
@@ -35,11 +39,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json(bigintSafe({ project }));
   } catch (error) {
     console.error("Get project error:", error);
-    return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch project" },
+      { status: 500 },
+    );
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -47,27 +57,50 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as { id?: string })?.id || '';
-    const organizationId = (session.user as { organizationId?: string })?.organizationId;
+    const userId = (session.user as { id?: string })?.id || "";
+    const organizationId = (session.user as { organizationId?: string })
+      ?.organizationId;
     const body = await request.json();
-    const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
+    const {
+      name,
+      description,
+      location,
+      clientName,
+      clientEmail,
+      budget,
+      startDate,
+      endDate,
+      status,
+    } = body;
 
     const project = await prisma.project.update({
       where: { id: id ?? "" },
       data: {
         ...(name && { name: name.trim() }),
-        ...(description !== undefined && { description: description?.trim() || null }),
+        ...(description !== undefined && {
+          description: description?.trim() || null,
+        }),
         ...(location !== undefined && { location: location?.trim() || null }),
-        ...(clientName !== undefined && { clientName: clientName?.trim() || null }),
-        ...(clientEmail !== undefined && { clientEmail: clientEmail?.trim() || null }),
-        ...(budget !== undefined && { budget: budget ? parseFloat(budget) : null }),
-        ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
-        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
-        ...(status && { status })
+        ...(clientName !== undefined && {
+          clientName: clientName?.trim() || null,
+        }),
+        ...(clientEmail !== undefined && {
+          clientEmail: clientEmail?.trim() || null,
+        }),
+        ...(budget !== undefined && {
+          budget: budget ? parseFloat(budget) : null,
+        }),
+        ...(startDate !== undefined && {
+          startDate: startDate ? new Date(startDate) : null,
+        }),
+        ...(endDate !== undefined && {
+          endDate: endDate ? new Date(endDate) : null,
+        }),
+        ...(status && { status }),
       },
       include: {
-        manager: { select: { id: true, name: true } }
-      }
+        manager: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -77,14 +110,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         entityId: project.id,
         entityName: project.name,
         userId,
-        projectId: project.id
-      }
+        projectId: project.id,
+      },
     });
 
     // Broadcast real-time event to organization
     if (organizationId) {
       broadcastToOrganization(organizationId, {
-        type: 'project_updated',
+        type: "project_updated",
         timestamp: new Date().toISOString(),
         payload: {
           project: {
@@ -93,21 +126,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             status: project.status,
             location: project.location,
             clientName: project.clientName,
-            managerName: project.manager?.name
+            managerName: project.manager?.name,
           },
-          userId
-        }
+          userId,
+        },
       });
     }
 
     return NextResponse.json(bigintSafe({ project }));
   } catch (error) {
     console.error("Update project error:", error);
-    return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update project" },
+      { status: 500 },
+    );
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
     const session = await getServerSession(authOptions);
@@ -116,12 +155,13 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     const userId = (session.user as { id?: string })?.id;
-    const organizationId = (session.user as { organizationId?: string })?.organizationId;
+    const organizationId = (session.user as { organizationId?: string })
+      ?.organizationId;
 
     // Fetch project before deletion for broadcast
     const project = await prisma.project.findUnique({
       where: { id: id ?? "" },
-      select: { id: true, name: true }
+      select: { id: true, name: true },
     });
 
     await prisma.project.delete({ where: { id: id ?? "" } });
@@ -129,20 +169,23 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Broadcast real-time event to organization
     if (organizationId && project) {
       broadcastToOrganization(organizationId, {
-        type: 'project_updated',
+        type: "project_updated",
         timestamp: new Date().toISOString(),
         payload: {
           deleted: true,
           projectId: project.id,
           projectName: project.name,
-          userId
-        }
+          userId,
+        },
       });
     }
 
     return NextResponse.json({ message: "Project deleted" });
   } catch (error) {
     console.error("Delete project error:", error);
-    return NextResponse.json({ error: "Failed to delete project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete project" },
+      { status: 500 },
+    );
   }
 }

@@ -8,19 +8,26 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
   const orgId = (session?.user as any)?.organizationId;
-  
-  let organization: { id: string; name: string; slug: string; createdAt: Date } | null = null;
+
+  let organization: {
+    id: string;
+    name: string;
+    slug: string;
+    createdAt: Date;
+  } | null = null;
   if (orgId) {
     organization = await prisma.organization.findUnique({
       where: { id: orgId },
-      select: { id: true, name: true, slug: true, createdAt: true }
+      select: { id: true, name: true, slug: true, createdAt: true },
     });
   }
-  
+
   return (
-    <SettingsClient 
-      user={session?.user} 
-      organization={organization ? JSON.parse(JSON.stringify(organization)) : null}
+    <SettingsClient
+      user={session?.user}
+      organization={
+        organization ? JSON.parse(JSON.stringify(organization)) : null
+      }
     />
   );
 }

@@ -4,16 +4,46 @@ import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-  Plus, Search, FileText, Upload, Download, Trash2, Filter, Loader2,
-  Image, File, FileSpreadsheet, Eye, Ruler, ScrollText, FileSignature,
-  FolderOpen, ChevronRight, LayoutGrid, List, MoreHorizontal, HardDrive
+  Plus,
+  Search,
+  FileText,
+  Upload,
+  Download,
+  Trash2,
+  Filter,
+  Loader2,
+  Image,
+  File,
+  FileSpreadsheet,
+  Eye,
+  Ruler,
+  ScrollText,
+  FileSignature,
+  FolderOpen,
+  ChevronRight,
+  LayoutGrid,
+  List,
+  MoreHorizontal,
+  HardDrive,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useRealtimeSubscription } from "@/components/realtime-provider";
 import { DocumentViewer } from "@/components/ui/document-viewer";
@@ -24,14 +54,54 @@ interface DocumentsClientProps {
 }
 
 const typeConfig = {
-  PLANS: { label: "Plans", bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", icon: FileText },
-  DRAWINGS: { label: "Drawings", bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", icon: Ruler },
-  PERMITS: { label: "Permits", bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", icon: FileSignature },
-  PHOTOS: { label: "Photos", bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", icon: Image },
-  REPORTS: { label: "Reports", bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", icon: FileSpreadsheet },
-  SPECIFICATIONS: { label: "Specs", bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400", icon: ScrollText },
-  CONTRACTS: { label: "Contracts", bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", icon: File },
-  OTHER: { label: "Other", bg: "bg-slate-100 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-400", icon: FileText }
+  PLANS: {
+    label: "Plans",
+    bg: "bg-blue-100 dark:bg-blue-900/30",
+    text: "text-blue-700 dark:text-blue-400",
+    icon: FileText,
+  },
+  DRAWINGS: {
+    label: "Drawings",
+    bg: "bg-purple-100 dark:bg-purple-900/30",
+    text: "text-purple-700 dark:text-purple-400",
+    icon: Ruler,
+  },
+  PERMITS: {
+    label: "Permits",
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-700 dark:text-amber-400",
+    icon: FileSignature,
+  },
+  PHOTOS: {
+    label: "Photos",
+    bg: "bg-green-100 dark:bg-green-900/30",
+    text: "text-green-700 dark:text-green-400",
+    icon: Image,
+  },
+  REPORTS: {
+    label: "Reports",
+    bg: "bg-orange-100 dark:bg-orange-900/30",
+    text: "text-orange-700 dark:text-orange-400",
+    icon: FileSpreadsheet,
+  },
+  SPECIFICATIONS: {
+    label: "Specs",
+    bg: "bg-cyan-100 dark:bg-cyan-900/30",
+    text: "text-cyan-700 dark:text-cyan-400",
+    icon: ScrollText,
+  },
+  CONTRACTS: {
+    label: "Contracts",
+    bg: "bg-red-100 dark:bg-red-900/30",
+    text: "text-red-700 dark:text-red-400",
+    icon: File,
+  },
+  OTHER: {
+    label: "Other",
+    bg: "bg-slate-100 dark:bg-slate-800",
+    text: "text-slate-700 dark:text-slate-400",
+    icon: FileText,
+  },
 };
 
 export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
@@ -40,24 +110,31 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
-  const [uploadForm, setUploadForm] = useState({ projectId: "", documentType: "OTHER" });
+  const [uploadForm, setUploadForm] = useState({
+    projectId: "",
+    documentType: "OTHER",
+  });
 
   const handleDocumentEvent = useCallback(() => {
     router.refresh();
   }, [router]);
 
-  useRealtimeSubscription(['document_uploaded'], handleDocumentEvent, []);
+  useRealtimeSubscription(["document_uploaded"], handleDocumentEvent, []);
 
   const filteredDocs = (documents ?? [])?.filter((doc: any) => {
-    const matchesSearch = (doc?.name ?? "")?.toLowerCase()?.includes(search?.toLowerCase() ?? "");
-    const matchesType = typeFilter === "all" || doc?.documentType === typeFilter;
-    const matchesProject = projectFilter === "all" || doc?.projectId === projectFilter;
+    const matchesSearch = (doc?.name ?? "")
+      ?.toLowerCase()
+      ?.includes(search?.toLowerCase() ?? "");
+    const matchesType =
+      typeFilter === "all" || doc?.documentType === typeFilter;
+    const matchesProject =
+      projectFilter === "all" || doc?.projectId === projectFilter;
     return matchesSearch && matchesType && matchesProject;
   });
 
@@ -65,10 +142,14 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
   const stats = {
     total: documents?.length ?? 0,
     totalSize: documents?.reduce((sum, d) => sum + (d?.fileSize || 0), 0) ?? 0,
-    byType: Object.keys(typeConfig).reduce((acc, type) => {
-      acc[type] = documents?.filter(d => d?.documentType === type)?.length ?? 0;
-      return acc;
-    }, {} as Record<string, number>)
+    byType: Object.keys(typeConfig).reduce(
+      (acc, type) => {
+        acc[type] =
+          documents?.filter((d) => d?.documentType === type)?.length ?? 0;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
   };
 
   const handleViewDocument = (doc: any) => {
@@ -105,8 +186,8 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
         body: JSON.stringify({
           fileName: selectedFile.name,
           contentType: selectedFile.type,
-          isPublic: false
-        })
+          isPublic: false,
+        }),
       });
 
       if (!presignRes.ok) {
@@ -119,7 +200,7 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
         body: selectedFile,
-        headers: { "Content-Type": selectedFile.type }
+        headers: { "Content-Type": selectedFile.type },
       });
 
       if (!uploadRes.ok) {
@@ -137,8 +218,8 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
           fileSize: selectedFile.size,
           mimeType: selectedFile.type,
           projectId: uploadForm.projectId,
-          documentType: uploadForm.documentType
-        })
+          documentType: uploadForm.documentType,
+        }),
       });
 
       if (docRes.ok) {
@@ -194,7 +275,8 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
     if (!bytes) return "Unknown";
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    if (bytes < 1024 * 1024 * 1024)
+      return (bytes / (1024 * 1024)).toFixed(1) + " MB";
     return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
   };
 
@@ -203,8 +285,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Documents</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage project documents, plans, and photos</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
+            Documents
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage project documents, plans, and photos
+          </p>
         </div>
         <Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
           <DialogTrigger asChild>
@@ -218,30 +304,62 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Project *</label>
-                <Select value={uploadForm.projectId} onValueChange={(v) => setUploadForm({ ...uploadForm, projectId: v })}>
-                  <SelectTrigger className="h-11"><SelectValue placeholder="Select project" /></SelectTrigger>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Project *
+                </label>
+                <Select
+                  value={uploadForm.projectId}
+                  onValueChange={(v) =>
+                    setUploadForm({ ...uploadForm, projectId: v })
+                  }
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select project" />
+                  </SelectTrigger>
                   <SelectContent>
                     {(projects ?? [])?.map((p: any) => (
-                      <SelectItem key={p?.id ?? Math.random()} value={p?.id ?? ""}>{p?.name ?? "Unknown"}</SelectItem>
+                      <SelectItem
+                        key={p?.id ?? Math.random()}
+                        value={p?.id ?? ""}
+                      >
+                        {p?.name ?? "Unknown"}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Document Type</label>
-                <Select value={uploadForm.documentType} onValueChange={(v) => setUploadForm({ ...uploadForm, documentType: v })}>
-                  <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Document Type
+                </label>
+                <Select
+                  value={uploadForm.documentType}
+                  onValueChange={(v) =>
+                    setUploadForm({ ...uploadForm, documentType: v })
+                  }
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(typeConfig).map(([key, config]) => (
-                      <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {config.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">File *</label>
-                <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  File *
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
@@ -251,22 +369,38 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                       <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                         <FileText className="h-7 w-7 text-primary" />
                       </div>
-                      <p className="font-medium text-slate-900 dark:text-white">{selectedFile.name}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{formatFileSize(selectedFile.size)}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {formatFileSize(selectedFile.size)}
+                      </p>
                     </div>
                   ) : (
                     <div>
                       <div className="w-14 h-14 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
                         <Upload className="h-7 w-7 text-slate-400" />
                       </div>
-                      <p className="font-medium text-slate-700 dark:text-slate-300">Click to select a file</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Max 100MB</p>
+                      <p className="font-medium text-slate-700 dark:text-slate-300">
+                        Click to select a file
+                      </p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Max 100MB
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
-              <Button onClick={handleUpload} disabled={loading} className="w-full h-11 bg-gradient-to-r from-primary to-purple-600">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+              <Button
+                onClick={handleUpload}
+                disabled={loading}
+                className="w-full h-11 bg-gradient-to-r from-primary to-purple-600"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
                 Upload Document
               </Button>
             </div>
@@ -283,8 +417,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <FolderOpen className="h-5 w-5 text-slate-600 dark:text-slate-300" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total Documents</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {stats.total}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Total Documents
+                </p>
               </div>
             </div>
           </CardContent>
@@ -297,8 +435,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <HardDrive className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatFileSize(stats.totalSize)}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total Storage</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {formatFileSize(stats.totalSize)}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Total Storage
+                </p>
               </div>
             </div>
           </CardContent>
@@ -311,8 +453,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <Ruler className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.byType.DRAWINGS + stats.byType.PLANS}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Plans & Drawings</p>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {stats.byType.DRAWINGS + stats.byType.PLANS}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Plans & Drawings
+                </p>
               </div>
             </div>
           </CardContent>
@@ -325,8 +471,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <Image className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.byType.PHOTOS}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Photos</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {stats.byType.PHOTOS}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Photos
+                </p>
               </div>
             </div>
           </CardContent>
@@ -354,7 +504,12 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <SelectContent>
                   <SelectItem value="all">All Projects</SelectItem>
                   {(projects ?? [])?.map((p: any) => (
-                    <SelectItem key={p?.id ?? Math.random()} value={p?.id ?? ""}>{p?.name ?? "Unknown"}</SelectItem>
+                    <SelectItem
+                      key={p?.id ?? Math.random()}
+                      value={p?.id ?? ""}
+                    >
+                      {p?.name ?? "Unknown"}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -365,27 +520,29 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   {Object.entries(typeConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                    <SelectItem key={key} value={key}>
+                      {config.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <div className="flex border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={`px-3 py-2 flex items-center gap-1.5 text-sm font-medium transition-colors ${
-                    viewMode === 'grid'
-                      ? 'bg-primary text-white'
-                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    viewMode === "grid"
+                      ? "bg-primary text-white"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   className={`px-3 py-2 flex items-center gap-1.5 text-sm font-medium transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-primary text-white'
-                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    viewMode === "list"
+                      ? "bg-primary text-white"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                   }`}
                 >
                   <List className="h-4 w-4" />
@@ -403,47 +560,82 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
             <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
               <FolderOpen className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No documents found</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Upload your first document to get started</p>
-            <Button onClick={() => setShowUploadModal(true)} className="bg-gradient-to-r from-primary to-purple-600">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              No documents found
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">
+              Upload your first document to get started
+            </p>
+            <Button
+              onClick={() => setShowUploadModal(true)}
+              className="bg-gradient-to-r from-primary to-purple-600"
+            >
               <Upload className="h-4 w-4 mr-2" /> Upload Document
             </Button>
           </CardContent>
         </Card>
-      ) : viewMode === 'grid' ? (
+      ) : viewMode === "grid" ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredDocs?.map((doc: any) => {
-            const config = typeConfig[doc?.documentType as keyof typeof typeConfig] ?? typeConfig.OTHER;
+            const config =
+              typeConfig[doc?.documentType as keyof typeof typeConfig] ??
+              typeConfig.OTHER;
             const Icon = config.icon;
 
             return (
-              <Card key={doc?.id} className="border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/30 transition-all group">
+              <Card
+                key={doc?.id}
+                className="border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/30 transition-all group"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-2.5 rounded-xl bg-primary/10 dark:bg-primary/20">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors" title={doc?.name ?? ""}>
+                      <h3
+                        className="font-medium text-slate-900 dark:text-white truncate group-hover:text-primary transition-colors"
+                        title={doc?.name ?? ""}
+                      >
                         {doc?.name ?? "Untitled"}
                       </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{doc?.project?.name ?? "No project"}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {doc?.project?.name ?? "No project"}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between mb-4">
-                    <Badge className={`${config.bg} ${config.text} border-0 text-xs`}>
+                    <Badge
+                      className={`${config.bg} ${config.text} border-0 text-xs`}
+                    >
                       {config.label}
                     </Badge>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{formatFileSize(doc?.fileSize ?? 0)}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {formatFileSize(doc?.fileSize ?? 0)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <Button variant="ghost" size="sm" onClick={() => handleViewDocument(doc)} className="flex-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewDocument(doc)}
+                      className="flex-1"
+                    >
                       <Eye className="h-4 w-4 mr-1" /> View
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownload(doc)}
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleDelete(doc?.id ?? "")}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      onClick={() => handleDelete(doc?.id ?? "")}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -455,11 +647,16 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
       ) : (
         <div className="space-y-2">
           {filteredDocs?.map((doc: any) => {
-            const config = typeConfig[doc?.documentType as keyof typeof typeConfig] ?? typeConfig.OTHER;
+            const config =
+              typeConfig[doc?.documentType as keyof typeof typeConfig] ??
+              typeConfig.OTHER;
             const Icon = config.icon;
 
             return (
-              <Card key={doc?.id} className="border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/30 transition-all group">
+              <Card
+                key={doc?.id}
+                className="border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-primary/30 transition-all group"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -472,7 +669,9 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                         </h3>
                         <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                           <span>{doc?.project?.name ?? "No project"}</span>
-                          <Badge className={`${config.bg} ${config.text} border-0 text-xs`}>
+                          <Badge
+                            className={`${config.bg} ${config.text} border-0 text-xs`}
+                          >
                             {config.label}
                           </Badge>
                           <span>{formatFileSize(doc?.fileSize ?? 0)}</span>
@@ -480,13 +679,26 @@ export function DocumentsClient({ documents, projects }: DocumentsClientProps) {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleViewDocument(doc)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewDocument(doc)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDownload(doc)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownload(doc)}
+                      >
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleDelete(doc?.id ?? "")}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={() => handleDelete(doc?.id ?? "")}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                       <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />

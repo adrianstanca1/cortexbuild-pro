@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Add attendee signature to toolbox talk
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -27,17 +27,20 @@ export async function POST(
     if (!name || !signatureData) {
       return NextResponse.json(
         { error: "Name and signature are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id: id, project: { organizationId: orgId } },
     });
 
     if (!toolboxTalk) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     // Get IP address for audit
@@ -49,8 +52,8 @@ export async function POST(
       where: {
         toolboxTalkId_userId: {
           toolboxTalkId: id,
-          userId: userId
-        }
+          userId: userId,
+        },
       },
       create: {
         toolboxTalkId: id,
@@ -61,35 +64,38 @@ export async function POST(
         signatureData,
         signedAt: new Date(),
         signatureIp: ip,
-        acknowledged: true
+        acknowledged: true,
       },
       update: {
         signatureData,
         signedAt: new Date(),
         signatureIp: ip,
-        acknowledged: true
+        acknowledged: true,
       },
       include: {
-        user: { select: { id: true, name: true } }
-      }
+        user: { select: { id: true, name: true } },
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_signed",
-      data: { toolboxTalkId: id, attendee }
+      data: { toolboxTalkId: id, attendee },
     });
 
     return NextResponse.json({ attendee });
   } catch (error) {
     console.error("Error signing toolbox talk:", error);
-    return NextResponse.json({ error: "Failed to sign toolbox talk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to sign toolbox talk" },
+      { status: 500 },
+    );
   }
 }
 
 // Add guest attendee (non-registered user)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -106,17 +112,20 @@ export async function PUT(
     if (!name || !signatureData) {
       return NextResponse.json(
         { error: "Name and signature are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify toolbox talk exists
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
-      where: { id: id, project: { organizationId: orgId } }
+      where: { id: id, project: { organizationId: orgId } },
     });
 
     if (!toolboxTalk) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     // Get IP address for audit
@@ -134,18 +143,21 @@ export async function PUT(
         signatureData,
         signedAt: new Date(),
         signatureIp: ip,
-        acknowledged: true
-      }
+        acknowledged: true,
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_guest_signed",
-      data: { toolboxTalkId: id, attendee }
+      data: { toolboxTalkId: id, attendee },
     });
 
     return NextResponse.json({ attendee });
   } catch (error) {
     console.error("Error adding guest signature:", error);
-    return NextResponse.json({ error: "Failed to add guest signature" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to add guest signature" },
+      { status: 500 },
+    );
   }
 }

@@ -5,13 +5,11 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -23,34 +21,40 @@ export async function GET(
     const material = await prisma.material.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
       include: {
         project: { select: { id: true, name: true } },
         createdBy: { select: { id: true, name: true } },
         deliveries: {
           include: {
-            receivedBy: { select: { id: true, name: true } }
+            receivedBy: { select: { id: true, name: true } },
           },
-          orderBy: { deliveryDate: "desc" }
-        }
-      }
+          orderBy: { deliveryDate: "desc" },
+        },
+      },
     });
 
     if (!material) {
-      return NextResponse.json({ error: "Material not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Material not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(material);
   } catch (error) {
     console.error("Error fetching material:", error);
-    return NextResponse.json({ error: "Failed to fetch material" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch material" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -62,24 +66,45 @@ export async function PATCH(
     const existing = await prisma.material.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Material not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Material not found" },
+        { status: 404 },
+      );
     }
 
     const body = await request.json();
     const {
-      name, description, sku, category, unit, quantityNeeded, quantityOrdered,
-      quantityReceived, quantityInstalled, unitCost, status, supplier, leadTime,
-      expectedDate, deliveredDate, location, notes
+      name,
+      description,
+      sku,
+      category,
+      unit,
+      quantityNeeded,
+      quantityOrdered,
+      quantityReceived,
+      quantityInstalled,
+      unitCost,
+      status,
+      supplier,
+      leadTime,
+      expectedDate,
+      deliveredDate,
+      location,
+      notes,
     } = body;
 
-    const newQuantityNeeded = quantityNeeded !== undefined ? parseFloat(quantityNeeded) : existing.quantityNeeded;
-    const newUnitCost = unitCost !== undefined ? parseFloat(unitCost) : existing.unitCost;
+    const newQuantityNeeded =
+      quantityNeeded !== undefined
+        ? parseFloat(quantityNeeded)
+        : existing.quantityNeeded;
+    const newUnitCost =
+      unitCost !== undefined ? parseFloat(unitCost) : existing.unitCost;
     const totalCost = newQuantityNeeded * newUnitCost;
 
     const material = await prisma.material.update({
@@ -90,24 +115,38 @@ export async function PATCH(
         ...(sku !== undefined && { sku }),
         ...(category !== undefined && { category }),
         ...(unit && { unit }),
-        ...(quantityNeeded !== undefined && { quantityNeeded: parseFloat(quantityNeeded) }),
-        ...(quantityOrdered !== undefined && { quantityOrdered: parseFloat(quantityOrdered) }),
-        ...(quantityReceived !== undefined && { quantityReceived: parseFloat(quantityReceived) }),
-        ...(quantityInstalled !== undefined && { quantityInstalled: parseFloat(quantityInstalled) }),
+        ...(quantityNeeded !== undefined && {
+          quantityNeeded: parseFloat(quantityNeeded),
+        }),
+        ...(quantityOrdered !== undefined && {
+          quantityOrdered: parseFloat(quantityOrdered),
+        }),
+        ...(quantityReceived !== undefined && {
+          quantityReceived: parseFloat(quantityReceived),
+        }),
+        ...(quantityInstalled !== undefined && {
+          quantityInstalled: parseFloat(quantityInstalled),
+        }),
         ...(unitCost !== undefined && { unitCost: parseFloat(unitCost) }),
         totalCost,
         ...(status && { status }),
         ...(supplier !== undefined && { supplier }),
-        ...(leadTime !== undefined && { leadTime: leadTime ? parseInt(leadTime) : null }),
-        ...(expectedDate !== undefined && { expectedDate: expectedDate ? new Date(expectedDate) : null }),
-        ...(deliveredDate !== undefined && { deliveredDate: deliveredDate ? new Date(deliveredDate) : null }),
+        ...(leadTime !== undefined && {
+          leadTime: leadTime ? parseInt(leadTime) : null,
+        }),
+        ...(expectedDate !== undefined && {
+          expectedDate: expectedDate ? new Date(expectedDate) : null,
+        }),
+        ...(deliveredDate !== undefined && {
+          deliveredDate: deliveredDate ? new Date(deliveredDate) : null,
+        }),
         ...(location !== undefined && { location }),
-        ...(notes !== undefined && { notes })
+        ...(notes !== undefined && { notes }),
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -118,25 +157,28 @@ export async function PATCH(
         entityName: material.name,
         details: `Updated material: ${material.name}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "material_updated",
-      data: { material, projectId: existing.projectId }
+      data: { material, projectId: existing.projectId },
     });
 
     return NextResponse.json(material);
   } catch (error) {
     console.error("Error updating material:", error);
-    return NextResponse.json({ error: "Failed to update material" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update material" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -148,13 +190,16 @@ export async function DELETE(
     const existing = await prisma.material.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Material not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Material not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.material.delete({ where: { id: id } });
@@ -167,18 +212,21 @@ export async function DELETE(
         entityName: existing.name,
         details: `Deleted material: ${existing.name}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "material_deleted",
-      data: { id: id, projectId: existing.projectId }
+      data: { id: id, projectId: existing.projectId },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting material:", error);
-    return NextResponse.json({ error: "Failed to delete material" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete material" },
+      { status: 500 },
+    );
   }
 }

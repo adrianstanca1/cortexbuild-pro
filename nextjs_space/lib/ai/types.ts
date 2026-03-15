@@ -34,6 +34,8 @@ export interface AIModel {
 
 export interface AIAdapter {
   complete(options: AICompletionOptions): Promise<AIResponse<string>>;
-  embed(options: AIEmbeddingOptions): Promise<AIResponse<{ embeddings: number[][] }>>;
+  embed(
+    options: AIEmbeddingOptions,
+  ): Promise<AIResponse<{ embeddings: number[][] }>>;
   vision(options: VisionOptions): Promise<AIResponse<{ description: string }>>;
 }

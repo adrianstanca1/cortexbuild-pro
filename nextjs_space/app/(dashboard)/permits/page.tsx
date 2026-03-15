@@ -36,8 +36,12 @@ export default async function PermitsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>Permit Tracking</h1>
-        <p className="text-muted-foreground">Manage construction permits and approvals</p>
+        <h1 className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+          Permit Tracking
+        </h1>
+        <p className="text-muted-foreground">
+          Manage construction permits and approvals
+        </p>
       </div>
       <PermitsClient
         permits={JSON.parse(JSON.stringify(permits))}

@@ -14,27 +14,28 @@ export const LoadingSkeleton = ({
   variant?: "text" | "rect" | "circle";
 }) => {
   // Convert height/width/variant to appropriate className additions
-  const sizeClass = 
-    typeof height === "number" ? `h-${height}` : 
-    typeof height === "string" ? `h-${height}` : 
-    typeof width === "number" ? `w-${width}` : 
-    typeof width === "string" ? `w-${width}` : 
-    "";
-  
+  const sizeClass =
+    typeof height === "number"
+      ? `h-${height}`
+      : typeof height === "string"
+        ? `h-${height}`
+        : typeof width === "number"
+          ? `w-${width}`
+          : typeof width === "string"
+            ? `w-${width}`
+            : "";
+
   // Handle variant styling
   const variantClass =
-    variant === "circle" ? "rounded-full" :
-    variant === "rect" ? "rounded-md" :
-    "rounded-md"; // default for text variant
-    
+    variant === "circle"
+      ? "rounded-full"
+      : variant === "rect"
+        ? "rounded-md"
+        : "rounded-md"; // default for text variant
+
   return (
     <Skeleton
-      className={cn(
-        "animate-pulse",
-        sizeClass,
-        variantClass,
-        className
-      )}
+      className={cn("animate-pulse", sizeClass, variantClass, className)}
       {...props}
     />
   );
@@ -52,14 +53,7 @@ export const LoadingGrid = ({
   rows?: number;
 }) => {
   return (
-    <div
-      className={cn(
-        "grid",
-        `grid-cols-${cols}`,
-        `gap-${gap}`,
-        className
-      )}
-    >
+    <div className={cn("grid", `grid-cols-${cols}`, `gap-${gap}`, className)}>
       {[...Array(rows)].map((_, rowIndex) => (
         <div key={rowIndex} className="flex flex-col">
           {[...Array(cols)].map((_, colIndex) => (

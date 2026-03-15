@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
@@ -10,7 +10,7 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -22,28 +22,34 @@ export async function GET(
     const milestone = await prisma.milestone.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     if (!milestone) {
-      return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Milestone not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(milestone);
   } catch (error) {
     console.error("Error fetching milestone:", error);
-    return NextResponse.json({ error: "Failed to fetch milestone" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch milestone" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -55,19 +61,30 @@ export async function PATCH(
     const existing = await prisma.milestone.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Milestone not found" },
+        { status: 404 },
+      );
     }
 
     const body = await request.json();
     const {
-      name, description, targetDate, actualDate, status, percentComplete,
-      sortOrder, isCritical, dependencies, notes
+      name,
+      description,
+      targetDate,
+      actualDate,
+      status,
+      percentComplete,
+      sortOrder,
+      isCritical,
+      dependencies,
+      notes,
     } = body;
 
     const milestone = await prisma.milestone.update({
@@ -76,18 +93,22 @@ export async function PATCH(
         ...(name && { name }),
         ...(description !== undefined && { description }),
         ...(targetDate && { targetDate: new Date(targetDate) }),
-        ...(actualDate !== undefined && { actualDate: actualDate ? new Date(actualDate) : null }),
+        ...(actualDate !== undefined && {
+          actualDate: actualDate ? new Date(actualDate) : null,
+        }),
         ...(status && { status }),
-        ...(percentComplete !== undefined && { percentComplete: parseInt(percentComplete) }),
+        ...(percentComplete !== undefined && {
+          percentComplete: parseInt(percentComplete),
+        }),
         ...(sortOrder !== undefined && { sortOrder: parseInt(sortOrder) }),
         ...(isCritical !== undefined && { isCritical }),
         ...(dependencies !== undefined && { dependencies }),
-        ...(notes !== undefined && { notes })
+        ...(notes !== undefined && { notes }),
       },
       include: {
         project: { select: { id: true, name: true } },
-        createdBy: { select: { id: true, name: true } }
-      }
+        createdBy: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -98,25 +119,28 @@ export async function PATCH(
         entityName: milestone.name,
         details: `Updated milestone: ${milestone.name}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "milestone_updated",
-      data: { milestone, projectId: existing.projectId }
+      data: { milestone, projectId: existing.projectId },
     });
 
     return NextResponse.json(milestone);
   } catch (error) {
     console.error("Error updating milestone:", error);
-    return NextResponse.json({ error: "Failed to update milestone" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update milestone" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -128,13 +152,16 @@ export async function DELETE(
     const existing = await prisma.milestone.findFirst({
       where: {
         id: id,
-        project: { organizationId: session.user.organizationId ?? "" }
+        project: { organizationId: session.user.organizationId ?? "" },
       },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Milestone not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.milestone.delete({ where: { id: id } });
@@ -147,18 +174,21 @@ export async function DELETE(
         entityName: existing.name,
         details: `Deleted milestone: ${existing.name}`,
         userId: session.user.id,
-        projectId: existing.projectId
-      }
+        projectId: existing.projectId,
+      },
     });
 
     broadcastToOrganization(session.user.organizationId ?? "", {
       type: "milestone_deleted",
-      data: { id: id, projectId: existing.projectId }
+      data: { id: id, projectId: existing.projectId },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting milestone:", error);
-    return NextResponse.json({ error: "Failed to delete milestone" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete milestone" },
+      { status: 500 },
+    );
   }
 }

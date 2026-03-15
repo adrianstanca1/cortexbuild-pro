@@ -1,7 +1,7 @@
 // lib/realtime-notifications.ts
-import { prisma } from './db';
-import { broadcastEvent } from './realtime-clients';
-import { NotificationType } from './types';
+import { prisma } from "./db";
+import { broadcastEvent } from "./realtime-clients";
+import { NotificationType } from "./types";
 
 interface NotificationPayload {
   userId?: string;
@@ -14,71 +14,107 @@ interface NotificationPayload {
 
 export class RealTimeNotifications {
   static async sendToUser(payload: NotificationPayload) {
-    const { userId, projectId, title, message, type = 'INFO', data = {} } = payload;
+    const {
+      userId,
+      projectId,
+      title,
+      message,
+      type = "INFO",
+      data = {},
+    } = payload;
 
-    if (!userId) throw new Error('User ID is required');
+    if (!userId) throw new Error("User ID is required");
 
     const notification = await prisma.notification.create({
-      data: { userId, projectId, title, message, type, data: data as any, read: false },
+      data: {
+        userId,
+        projectId,
+        title,
+        message,
+        type,
+        data: data as any,
+        read: false,
+      },
     });
 
     // Dispatch via SSE to the specific user
-    broadcastEvent([userId], { type: 'notification', payload: notification });
+    broadcastEvent([userId], { type: "notification", payload: notification });
 
     return notification;
   }
 
   static async sendToProject(payload: NotificationPayload) {
-    const { projectId, title, message, type = 'INFO', data = {} } = payload;
+    const { projectId, title, message, type = "INFO", data = {} } = payload;
 
-    if (!projectId) throw new Error('Project ID is required');
+    if (!projectId) throw new Error("Project ID is required");
 
     const projectUsers = await prisma.projectTeamMember.findMany({
       where: { projectId },
       include: { teamMember: { include: { user: { select: { id: true } } } } },
     });
 
-    const userIds = projectUsers.map(ptm => ptm.teamMember.user.id);
+    const userIds = projectUsers.map((ptm) => ptm.teamMember.user.id);
 
     if (userIds.length === 0) return [];
 
     const notifications = await prisma.$transaction(
-      userIds.map(uid =>
+      userIds.map((uid) =>
         prisma.notification.create({
-          data: { userId: uid, projectId, title, message, type, data: data as any, read: false },
-        })
-      )
+          data: {
+            userId: uid,
+            projectId,
+            title,
+            message,
+            type,
+            data: data as any,
+            read: false,
+          },
+        }),
+      ),
     );
 
     userIds.forEach((uid, i) => {
-      broadcastEvent([uid], { type: 'notification', payload: notifications[i] });
+      broadcastEvent([uid], {
+        type: "notification",
+        payload: notifications[i],
+      });
     });
 
     return notifications;
   }
 
   static async sendToAll(payload: NotificationPayload) {
-    const { title, message, type = 'INFO', data = {} } = payload;
+    const { title, message, type = "INFO", data = {} } = payload;
 
     const activeUsers = await prisma.user.findMany({
       where: { lastLogin: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
       select: { id: true },
     });
 
-    const userIds = activeUsers.map(u => u.id);
+    const userIds = activeUsers.map((u) => u.id);
 
     if (userIds.length === 0) return [];
 
     const notifications = await prisma.$transaction(
-      userIds.map(uid =>
+      userIds.map((uid) =>
         prisma.notification.create({
-          data: { userId: uid, title, message, type, data: data as any, read: false },
-        })
-      )
+          data: {
+            userId: uid,
+            title,
+            message,
+            type,
+            data: data as any,
+            read: false,
+          },
+        }),
+      ),
     );
 
     userIds.forEach((uid, i) => {
-      broadcastEvent([uid], { type: 'notification', payload: notifications[i] });
+      broadcastEvent([uid], {
+        type: "notification",
+        payload: notifications[i],
+      });
     });
 
     return notifications;
@@ -94,14 +130,14 @@ export class RealTimeNotifications {
   static async getUserUnreadNotifications(userId: string) {
     return await prisma.notification.findMany({
       where: { userId, read: false },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 
   static async getProjectNotifications(projectId: string) {
     return await prisma.notification.findMany({
       where: { projectId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 }

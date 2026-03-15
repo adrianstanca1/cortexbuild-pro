@@ -1,4 +1,8 @@
-import { queueRequest, processSyncQueue, getQueueLength } from "./offline/sync-queue";
+import {
+  queueRequest,
+  processSyncQueue,
+  getQueueLength,
+} from "./offline/sync-queue";
 
 // Register service worker and set up message handling
 export function registerServiceWorker() {
@@ -22,24 +26,32 @@ export function registerServiceWorker() {
         });
 
         // Check for existing sync registration
-        if ("SyncManager" in window && 'sync' in registration) {
-          (registration as ServiceWorkerRegistration & { sync: SyncManager })
-            .sync.register("offline-sync")
+        if ("SyncManager" in window && "sync" in registration) {
+          (
+            registration as ServiceWorkerRegistration & { sync: SyncManager }
+          ).sync
+            .register("offline-sync")
             .catch((error) => {
               console.log("Background sync registration failed:", error);
             });
         }
 
         // Periodic background sync (if supported)
-        if ("PeriodicSyncManager" in window && 'periodicSync' in registration) {
+        if ("PeriodicSyncManager" in window && "periodicSync" in registration) {
           // Request permission for periodic background sync with proper type checking
           if (navigator.permissions) {
-            navigator.permissions.query({ name: "periodic-background-sync" as PermissionName })
+            navigator.permissions
+              .query({ name: "periodic-background-sync" as PermissionName })
               .then((permissionState) => {
                 if (permissionState?.state === "granted") {
-                  (registration as ServiceWorkerRegistration & { periodicSync: PeriodicSyncManager })
-                    .periodicSync
-                    .register("offline-sync", { minInterval: 12 * 60 * 60 * 1000 })
+                  (
+                    registration as ServiceWorkerRegistration & {
+                      periodicSync: PeriodicSyncManager;
+                    }
+                  ).periodicSync
+                    .register("offline-sync", {
+                      minInterval: 12 * 60 * 60 * 1000,
+                    })
                     .catch((error) => {
                       console.log("Periodic sync registration failed:", error);
                     });
@@ -64,7 +76,7 @@ export function unregisterServiceWorker() {
       registration.unregister();
     });
   }
-  }
+}
 
 // Process queued requests when network is available
 export async function processQueuedRequests() {
@@ -79,12 +91,16 @@ export async function processQueuedRequests() {
 
     console.log(`Processing ${queueLength} queued requests...`);
     const result = await processSyncQueue();
-    console.log(`Sync complete: ${result.processed} processed, ${result.failed} failed`);
+    console.log(
+      `Sync complete: ${result.processed} processed, ${result.failed} failed`,
+    );
 
     // Optionally notify user of sync results
     if (result.processed > 0 || result.failed > 0) {
       // In a real app, you might show a toast or notification here
-      console.log(`Sync completed: ${result.processed} successful, ${result.failed} failed`);
+      console.log(
+        `Sync completed: ${result.processed} successful, ${result.failed} failed`,
+      );
     }
 
     return result;
@@ -99,7 +115,7 @@ export async function enhancedQueueRequest(
   method: "POST" | "PUT" | "PATCH" | "DELETE",
   url: string,
   body: any,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<{ queued: boolean; offline: boolean; queueLength?: number }> {
   try {
     const result = await queueRequest(method, url, body, headers);
@@ -117,9 +133,10 @@ export async function manualSync() {
   if (typeof window === "undefined") return;
 
   const registration = await navigator.serviceWorker.ready;
-  if ("SyncManager" in window && 'sync' in registration) {
-    return (registration as ServiceWorkerRegistration & { sync: SyncManager })
-      .sync.register("offline-sync");
+  if ("SyncManager" in window && "sync" in registration) {
+    return (
+      registration as ServiceWorkerRegistration & { sync: SyncManager }
+    ).sync.register("offline-sync");
   } else {
     // Fallback to manual processing
     return processQueuedRequests();
@@ -132,6 +149,6 @@ export function getSyncStatus() {
     isOnline: typeof navigator !== "undefined" && navigator.onLine,
     serviceWorkerSupported: "serviceWorker" in navigator,
     syncSupported: "SyncManager" in window,
-    periodicSyncSupported: "PeriodicSyncManager" in window
+    periodicSyncSupported: "PeriodicSyncManager" in window,
   };
 }

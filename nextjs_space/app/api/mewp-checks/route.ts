@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50");
 
     const whereClause: any = {
-      project: { organizationId: orgId }
+      project: { organizationId: orgId },
     };
 
     if (projectId) whereClause.projectId = projectId;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       const checkDate = new Date(date);
       whereClause.checkDate = {
         gte: new Date(checkDate.setHours(0, 0, 0, 0)),
-        lte: new Date(checkDate.setHours(23, 59, 59, 999))
+        lte: new Date(checkDate.setHours(23, 59, 59, 999)),
       };
     }
 
@@ -43,16 +43,19 @@ export async function GET(request: NextRequest) {
         project: { select: { id: true, name: true } },
         operator: { select: { id: true, name: true, email: true } },
         supervisor: { select: { id: true, name: true } },
-        equipment: { select: { id: true, name: true, equipmentNumber: true } }
+        equipment: { select: { id: true, name: true, equipmentNumber: true } },
       },
       orderBy: { checkDate: "desc" },
-      take: limit
+      take: limit,
     });
 
     return NextResponse.json({ checks });
   } catch (error) {
     console.error("Error fetching MEWP checks:", error);
-    return NextResponse.json({ error: "Failed to fetch MEWP checks" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch MEWP checks" },
+      { status: 500 },
+    );
   }
 }
 
@@ -101,19 +104,19 @@ export async function POST(request: NextRequest) {
       weatherConditions,
       windSpeed,
       // Signature
-      operatorSignature
+      operatorSignature,
     } = body;
 
     if (!projectId || !equipmentName) {
       return NextResponse.json(
         { error: "Project and equipment name are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: orgId }
+      where: { id: projectId, organizationId: orgId },
     });
 
     if (!project) {
@@ -157,13 +160,13 @@ export async function POST(request: NextRequest) {
         windSpeed: windSpeed || null,
         // Signature
         operatorSignature: operatorSignature || null,
-        operatorSignedAt: operatorSignature ? new Date() : null
+        operatorSignedAt: operatorSignature ? new Date() : null,
       },
       include: {
         project: { select: { id: true, name: true } },
         operator: { select: { id: true, name: true } },
-        equipment: { select: { id: true, name: true } }
-      }
+        equipment: { select: { id: true, name: true } },
+      },
     });
 
     // Log activity
@@ -174,34 +177,41 @@ export async function POST(request: NextRequest) {
         entityId: check.id,
         userId,
         projectId,
-        details: JSON.stringify({ equipment: equipmentName, status: check.overallStatus, safeToUse: check.isSafeToUse })
-      }
+        details: JSON.stringify({
+          equipment: equipmentName,
+          status: check.overallStatus,
+          safeToUse: check.isSafeToUse,
+        }),
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "mewp_check_completed",
-      data: { check }
+      data: { check },
     });
 
     // Send email notification (non-blocking)
     sendMEWPCheckCompletedNotification(
       {
         id: check.id,
-        equipmentName: check.equipmentName || 'MEWP Equipment',
+        equipmentName: check.equipmentName || "MEWP Equipment",
         serialNumber: check.equipmentSerial,
         overallStatus: check.overallStatus,
         safeToUse: check.isSafeToUse,
         operatorName: check.operator?.name,
         projectName: check.project.name,
         checkDate: new Date(check.checkDate),
-        defectsFound: check.defectsFound
+        defectsFound: check.defectsFound,
       },
-      'adrian.stanca1@gmail.com'
-    ).catch(err => console.error('Email notification error:', err));
+      "adrian.stanca1@gmail.com",
+    ).catch((err) => console.error("Email notification error:", err));
 
     return NextResponse.json({ check }, { status: 201 });
   } catch (error) {
     console.error("Error creating MEWP check:", error);
-    return NextResponse.json({ error: "Failed to create MEWP check" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create MEWP check" },
+      { status: 500 },
+    );
   }
 }

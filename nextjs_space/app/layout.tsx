@@ -9,20 +9,21 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: "CortexBuild Pro - Construction Management",
-  description: "AI-powered construction management platform. Build smarter, not harder.",
+  description:
+    "AI-powered construction management platform. Build smarter, not harder.",
   icons: {
     icon: "/favicon.svg",
-    shortcut: "/favicon.svg"
+    shortcut: "/favicon.svg",
   },
   openGraph: {
     title: "CortexBuild Pro",
     description: "AI-powered construction management platform",
-    images: ["/og-image.png"]
-  }
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
-  children
+  children,
 }: {
   children: React.ReactNode;
 }) {

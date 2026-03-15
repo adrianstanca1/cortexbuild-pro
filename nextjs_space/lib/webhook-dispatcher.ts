@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/db';
-import crypto from 'crypto';
+import { prisma } from "@/lib/db";
+import crypto from "crypto";
 
 export interface WebhookPayload {
   event: string;
@@ -12,7 +12,7 @@ export interface WebhookPayload {
 export async function dispatchWebhook(
   organizationId: string,
   event: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<void> {
   try {
     // Find active webhooks for this organization and event
@@ -41,24 +41,24 @@ export async function dispatchWebhook(
         const startTime = Date.now();
         let success = false;
         let statusCode = 0;
-        let responseBody = '';
-        let errorMessage = '';
+        let responseBody = "";
+        let errorMessage = "";
 
         try {
           // Create signature if secret is set
           const signature = webhook.secret
             ? crypto
-                .createHmac('sha256', webhook.secret)
+                .createHmac("sha256", webhook.secret)
                 .update(JSON.stringify(payload))
-                .digest('hex')
+                .digest("hex")
             : null;
 
           // Build headers
           const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-            'X-Webhook-Event': event,
-            'X-Webhook-Timestamp': payload.timestamp,
-            ...(signature && { 'X-Webhook-Signature': `sha256=${signature}` }),
+            "Content-Type": "application/json",
+            "X-Webhook-Event": event,
+            "X-Webhook-Timestamp": payload.timestamp,
+            ...(signature && { "X-Webhook-Signature": `sha256=${signature}` }),
             ...((webhook.headers as Record<string, string>) || {}),
           };
 
@@ -67,7 +67,7 @@ export async function dispatchWebhook(
           const timeout = setTimeout(() => controller.abort(), 30000);
 
           const response = await fetch(webhook.url, {
-            method: 'POST',
+            method: "POST",
             headers,
             body: JSON.stringify(payload),
             signal: controller.signal,
@@ -76,14 +76,15 @@ export async function dispatchWebhook(
           clearTimeout(timeout);
 
           statusCode = response.status;
-          responseBody = await response.text().catch(() => '');
+          responseBody = await response.text().catch(() => "");
           success = response.ok;
 
           if (!success) {
             errorMessage = `HTTP ${statusCode}: ${responseBody.substring(0, 500)}`;
           }
         } catch (error) {
-          errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
         }
 
         const duration = Date.now() - startTime;
@@ -109,23 +110,31 @@ export async function dispatchWebhook(
             where: { id: webhook.id },
             data: {
               lastTriggeredAt: new Date(),
-              ...(success ? { consecutiveFailures: 0 } : { consecutiveFailures: { increment: 1 } }),
+              ...(success
+                ? { consecutiveFailures: 0 }
+                : { consecutiveFailures: { increment: 1 } }),
               // Disable webhook if it reaches 10 consecutive failures
-              ...((!success && webhook.consecutiveFailures + 1 >= 10) && { isActive: false }),
+              ...(!success &&
+                webhook.consecutiveFailures + 1 >= 10 && { isActive: false }),
             },
             select: { consecutiveFailures: true, isActive: true },
           });
 
           // Log if webhook was disabled
           if (!updatedWebhook.isActive && !webhook.isActive) {
-            console.warn(`Webhook ${webhook.id} disabled after ${updatedWebhook.consecutiveFailures} consecutive failures`);
+            console.warn(
+              `Webhook ${webhook.id} disabled after ${updatedWebhook.consecutiveFailures} consecutive failures`,
+            );
           }
         } catch (dbError) {
-          console.error('Webhook delivery logging error (non-blocking):', dbError);
+          console.error(
+            "Webhook delivery logging error (non-blocking):",
+            dbError,
+          );
         }
       })().catch((error) => {
         // Catch any unhandled errors from the async function
-        console.error('Webhook delivery error (non-blocking):', error);
+        console.error("Webhook delivery error (non-blocking):", error);
       });
     });
 
@@ -142,35 +151,37 @@ export async function testWebhook(webhookId: string): Promise<{
   message: string;
 }> {
   try {
-    const webhook = await prisma.webhook.findUnique({ where: { id: webhookId } });
+    const webhook = await prisma.webhook.findUnique({
+      where: { id: webhookId },
+    });
     if (!webhook) {
-      return { success: false, statusCode: 0, message: 'Webhook not found' };
+      return { success: false, statusCode: 0, message: "Webhook not found" };
     }
 
     const testPayload: WebhookPayload = {
-      event: 'test',
+      event: "test",
       timestamp: new Date().toISOString(),
-      data: { test: true, message: 'This is a test webhook delivery' },
+      data: { test: true, message: "This is a test webhook delivery" },
       organizationId: webhook.organizationId,
     };
 
     const signature = webhook.secret
       ? crypto
-          .createHmac('sha256', webhook.secret)
+          .createHmac("sha256", webhook.secret)
           .update(JSON.stringify(testPayload))
-          .digest('hex')
+          .digest("hex")
       : null;
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'X-Webhook-Event': 'test',
-      'X-Webhook-Timestamp': testPayload.timestamp,
-      ...(signature && { 'X-Webhook-Signature': `sha256=${signature}` }),
+      "Content-Type": "application/json",
+      "X-Webhook-Event": "test",
+      "X-Webhook-Timestamp": testPayload.timestamp,
+      ...(signature && { "X-Webhook-Signature": `sha256=${signature}` }),
       ...((webhook.headers as Record<string, string>) || {}),
     };
 
     const response = await fetch(webhook.url, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify(testPayload),
     });
@@ -178,13 +189,15 @@ export async function testWebhook(webhookId: string): Promise<{
     return {
       success: response.ok,
       statusCode: response.status,
-      message: response.ok ? 'Webhook test successful' : `Failed: HTTP ${response.status}`,
+      message: response.ok
+        ? "Webhook test successful"
+        : `Failed: HTTP ${response.status}`,
     };
   } catch (error) {
     return {
       success: false,
       statusCode: 0,
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }

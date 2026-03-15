@@ -14,15 +14,13 @@ export function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    return (
-      <div className="h-9 w-9 rounded-lg bg-muted animate-pulse" />
-    );
+    return <div className="h-9 w-9 rounded-lg bg-muted animate-pulse" />;
   }
 
   const themes = [
     { value: "light", icon: Sun, label: "Light" },
     { value: "dark", icon: Moon, label: "Dark" },
-    { value: "system", icon: Monitor, label: "System" }
+    { value: "system", icon: Monitor, label: "System" },
   ];
 
   return (
@@ -35,7 +33,7 @@ export function ThemeToggle() {
             "p-2 rounded-md transition-all",
             theme === t.value
               ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
           title={t.label}
         >

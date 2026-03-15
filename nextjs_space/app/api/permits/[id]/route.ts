@@ -5,13 +5,11 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-
+export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -35,13 +33,16 @@ export async function GET(
     return NextResponse.json(permit);
   } catch (error) {
     console.error("Error fetching permit:", error);
-    return NextResponse.json({ error: "Failed to fetch permit" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch permit" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -52,9 +53,20 @@ export async function PATCH(
 
     const body = await request.json();
     const {
-      type, title, description, status, permitNumber, issuingAuthority,
-      applicationDate, approvalDate, expirationDate, inspectionDate,
-      fee, feePaidDate, conditions, notes
+      type,
+      title,
+      description,
+      status,
+      permitNumber,
+      issuingAuthority,
+      applicationDate,
+      approvalDate,
+      expirationDate,
+      inspectionDate,
+      fee,
+      feePaidDate,
+      conditions,
+      notes,
     } = body;
 
     const existingPermit = await prisma.permit.findUnique({
@@ -75,12 +87,22 @@ export async function PATCH(
         ...(status && { status }),
         ...(permitNumber !== undefined && { permitNumber }),
         ...(issuingAuthority !== undefined && { issuingAuthority }),
-        ...(applicationDate !== undefined && { applicationDate: applicationDate ? new Date(applicationDate) : null }),
-        ...(approvalDate !== undefined && { approvalDate: approvalDate ? new Date(approvalDate) : null }),
-        ...(expirationDate !== undefined && { expirationDate: expirationDate ? new Date(expirationDate) : null }),
-        ...(inspectionDate !== undefined && { inspectionDate: inspectionDate ? new Date(inspectionDate) : null }),
+        ...(applicationDate !== undefined && {
+          applicationDate: applicationDate ? new Date(applicationDate) : null,
+        }),
+        ...(approvalDate !== undefined && {
+          approvalDate: approvalDate ? new Date(approvalDate) : null,
+        }),
+        ...(expirationDate !== undefined && {
+          expirationDate: expirationDate ? new Date(expirationDate) : null,
+        }),
+        ...(inspectionDate !== undefined && {
+          inspectionDate: inspectionDate ? new Date(inspectionDate) : null,
+        }),
         ...(fee !== undefined && { fee: fee ? parseFloat(fee) : null }),
-        ...(feePaidDate !== undefined && { feePaidDate: feePaidDate ? new Date(feePaidDate) : null }),
+        ...(feePaidDate !== undefined && {
+          feePaidDate: feePaidDate ? new Date(feePaidDate) : null,
+        }),
         ...(conditions !== undefined && { conditions }),
         ...(notes !== undefined && { notes }),
       },
@@ -93,20 +115,28 @@ export async function PATCH(
     if (existingPermit.project.organizationId) {
       broadcastToOrganization(existingPermit.project.organizationId, {
         type: "permit_updated",
-        data: { id: permit.id, number: permit.number, title: permit.title, status: permit.status },
+        data: {
+          id: permit.id,
+          number: permit.number,
+          title: permit.title,
+          status: permit.status,
+        },
       });
     }
 
     return NextResponse.json(permit);
   } catch (error) {
     console.error("Error updating permit:", error);
-    return NextResponse.json({ error: "Failed to update permit" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update permit" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -136,6 +166,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting permit:", error);
-    return NextResponse.json({ error: "Failed to delete permit" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete permit" },
+      { status: 500 },
+    );
   }
 }

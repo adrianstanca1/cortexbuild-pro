@@ -39,12 +39,14 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
 
   useEffect(() => {
     validateToken();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const validateToken = async () => {
     try {
-      const res = await fetch(`/api/company/invitations/validate?token=${token}`);
+      const res = await fetch(
+        `/api/company/invitations/validate?token=${token}`,
+      );
       const data = await res.json();
 
       if (res.ok) {
@@ -70,7 +72,13 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
 
   const passwordStrength = getPasswordStrength(password);
   const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-  const strengthColors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-lime-500", "bg-emerald-500"];
+  const strengthColors = [
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-lime-500",
+    "bg-emerald-500",
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,7 +140,9 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
               <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                 <XCircle className="h-8 w-8 text-red-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Invitation Invalid</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Invitation Invalid
+              </h2>
               <p className="text-gray-600 mb-6">{error}</p>
               <Link href="/login">
                 <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -159,9 +169,12 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
               <div className="h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to the Team!</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Welcome to the Team!
+              </h2>
               <p className="text-gray-600 mb-6">
-                Your account has been created successfully. You can now login to access
+                Your account has been created successfully. You can now login to
+                access
                 <strong> {invitation?.organization?.name}</strong>.
               </p>
               <Link href="/login">
@@ -189,7 +202,9 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
             <div className="h-14 w-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3">
               <Building2 className="h-7 w-7 text-emerald-600" />
             </div>
-            <CardTitle className="text-xl">Join {invitation?.organization?.name}</CardTitle>
+            <CardTitle className="text-xl">
+              Join {invitation?.organization?.name}
+            </CardTitle>
             <p className="text-sm text-gray-500 mt-1">
               You&apos;ve been invited by {invitation?.invitedBy?.name}
             </p>
@@ -202,7 +217,9 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
                 <User className="h-4 w-4 text-gray-400" />
                 <div>
                   <p className="text-xs text-gray-500">Your Name</p>
-                  <p className="text-sm font-medium text-gray-900">{invitation?.name}</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {invitation?.name}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -219,7 +236,9 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
                   <Briefcase className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-xs text-gray-500">Job Title</p>
-                    <p className="text-sm font-medium text-gray-900">{invitation?.jobTitle}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {invitation?.jobTitle}
+                    </p>
                   </div>
                 </div>
               )}
@@ -245,7 +264,11 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {password && (
@@ -255,12 +278,16 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
                         <div
                           key={i}
                           className={`h-1 flex-1 rounded-full transition-colors ${
-                            i < passwordStrength ? strengthColors[passwordStrength] : "bg-gray-200"
+                            i < passwordStrength
+                              ? strengthColors[passwordStrength]
+                              : "bg-gray-200"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500">{strengthLabels[passwordStrength]}</p>
+                    <p className="text-xs text-gray-500">
+                      {strengthLabels[passwordStrength]}
+                    </p>
                   </div>
                 )}
               </div>
@@ -293,7 +320,9 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
               <Button
                 type="submit"
                 className="w-full bg-emerald-600 hover:bg-emerald-700"
-                disabled={submitting || !password || password !== confirmPassword}
+                disabled={
+                  submitting || !password || password !== confirmPassword
+                }
               >
                 {submitting ? (
                   <>
@@ -310,7 +339,8 @@ export function TeamInviteAcceptClient({ token }: TeamInviteAcceptClientProps) {
             </form>
 
             <p className="text-xs text-gray-500 text-center">
-              By accepting, you agree to join {invitation?.organization?.name} and create an account.
+              By accepting, you agree to join {invitation?.organization?.name}{" "}
+              and create an account.
             </p>
           </CardContent>
         </Card>

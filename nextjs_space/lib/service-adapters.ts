@@ -2,7 +2,11 @@
 // SERVICE ADAPTERS - PLUG-AND-PLAY API INTEGRATIONS
 // =====================================================
 
-import { getServiceCredentials, logServiceUsage, ServiceEnvironment } from "./service-registry";
+import {
+  getServiceCredentials,
+  logServiceUsage,
+  ServiceEnvironment,
+} from "./service-registry";
 
 // Generic API response type
 export interface ApiResponse<T = any> {
@@ -43,12 +47,16 @@ export class SendGridAdapter {
 
   async sendEmail(options: SendGridEmailOptions): Promise<ApiResponse> {
     const startTime = Date.now();
-    const credentials = await getServiceCredentials("sendgrid", this.environment);
+    const credentials = await getServiceCredentials(
+      "sendgrid",
+      this.environment,
+    );
 
     if (!credentials) {
       return {
         success: false,
-        error: "SendGrid is not configured. Please configure it in the API Management dashboard."
+        error:
+          "SendGrid is not configured. Please configure it in the API Management dashboard.",
       };
     }
 
@@ -56,22 +64,25 @@ export class SendGridAdapter {
 
     try {
       const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-      
+
       const payload: any = {
-        personalizations: [{
-          to: toAddresses.map(email => ({ email }))
-        }],
+        personalizations: [
+          {
+            to: toAddresses.map((email) => ({ email })),
+          },
+        ],
         from: {
           email: options.from?.email || fromEmail || "noreply@cortexbuild.com",
-          name: options.from?.name || fromName || "CortexBuild Pro"
+          name: options.from?.name || fromName || "CortexBuild Pro",
         },
-        subject: options.subject
+        subject: options.subject,
       };
 
       if (options.templateId) {
         payload.template_id = options.templateId;
         if (options.dynamicTemplateData) {
-          payload.personalizations[0].dynamic_template_data = options.dynamicTemplateData;
+          payload.personalizations[0].dynamic_template_data =
+            options.dynamicTemplateData;
         }
       } else {
         payload.content = [];
@@ -94,10 +105,10 @@ export class SendGridAdapter {
       const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const responseTime = Date.now() - startTime;
@@ -110,7 +121,7 @@ export class SendGridAdapter {
         { to: toAddresses, subject: options.subject },
         success,
         responseTime,
-        success ? undefined : `HTTP ${response.status}`
+        success ? undefined : `HTTP ${response.status}`,
       );
 
       if (!success) {
@@ -119,18 +130,19 @@ export class SendGridAdapter {
           success: false,
           error: `SendGrid API error: ${response.status} - ${errorBody}`,
           statusCode: response.status,
-          responseTime
+          responseTime,
         };
       }
 
       return {
         success: true,
         statusCode: response.status,
-        responseTime
+        responseTime,
       };
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       if (credentials.connectionId) {
         await logServiceUsage(
@@ -139,38 +151,44 @@ export class SendGridAdapter {
           { to: options.to, subject: options.subject },
           false,
           responseTime,
-          errorMessage
+          errorMessage,
         );
       }
 
       return {
         success: false,
         error: errorMessage,
-        responseTime
+        responseTime,
       };
     }
   }
 
   async testConnection(): Promise<ApiResponse> {
     const startTime = Date.now();
-    const credentials = await getServiceCredentials("sendgrid", this.environment);
+    const credentials = await getServiceCredentials(
+      "sendgrid",
+      this.environment,
+    );
 
     if (!credentials) {
       return {
         success: false,
-        error: "SendGrid is not configured"
+        error: "SendGrid is not configured",
       };
     }
 
     try {
       // Test by fetching sender identities
-      const response = await fetch("https://api.sendgrid.com/v3/verified_senders", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${credentials.credentials.apiKey}`,
-          "Content-Type": "application/json"
-        }
-      });
+      const response = await fetch(
+        "https://api.sendgrid.com/v3/verified_senders",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${credentials.credentials.apiKey}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
       const responseTime = Date.now() - startTime;
       const success = response.status === 200;
@@ -179,13 +197,13 @@ export class SendGridAdapter {
         success,
         statusCode: response.status,
         responseTime,
-        error: success ? undefined : `HTTP ${response.status}`
+        error: success ? undefined : `HTTP ${response.status}`,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
@@ -217,16 +235,21 @@ export class AIAdapter {
     if (!credentials) {
       return {
         success: false,
-        error: "AI service is not configured. Please configure it in the API Management dashboard."
+        error:
+          "AI service is not configured. Please configure it in the API Management dashboard.",
       };
     }
 
-    const { apiKey, model: defaultModel, organizationId } = credentials.credentials;
+    const {
+      apiKey,
+      model: defaultModel,
+      organizationId,
+    } = credentials.credentials;
 
     try {
       const headers: Record<string, string> = {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       };
 
       if (organizationId) {
@@ -234,19 +257,22 @@ export class AIAdapter {
       }
 
       const messages = options.messages || [
-        { role: "user" as const, content: options.prompt || "" }
+        { role: "user" as const, content: options.prompt || "" },
       ];
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model: options.model || defaultModel || "gpt-4",
-          messages,
-          max_tokens: options.maxTokens || 2048,
-          temperature: options.temperature ?? 0.7
-        })
-      });
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model: options.model || defaultModel || "gpt-4",
+            messages,
+            max_tokens: options.maxTokens || 2048,
+            temperature: options.temperature ?? 0.7,
+          }),
+        },
+      );
 
       const responseTime = Date.now() - startTime;
       const success = response.status === 200;
@@ -259,13 +285,13 @@ export class AIAdapter {
           { model: options.model || defaultModel },
           false,
           responseTime,
-          `HTTP ${response.status}`
+          `HTTP ${response.status}`,
         );
         return {
           success: false,
           error: errorBody,
           statusCode: response.status,
-          responseTime
+          responseTime,
         };
       }
 
@@ -275,22 +301,25 @@ export class AIAdapter {
       await logServiceUsage(
         credentials.connectionId,
         "completion",
-        { model: options.model || defaultModel, tokens: data.usage?.total_tokens },
+        {
+          model: options.model || defaultModel,
+          tokens: data.usage?.total_tokens,
+        },
         true,
-        responseTime
+        responseTime,
       );
 
       return {
         success: true,
         data: content,
-        responseTime
+        responseTime,
       };
     } catch (error) {
       const responseTime = Date.now() - startTime;
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        responseTime
+        responseTime,
       };
     }
   }
@@ -302,27 +331,27 @@ export class AIAdapter {
     if (!credentials) {
       return {
         success: false,
-        error: "AI service is not configured"
+        error: "AI service is not configured",
       };
     }
 
     try {
       const response = await fetch("https://api.openai.com/v1/models", {
         headers: {
-          "Authorization": `Bearer ${credentials.credentials.apiKey}`
-        }
+          Authorization: `Bearer ${credentials.credentials.apiKey}`,
+        },
       });
 
       return {
         success: response.status === 200,
         statusCode: response.status,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
@@ -352,7 +381,8 @@ export class TwilioAdapter {
     if (!credentials) {
       return {
         success: false,
-        error: "Twilio is not configured. Please configure it in the API Management dashboard."
+        error:
+          "Twilio is not configured. Please configure it in the API Management dashboard.",
       };
     }
 
@@ -364,15 +394,15 @@ export class TwilioAdapter {
         {
           method: "POST",
           headers: {
-            "Authorization": `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
-            "Content-Type": "application/x-www-form-urlencoded"
+            Authorization: `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+            "Content-Type": "application/x-www-form-urlencoded",
           },
           body: new URLSearchParams({
             To: options.to,
             From: options.from || phoneNumber || "",
-            Body: options.body
-          })
-        }
+            Body: options.body,
+          }),
+        },
       );
 
       const responseTime = Date.now() - startTime;
@@ -384,19 +414,19 @@ export class TwilioAdapter {
         { to: options.to },
         success,
         responseTime,
-        success ? undefined : `HTTP ${response.status}`
+        success ? undefined : `HTTP ${response.status}`,
       );
 
       return {
         success,
         statusCode: response.status,
-        responseTime
+        responseTime,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
@@ -408,7 +438,7 @@ export class TwilioAdapter {
     if (!credentials) {
       return {
         success: false,
-        error: "Twilio is not configured"
+        error: "Twilio is not configured",
       };
     }
 
@@ -419,21 +449,21 @@ export class TwilioAdapter {
         `https://api.twilio.com/2010-04-01/Accounts/${accountSid}.json`,
         {
           headers: {
-            "Authorization": `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`
-          }
-        }
+            Authorization: `Basic ${Buffer.from(`${accountSid}:${authToken}`).toString("base64")}`,
+          },
+        },
       );
 
       return {
         success: response.status === 200,
         statusCode: response.status,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
@@ -457,27 +487,27 @@ export class StripeAdapter {
     if (!credentials) {
       return {
         success: false,
-        error: "Stripe is not configured"
+        error: "Stripe is not configured",
       };
     }
 
     try {
       const response = await fetch("https://api.stripe.com/v1/balance", {
         headers: {
-          "Authorization": `Bearer ${credentials.credentials.secretKey}`
-        }
+          Authorization: `Bearer ${credentials.credentials.secretKey}`,
+        },
       });
 
       return {
         success: response.status === 200,
         statusCode: response.status,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Connection failed",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
@@ -499,7 +529,10 @@ export class GenericApiAdapter {
   private serviceId: string;
   private environment: ServiceEnvironment;
 
-  constructor(serviceId: string, environment: ServiceEnvironment = "PRODUCTION") {
+  constructor(
+    serviceId: string,
+    environment: ServiceEnvironment = "PRODUCTION",
+  ) {
     this.serviceId = serviceId;
     this.environment = environment;
   }
@@ -508,29 +541,33 @@ export class GenericApiAdapter {
     endpoint: string,
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" = "GET",
     body?: any,
-    additionalHeaders?: Record<string, string>
+    additionalHeaders?: Record<string, string>,
   ): Promise<ApiResponse> {
     const startTime = Date.now();
-    const credentials = await getServiceCredentials(this.serviceId, this.environment);
+    const credentials = await getServiceCredentials(
+      this.serviceId,
+      this.environment,
+    );
 
     if (!credentials) {
       return {
         success: false,
-        error: `Service '${this.serviceId}' is not configured`
+        error: `Service '${this.serviceId}' is not configured`,
       };
     }
 
     try {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        ...additionalHeaders
+        ...additionalHeaders,
       };
 
       // Add authentication based on available credentials
       if (credentials.credentials.apiKey) {
         headers["Authorization"] = `Bearer ${credentials.credentials.apiKey}`;
       } else if (credentials.credentials.secretKey) {
-        headers["Authorization"] = `Bearer ${credentials.credentials.secretKey}`;
+        headers["Authorization"] =
+          `Bearer ${credentials.credentials.secretKey}`;
       }
 
       const url = credentials.baseUrl
@@ -540,7 +577,7 @@ export class GenericApiAdapter {
       const response = await fetch(url, {
         method,
         headers,
-        body: body ? JSON.stringify(body) : undefined
+        body: body ? JSON.stringify(body) : undefined,
       });
 
       const responseTime = Date.now() - startTime;
@@ -559,26 +596,29 @@ export class GenericApiAdapter {
         { statusCode: response.status },
         success,
         responseTime,
-        success ? undefined : `HTTP ${response.status}`
+        success ? undefined : `HTTP ${response.status}`,
       );
 
       return {
         success,
         data,
         statusCode: response.status,
-        responseTime
+        responseTime,
       };
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     }
   }
 
   async testConnection(): Promise<ApiResponse> {
-    const credentials = await getServiceCredentials(this.serviceId, this.environment);
+    const credentials = await getServiceCredentials(
+      this.serviceId,
+      this.environment,
+    );
     if (!credentials) {
       return { success: false, error: "Not configured" };
     }
@@ -593,7 +633,7 @@ export class GenericApiAdapter {
 
 export function createServiceAdapter(
   serviceId: string,
-  environment: ServiceEnvironment = "PRODUCTION"
+  environment: ServiceEnvironment = "PRODUCTION",
 ) {
   switch (serviceId.toLowerCase()) {
     case "sendgrid":

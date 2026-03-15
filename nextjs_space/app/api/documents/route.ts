@@ -5,8 +5,7 @@ import { prisma } from "@/lib/db";
 import { broadcastToOrganization } from "@/lib/realtime-clients";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
@@ -16,12 +15,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    
+
     // Validate and sanitize pagination parameters
-    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const rawPage = parseInt(searchParams.get("page") || "1", 10);
     const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
-    
-    const parsedLimit = parseInt(searchParams.get('limit') || '50', 10);
+
+    const parsedLimit = parseInt(searchParams.get("limit") || "50", 10);
     const limit = Math.min(Math.max(parsedLimit, 1), 100);
     const skip = (page - 1) * limit;
 
@@ -33,27 +32,30 @@ export async function GET(request: Request) {
         where,
         include: {
           project: { select: { id: true, name: true } },
-          uploadedBy: { select: { id: true, name: true } }
+          uploadedBy: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: "desc" },
         skip,
-        take: limit
+        take: limit,
       }),
-      prisma.document.count({ where })
+      prisma.document.count({ where }),
     ]);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       documents,
       pagination: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Get documents error:", error);
-    return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch documents" },
+      { status: 500 },
+    );
   }
 }
 
@@ -64,13 +66,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = (session.user as { id?: string })?.id || '';
-    const organizationId = (session.user as { organizationId?: string })?.organizationId;
+    const userId = (session.user as { id?: string })?.id || "";
+    const organizationId = (session.user as { organizationId?: string })
+      ?.organizationId;
     const body = await request.json();
-    const { name, cloudStoragePath, isPublic, fileSize, mimeType, projectId, documentType } = body;
+    const {
+      name,
+      cloudStoragePath,
+      isPublic,
+      fileSize,
+      mimeType,
+      projectId,
+      documentType,
+    } = body;
 
     if (!name || !cloudStoragePath || !projectId) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     const document = await prisma.document.create({
@@ -82,12 +96,12 @@ export async function POST(request: Request) {
         mimeType: mimeType ?? null,
         projectId,
         documentType: documentType || "OTHER",
-        uploadedById: userId
+        uploadedById: userId,
       },
       include: {
         project: { select: { id: true, name: true } },
-        uploadedBy: { select: { id: true, name: true } }
-      }
+        uploadedBy: { select: { id: true, name: true } },
+      },
     });
 
     await prisma.activityLog.create({
@@ -97,14 +111,14 @@ export async function POST(request: Request) {
         entityId: document.id,
         entityName: document.name,
         userId,
-        projectId
-      }
+        projectId,
+      },
     });
 
     // Broadcast real-time event to organization
     if (organizationId) {
       broadcastToOrganization(organizationId, {
-        type: 'document_uploaded',
+        type: "document_uploaded",
         timestamp: new Date().toISOString(),
         payload: {
           document: {
@@ -113,16 +127,19 @@ export async function POST(request: Request) {
             documentType: document.documentType,
             projectId: document.projectId,
             projectName: document.project?.name,
-            uploadedBy: document.uploadedBy?.name
+            uploadedBy: document.uploadedBy?.name,
           },
-          userId
-        }
+          userId,
+        },
       });
     }
 
     return NextResponse.json({ document });
   } catch (error) {
     console.error("Create document error:", error);
-    return NextResponse.json({ error: "Failed to save document" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to save document" },
+      { status: 500 },
+    );
   }
 }

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("userId");
 
     const where: any = {
-      user: { organizationId: orgId }
+      user: { organizationId: orgId },
     };
 
     if (entityType) {
@@ -42,23 +42,25 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           user: {
-            select: { id: true, name: true, email: true, role: true }
+            select: { id: true, name: true, email: true, role: true },
           },
           project: {
-            select: { id: true, name: true }
-          }
+            select: { id: true, name: true },
+          },
         },
         skip,
         take: limit,
-        orderBy: { createdAt: "desc" }
+        orderBy: { createdAt: "desc" },
       }),
-      prisma.activityLog.count({ where })
+      prisma.activityLog.count({ where }),
     ]);
 
     // Group by date for trend analysis
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const dailyStats = await prisma.$queryRaw<{ date: string; count: bigint }[]>`
+    const dailyStats = await prisma.$queryRaw<
+      { date: string; count: bigint }[]
+    >`
       SELECT DATE("createdAt") as date, COUNT(*) as count
       FROM "ActivityLog"
       WHERE "userId" IN (SELECT id FROM "User" WHERE "organizationId" = ${orgId})
@@ -68,20 +70,26 @@ export async function GET(request: NextRequest) {
     `;
 
     return NextResponse.json({
-      activities: activities.map(a => ({
+      activities: activities.map((a) => ({
         ...a,
-        createdAt: a.createdAt.toISOString()
+        createdAt: a.createdAt.toISOString(),
       })),
-      dailyStats: dailyStats.map(s => ({ date: s.date, count: Number(s.count) })),
+      dailyStats: dailyStats.map((s) => ({
+        date: s.date,
+        count: Number(s.count),
+      })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Error fetching company activity:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

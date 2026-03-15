@@ -4,10 +4,32 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
-  PoundSterling, Plus, Search, TrendingUp, TrendingDown,
-  FileText, Edit2, Trash2, Loader2, Building2, CheckCircle,
-  AlertCircle, Clock, Package, Users, Wrench, Shield, Zap,
-  LayoutGrid, List, BarChart3, Target, Wallet, Receipt, ArrowUpRight, ArrowDownRight
+  PoundSterling,
+  Plus,
+  Search,
+  TrendingUp,
+  TrendingDown,
+  FileText,
+  Edit2,
+  Trash2,
+  Loader2,
+  Building2,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Package,
+  Users,
+  Wrench,
+  Shield,
+  Zap,
+  LayoutGrid,
+  List,
+  BarChart3,
+  Target,
+  Wallet,
+  Receipt,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,31 +91,129 @@ interface BudgetSummary {
 }
 
 const CATEGORIES = [
-  { value: "LABOR", label: "Labor", icon: Users, color: "bg-blue-500", bgLight: "bg-blue-100 dark:bg-blue-900/30", textColor: "text-blue-600" },
-  { value: "MATERIALS", label: "Materials", icon: Package, color: "bg-emerald-500", bgLight: "bg-emerald-100 dark:bg-emerald-900/30", textColor: "text-emerald-600" },
-  { value: "EQUIPMENT", label: "Equipment", icon: Wrench, color: "bg-orange-500", bgLight: "bg-orange-100 dark:bg-orange-900/30", textColor: "text-orange-600" },
-  { value: "SUBCONTRACTOR", label: "Subcontractor", icon: Building2, color: "bg-purple-500", bgLight: "bg-purple-100 dark:bg-purple-900/30", textColor: "text-purple-600" },
-  { value: "PERMITS", label: "Permits", icon: FileText, color: "bg-amber-500", bgLight: "bg-amber-100 dark:bg-amber-900/30", textColor: "text-amber-600" },
-  { value: "INSURANCE", label: "Insurance", icon: Shield, color: "bg-red-500", bgLight: "bg-red-100 dark:bg-red-900/30", textColor: "text-red-600" },
-  { value: "UTILITIES", label: "Utilities", icon: Zap, color: "bg-cyan-500", bgLight: "bg-cyan-100 dark:bg-cyan-900/30", textColor: "text-cyan-600" },
-  { value: "OVERHEAD", label: "Overhead", icon: TrendingUp, color: "bg-slate-500", bgLight: "bg-slate-100 dark:bg-slate-800", textColor: "text-slate-600" },
-  { value: "CONTINGENCY", label: "Contingency", icon: AlertCircle, color: "bg-amber-500", bgLight: "bg-amber-100 dark:bg-amber-900/30", textColor: "text-amber-600" },
-  { value: "OTHER", label: "Other", icon: FileText, color: "bg-slate-400", bgLight: "bg-slate-100 dark:bg-slate-800", textColor: "text-slate-500" },
+  {
+    value: "LABOR",
+    label: "Labor",
+    icon: Users,
+    color: "bg-blue-500",
+    bgLight: "bg-blue-100 dark:bg-blue-900/30",
+    textColor: "text-blue-600",
+  },
+  {
+    value: "MATERIALS",
+    label: "Materials",
+    icon: Package,
+    color: "bg-emerald-500",
+    bgLight: "bg-emerald-100 dark:bg-emerald-900/30",
+    textColor: "text-emerald-600",
+  },
+  {
+    value: "EQUIPMENT",
+    label: "Equipment",
+    icon: Wrench,
+    color: "bg-orange-500",
+    bgLight: "bg-orange-100 dark:bg-orange-900/30",
+    textColor: "text-orange-600",
+  },
+  {
+    value: "SUBCONTRACTOR",
+    label: "Subcontractor",
+    icon: Building2,
+    color: "bg-purple-500",
+    bgLight: "bg-purple-100 dark:bg-purple-900/30",
+    textColor: "text-purple-600",
+  },
+  {
+    value: "PERMITS",
+    label: "Permits",
+    icon: FileText,
+    color: "bg-amber-500",
+    bgLight: "bg-amber-100 dark:bg-amber-900/30",
+    textColor: "text-amber-600",
+  },
+  {
+    value: "INSURANCE",
+    label: "Insurance",
+    icon: Shield,
+    color: "bg-red-500",
+    bgLight: "bg-red-100 dark:bg-red-900/30",
+    textColor: "text-red-600",
+  },
+  {
+    value: "UTILITIES",
+    label: "Utilities",
+    icon: Zap,
+    color: "bg-cyan-500",
+    bgLight: "bg-cyan-100 dark:bg-cyan-900/30",
+    textColor: "text-cyan-600",
+  },
+  {
+    value: "OVERHEAD",
+    label: "Overhead",
+    icon: TrendingUp,
+    color: "bg-slate-500",
+    bgLight: "bg-slate-100 dark:bg-slate-800",
+    textColor: "text-slate-600",
+  },
+  {
+    value: "CONTINGENCY",
+    label: "Contingency",
+    icon: AlertCircle,
+    color: "bg-amber-500",
+    bgLight: "bg-amber-100 dark:bg-amber-900/30",
+    textColor: "text-amber-600",
+  },
+  {
+    value: "OTHER",
+    label: "Other",
+    icon: FileText,
+    color: "bg-slate-400",
+    bgLight: "bg-slate-100 dark:bg-slate-800",
+    textColor: "text-slate-500",
+  },
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; bgColor: string; textColor: string; icon: any }> = {
-  ESTIMATED: { label: "Estimated", bgColor: "bg-slate-100 dark:bg-slate-800", textColor: "text-slate-600", icon: Clock },
-  COMMITTED: { label: "Committed", bgColor: "bg-blue-100 dark:bg-blue-900/30", textColor: "text-blue-600", icon: FileText },
-  ACTUAL: { label: "Actual", bgColor: "bg-emerald-100 dark:bg-emerald-900/30", textColor: "text-emerald-600", icon: CheckCircle },
-  INVOICED: { label: "Invoiced", bgColor: "bg-amber-100 dark:bg-amber-900/30", textColor: "text-amber-600", icon: Receipt },
-  PAID: { label: "Paid", bgColor: "bg-emerald-100 dark:bg-emerald-900/30", textColor: "text-emerald-600", icon: CheckCircle },
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; bgColor: string; textColor: string; icon: any }
+> = {
+  ESTIMATED: {
+    label: "Estimated",
+    bgColor: "bg-slate-100 dark:bg-slate-800",
+    textColor: "text-slate-600",
+    icon: Clock,
+  },
+  COMMITTED: {
+    label: "Committed",
+    bgColor: "bg-blue-100 dark:bg-blue-900/30",
+    textColor: "text-blue-600",
+    icon: FileText,
+  },
+  ACTUAL: {
+    label: "Actual",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    textColor: "text-emerald-600",
+    icon: CheckCircle,
+  },
+  INVOICED: {
+    label: "Invoiced",
+    bgColor: "bg-amber-100 dark:bg-amber-900/30",
+    textColor: "text-amber-600",
+    icon: Receipt,
+  },
+  PAID: {
+    label: "Paid",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+    textColor: "text-emerald-600",
+    icon: CheckCircle,
+  },
 };
 
 export function BudgetClient({
   initialCostItems,
   initialSummary,
   projects,
-  subcontractors
+  subcontractors,
 }: {
   initialCostItems: CostItem[];
   initialSummary: BudgetSummary;
@@ -122,7 +242,7 @@ export function BudgetClient({
     committedAmount: "",
     vendor: "",
     notes: "",
-    subcontractorId: ""
+    subcontractorId: "",
   });
 
   const handleBudgetEvent = useCallback(() => {
@@ -131,15 +251,19 @@ export function BudgetClient({
 
   useRealtimeSubscription(
     ["cost_item_created", "cost_item_updated", "cost_item_deleted"],
-    handleBudgetEvent
+    handleBudgetEvent,
   );
 
   const filteredItems = costItems.filter((item) => {
-    const matchesSearch = item.description?.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch =
+      item.description?.toLowerCase().includes(search.toLowerCase()) ||
       item.vendor?.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-    const matchesProject = projectFilter === "all" || item.projectId === projectFilter;
+    const matchesCategory =
+      categoryFilter === "all" || item.category === categoryFilter;
+    const matchesStatus =
+      statusFilter === "all" || item.status === statusFilter;
+    const matchesProject =
+      projectFilter === "all" || item.projectId === projectFilter;
     return matchesSearch && matchesCategory && matchesStatus && matchesProject;
   });
 
@@ -153,15 +277,22 @@ export function BudgetClient({
       const res = await fetch("/api/budget", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem)
+        body: JSON.stringify(newItem),
       });
       if (!res.ok) throw new Error("Failed to create cost item");
       toast.success("Cost item created successfully");
       setShowNewModal(false);
       setNewItem({
-        projectId: "", description: "", category: "OTHER", status: "ESTIMATED",
-        estimatedAmount: "", actualAmount: "", committedAmount: "",
-        vendor: "", notes: "", subcontractorId: ""
+        projectId: "",
+        description: "",
+        category: "OTHER",
+        status: "ESTIMATED",
+        estimatedAmount: "",
+        actualAmount: "",
+        committedAmount: "",
+        vendor: "",
+        notes: "",
+        subcontractorId: "",
       });
       router.refresh();
     } catch (error) {
@@ -178,7 +309,7 @@ export function BudgetClient({
       const res = await fetch(`/api/budget/${selectedItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedItem)
+        body: JSON.stringify(selectedItem),
       });
       if (!res.ok) throw new Error("Failed to update cost item");
       toast.success("Cost item updated successfully");
@@ -206,25 +337,27 @@ export function BudgetClient({
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "GBP"
+      currency: "GBP",
     }).format(amount);
   };
 
   const variance = summary.totalEstimated - summary.totalActual;
-  const variancePercent = summary.totalEstimated > 0 
-    ? ((variance / summary.totalEstimated) * 100).toFixed(1) 
-    : "0";
-  const budgetUsedPercent = summary.totalEstimated > 0
-    ? Math.min(100, (summary.totalActual / summary.totalEstimated) * 100)
-    : 0;
+  const variancePercent =
+    summary.totalEstimated > 0
+      ? ((variance / summary.totalEstimated) * 100).toFixed(1)
+      : "0";
+  const budgetUsedPercent =
+    summary.totalEstimated > 0
+      ? Math.min(100, (summary.totalActual / summary.totalEstimated) * 100)
+      : 0;
 
   // Category breakdown
-  const categoryBreakdown = CATEGORIES.map(cat => {
-    const items = costItems.filter(i => i.category === cat.value);
+  const categoryBreakdown = CATEGORIES.map((cat) => {
+    const items = costItems.filter((i) => i.category === cat.value);
     const estimated = items.reduce((sum, i) => sum + i.estimatedAmount, 0);
     const actual = items.reduce((sum, i) => sum + i.actualAmount, 0);
     return { ...cat, estimated, actual, count: items.length };
-  }).filter(c => c.count > 0);
+  }).filter((c) => c.count > 0);
 
   return (
     <div className="p-6 space-y-6">
@@ -237,9 +370,14 @@ export function BudgetClient({
             </div>
             Budget Management
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Track project costs and financial performance</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Track project costs and financial performance
+          </p>
         </div>
-        <Button onClick={() => setShowNewModal(true)} className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25">
+        <Button
+          onClick={() => setShowNewModal(true)}
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/25"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Cost Item
         </Button>
@@ -251,8 +389,12 @@ export function BudgetClient({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600/70 dark:text-blue-400/70">Estimated Budget</p>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">{formatCurrency(summary.totalEstimated)}</p>
+                <p className="text-sm font-medium text-blue-600/70 dark:text-blue-400/70">
+                  Estimated Budget
+                </p>
+                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">
+                  {formatCurrency(summary.totalEstimated)}
+                </p>
               </div>
               <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-xl">
                 <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -265,8 +407,12 @@ export function BudgetClient({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-600/70 dark:text-orange-400/70">Committed</p>
-                <p className="text-2xl font-bold text-orange-700 dark:text-orange-300 mt-1">{formatCurrency(summary.totalCommitted)}</p>
+                <p className="text-sm font-medium text-orange-600/70 dark:text-orange-400/70">
+                  Committed
+                </p>
+                <p className="text-2xl font-bold text-orange-700 dark:text-orange-300 mt-1">
+                  {formatCurrency(summary.totalCommitted)}
+                </p>
               </div>
               <div className="p-3 bg-orange-200 dark:bg-orange-800 rounded-xl">
                 <FileText className="w-6 h-6 text-orange-600 dark:text-orange-400" />
@@ -279,8 +425,12 @@ export function BudgetClient({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-600/70 dark:text-emerald-400/70">Actual Spent</p>
-                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">{formatCurrency(summary.totalActual)}</p>
+                <p className="text-sm font-medium text-emerald-600/70 dark:text-emerald-400/70">
+                  Actual Spent
+                </p>
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
+                  {formatCurrency(summary.totalActual)}
+                </p>
               </div>
               <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-xl">
                 <Wallet className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
@@ -289,20 +439,36 @@ export function BudgetClient({
           </CardContent>
         </Card>
 
-        <Card className={`border-0 shadow-md hover:shadow-lg transition-all ${variance >= 0 ? 'bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/30 dark:to-teal-800/30' : 'bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/30 dark:to-rose-800/30'}`}>
+        <Card
+          className={`border-0 shadow-md hover:shadow-lg transition-all ${variance >= 0 ? "bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/30 dark:to-teal-800/30" : "bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-900/30 dark:to-rose-800/30"}`}
+        >
           <CardContent className="pt-5 pb-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className={`text-sm font-medium ${variance >= 0 ? 'text-emerald-600/70 dark:text-emerald-400/70' : 'text-red-600/70 dark:text-red-400/70'}`}>Variance</p>
-                <p className={`text-2xl font-bold mt-1 ${variance >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
+                <p
+                  className={`text-sm font-medium ${variance >= 0 ? "text-emerald-600/70 dark:text-emerald-400/70" : "text-red-600/70 dark:text-red-400/70"}`}
+                >
+                  Variance
+                </p>
+                <p
+                  className={`text-2xl font-bold mt-1 ${variance >= 0 ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}
+                >
                   {formatCurrency(Math.abs(variance))}
                 </p>
-                <p className={`text-xs mt-1 flex items-center gap-1 ${variance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {variance >= 0 ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-                  {variance >= 0 ? 'Under' : 'Over'} by {variancePercent}%
+                <p
+                  className={`text-xs mt-1 flex items-center gap-1 ${variance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
+                >
+                  {variance >= 0 ? (
+                    <ArrowDownRight className="w-3 h-3" />
+                  ) : (
+                    <ArrowUpRight className="w-3 h-3" />
+                  )}
+                  {variance >= 0 ? "Under" : "Over"} by {variancePercent}%
                 </p>
               </div>
-              <div className={`p-3 rounded-xl ${variance >= 0 ? 'bg-emerald-200 dark:bg-emerald-800' : 'bg-red-200 dark:bg-red-800'}`}>
+              <div
+                className={`p-3 rounded-xl ${variance >= 0 ? "bg-emerald-200 dark:bg-emerald-800" : "bg-red-200 dark:bg-red-800"}`}
+              >
                 {variance >= 0 ? (
                   <TrendingDown className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 ) : (
@@ -328,15 +494,21 @@ export function BudgetClient({
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-600 dark:text-slate-400">Budget Utilization</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{budgetUsedPercent.toFixed(1)}%</span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Budget Utilization
+                  </span>
+                  <span className="font-semibold text-slate-900 dark:text-white">
+                    {budgetUsedPercent.toFixed(1)}%
+                  </span>
                 </div>
                 <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-                  <div 
+                  <div
                     className={`h-3 rounded-full transition-all duration-500 ${
-                      budgetUsedPercent > 90 ? 'bg-gradient-to-r from-red-500 to-rose-500' : 
-                      budgetUsedPercent > 70 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 
-                      'bg-gradient-to-r from-emerald-500 to-teal-500'
+                      budgetUsedPercent > 90
+                        ? "bg-gradient-to-r from-red-500 to-rose-500"
+                        : budgetUsedPercent > 70
+                          ? "bg-gradient-to-r from-amber-500 to-orange-500"
+                          : "bg-gradient-to-r from-emerald-500 to-teal-500"
                     }`}
                     style={{ width: `${budgetUsedPercent}%` }}
                   />
@@ -345,31 +517,59 @@ export function BudgetClient({
 
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <div className="text-center">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Remaining</p>
-                  <p className={`text-lg font-bold ${variance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    {formatCurrency(Math.max(0, summary.totalEstimated - summary.totalActual))}
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Remaining
+                  </p>
+                  <p
+                    className={`text-lg font-bold ${variance >= 0 ? "text-emerald-600" : "text-red-600"}`}
+                  >
+                    {formatCurrency(
+                      Math.max(0, summary.totalEstimated - summary.totalActual),
+                    )}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Cost Items</p>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white">{costItems.length}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Cost Items
+                  </p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">
+                    {costItems.length}
+                  </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Avg. Item</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Avg. Item
+                  </p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white">
-                    {formatCurrency(costItems.length > 0 ? summary.totalActual / costItems.length : 0)}
+                    {formatCurrency(
+                      costItems.length > 0
+                        ? summary.totalActual / costItems.length
+                        : 0,
+                    )}
                   </p>
                 </div>
               </div>
 
               {/* Budget Alert */}
               {budgetUsedPercent > 80 && (
-                <div className={`p-3 rounded-lg flex items-center gap-3 ${budgetUsedPercent > 90 ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'}`}>
-                  <AlertCircle className={`w-5 h-5 ${budgetUsedPercent > 90 ? 'text-red-600' : 'text-amber-600'}`} />
+                <div
+                  className={`p-3 rounded-lg flex items-center gap-3 ${budgetUsedPercent > 90 ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800" : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800"}`}
+                >
+                  <AlertCircle
+                    className={`w-5 h-5 ${budgetUsedPercent > 90 ? "text-red-600" : "text-amber-600"}`}
+                  />
                   <div>
-                    <p className={`font-medium text-sm ${budgetUsedPercent > 90 ? 'text-red-800 dark:text-red-300' : 'text-amber-800 dark:text-amber-300'}`}>Budget Alert</p>
-                    <p className={`text-xs ${budgetUsedPercent > 90 ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
-                      {budgetUsedPercent > 90 ? 'Critical: ' : ''}{budgetUsedPercent.toFixed(0)}% of budget has been utilized
+                    <p
+                      className={`font-medium text-sm ${budgetUsedPercent > 90 ? "text-red-800 dark:text-red-300" : "text-amber-800 dark:text-amber-300"}`}
+                    >
+                      Budget Alert
+                    </p>
+                    <p
+                      className={`text-xs ${budgetUsedPercent > 90 ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400"}`}
+                    >
+                      {budgetUsedPercent > 90 ? "Critical: " : ""}
+                      {budgetUsedPercent.toFixed(0)}% of budget has been
+                      utilized
                     </p>
                   </div>
                 </div>
@@ -391,7 +591,10 @@ export function BudgetClient({
               <div className="space-y-3">
                 {categoryBreakdown.map((cat) => {
                   const Icon = cat.icon;
-                  const percent = summary.totalActual > 0 ? ((cat.actual / summary.totalActual) * 100).toFixed(0) : 0;
+                  const percent =
+                    summary.totalActual > 0
+                      ? ((cat.actual / summary.totalActual) * 100).toFixed(0)
+                      : 0;
                   return (
                     <div key={cat.value} className="flex items-center gap-3">
                       <div className={`p-2 ${cat.bgLight} rounded-lg`}>
@@ -399,14 +602,23 @@ export function BudgetClient({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{cat.label}</span>
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">{formatCurrency(cat.actual)}</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {cat.label}
+                          </span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">
+                            {formatCurrency(cat.actual)}
+                          </span>
                         </div>
                         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                          <div className={`h-1.5 rounded-full ${cat.color}`} style={{ width: `${percent}%` }} />
+                          <div
+                            className={`h-1.5 rounded-full ${cat.color}`}
+                            style={{ width: `${percent}%` }}
+                          />
                         </div>
                       </div>
-                      <span className="text-xs text-slate-500 w-10 text-right">{percent}%</span>
+                      <span className="text-xs text-slate-500 w-10 text-right">
+                        {percent}%
+                      </span>
                     </div>
                   );
                 })}
@@ -442,7 +654,9 @@ export function BudgetClient({
                 <SelectContent>
                   <SelectItem value="all">All Projects</SelectItem>
                   {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -453,7 +667,9 @@ export function BudgetClient({
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   {CATEGORIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -464,7 +680,9 @@ export function BudgetClient({
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                    <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                    <SelectItem key={key} value={key}>
+                      {val.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -473,16 +691,24 @@ export function BudgetClient({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('list')}
-                className={viewMode === 'list' ? 'bg-white dark:bg-slate-700 shadow-sm' : ''}
+                onClick={() => setViewMode("list")}
+                className={
+                  viewMode === "list"
+                    ? "bg-white dark:bg-slate-700 shadow-sm"
+                    : ""
+                }
               >
                 <List className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setViewMode('grid')}
-                className={viewMode === 'grid' ? 'bg-white dark:bg-slate-700 shadow-sm' : ''}
+                onClick={() => setViewMode("grid")}
+                className={
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-slate-700 shadow-sm"
+                    : ""
+                }
               >
                 <LayoutGrid className="w-4 h-4" />
               </Button>
@@ -498,32 +724,56 @@ export function BudgetClient({
             <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full w-fit mx-auto mb-4">
               <PoundSterling className="w-12 h-12 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No cost items found</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-4">Start tracking your project costs</p>
-            <Button onClick={() => setShowNewModal(true)} className="bg-emerald-600 hover:bg-emerald-700">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+              No cost items found
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">
+              Start tracking your project costs
+            </p>
+            <Button
+              onClick={() => setShowNewModal(true)}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
               <Plus className="w-4 h-4 mr-2" /> Add Cost Item
             </Button>
           </CardContent>
         </Card>
-      ) : viewMode === 'list' ? (
+      ) : viewMode === "list" ? (
         <Card className="border-0 shadow-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Description</th>
-                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Project</th>
-                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Category</th>
-                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Status</th>
-                  <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Estimated</th>
-                  <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Actual</th>
-                  <th className="text-center p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">Actions</th>
+                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Description
+                  </th>
+                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Project
+                  </th>
+                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Category
+                  </th>
+                  <th className="text-left p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Status
+                  </th>
+                  <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Estimated
+                  </th>
+                  <th className="text-right p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Actual
+                  </th>
+                  <th className="text-center p-4 font-semibold text-slate-600 dark:text-slate-400 text-sm">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.map((item) => {
-                  const statusConf = STATUS_CONFIG[item.status] || STATUS_CONFIG.ESTIMATED;
-                  const categoryConf = CATEGORIES.find(c => c.value === item.category);
+                  const statusConf =
+                    STATUS_CONFIG[item.status] || STATUS_CONFIG.ESTIMATED;
+                  const categoryConf = CATEGORIES.find(
+                    (c) => c.value === item.category,
+                  );
                   const CategoryIcon = categoryConf?.icon || FileText;
                   return (
                     <tr
@@ -531,30 +781,50 @@ export function BudgetClient({
                       className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                     >
                       <td className="p-4">
-                        <p className="font-medium text-slate-900 dark:text-white">{item.description}</p>
-                        {item.vendor && <p className="text-sm text-slate-500 dark:text-slate-400">{item.vendor}</p>}
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {item.description}
+                        </p>
+                        {item.vendor && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {item.vendor}
+                          </p>
+                        )}
                       </td>
                       <td className="p-4">
-                        <span className="text-sm text-slate-600 dark:text-slate-400">{item.project?.name}</span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          {item.project?.name}
+                        </span>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
-                          <div className={`p-1.5 rounded-lg ${categoryConf?.bgLight || 'bg-slate-100'}`}>
-                            <CategoryIcon className={`w-3.5 h-3.5 ${categoryConf?.textColor || 'text-slate-500'}`} />
+                          <div
+                            className={`p-1.5 rounded-lg ${categoryConf?.bgLight || "bg-slate-100"}`}
+                          >
+                            <CategoryIcon
+                              className={`w-3.5 h-3.5 ${categoryConf?.textColor || "text-slate-500"}`}
+                            />
                           </div>
-                          <span className="text-sm text-slate-700 dark:text-slate-300">{categoryConf?.label || item.category}</span>
+                          <span className="text-sm text-slate-700 dark:text-slate-300">
+                            {categoryConf?.label || item.category}
+                          </span>
                         </div>
                       </td>
                       <td className="p-4">
-                        <Badge className={`${statusConf.bgColor} ${statusConf.textColor} border-0`}>
+                        <Badge
+                          className={`${statusConf.bgColor} ${statusConf.textColor} border-0`}
+                        >
                           {statusConf.label}
                         </Badge>
                       </td>
                       <td className="p-4 text-right">
-                        <span className="font-medium text-slate-700 dark:text-slate-300">{formatCurrency(item.estimatedAmount)}</span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                          {formatCurrency(item.estimatedAmount)}
+                        </span>
                       </td>
                       <td className="p-4 text-right">
-                        <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(item.actualAmount)}</span>
+                        <span className="font-bold text-slate-900 dark:text-white">
+                          {formatCurrency(item.actualAmount)}
+                        </span>
                       </td>
                       <td className="p-4">
                         <div className="flex justify-center gap-1">
@@ -589,32 +859,56 @@ export function BudgetClient({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
-            const statusConf = STATUS_CONFIG[item.status] || STATUS_CONFIG.ESTIMATED;
-            const categoryConf = CATEGORIES.find(c => c.value === item.category);
+            const statusConf =
+              STATUS_CONFIG[item.status] || STATUS_CONFIG.ESTIMATED;
+            const categoryConf = CATEGORIES.find(
+              (c) => c.value === item.category,
+            );
             const CategoryIcon = categoryConf?.icon || FileText;
             return (
-              <Card key={item.id} className="border-0 shadow-md hover:shadow-lg transition-all group">
+              <Card
+                key={item.id}
+                className="border-0 shadow-md hover:shadow-lg transition-all group"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <div className={`p-2 rounded-lg ${categoryConf?.bgLight || 'bg-slate-100'}`}>
-                      <CategoryIcon className={`w-4 h-4 ${categoryConf?.textColor || 'text-slate-500'}`} />
+                    <div
+                      className={`p-2 rounded-lg ${categoryConf?.bgLight || "bg-slate-100"}`}
+                    >
+                      <CategoryIcon
+                        className={`w-4 h-4 ${categoryConf?.textColor || "text-slate-500"}`}
+                      />
                     </div>
-                    <Badge className={`${statusConf.bgColor} ${statusConf.textColor} border-0`}>
+                    <Badge
+                      className={`${statusConf.bgColor} ${statusConf.textColor} border-0`}
+                    >
                       {statusConf.label}
                     </Badge>
                   </div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2 mb-1">{item.description}</h3>
-                  {item.vendor && <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{item.vendor}</p>}
+                  <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2 mb-1">
+                    {item.description}
+                  </h3>
+                  {item.vendor && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                      {item.vendor}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between text-sm mb-3">
                     <span className="text-slate-500">Est.</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{formatCurrency(item.estimatedAmount)}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      {formatCurrency(item.estimatedAmount)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm mb-4">
                     <span className="text-slate-500">Actual</span>
-                    <span className="font-bold text-emerald-600">{formatCurrency(item.actualAmount)}</span>
+                    <span className="font-bold text-emerald-600">
+                      {formatCurrency(item.actualAmount)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-xs text-slate-500 truncate max-w-[60%]">{item.project?.name}</span>
+                    <span className="text-xs text-slate-500 truncate max-w-[60%]">
+                      {item.project?.name}
+                    </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
                         variant="ghost"
@@ -657,44 +951,75 @@ export function BudgetClient({
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Project *</label>
-              <Select value={newItem.projectId} onValueChange={(v) => setNewItem({ ...newItem, projectId: v })}>
-                <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select project" /></SelectTrigger>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Project *
+              </label>
+              <Select
+                value={newItem.projectId}
+                onValueChange={(v) => setNewItem({ ...newItem, projectId: v })}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Description *</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Description *
+              </label>
               <Input
                 className="mt-1.5"
                 value={newItem.description}
-                onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, description: e.target.value })
+                }
                 placeholder="e.g., Concrete for foundation"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
-                <Select value={newItem.category} onValueChange={(v) => setNewItem({ ...newItem, category: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Category
+                </label>
+                <Select
+                  value={newItem.category}
+                  onValueChange={(v) => setNewItem({ ...newItem, category: v })}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      <SelectItem key={c.value} value={c.value}>
+                        {c.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status</label>
-                <Select value={newItem.status} onValueChange={(v) => setNewItem({ ...newItem, status: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Status
+                </label>
+                <Select
+                  value={newItem.status}
+                  onValueChange={(v) => setNewItem({ ...newItem, status: v })}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                      <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {val.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -702,73 +1027,110 @@ export function BudgetClient({
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Estimated (£)</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Estimated (£)
+                </label>
                 <Input
                   type="number"
                   className="mt-1.5"
                   value={newItem.estimatedAmount}
-                  onChange={(e) => setNewItem({ ...newItem, estimatedAmount: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, estimatedAmount: e.target.value })
+                  }
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Committed (£)</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Committed (£)
+                </label>
                 <Input
                   type="number"
                   className="mt-1.5"
                   value={newItem.committedAmount}
-                  onChange={(e) => setNewItem({ ...newItem, committedAmount: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, committedAmount: e.target.value })
+                  }
                   placeholder="0.00"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Actual (£)</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Actual (£)
+                </label>
                 <Input
                   type="number"
                   className="mt-1.5"
                   value={newItem.actualAmount}
-                  onChange={(e) => setNewItem({ ...newItem, actualAmount: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, actualAmount: e.target.value })
+                  }
                   placeholder="0.00"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Vendor</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Vendor
+                </label>
                 <Input
                   className="mt-1.5"
                   value={newItem.vendor}
-                  onChange={(e) => setNewItem({ ...newItem, vendor: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, vendor: e.target.value })
+                  }
                   placeholder="Supplier name"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Subcontractor</label>
-                <Select value={newItem.subcontractorId} onValueChange={(v) => setNewItem({ ...newItem, subcontractorId: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select (optional)" /></SelectTrigger>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Subcontractor
+                </label>
+                <Select
+                  value={newItem.subcontractorId}
+                  onValueChange={(v) =>
+                    setNewItem({ ...newItem, subcontractorId: v })
+                  }
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue placeholder="Select (optional)" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
                     {subcontractors.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.companyName}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.companyName}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Notes</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Notes
+              </label>
               <Textarea
                 className="mt-1.5"
                 value={newItem.notes}
-                onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, notes: e.target.value })
+                }
                 placeholder="Additional details..."
                 rows={2}
               />
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => setShowNewModal(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button variant="outline" onClick={() => setShowNewModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={loading}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Create
             </Button>
@@ -790,32 +1152,61 @@ export function BudgetClient({
           {selectedItem && (
             <div className="space-y-4 mt-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Description
+                </label>
                 <Input
                   className="mt-1.5"
                   value={selectedItem.description}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, description: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({
+                      ...selectedItem,
+                      description: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
-                  <Select value={selectedItem.category} onValueChange={(v) => setSelectedItem({ ...selectedItem, category: v })}>
-                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Category
+                  </label>
+                  <Select
+                    value={selectedItem.category}
+                    onValueChange={(v) =>
+                      setSelectedItem({ ...selectedItem, category: v })
+                    }
+                  >
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {CATEGORIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Status</label>
-                  <Select value={selectedItem.status} onValueChange={(v) => setSelectedItem({ ...selectedItem, status: v })}>
-                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Status
+                  </label>
+                  <Select
+                    value={selectedItem.status}
+                    onValueChange={(v) =>
+                      setSelectedItem({ ...selectedItem, status: v })
+                    }
+                  >
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {Object.entries(STATUS_CONFIG).map(([key, val]) => (
-                        <SelectItem key={key} value={key}>{val.label}</SelectItem>
+                        <SelectItem key={key} value={key}>
+                          {val.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -823,55 +1214,90 @@ export function BudgetClient({
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Estimated (£)</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Estimated (£)
+                  </label>
                   <Input
                     type="number"
                     className="mt-1.5"
                     value={selectedItem.estimatedAmount}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, estimatedAmount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        estimatedAmount: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Committed (£)</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Committed (£)
+                  </label>
                   <Input
                     type="number"
                     className="mt-1.5"
                     value={selectedItem.committedAmount}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, committedAmount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        committedAmount: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Actual (£)</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Actual (£)
+                  </label>
                   <Input
                     type="number"
                     className="mt-1.5"
                     value={selectedItem.actualAmount}
-                    onChange={(e) => setSelectedItem({ ...selectedItem, actualAmount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setSelectedItem({
+                        ...selectedItem,
+                        actualAmount: parseFloat(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Vendor</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Vendor
+                </label>
                 <Input
                   className="mt-1.5"
                   value={selectedItem.vendor || ""}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, vendor: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({ ...selectedItem, vendor: e.target.value })
+                  }
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Notes</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Notes
+                </label>
                 <Textarea
                   className="mt-1.5"
                   value={selectedItem.notes || ""}
-                  onChange={(e) => setSelectedItem({ ...selectedItem, notes: e.target.value })}
+                  onChange={(e) =>
+                    setSelectedItem({ ...selectedItem, notes: e.target.value })
+                  }
                   rows={2}
                 />
               </div>
             </div>
           )}
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => setShowEditModal(false)}>Cancel</Button>
-            <Button onClick={handleUpdate} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button variant="outline" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdate}
+              disabled={loading}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Save Changes
             </Button>

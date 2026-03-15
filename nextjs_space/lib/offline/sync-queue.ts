@@ -42,7 +42,7 @@ class SyncQueue {
     method: "POST" | "PUT" | "PATCH" | "DELETE",
     url: string,
     body: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ queued: boolean; offline: boolean }> {
     try {
       const request: QueuedRequest = {
@@ -136,12 +136,15 @@ export async function queueRequest(
   method: "POST" | "PUT" | "PATCH" | "DELETE",
   url: string,
   body: any,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<{ queued: boolean; offline: boolean }> {
   return syncQueue.queueRequest(method, url, body, headers);
 }
 
-export async function processSyncQueue(): Promise<{ processed: number; failed: number }> {
+export async function processSyncQueue(): Promise<{
+  processed: number;
+  failed: number;
+}> {
   return syncQueue.processSyncQueue();
 }
 
@@ -156,14 +159,19 @@ export const processQueuedRequests = processSyncQueue;
 export function getSyncStatus() {
   return {
     isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
-    serviceWorkerSupported: typeof navigator !== "undefined" && "serviceWorker" in navigator,
+    serviceWorkerSupported:
+      typeof navigator !== "undefined" && "serviceWorker" in navigator,
     syncSupported: typeof window !== "undefined" && "SyncManager" in window,
-    periodicSyncSupported: typeof window !== "undefined" && "PeriodicSyncManager" in window
+    periodicSyncSupported:
+      typeof window !== "undefined" && "PeriodicSyncManager" in window,
   };
 }
 
 // Manual sync function
-export async function manualSync(): Promise<{ processed: number; failed: number }> {
+export async function manualSync(): Promise<{
+  processed: number;
+  failed: number;
+}> {
   if (typeof window === "undefined" || !navigator.onLine) {
     return { processed: 0, failed: 0 };
   }

@@ -10,11 +10,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     redirect("/login");
   }
-  
+
   // Only SUPER_ADMIN can access admin pages
   if ((session.user as any).role !== "SUPER_ADMIN") {
     redirect("/dashboard");
@@ -26,9 +26,7 @@ export default async function AdminLayout({
       <div className="flex">
         <AdminSidebar />
         <main className="flex-1 ml-64 pt-16 min-h-screen">
-          <div className="p-6">
-            {children}
-          </div>
+          <div className="p-6">{children}</div>
         </main>
       </div>
     </div>

@@ -7,8 +7,9 @@ import { broadcastToOrganization } from "@/lib/realtime-clients";
 export const dynamic = "force-dynamic";
 
 const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
-
+  JSON.parse(
+    JSON.stringify(obj, (_, v) => (typeof v === "bigint" ? Number(v) : v)),
+  );
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,26 +28,29 @@ export async function GET(request: NextRequest) {
       where: {
         project: { organizationId: orgId },
         ...(projectId && { projectId }),
-        ...(status && { status: status as any })
+        ...(status && { status: status as any }),
       },
       include: {
         project: { select: { id: true, name: true } },
         presenter: { select: { id: true, name: true, email: true } },
         attendees: {
           include: {
-            user: { select: { id: true, name: true } }
-          }
+            user: { select: { id: true, name: true } },
+          },
         },
-        _count: { select: { attendees: true } }
+        _count: { select: { attendees: true } },
       },
       orderBy: { date: "desc" },
-      take: limit
+      take: limit,
     });
 
     return NextResponse.json(bigintSafe({ toolboxTalks }));
   } catch (error) {
     console.error("Error fetching toolbox talks:", error);
-    return NextResponse.json({ error: "Failed to fetch toolbox talks" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch toolbox talks" },
+      { status: 500 },
+    );
   }
 }
 
@@ -74,19 +78,19 @@ export async function POST(request: NextRequest) {
       hazardsDiscussed,
       safetyMeasures,
       weatherConditions,
-      notes
+      notes,
     } = body;
 
     if (!title || !topic || !date || !projectId) {
       return NextResponse.json(
         { error: "Title, topic, date, and project are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify project belongs to organization
     const project = await prisma.project.findFirst({
-      where: { id: projectId, organizationId: orgId }
+      where: { id: projectId, organizationId: orgId },
     });
 
     if (!project) {
@@ -109,12 +113,12 @@ export async function POST(request: NextRequest) {
         safetyMeasures: safetyMeasures || [],
         weatherConditions: weatherConditions || null,
         notes: notes || null,
-        status: "SCHEDULED"
+        status: "SCHEDULED",
       },
       include: {
         project: { select: { id: true, name: true } },
-        presenter: { select: { id: true, name: true } }
-      }
+        presenter: { select: { id: true, name: true } },
+      },
     });
 
     // Log activity
@@ -125,19 +129,25 @@ export async function POST(request: NextRequest) {
         entityId: toolboxTalk.id,
         userId,
         projectId,
-        details: JSON.stringify({ title: toolboxTalk.title, topic: toolboxTalk.topic })
-      }
+        details: JSON.stringify({
+          title: toolboxTalk.title,
+          topic: toolboxTalk.topic,
+        }),
+      },
     });
 
     // Broadcast real-time event
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_created",
-      data: { toolboxTalk }
+      data: { toolboxTalk },
     });
 
     return NextResponse.json(bigintSafe({ toolboxTalk }), { status: 201 });
   } catch (error) {
     console.error("Error creating toolbox talk:", error);
-    return NextResponse.json({ error: "Failed to create toolbox talk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create toolbox talk" },
+      { status: 500 },
+    );
   }
 }

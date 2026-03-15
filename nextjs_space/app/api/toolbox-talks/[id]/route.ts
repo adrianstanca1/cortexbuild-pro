@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -23,34 +23,40 @@ export async function GET(
     const toolboxTalk = await prisma.toolboxTalk.findFirst({
       where: {
         id: id,
-        project: { organizationId: orgId }
+        project: { organizationId: orgId },
       },
       include: {
         project: { select: { id: true, name: true } },
         presenter: { select: { id: true, name: true, email: true } },
         attendees: {
           include: {
-            user: { select: { id: true, name: true, email: true } }
+            user: { select: { id: true, name: true, email: true } },
           },
-          orderBy: { createdAt: "asc" }
-        }
-      }
+          orderBy: { createdAt: "asc" },
+        },
+      },
     });
 
     if (!toolboxTalk) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ toolboxTalk });
   } catch (error) {
     console.error("Error fetching toolbox talk:", error);
-    return NextResponse.json({ error: "Failed to fetch toolbox talk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch toolbox talk" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -66,11 +72,14 @@ export async function PATCH(
     // Verify toolbox talk exists and belongs to org
     const existing = await prisma.toolboxTalk.findFirst({
       where: { id: id, project: { organizationId: orgId } },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     const toolboxTalk = await prisma.toolboxTalk.update({
@@ -88,15 +97,15 @@ export async function PATCH(
         hazardsDiscussed: body.hazardsDiscussed,
         safetyMeasures: body.safetyMeasures,
         weatherConditions: body.weatherConditions,
-        notes: body.notes
+        notes: body.notes,
       },
       include: {
         project: { select: { id: true, name: true } },
         presenter: { select: { id: true, name: true } },
         attendees: {
-          include: { user: { select: { id: true, name: true } } }
-        }
-      }
+          include: { user: { select: { id: true, name: true } } },
+        },
+      },
     });
 
     // Log activity
@@ -107,17 +116,20 @@ export async function PATCH(
         entityId: toolboxTalk.id,
         userId,
         projectId: existing.projectId,
-        details: JSON.stringify({ title: toolboxTalk.title, status: toolboxTalk.status })
-      }
+        details: JSON.stringify({
+          title: toolboxTalk.title,
+          status: toolboxTalk.status,
+        }),
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_updated",
-      data: { toolboxTalk }
+      data: { toolboxTalk },
     });
 
     // Send email notification when completed
-    if (body.status === 'COMPLETED' && existing.status !== 'COMPLETED') {
+    if (body.status === "COMPLETED" && existing.status !== "COMPLETED") {
       sendToolboxTalkCompletedNotification(
         {
           id: toolboxTalk.id,
@@ -127,22 +139,25 @@ export async function PATCH(
           attendeeCount: toolboxTalk.attendees?.length || 0,
           presenterName: toolboxTalk.presenter?.name,
           projectName: toolboxTalk.project.name,
-          completedAt: new Date()
+          completedAt: new Date(),
         },
-        'adrian.stanca1@gmail.com'
-      ).catch(err => console.error('Email notification error:', err));
+        "adrian.stanca1@gmail.com",
+      ).catch((err) => console.error("Email notification error:", err));
     }
 
     return NextResponse.json({ toolboxTalk });
   } catch (error) {
     console.error("Error updating toolbox talk:", error);
-    return NextResponse.json({ error: "Failed to update toolbox talk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update toolbox talk" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -156,11 +171,14 @@ export async function DELETE(
 
     const existing = await prisma.toolboxTalk.findFirst({
       where: { id: id, project: { organizationId: orgId } },
-      include: { project: true }
+      include: { project: true },
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Toolbox talk not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Toolbox talk not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.toolboxTalk.delete({ where: { id: id } });
@@ -173,18 +191,21 @@ export async function DELETE(
         entityId: id,
         userId,
         projectId: existing.projectId,
-        details: JSON.stringify({ title: existing.title })
-      }
+        details: JSON.stringify({ title: existing.title }),
+      },
     });
 
     broadcastToOrganization(orgId, {
       type: "toolbox_talk_deleted",
-      data: { id: id }
+      data: { id: id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting toolbox talk:", error);
-    return NextResponse.json({ error: "Failed to delete toolbox talk" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete toolbox talk" },
+      { status: 500 },
+    );
   }
 }
