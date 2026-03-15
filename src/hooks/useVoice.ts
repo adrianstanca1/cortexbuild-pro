@@ -251,7 +251,7 @@ export function useVoice(options: VoiceOptions = {}) {
       recognitionRef.current?.abort();
       synthesisRef.current?.stop();
     };
-  }, []);
+  }, []); // Intentionally empty - only initialize once on mount
 
   const startListening = useCallback(() => {
     recognitionRef.current?.start();
