@@ -47,8 +47,8 @@ const validateDirectory = (path: string): FeatureValidation => {
     if (hasLayoutTSX) result.details.push('✓ Contains layout.tsx');
     else result.details.push('○ No layout.tsx (optional)');
 
-  } catch (error) {
-    result.errors.push(`Error reading directory: ${error.message}`);
+  } catch (error: unknown) {
+    result.errors.push(`Error reading directory: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return result;
@@ -84,8 +84,8 @@ const validateAPIRoute = (path: string): FeatureValidation => {
       result.errors.push('✗ Missing route handler (route.ts or page.ts)');
     }
 
-  } catch (error) {
-    result.errors.push(`Error reading API directory: ${error.message}`);
+  } catch (error: unknown) {
+    result.errors.push(`Error reading API directory: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return result;

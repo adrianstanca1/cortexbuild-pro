@@ -290,7 +290,6 @@ Analysis:`;
       return [this.defaultModel];
     }
   }
-}
 
   /**
    * List available models (alias for getAvailableModels)

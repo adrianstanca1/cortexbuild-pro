@@ -5,7 +5,8 @@
       "dom",
       "dom.iterable",
       "es5",
-      "es2020"
+      "es2020",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -19,6 +20,10 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
     "plugins": [
       {
         "name": "next"
@@ -32,6 +37,7 @@
   },
   "include": [
     "next-env.d.ts",
+    "types/**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
@@ -48,6 +54,7 @@
     "jest.config.ts",
     "jest.setup.ts",
     "vitest.config.ts",
-    "vitest.setup.ts"
+    "vitest.setup.ts",
+    "public/sw.ts"
   ]
 }
