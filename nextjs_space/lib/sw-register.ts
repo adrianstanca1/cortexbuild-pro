@@ -30,21 +30,25 @@ export function registerServiceWorker() {
 
         // Periodic background sync (if supported)
         if ("PeriodicSyncManager" in window) {
-          // Request permission for periodic background sync
-          // @ts-ignore - NavigatorPermissions may not exist in all environments
-          (navigator.permissions as any)?.query?.({ name: "periodic-background-sync" })
-            ?.then((permissionState) => {
-              if (permissionState?.state === "granted") {
-                registration.periodicSync
-                  ?.register({
-                    tag: "offline-sync",
-                    minPeriod: 12 * 60 * 60 * 1000, // 12 hours
-                  })
-                  .catch((error) => {
-                    console.log("Periodic sync registration failed:", error);
-                  });
-              }
-            });
+          // Request permission for periodic background sync with proper type checking
+          if (navigator.permissions) {
+            navigator.permissions.query({ name: "periodic-background-sync" as PermissionName })
+              .then((permissionState) => {
+                if (permissionState?.state === "granted") {
+                  registration.periodicSync
+                    ?.register({
+                      tag: "offline-sync",
+                      minPeriod: 12 * 60 * 60 * 1000, // 12 hours
+                    })
+                    .catch((error) => {
+                      console.log("Periodic sync registration failed:", error);
+                    });
+                }
+              })
+              .catch((error) => {
+                console.log("Permission query failed:", error);
+              });
+          }
         }
       })
       .catch((error) => {
