@@ -31,12 +31,12 @@ export function registerServiceWorker() {
         // Periodic background sync (if supported)
         if ("PeriodicSyncManager" in window) {
           // Request permission for periodic background sync
-          NavigatorPermissions.prototype.query
-            ?.call(navigator.permissions, { name: "periodic-background-sync" })
-            .then((permissionState) => {
-              if (permissionState.state === "granted") {
+          // @ts-ignore - NavigatorPermissions may not exist in all environments
+          (navigator.permissions as any)?.query?.({ name: "periodic-background-sync" })
+            ?.then((permissionState) => {
+              if (permissionState?.state === "granted") {
                 registration.periodicSync
-                  .register({
+                  ?.register({
                     tag: "offline-sync",
                     minPeriod: 12 * 60 * 60 * 1000, // 12 hours
                   })
@@ -48,11 +48,10 @@ export function registerServiceWorker() {
         }
       })
       .catch((error) => {
-        console.log("SW registration failed:", error));
+        console.log("SW registration failed:", error);
       });
   }
 }
-
 export function unregisterServiceWorker() {
   if (typeof window === "undefined") return;
 
@@ -61,7 +60,7 @@ export function unregisterServiceWorker() {
       registration.unregister();
     });
   }
-}
+  }
 
 // Process queued requests when network is available
 export async function processQueuedRequests() {
@@ -104,7 +103,7 @@ export async function enhancedQueueRequest(
 
     return { ...result, queueLength };
   } catch (error) {
-    console.error("Error queueing request:", error);
+    console.error("Error queuing request:", error);
     return { queued: false, offline: false, queueLength: 0 };
   }
 }

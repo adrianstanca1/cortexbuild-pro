@@ -6,7 +6,7 @@ import {
   getQueueLength,
   getSyncStatus,
   manualSync
-} from "@/lib/sw-register";
+} from "@/lib/offline/sync-queue";
 
 export function useOfflineSync() {
   const [isSyncing, setIsSyncing] = useState(false);
