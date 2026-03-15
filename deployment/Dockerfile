@@ -75,7 +75,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy built artefacts
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./app/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
 # Copy Prisma schema + migrations so we can run migrate deploy at startup
@@ -91,4 +91,4 @@ USER nextjs
 EXPOSE 3000
 
 # Run migrations then start â non-fatal migration, always launches
-CMD ["/bin/sh", "-c", "node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node server.js"]
+CMD ["/bin/sh", "-c", "node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node app/server.js"]
