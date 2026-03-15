@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - Cortexbuildpro
+      - main
       - master-integrated
       - claude/deploy-to-vps-*
   workflow_dispatch:
