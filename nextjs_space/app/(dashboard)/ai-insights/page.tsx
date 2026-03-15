@@ -1,26 +1,59 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth-options';
-import { ComingSoon } from '@/components/ui/coming-soon';
-import { Sparkles } from 'lucide-react';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
+import { prisma } from "@/lib/db";
+import { AIInsightsClient } from "./_components/ai-insights-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function AIInsightsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
+
+  const orgId = (session.user as { organizationId?: string })?.organizationId;
+
+  const [projects, openTasks, openRFIs, activeIncidents] = await Promise.all([
+    prisma.project.findMany({
+      where: orgId ? { organizationId: orgId } : {},
+      select: { id: true, name: true, status: true },
+      orderBy: { name: "asc" },
+    }),
+    orgId
+      ? prisma.task.count({
+          where: {
+            project: { organizationId: orgId },
+            status: { not: "COMPLETE" },
+          },
+        })
+      : Promise.resolve(0),
+    orgId
+      ? prisma.rFI.count({
+          where: {
+            project: { organizationId: orgId },
+            status: { in: ["OPEN", "PENDING"] },
+          },
+        })
+      : Promise.resolve(0),
+    orgId
+      ? prisma.safetyIncident.count({
+          where: {
+            project: { organizationId: orgId },
+            status: { not: "CLOSED" },
+          },
+        })
+      : Promise.resolve(0),
+  ]);
 
   return (
-    <ComingSoon
-      title="AI Insights"
-      icon={<Sparkles className="w-full h-full" />}
-      badge="AI"
-      description="Your AI-powered construction analyst. Ask questions in plain English, get automated portfolio summaries, generate documents, and analyse site photos — all in one place."
-      features={[
-        'Natural language project Q&A',
-        'Automated weekly portfolio digest',
-        'AI document generator (letters, notices, reports)',
-        'Site photo analysis and defect detection',
-        'Smart recommendations from your data',
-      ]}
+    <AIInsightsClient
+      projects={JSON.parse(JSON.stringify(projects))}
+      stats={{
+        openTasks,
+        openRFIs,
+        activeIncidents,
+        projectCount: projects.length,
+      }}
+      ollamaModel={process.env.OLLAMA_MODEL || "qwen2.5:7b"}
     />
   );
 }
