@@ -16,6 +16,9 @@ import {
   StripeAdapter,
 } from "./service-adapters";
 import { broadcastToAll } from "./realtime-clients";
+import { createLogger } from "./logger";
+
+const logger = createLogger("service-health");
 
 // Health check result
 export interface HealthCheckResult {
@@ -261,7 +264,7 @@ async function updateServiceStatus(
       });
     }
   } catch (error) {
-    // console.error(`Failed to update service status for ${serviceId}:`, error);
+    logger.error(`Failed to update service status for ${serviceId}:`, error);
   }
 }
 
@@ -284,7 +287,7 @@ export function broadcastServiceStatusChange(
       },
     });
   } catch (error) {
-    // console.error("Failed to broadcast service status change:", error);
+    logger.error("Failed to broadcast service status change:", error);
   }
 }
 

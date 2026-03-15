@@ -35,23 +35,26 @@ setInterval(
 );
 
 /**
- * Create a rate limiter
+ * Create a rate limiter with configurable options
  */
 export function createRateLimiter(config: RateLimitConfig) {
   const {
     windowMs,
     maxRequests,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     message = "Too many requests, please try again later.",
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipSuccessfulRequests = false,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipFailedRequests = false,
   } = config;
 
   return async (
     identifier: string,
-  ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> => {
+    options?: { isSuccess?: boolean },
+  ): Promise<{
+    allowed: boolean;
+    remaining: number;
+    resetTime: number;
+    message: string;
+  }> => {
     const now = Date.now();
     const key = identifier;
 
@@ -72,16 +75,25 @@ export function createRateLimiter(config: RateLimitConfig) {
         allowed: false,
         remaining: 0,
         resetTime: entry.resetTime,
+        message,
       };
     }
 
-    // Increment count
-    entry.count++;
+    // Determine if we should count this request
+    const shouldCount =
+      (options?.isSuccess === true && !skipSuccessfulRequests) ||
+      (options?.isSuccess === false && !skipFailedRequests) ||
+      options?.isSuccess === undefined;
+
+    if (shouldCount) {
+      entry.count++;
+    }
 
     return {
       allowed: true,
       remaining: maxRequests - entry.count,
       resetTime: entry.resetTime,
+      message: "",
     };
   };
 }
@@ -167,13 +179,18 @@ export function getRateLimitIdentifier(req: Request, userId?: string): string {
 
 /**
  * Helper to check rate limit and return error response if exceeded
+ * @param limiter - The rate limiter function to use
+ * @param identifier - Unique identifier for the client (IP, user ID, etc.)
+ * @param config - Rate limit configuration
+ * @param options - Optional parameters for conditional counting
  */
 export async function checkRateLimit(
   limiter: ReturnType<typeof createRateLimiter>,
   identifier: string,
   config: RateLimitConfig,
+  options?: { isSuccess?: boolean },
 ): Promise<{ ok: true } | { ok: false; response: Response }> {
-  const result = await limiter(identifier);
+  const result = await limiter(identifier, options);
 
   if (!result.allowed) {
     const resetDate = new Date(result.resetTime);
@@ -181,8 +198,7 @@ export async function checkRateLimit(
     const response = new Response(
       JSON.stringify({
         error: "Too many requests",
-        message:
-          config.message ?? "Rate limit exceeded. Please try again later.",
+        message: result.message || config.message || "Rate limit exceeded. Please try again later.",
         retryAfter: retryAfterSeconds,
       }),
       {

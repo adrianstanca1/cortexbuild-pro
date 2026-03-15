@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
 import crypto from "crypto";
+import { createLogger } from "./logger";
+
+const logger = createLogger("webhook-dispatcher");
 
 export interface WebhookPayload {
   event: string;
@@ -140,7 +143,7 @@ export async function dispatchWebhook(
 
     // Return immediately without waiting for webhook deliveries
   } catch (error) {
-    // console.error('Webhook dispatch error:', error);
+    logger.error("Webhook dispatch error:", error);
   }
 }
 

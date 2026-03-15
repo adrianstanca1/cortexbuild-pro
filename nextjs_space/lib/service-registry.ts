@@ -5,6 +5,9 @@
 
 import { prisma } from "@/lib/db";
 import { decryptCredentials } from "@/lib/encryption";
+import { createLogger } from "@/lib/logger";
+
+const logger = createLogger("service-registry");
 
 // Service status types
 export type ServiceStatus =
@@ -676,7 +679,8 @@ export async function getServiceCredentials(
       connectionId: connection.id,
     };
   } catch (error) {
-    // console.error(`Error fetching credentials for service ${serviceId}:`, error);
+    logger.debug(`Error fetching credentials for service ${serviceId}`);
+    logger.error("Credentials fetch failed", error);
     return null;
   }
 }
@@ -811,6 +815,6 @@ export async function logServiceUsage(
       });
     }
   } catch (error) {
-    // console.error("Error logging service usage:", error);
+    logger.error("Error logging service usage:", error);
   }
 }

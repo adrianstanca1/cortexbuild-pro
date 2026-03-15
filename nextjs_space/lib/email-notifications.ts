@@ -6,6 +6,9 @@ import {
   type CompanyInvitationTemplateParams,
   type TeamInvitationTemplateParams,
 } from "./email-templates";
+import { createLogger } from "./logger";
+
+const logger = createLogger("email-notifications");
 
 interface NotificationResult {
   success: boolean;
@@ -52,7 +55,7 @@ async function sendNotificationEmail(params: {
     const result = await response.json();
     return result;
   } catch (error) {
-    // console.error('Error sending notification:', error);
+    logger.error("Error sending notification:", error);
     return { success: false, message: "Failed to send notification" };
   }
 }
