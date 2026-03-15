@@ -31,7 +31,8 @@ class ServiceWorkerManager {
       return null;
     }
 
-    if (!('serviceWorker' in navigator)) {
+    // Proper type checking for navigator.serviceWorker
+    if (!navigator || typeof navigator !== 'object' || !('serviceWorker' in navigator)) {
       console.warn('[ServiceWorkerManager] Service Workers not supported');
       return null;
     }
@@ -227,6 +228,104 @@ class ServiceWorkerManager {
       waiting: !!this.registration?.waiting,
       installing: !!this.registration?.installing,
     };
+  }
+
+  /**
+   * Check if background sync is supported
+   */
+  isSyncSupported(): boolean {
+    return !!this.registration && 
+           ('sync' in this.registration) && 
+           this.registration.sync !== undefined;
+  }
+
+  /**
+   * Check if periodic background sync is supported
+   */
+  isPeriodicSyncSupported(): boolean {
+    return !!this.registration && 
+           ('periodicSync' in this.registration) && 
+           this.registration.periodicSync !== undefined;
+  }
+
+  /**
+   * Register a background sync task
+   */
+  async registerSync(tag: string): Promise<boolean> {
+    if (!this.isSyncSupported()) {
+      console.warn('[ServiceWorkerManager] Background sync not supported');
+      return false;
+    }
+
+    try {
+      // Type guard for sync property using any to avoid TS errors
+      const registration = this.registration as ServiceWorkerRegistration & { sync: any };
+      await registration.sync.register(tag);
+      console.log(`[ServiceWorkerManager] Background sync registered: ${tag}`);
+      return true;
+    } catch (error) {
+      console.error('[ServiceWorkerManager] Failed to register background sync:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Register a periodic background sync task
+   */
+  async registerPeriodicSync(tag: string, options: { minPeriod: number; }): Promise<boolean> {
+    if (!this.isPeriodicSyncSupported()) {
+      console.warn('[ServiceWorkerManager] Periodic background sync not supported');
+      return false;
+    }
+
+    try {
+      // Type guard for periodicSync property using any to avoid TS errors
+      const registration = this.registration as ServiceWorkerRegistration & { periodicSync: any };
+      await registration.periodicSync.register(tag, options);
+      console.log(`[ServiceWorkerManager] Periodic background sync registered: ${tag}`);
+      return true;
+    } catch (error) {
+      console.error('[ServiceWorkerManager] Failed to register periodic background sync:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get registered sync registrations
+   */
+  async getSyncRegistrations(): Promise<string[]> {
+    if (!this.isSyncSupported()) {
+      return [];
+    }
+
+    try {
+      // Type guard for sync property using any to avoid TS errors
+      const registration = this.registration as ServiceWorkerRegistration & { sync: any };
+      const registrations = await registration.sync.getTags();
+      return Array.from(registrations);
+    } catch (error) {
+      console.error('[ServiceWorkerManager] Failed to get sync registrations:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get registered periodic sync registrations
+   */
+  async getPeriodicSyncRegistrations(): Promise<string[]> {
+    if (!this.isPeriodicSyncSupported()) {
+      return [];
+    }
+
+    try {
+      // Type guard for periodicSync property using any to avoid TS errors
+      const registration = this.registration as ServiceWorkerRegistration & { periodicSync: any };
+      const registrations = await registration.periodicSync.getTags();
+      return Array.from(registrations);
+    } catch (error) {
+      console.error('[ServiceWorkerManager] Failed to get periodic sync registrations:', error);
+      return [];
+    }
   }
 }
 

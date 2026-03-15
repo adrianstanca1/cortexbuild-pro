@@ -23,6 +23,7 @@ const API_ENDPOINTS = [
 ];
 
 // Install event - cache static assets
+/** @param {ExtendableEvent} event */
 self.addEventListener('install', event => {
   console.log('CortexBuild Service Worker: Installing...');
   
@@ -38,6 +39,7 @@ self.addEventListener('install', event => {
 });
 
 // Activate event - clean up old caches
+/** @param {ExtendableEvent} event */
 self.addEventListener('activate', event => {
   console.log('CortexBuild Service Worker: Activating...');
   
@@ -61,6 +63,7 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch event - implement caching strategies
+/** @param {FetchEvent} event */
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
@@ -223,6 +226,7 @@ async function handlePageRequest(request) {
 }
 
 // Background sync for offline actions
+/** @param {SyncEvent} event */
 self.addEventListener('sync', event => {
   console.log('CortexBuild Service Worker: Background sync triggered:', event.tag);
   
@@ -254,6 +258,7 @@ async function syncOfflineActions() {
 }
 
 // Push notification handling
+/** @param {PushEvent} event */
 self.addEventListener('push', event => {
   console.log('CortexBuild Service Worker: Push notification received');
   
@@ -292,6 +297,7 @@ self.addEventListener('push', event => {
 });
 
 // Notification click handling
+/** @param {NotificationEvent} event */
 self.addEventListener('notificationclick', event => {
   console.log('CortexBuild Service Worker: Notification clicked');
   
@@ -313,6 +319,7 @@ self.addEventListener('notificationclick', event => {
 });
 
 // Message handling from the main app
+/** @param {ExtendableMessageEvent} event */
 self.addEventListener('message', event => {
   console.log('CortexBuild Service Worker: Message received:', event.data);
   
