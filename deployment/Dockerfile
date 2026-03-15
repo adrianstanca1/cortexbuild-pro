@@ -74,7 +74,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 # Copy built artefacts
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# NOTE: outputFileTracingRoot=../ nests standalone output under app/ subdirectory
+# Copy from standalone/app/ so server.js lands at /app/server.js
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/app ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
@@ -90,5 +92,6 @@ USER nextjs
 
 EXPOSE 3000
 
-# Run migrations then start â non-fatal migration, always launches
-CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node server.js"]
+# Start the Next.js standalone server
+# Migrations run on first DB request (prisma CLI not bundled in standalone)
+CMD ["node", "server.js"]
