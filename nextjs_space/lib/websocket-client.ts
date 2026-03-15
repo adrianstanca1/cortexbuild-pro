@@ -13,34 +13,61 @@ import { io, Socket } from "socket.io-client";
 const WEBSOCKET_URL =
   process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3000";
 
+// Type definitions for WebSocket payloads
+interface TaskChanges {
+  [key: string]: unknown;
+}
+
+interface NotificationPayload {
+  [key: string]: unknown;
+}
+
+interface TaskUpdateData {
+  taskId: string;
+  projectId: string;
+  changes: TaskChanges;
+}
+
+interface TaskCreateData {
+  taskId: string;
+  projectId: string;
+}
+
+interface TaskDeleteData {
+  taskId: string;
+  projectId: string;
+}
+
+interface ProjectMessageData {
+  projectId: string;
+  message: string;
+  senderName: string;
+  timestamp: string;
+}
+
+interface UserStatusData {
+  projectId: string;
+  userId: string;
+  status: string;
+}
+
+interface NotificationData {
+  projectId: string;
+  type: string;
+  payload: NotificationPayload;
+}
+
 interface WebSocketEventMap {
   connect: () => void;
   disconnect: () => void;
   authenticated: (data: { userId: string; projectId?: string }) => void;
   "authentication-error": (error: Error) => void;
-  "task:updated": (data: {
-    taskId: string;
-    projectId: string;
-    changes: any;
-  }) => void;
-  "task:created": (data: { taskId: string; projectId: string }) => void;
-  "task:deleted": (data: { taskId: string; projectId: string }) => void;
-  "project:message": (data: {
-    projectId: string;
-    message: string;
-    senderName: string;
-    timestamp: string;
-  }) => void;
-  "user:status": (data: {
-    projectId: string;
-    userId: string;
-    status: string;
-  }) => void;
-  notification: (data: {
-    projectId: string;
-    type: string;
-    payload: any;
-  }) => void;
+  "task:updated": (data: TaskUpdateData) => void;
+  "task:created": (data: TaskCreateData) => void;
+  "task:deleted": (data: TaskDeleteData) => void;
+  "project:message": (data: ProjectMessageData) => void;
+  "user:status": (data: UserStatusData) => void;
+  notification: (data: NotificationData) => void;
 }
 
 class WebSocketClient {
