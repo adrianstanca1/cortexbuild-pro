@@ -11,7 +11,6 @@ import {
   User,
   Loader2,
   ArrowRight,
-  CheckCircle,
   Zap,
   Clock,
   Award,
@@ -94,7 +93,7 @@ export default function SignupPage() {
         toast.success("Account created successfully!");
         router.replace("/dashboard");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);

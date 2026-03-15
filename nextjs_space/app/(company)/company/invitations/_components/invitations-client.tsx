@@ -129,7 +129,7 @@ export function TeamInvitationsClient({
       } else {
         toast.error(data.error || "Failed to create invitation");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create invitation");
     } finally {
       setCreating(false);
@@ -163,7 +163,7 @@ export function TeamInvitationsClient({
           fetchInvitations();
         }
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error(`Failed to ${action} invitation`);
     }
   };
