@@ -58,7 +58,7 @@ export function CompanySettingsClient({
       } else {
         toast.error("Failed to save settings");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save settings");
     } finally {
       setSaving(false);

@@ -62,7 +62,7 @@ export default function NewProjectPage() {
 
       toast.success("Project created successfully!");
       router.push(`/projects/${data?.project?.id ?? ""}`);
-    } catch (error) {
+    } catch (_error) {
       toast.error("An error occurred");
     } finally {
       setLoading(false);

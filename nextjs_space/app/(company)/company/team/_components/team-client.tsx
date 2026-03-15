@@ -117,7 +117,7 @@ export function CompanyTeamClient({
       } else {
         toast.error("Failed to update team member");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update team member");
     }
   };
@@ -138,7 +138,7 @@ export function CompanyTeamClient({
       } else {
         toast.error("Failed to remove team member");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to remove team member");
     }
   };

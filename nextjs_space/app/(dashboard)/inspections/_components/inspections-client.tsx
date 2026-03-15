@@ -174,7 +174,7 @@ export function InspectionsClient({
         description: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to schedule inspection");
     } finally {
       setLoading(false);
@@ -193,7 +193,7 @@ export function InspectionsClient({
 
       toast.success("Inspection status updated");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update status");
     }
   };

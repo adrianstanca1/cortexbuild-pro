@@ -294,7 +294,7 @@ export function BudgetClient({
         subcontractorId: "",
       });
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to create cost item");
     } finally {
       setLoading(false);
@@ -314,7 +314,7 @@ export function BudgetClient({
       toast.success("Cost item updated successfully");
       setShowEditModal(false);
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update cost item");
     } finally {
       setLoading(false);
@@ -328,7 +328,7 @@ export function BudgetClient({
       if (!res.ok) throw new Error("Failed to delete cost item");
       toast.success("Cost item deleted");
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to delete cost item");
     }
   };
