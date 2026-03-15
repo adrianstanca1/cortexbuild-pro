@@ -1,4 +1,4 @@
-import { ollamaClient } from "./ollama-client";
+import { ollamaClient } from "../ollama-client";
 import { AIAdapter } from "../service-adapters";
 import { AICompletionOptions, AIEmbeddingOptions, VisionOptions, AIResponse } from "./types";
 

@@ -292,6 +292,89 @@ Analysis:`;
   }
 }
 
+  /**
+   * List available models (alias for getAvailableModels)
+   */
+  async listModels(): Promise<string[]> {
+    return this.getAvailableModels();
+  }
+
+  /**
+   * Complete a prompt (wrapper for generateText for compatibility)
+   */
+  async complete(options: { prompt: string; model?: string; temperature?: number }): Promise<{ success: boolean; data?: string; error?: string; responseTime?: number }> {
+    const startTime = Date.now();
+    try {
+      const result = await this.generateText(options.prompt, {
+        model: options.model,
+        temperature: options.temperature,
+      });
+      return { success: true, data: result, responseTime: Date.now() - startTime };
+    } catch (error) {
+      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+    }
+  }
+
+  /**
+   * Generate embeddings using nomic-embed-text or similar model
+   */
+  async embed(options: { input: string | string[]; model?: string }): Promise<{ success: boolean; data?: { embeddings: number[][] }; error?: string; responseTime?: number }> {
+    const startTime = Date.now();
+    const model = options.model || "nomic-embed-text";
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/embeddings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          input: options.input,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama embeddings error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const embeddings = Array.isArray(data.embeddings) ? data.embeddings : [data.embedding];
+      return { success: true, data: { embeddings }, responseTime: Date.now() - startTime };
+    } catch (error) {
+      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+    }
+  }
+
+  /**
+   * Vision model for image analysis (uses llava or similar)
+   */
+  async vision(options: { image: string; prompt?: string; model?: string }): Promise<{ success: boolean; data?: { description: string }; error?: string; responseTime?: number }> {
+    const startTime = Date.now();
+    const model = options.model || "llava";
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          prompt: options.prompt || "Describe this image in detail.",
+          images: [options.image],
+          stream: false,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama vision error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data: { description: data.response || "" }, responseTime: Date.now() - startTime };
+    } catch (error) {
+      return { success: false, error: String(error), responseTime: Date.now() - startTime };
+    }
+  }
+}
+
 // Export singleton instance
 export const ollamaClient = new OllamaClient();
 

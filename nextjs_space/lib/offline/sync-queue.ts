@@ -148,3 +148,24 @@ export async function processSyncQueue(): Promise<{ processed: number; failed: n
 export async function getQueueLength(): Promise<number> {
   return syncQueue.getQueueLength();
 }
+
+// Alias for backward compatibility
+export const processQueuedRequests = processSyncQueue;
+
+// Get sync status helper
+export function getSyncStatus() {
+  return {
+    isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
+    serviceWorkerSupported: typeof navigator !== "undefined" && "serviceWorker" in navigator,
+    syncSupported: typeof window !== "undefined" && "SyncManager" in window,
+    periodicSyncSupported: typeof window !== "undefined" && "PeriodicSyncManager" in window
+  };
+}
+
+// Manual sync function
+export async function manualSync(): Promise<{ processed: number; failed: number }> {
+  if (typeof window === "undefined" || !navigator.onLine) {
+    return { processed: 0, failed: 0 };
+  }
+  return syncQueue.processSyncQueue();
+}
