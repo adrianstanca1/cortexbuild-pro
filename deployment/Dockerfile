@@ -32,7 +32,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY nextjs_space/ .
 
 # Generate Prisma client before build
-RUN npx prisma generate
+RUN node_modules/.bin/prisma generate
 
 # Build-time env (dummy values â real values injected at runtime)
 ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
@@ -91,4 +91,4 @@ USER nextjs
 EXPOSE 3000
 
 # Run migrations then start â non-fatal migration, always launches
-CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node server.js"]
+CMD ["/bin/sh", "-c", "node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | head -20 || echo 'Migration warning â starting anyway'; exec node server.js"]
