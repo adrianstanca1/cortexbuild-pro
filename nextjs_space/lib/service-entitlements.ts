@@ -258,18 +258,18 @@ export function getRequiredServicesForModule(moduleId: string): string[] {
  */
 export async function isEmailAvailable(
   environment: ServiceEnvironment = "PRODUCTION"
-): Promise<{ available: boolean; provider: "sendgrid" | "abacus" | "none" }> {
+): Promise<{ available: boolean; provider: "sendgrid" | "nodemailer" | "none" }> {
   const sendgridConfigured = await isServiceConfigured("sendgrid", environment);
-  
+
   if (sendgridConfigured) {
     return { available: true, provider: "sendgrid" };
   }
 
-  // Check if Abacus AI fallback is available (always available if NOTIFICATION_API_KEY is set)
-  const abacusAvailable = !!process.env.NOTIFICATION_API_KEY;
-  
-  if (abacusAvailable) {
-    return { available: true, provider: "abacus" };
+  // Check if nodemailer fallback is available (always available if SMTP credentials are set)
+  const nodemailerAvailable = !!(process.env.SMTP_HOST && process.env.SMTP_USER);
+
+  if (nodemailerAvailable) {
+    return { available: true, provider: "nodemailer" };
   }
 
   return { available: false, provider: "none" };

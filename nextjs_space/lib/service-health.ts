@@ -49,7 +49,7 @@ const healthCheckers: Record<string, () => Promise<HealthCheckResult>> = {
     const result = await adapter.testConnection();
     return {
       serviceId: "openai",
-      serviceName: "OpenAI / Abacus AI",
+      serviceName: "OpenAI / Ollama",
       status: result.success ? "ACTIVE" : "DISCONNECTED",
       responseTime: result.responseTime,
       lastChecked: new Date(),

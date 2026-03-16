@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
           return labels[key] || key;
         });
 
-      // Use the unified email service (tries SendGrid first, then falls back to Abacus)
+      // Use the unified email service (tries SendGrid first, then falls back to nodemailer)
       const emailHtml = generateCompanyInvitationEmail({
         ownerName,
         companyName,

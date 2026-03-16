@@ -113,7 +113,7 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
   // AI PROCESSING SERVICES
   {
     id: "openai",
-    name: "OpenAI / Abacus AI",
+    name: "OpenAI / Ollama",
     description: "AI-powered document analysis, intelligent suggestions, and natural language processing",
     category: "AI_PROCESSING",
     icon: "Brain",
