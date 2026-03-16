@@ -31,6 +31,9 @@ export default async function DashboardPage() {
     inspections,
     upcomingMilestones,
     changeOrders,
+    dayworks,
+    payroll,
+    riskAssessments,
   ] = await Promise.all([
     prisma.project.findMany({
       where: { organizationId: orgId },
@@ -112,6 +115,38 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 10,
     }),
+    // Dayworks (last 7 days)
+    prisma.dailyReport.findMany({
+      where: {
+        project: { organizationId: orgId },
+        reportDate: { gte: thirtyDaysAgo },
+      },
+      include: { project: { select: { name: true } } },
+      orderBy: { reportDate: "desc" },
+      take: 10,
+    }),
+    // Payroll
+    prisma.payroll.findMany({
+      where: { organizationId: orgId },
+      include: {
+        employee: {
+          select: {
+            user: { select: { name: true, email: true } },
+          },
+        },
+      },
+      orderBy: { period: "desc" },
+      take: 10,
+    }),
+    // Risk Assessments
+    prisma.riskAssessment.findMany({
+      where: {
+        project: { organizationId: orgId },
+      },
+      include: { project: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
   ]);
 
   const stats = {
@@ -161,6 +196,9 @@ export default async function DashboardPage() {
       .filter((c) => c.status === "APPROVED")
       .reduce((sum, c) => sum + (Number(c.costChange) || 0), 0),
     totalBudget: projects.reduce((sum, p) => sum + (Number(p.budget) || 0), 0),
+    dayworksCount: dayworks.length,
+    payrollEntries: payroll.length,
+    riskAssessmentsCount: riskAssessments.length,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -181,6 +219,9 @@ export default async function DashboardPage() {
       punchLists={serialize(punchLists)}
       upcomingMilestones={serialize(upcomingMilestones)}
       changeOrders={serialize(changeOrders)}
+      dayworks={serialize(dayworks)}
+      payroll={serialize(payroll)}
+      riskAssessments={serialize(riskAssessments)}
     />
   );
 }
