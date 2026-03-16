@@ -1,0 +1,11 @@
+[master 3c5aaab] AI assistant and file attachments
+ 16 files changed, 1449 insertions(+), 31 deletions(-)
+ create mode 100644 nextjs_space/app/api/ai/analyze-document/route.ts
+ create mode 100644 nextjs_space/app/api/ai/route.ts
+ create mode 100644 nextjs_space/app/api/daily-reports/[id]/photos/route.ts
+ create mode 100644 nextjs_space/app/api/rfis/[id]/attachments/route.ts
+ create mode 100644 nextjs_space/app/api/safety/[id]/photos/route.ts
+ create mode 100644 nextjs_space/app/api/upload/file-url/route.ts
+ create mode 100644 nextjs_space/components/ai-assistant.tsx
+ create mode 100644 nextjs_space/components/ui/file-upload.tsx
+###3c5aaabbc5f2eba8e127dae96f0ae2b1115972fa###

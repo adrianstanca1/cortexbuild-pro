@@ -1,0 +1,209 @@
+name: Security Audit & Scan
+
+on:
+  push:
+    branches: [Cortexbuildpro, main, master, master-integrated]
+  pull_request:
+    branches: [Cortexbuildpro, main, master, master-integrated]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================
+  # NPM Audit
+  # ============================================
+  npm-audit:
+    name: 📦 NPM Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run npm audit (root)
+        run: npm audit --json > audit-root.json || true
+        continue-on-error: true
+
+      - name: Install Next.js dependencies
+        working-directory: nextjs_space
+        run: npm ci --legacy-peer-deps
+
+      - name: Run npm audit (Next.js)
+        working-directory: nextjs_space
+        run: npm audit --json > ../audit-nextjs.json || true
+        continue-on-error: true
+
+      - name: Check critical vulnerabilities
+        run: |
+          echo "🔍 Checking for critical vulnerabilities..."
+          CRITICAL_ROOT=$(jq '.metadata.vulnerabilities.critical // 0' audit-root.json 2>/dev/null || echo 0)
+          HIGH_ROOT=$(jq '.metadata.vulnerabilities.high // 0' audit-root.json 2>/dev/null || echo 0)
+          CRITICAL_NEXT=$(jq '.metadata.vulnerabilities.critical // 0' audit-nextjs.json 2>/dev/null || echo 0)
+          HIGH_NEXT=$(jq '.metadata.vulnerabilities.high // 0' audit-nextjs.json 2>/dev/null || echo 0)
+          
+          TOTAL_CRITICAL=$((CRITICAL_ROOT + CRITICAL_NEXT))
+          TOTAL_HIGH=$((HIGH_ROOT + HIGH_NEXT))
+          
+          echo "📊 Vulnerability Summary:"
+          echo "  Root - Critical: $CRITICAL_ROOT, High: $HIGH_ROOT"
+          echo "  Next.js - Critical: $CRITICAL_NEXT, High: $HIGH_NEXT"
+          echo "  Total - Critical: $TOTAL_CRITICAL, High: $TOTAL_HIGH"
+          
+          if [ "$TOTAL_CRITICAL" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          fi
+          
+          if [ "$TOTAL_HIGH" -gt 10 ]; then
+            echo "⚠️ High number of high-severity vulnerabilities ($TOTAL_HIGH)"
+          fi
+          
+          echo "✅ Security check passed"
+        continue-on-error: true
+
+      - name: Upload audit reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-reports
+          path: |
+            audit-root.json
+            audit-nextjs.json
+          retention-days: 30
+
+  # ============================================
+  # CodeQL Analysis
+  # ============================================
+  codeql:
+    name: 🔬 CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript, typescript
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript"
+
+  # ============================================
+  # Trivy Container Scan
+  # ============================================
+  trivy-scan:
+    name: 🐳 Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployment/Dockerfile
+          push: false
+          load: true
+          tags: cortexbuild-pro:security-scan
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: cortexbuild-pro:security-scan
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Check for critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: cortexbuild-pro:security-scan
+          exit-code: '1'
+          severity: CRITICAL
+
+  # ============================================
+  # Secret Scanning
+  # ============================================
+  secret-scan:
+    name: 🔑 Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitLeaks
+        uses: zricethezav/gitleaks-action@master
+        continue-on-error: true
+
+      - name: Check for exposed secrets
+        run: |
+          echo "🔍 Scanning for exposed secrets..."
+          # Check for common patterns
+          if grep -r "AKIA[0-9A-Z]{16}" . --include="*.js" --include="*.ts" --include="*.json" 2>/dev/null; then
+            echo "⚠️ Possible AWS Access Key found"
+          fi
+          if grep -r "ghp_[a-zA-Z0-9]{36}" . --include="*.js" --include="*.ts" --include="*.json" 2>/dev/null; then
+            echo "⚠️ Possible GitHub Token found"
+          fi
+          echo "✅ Secret scan complete"
+        continue-on-error: true
+
+  # ============================================
+  # Security Summary
+  # ============================================
+  security-summary:
+    name: 📊 Security Summary
+    runs-on: ubuntu-latest
+    needs: [npm-audit, codeql, trivy-scan, secret-scan]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# 🔒 Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📦 NPM Audit | ${{ needs.npm-audit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔬 CodeQL Analysis | ${{ needs.codeql.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🐳 Trivy Container Scan | ${{ needs.trivy-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔑 Secret Detection | ${{ needs.secret-scan.result }} |" >> $GITHUB_STEP_SUMMARY

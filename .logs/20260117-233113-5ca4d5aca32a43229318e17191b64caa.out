@@ -1,0 +1,5 @@
+scripts/cleanup-old-data.ts(66,38): error TS2551: Property 'attachment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'rFIAttachment'?
+scripts/cleanup-old-data.ts(79,33): error TS2551: Property 'attachment' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'rFIAttachment'?
+scripts/generate-report.ts(132,44): error TS2367: This comparison appears to be unintentional because the types 'ProjectStatus' and '"ACTIVE"' have no overlap.
+scripts/generate-report.ts(135,41): error TS2367: This comparison appears to be unintentional because the types 'TaskStatus' and '"COMPLETED"' have no overlap.
+exit_code=2

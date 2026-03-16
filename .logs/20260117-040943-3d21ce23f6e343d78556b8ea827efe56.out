@@ -1,0 +1,44 @@
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 1668ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s (596 modules)
+ GET / 200 in 2506ms
+ ✓ Compiled in 419ms (296 modules)
+ ✓ Compiled /api/auth/[...nextauth] in 426ms (541 modules)
+ GET /api/auth/providers 200 in 897ms
+ GET / 200 in 86ms
+ GET /api/auth/session 200 in 51ms
+ GET /api/auth/session 200 in 36ms
+ ○ Compiling /signup ...
+ ✓ Compiled /signup in 861ms (881 modules)
+ GET /login 200 in 1028ms
+ GET /signup 200 in 1031ms
+ GET /api/auth/session 200 in 59ms
+ GET /api/auth/session 200 in 34ms
+ GET /api/auth/session 200 in 37ms
+ GET /api/auth/session 200 in 35ms
+ GET /api/auth/session 200 in 34ms
+ GET /api/auth/csrf 200 in 44ms
+ ✓ Compiled /api/signup in 184ms (597 modules)
+ POST /api/signup 200 in 654ms
+ GET / 200 in 78ms
+ GET /api/auth/signin 302 in 54ms
+ GET /login?callbackUrl=https://267ef8e6d.preview.abacusai.app 200 in 52ms
+ GET /api/auth/csrf 200 in 34ms
+ POST /api/auth/callback/credentials 302 in 329ms
+ ✓ Compiled /middleware in 163ms (174 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 2.3s (2829 modules)
+ GET /dashboard 500 in 2551ms
+ GET / 200 in 57ms
+ GET /api/auth/session 200 in 75ms
+ GET /api/auth/session 200 in 35ms
+ ✓ Compiled in 727ms (2841 modules)
+ ✓ Compiled in 534ms (2841 modules)
+[?25h

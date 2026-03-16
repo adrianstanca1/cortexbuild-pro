@@ -1,0 +1,175 @@
+➤ YN0000: · Yarn 4.12.0
+➤ YN0000: ┌ Resolution step
+➤ YN0085: │ - @azure/abort-controller@npm:2.1.2, @azure/core-auth@npm:1.10.1, @azure/core-client@npm:1.10.1, @azure/core-http-compat@npm:2.3.1, and 11 more.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @typescript-eslint/parser is listed by your project with version 7.0.0 (p6cb6c0), which doesn't satisfy what @typescript-eslint/eslint-plugin requests (^6.0.0-alpha).
+➤ YN0060: │ eslint is listed by your project with version 9.24.0 (pe6e000), which doesn't satisfy what @typescript-eslint/eslint-plugin and other dependencies request (^8.57.0).
+➤ YN0002: │ app@workspace:. doesn't provide prettier (pd88b5f), requested by eslint-plugin-prettier.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 0s 903ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 0s 427ms
+➤ YN0000: · Done with warnings in 1s 533ms
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.7.0) to ./node_modules/.prisma/client in 423ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+Starting server...
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · outputFileTracingRoot
+
+ ✓ Starting...
+ ✓ Ready in 2s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.2s (611 modules)
+ HEAD / 200 in 2763ms
+ ✓ Compiled in 590ms (297 modules)
+ GET / 200 in 88ms
+ ✓ Compiled /api/auth/[...nextauth] in 437ms (555 modules)
+ GET /api/auth/session 200 in 926ms
+ GET /api/auth/session 200 in 70ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 713ms (896 modules)
+ GET / 200 in 123ms
+ GET / 200 in 78ms
+ GET /api/auth/providers 200 in 103ms
+ GET /api/auth/csrf 200 in 62ms
+ POST /api/auth/callback/credentials 200 in 469ms
+ GET /api/auth/session 200 in 82ms
+ ✓ Compiled /middleware in 212ms (174 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 2s (1874 modules)
+ GET /dashboard?_rsc=iqngu 200 in 115ms
+ ✓ Compiled /api/notifications in 269ms (1110 modules)
+ ✓ Compiled (1112 modules)
+ GET /api/dashboard/agenda 200 in 627ms
+ GET /api/notifications?limit=10 200 in 617ms
+ ✓ Compiled /api/realtime in 168ms (1115 modules)
+ GET /api/realtime 200 in 58ms
+ GET /api/dashboard/agenda 200 in 111ms
+ GET /api/notifications?limit=10 200 in 99ms
+ GET /api/realtime 200 in 224ms
+ GET /api/realtime 200 in 244ms
+ GET /api/realtime 200 in 240ms
+ GET /api/realtime 200 in 249ms
+ GET /api/realtime 200 in 227ms
+ GET /api/realtime 200 in 218ms
+ GET /api/realtime 200 in 245ms
+ GET /api/realtime 200 in 247ms
+ GET /api/realtime 200 in 225ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 256ms
+ GET /api/realtime 200 in 287ms
+ GET /api/realtime 200 in 247ms
+ GET /api/realtime 200 in 235ms
+ GET /api/realtime 200 in 238ms
+ GET /api/realtime 200 in 239ms
+ GET /api/realtime 200 in 231ms
+ GET /api/realtime 200 in 231ms
+ GET / 200 in 128ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 243ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 241ms
+ GET /api/realtime 200 in 230ms
+ GET /api/realtime 200 in 237ms
+ GET /api/realtime 200 in 251ms
+ GET /api/realtime 200 in 253ms
+ GET /api/realtime 200 in 263ms
+ GET /api/realtime 200 in 224ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 236ms
+ GET /api/realtime 200 in 229ms
+ GET /api/realtime 200 in 245ms
+ GET /api/realtime 200 in 244ms
+ GET /api/realtime 200 in 283ms
+ GET /api/realtime 200 in 234ms
+ GET /api/realtime 200 in 231ms
+ GET /api/realtime 200 in 270ms
+ GET /api/realtime 200 in 223ms
+ GET /api/realtime 200 in 275ms
+ GET /api/realtime 200 in 231ms
+ GET /api/realtime 200 in 227ms
+ GET /api/realtime 200 in 239ms
+ GET /api/realtime 200 in 259ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 230ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 225ms
+ GET /api/realtime 200 in 312ms
+ GET /api/realtime 200 in 287ms
+ GET /api/realtime 200 in 241ms
+ GET /api/realtime 200 in 357ms
+ GET /api/realtime 200 in 275ms
+ GET /api/realtime 200 in 247ms
+ GET /api/realtime 200 in 230ms
+ GET /api/realtime 200 in 256ms
+ GET /api/realtime 200 in 252ms
+ GET /api/realtime 200 in 245ms
+ GET /api/realtime 200 in 238ms
+ GET / 200 in 77ms
+ GET /api/realtime 200 in 262ms
+ GET /api/realtime 200 in 225ms
+ GET /api/realtime 200 in 226ms
+ GET /api/realtime 200 in 254ms
+ GET /api/realtime 200 in 278ms
+ GET /api/realtime 200 in 247ms
+ GET /api/realtime 200 in 222ms
+ GET /api/realtime 200 in 316ms
+ GET /api/realtime 200 in 282ms
+ GET /api/realtime 200 in 235ms
+ GET /api/realtime 200 in 228ms
+ GET /api/realtime 200 in 250ms
+ GET /api/realtime 200 in 243ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 271ms
+ GET /api/realtime 200 in 219ms
+ GET /api/realtime 200 in 283ms
+ GET /api/realtime 200 in 236ms
+ GET /api/realtime 200 in 319ms
+ GET /api/realtime 200 in 235ms
+ GET /api/realtime 200 in 328ms
+ GET /api/realtime 200 in 251ms
+ GET /api/realtime 200 in 228ms
+ GET /api/realtime 200 in 255ms
+ GET /api/realtime 200 in 334ms
+ GET /api/realtime 200 in 232ms
+ GET /api/realtime 200 in 251ms
+ GET /api/realtime 200 in 247ms
+ GET /api/realtime 200 in 271ms
+ GET /api/realtime 200 in 236ms
+ GET /api/realtime 200 in 233ms
+ GET /api/realtime 200 in 65651ms
+ GET /api/realtime 200 in 70ms
+ GET / 200 in 83ms
+ GET / 200 in 82ms
+ GET /api/auth/session 200 in 78ms
+ GET /api/auth/session 200 in 58ms
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P05), message: "terminating connection due to idle-session timeout", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3472), routine: Some("ProcessInterrupts") }) }
+ GET / 200 in 81ms
+ GET / 200 in 77ms
+ GET / 200 in 75ms
+ GET / 200 in 83ms
+ GET / 200 in 76ms
+ ✓ Compiled in 965ms (809 modules)
+ ✓ Compiled in 2.4s (809 modules)
+ ✓ Compiled in 843ms (809 modules)
+ ✓ Compiled in 931ms (809 modules)
+[?25h

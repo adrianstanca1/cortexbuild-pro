@@ -1,0 +1,24 @@
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/projects/page.js:3818:80
+
+  3815 async function ProjectsPage() {
+  3816     const session = await (0,next_auth__WEBPACK_IMPORTED_MODULE_1__.getServerSession)(_lib_auth_options__WEBPACK_IMPORTED_MODULE_2__.authOptions);
+  3817     const orgId = session?.user?.organizationId;
+→ 3818     const projects = await _lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async ProjectsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/projects/page.js:3818:22)
+digest: "2659007704"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/projects/page.js:3818:80
+
+  3815 async function ProjectsPage() {
+  3816     const session = await (0,next_auth__WEBPACK_IMPORTED_MODULE_1__.getServerSession)(_lib_auth_options__WEBPACK_IMPORTED_MODULE_2__.authOptions);
+  3817     const orgId = session?.user?.organizationId;
+→ 3818     const projects = await _lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async ProjectsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/projects/page.js:3818:22)
+digest: "2659007704"

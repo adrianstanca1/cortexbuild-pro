@@ -1,0 +1,2 @@
+app/api/ai/route.ts(76,94): error TS2339: Property 'amount' does not exist on type '{ project: { name: string; }; } & { number: number; status: ChangeOrderStatus; projectId: string; id: string; createdAt: Date; updatedAt: Date; description: string | null; ... 9 more ...; executedAt: Date | null; }'.
+exit_code=2

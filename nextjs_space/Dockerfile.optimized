@@ -1,0 +1,90 @@
+# ============================================
+# CortexBuild Pro - Optimized Production Dockerfile
+# ============================================
+
+# ------------------------------------------------------------------
+# Stage 1: Base
+# ------------------------------------------------------------------
+FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat openssl
+
+# ------------------------------------------------------------------
+# Stage 2: Dependencies
+# - Install only production dependencies
+# - Use cache mount for npm
+# ------------------------------------------------------------------
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files first for better layer caching
+COPY package.json package-lock.json* ./
+
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --no-fund
+
+# ------------------------------------------------------------------
+# Stage 3: Builder
+# - Build the application
+# - Generate Prisma client
+# ------------------------------------------------------------------
+FROM base AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build configuration
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV NEXT_OUTPUT_MODE=standalone
+
+# Dummy build args (replaced at runtime)
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ARG NEXTAUTH_SECRET="build-time-secret"
+ARG NEXTAUTH_URL="http://localhost:3000"
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+
+# Build application
+RUN npm run build
+
+# ------------------------------------------------------------------
+# Stage 4: Production Runner
+# - Minimal image with only runtime necessities
+# ------------------------------------------------------------------
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Install only runtime dependencies
+RUN apk add --no-cache openssl
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy only necessary files from builder
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# Create uploads directory
+RUN mkdir -p uploads && chown nextjs:nodejs uploads
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]

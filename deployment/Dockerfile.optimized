@@ -1,0 +1,105 @@
+# ============================================
+# CortexBuild Pro - Highly Optimized Production Dockerfile
+# ============================================
+
+# ------------------------------------------------------------------
+# Stage 1: Base
+# - Minimal Alpine image with required system packages
+# ------------------------------------------------------------------
+FROM node:25-alpine AS base
+RUN apk add --no-cache libc6-compat openssl
+
+# ------------------------------------------------------------------
+# Stage 2: Dependencies (Production only)
+# - Install only production dependencies
+# - Use cache mount for npm to speed up rebuilds
+# ------------------------------------------------------------------
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files first for optimal layer caching
+COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
+
+# Install only production dependencies with cache mount
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --no-fund --production
+
+# ------------------------------------------------------------------
+# Stage 3: Dev Dependencies (for build)
+# - Separate stage for dev dependencies
+# ------------------------------------------------------------------
+FROM base AS dev-deps
+WORKDIR /app
+
+COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --no-fund
+
+# ------------------------------------------------------------------
+# Stage 4: Builder
+# - Build the Next.js application
+# - Generate Prisma client
+# ------------------------------------------------------------------
+FROM base AS builder
+WORKDIR /app
+
+# Copy all dependencies (dev + prod) for build
+COPY --from=dev-deps /app/node_modules ./node_modules
+COPY nextjs_space/ .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build configuration
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV NEXT_OUTPUT_MODE=standalone
+ENV PRISMA_SKIP_INIT=true
+
+# Dummy env vars for build (replaced at runtime)
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ARG NEXTAUTH_SECRET="build-time-secret"
+ARG NEXTAUTH_URL="http://localhost:3000"
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+
+# Build application
+RUN npm run build
+
+# ------------------------------------------------------------------
+# Stage 5: Production Runner
+# - Minimal image with only runtime necessities
+# - No build tools, no dev dependencies
+# ------------------------------------------------------------------
+FROM node:25-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Install only runtime dependencies
+RUN apk add --no-cache openssl
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy only necessary files from builder
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# Create uploads directory with proper permissions
+RUN mkdir -p uploads && chown nextjs:nodejs uploads
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]

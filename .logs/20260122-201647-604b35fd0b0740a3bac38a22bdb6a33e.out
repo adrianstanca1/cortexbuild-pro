@@ -1,0 +1,9 @@
+[master bfc6201] PDF exports, email notifications, safety analytics
+ 14 files changed, 2150 insertions(+), 6 deletions(-)
+ create mode 100644 nextjs_space/app/(company)/company/_components/safety-compliance-dashboard.tsx
+ create mode 100644 nextjs_space/app/api/mewp-checks/[id]/pdf/route.ts
+ create mode 100644 nextjs_space/app/api/safety/analytics/route.ts
+ create mode 100644 nextjs_space/app/api/tool-checks/[id]/pdf/route.ts
+ create mode 100644 nextjs_space/app/api/toolbox-talks/[id]/pdf/route.ts
+ create mode 100644 nextjs_space/lib/email-notifications.ts
+###bfc62011acda5de77366b9cee72939262474ece5###

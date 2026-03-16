@@ -1,0 +1,5 @@
+[master a1ee9ae] Full real-time connections and event broadcasting
+ 18 files changed, 603 insertions(+), 48 deletions(-)
+ create mode 100644 nextjs_space/components/realtime-provider.tsx
+ create mode 100644 nextjs_space/components/realtime-status-indicator.tsx
+###a1ee9aeaa02d0295aa3a80e1532aaf549266fe6d###

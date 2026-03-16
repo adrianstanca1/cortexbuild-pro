@@ -1,0 +1,30 @@
+app/(dashboard)/budget/_components/budget-client.tsx(132,5): error TS2345: Argument of type '("cost_item_created" | "cost_item_updated" | "cost_item_deleted")[]' is not assignable to parameter of type 'RealtimeEventType | RealtimeEventType[]'.
+  Type '("cost_item_created" | "cost_item_updated" | "cost_item_deleted")[]' is not assignable to type 'RealtimeEventType[]'.
+    Type '"cost_item_created" | "cost_item_updated" | "cost_item_deleted"' is not assignable to type 'RealtimeEventType'.
+      Type '"cost_item_created"' is not assignable to type 'RealtimeEventType'.
+app/(dashboard)/materials/_components/materials-client.tsx(118,5): error TS2345: Argument of type '("material_created" | "material_updated" | "material_deleted")[]' is not assignable to parameter of type 'RealtimeEventType | RealtimeEventType[]'.
+  Type '("material_created" | "material_updated" | "material_deleted")[]' is not assignable to type 'RealtimeEventType[]'.
+    Type '"material_created" | "material_updated" | "material_deleted"' is not assignable to type 'RealtimeEventType'.
+      Type '"material_created"' is not assignable to type 'RealtimeEventType'.
+app/(dashboard)/subcontractors/_components/subcontractors-client.tsx(125,5): error TS2345: Argument of type '("subcontractor_created" | "subcontractor_updated" | "subcontractor_deleted")[]' is not assignable to parameter of type 'RealtimeEventType | RealtimeEventType[]'.
+  Type '("subcontractor_created" | "subcontractor_updated" | "subcontractor_deleted")[]' is not assignable to type 'RealtimeEventType[]'.
+    Type '"subcontractor_created" | "subcontractor_updated" | "subcontractor_deleted"' is not assignable to type 'RealtimeEventType'.
+      Type '"subcontractor_created"' is not assignable to type 'RealtimeEventType'.
+app/api/budget/[id]/route.ts(20,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/budget/[id]/route.ts(53,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/budget/[id]/route.ts(126,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/budget/route.ts(74,31): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+  Type 'null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/materials/[id]/route.ts(20,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/materials/[id]/route.ts(58,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/materials/[id]/route.ts(143,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/materials/route.ts(78,31): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/milestones/[id]/route.ts(20,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/milestones/[id]/route.ts(52,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/milestones/[id]/route.ts(124,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/milestones/route.ts(61,31): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Project"> | undefined'.
+app/api/subcontractors/[id]/route.ts(20,9): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Subcontractor"> | undefined'.
+  Type 'null' is not assignable to type 'string | StringFilter<"Subcontractor"> | undefined'.
+app/api/subcontractors/[id]/route.ts(65,9): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Subcontractor"> | undefined'.
+app/api/subcontractors/[id]/route.ts(141,9): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"Subcontractor"> | undefined'.
+exit_code=2

@@ -1,0 +1,15 @@
+# Global code owners
+* @adrianstanca1
+
+# GitHub Actions workflows
+/.github/workflows/ @adrianstanca1
+
+# Deployment configuration
+/deployment/ @adrianstanca1
+
+# Database schema and migrations
+/nextjs_space/prisma/ @adrianstanca1
+
+# Security-sensitive files
+/nextjs_space/.env* @adrianstanca1
+/deployment/.env* @adrianstanca1

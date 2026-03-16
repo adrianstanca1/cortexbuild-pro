@@ -1,0 +1,11 @@
+[master 31d59eb] Added API Management Dashboard for Super Admin
+ 11 files changed, 1956 insertions(+), 2 deletions(-)
+ create mode 100644 nextjs_space/app/(admin)/admin/api-management/_components/api-management-client.tsx
+ create mode 100644 nextjs_space/app/(admin)/admin/api-management/page.tsx
+ create mode 100644 nextjs_space/app/api/admin/api-connections/[id]/rotate/route.ts
+ create mode 100644 nextjs_space/app/api/admin/api-connections/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/admin/api-connections/[id]/test/route.ts
+ create mode 100644 nextjs_space/app/api/admin/api-connections/logs/route.ts
+ create mode 100644 nextjs_space/app/api/admin/api-connections/route.ts
+ create mode 100644 nextjs_space/lib/encryption.ts
+###31d59eb5ed4ab5da919d08dd850f70558be195c9###

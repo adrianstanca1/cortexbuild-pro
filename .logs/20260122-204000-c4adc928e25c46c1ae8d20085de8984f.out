@@ -1,0 +1,21 @@
+[master 9a29b15] 6fdda3f2-7dca-442a-942a-a52e2cb85ccd
+ 24 files changed, 5042 insertions(+), 7 deletions(-)
+ create mode 100644 nextjs_space/app/(dashboard)/projects/[id]/_components/certifications-tab.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/projects/[id]/_components/lifting-operations-tab.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/projects/[id]/_components/permits-to-work-tab.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/projects/[id]/_components/risk-assessments-tab.tsx
+ create mode 100644 nextjs_space/app/(dashboard)/projects/[id]/_components/site-access-tab.tsx
+ create mode 100644 nextjs_space/app/api/certifications/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/certifications/route.ts
+ create mode 100644 nextjs_space/app/api/confined-space-permits/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/confined-space-permits/route.ts
+ create mode 100644 nextjs_space/app/api/hot-work-permits/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/hot-work-permits/route.ts
+ create mode 100644 nextjs_space/app/api/lifting-operations/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/lifting-operations/route.ts
+ create mode 100644 nextjs_space/app/api/risk-assessments/[id]/acknowledge/route.ts
+ create mode 100644 nextjs_space/app/api/risk-assessments/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/risk-assessments/route.ts
+ create mode 100644 nextjs_space/app/api/site-access/[id]/route.ts
+ create mode 100644 nextjs_space/app/api/site-access/route.ts
+###9a29b15dbff33fafb16a110e76f533e8f78a2be5###

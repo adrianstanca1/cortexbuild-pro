@@ -1,0 +1,4 @@
+[master 124f7ca] Complete API management with edit/rotate modals
+ 4 files changed, 935 insertions(+), 33 deletions(-)
+ create mode 100644 nextjs_space/app/api/admin/api-connections/[id]/credentials/route.ts
+###124f7ca0ac66bcaff94850af47dfe2080c195f97###

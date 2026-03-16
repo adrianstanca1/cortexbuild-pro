@@ -1,0 +1,261 @@
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/submittals/page.js:5025:61
+
+  5022 const organizationId = session.user.organizationId;
+  5023 if (!organizationId) (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.redirect)("/login");
+  5024 const [projects, submittals, teamMembers] = await Promise.all([
+→ 5025     _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 0)
+    at async SubmittalsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/submittals/page.js:5024:49)
+digest: "1231903282"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.rFI.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5524:57
+
+  5521         name: "asc"
+  5522     }
+  5523 }),
+→ 5524 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.rFI.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async RFIsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5511:43)
+digest: "2679232346"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.inspection.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4491:64
+
+  4488         name: true
+  4489     }
+  4490 }),
+→ 4491 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.inspection.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async InspectionsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4481:37)
+digest: "2388410064"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.rFI.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5524:57
+
+  5521         name: "asc"
+  5522     }
+  5523 }),
+→ 5524 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.rFI.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async RFIsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/rfis/page.js:5511:43)
+digest: "2679232346"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/submittals/page.js:5025:61
+
+  5022 const organizationId = session.user.organizationId;
+  5023 if (!organizationId) (0,next_navigation__WEBPACK_IMPORTED_MODULE_2__.redirect)("/login");
+  5024 const [projects, submittals, teamMembers] = await Promise.all([
+→ 5025     _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.project.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 0)
+    at async SubmittalsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/submittals/page.js:5024:49)
+digest: "1231903282"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.inspection.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4491:64
+
+  4488         name: true
+  4489     }
+  4490 }),
+→ 4491 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.inspection.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 1)
+    at async InspectionsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/inspections/page.js:4481:37)
+digest: "2388410064"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/reports/page.js:4137:64
+
+  4134         }
+  4135     }
+  4136 }),
+→ 4137 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async ReportsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/reports/page.js:4107:56)
+digest: "2511804191"
+ ⨯ PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/reports/page.js:4137:64
+
+  4134         }
+  4135     }
+  4136 }),
+→ 4137 _lib_db__WEBPACK_IMPORTED_MODULE_4__.prisma.teamMember.findMany(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at async Promise.all (index 2)
+    at async ReportsPage (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/(dashboard)/reports/page.js:4107:56)
+digest: "2511804191"
+Error fetching company stats: PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.activityLog.count()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:397:69
+
+  394         }
+  395     }
+  396 }),
+→ 397 _lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.activityLog.count(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at zn.handleRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:7459)
+    at zn.handleAndLogRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6784)
+    at zn.request (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6491)
+    at async l (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:133:9778)
+    at async Promise.all (index 15)
+    at async GET (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:278:348)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P2037',
+  meta: {
+    modelName: 'ActivityLog',
+    message: 'FATAL: too many connections for role "role_ddaacb0a0"'
+  },
+  clientVersion: '6.7.0'
+}
+Error fetching company stats: PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.task.count()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:308:62
+
+  305         }
+  306     }
+  307 }),
+→ 308 _lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.task.count(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at zn.handleRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:7459)
+    at zn.handleAndLogRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6784)
+    at zn.request (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6491)
+    at async l (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:133:9778)
+    at async Promise.all (index 5)
+    at async GET (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:278:348)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P2037',
+  meta: {
+    modelName: 'Task',
+    message: 'FATAL: too many connections for role "role_ddaacb0a0"'
+  },
+  clientVersion: '6.7.0'
+}
+Error fetching company stats: PrismaClientKnownRequestError: 
+Invalid `prisma.$queryRaw()` invocation:
+
+
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at zn.handleRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:7459)
+    at zn.handleAndLogRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6784)
+    at zn.request (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6491)
+    at async l (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:133:9778)
+    at async Promise.all (index 19)
+    at async GET (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:278:348)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P2037',
+  meta: { message: 'FATAL: too many connections for role "role_ddaacb0a0"' },
+  clientVersion: '6.7.0'
+}
+Error fetching company stats: PrismaClientKnownRequestError: 
+Invalid `_lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.submittal.count()` invocation in
+/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:353:67
+
+  350         }
+  351     }
+  352 }),
+→ 353 _lib_db__WEBPACK_IMPORTED_MODULE_3__.prisma.submittal.count(
+Too many database connections opened: FATAL: too many connections for role "role_ddaacb0a0"
+Prisma Accelerate has built-in connection pooling to prevent such errors: https://pris.ly/client/error-accelerate
+    at zn.handleRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:7459)
+    at zn.handleAndLogRequestError (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6784)
+    at zn.request (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:124:6491)
+    at async l (/opt/hostedapp/node/root/app/node_modules/.prisma/client/runtime/library.js:133:9778)
+    at async Promise.all (index 10)
+    at async GET (/home/ubuntu/cortexbuild_pro/nextjs_space/.next/server/app/api/company/stats/route.js:278:348)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/opt/hostedapp/node/root/app/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/base-server.js:818:17)
+    at async /opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/opt/hostedapp/node/root/app/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:178:21)
+    at async handleRequest (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:355:24)
+    at async requestHandlerImpl (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/router-server.js:379:13)
+    at async Server.requestListener (/opt/hostedapp/node/root/app/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'P2037',
+  meta: {
+    modelName: 'Submittal',
+    message: 'FATAL: too many connections for role "role_ddaacb0a0"'
+  },
+  clientVersion: '6.7.0'
+}
