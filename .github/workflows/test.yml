@@ -2,9 +2,9 @@ name: Test Suite
 
 on:
   push:
-    branches: [Cortexbuildpro, main, master, master-integrated]
+    branches: [main, master]
   pull_request:
-    branches: [Cortexbuildpro, main, master, master-integrated]
+    branches: [main, master]
 
 jobs:
   unit-tests:

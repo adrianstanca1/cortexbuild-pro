@@ -2,9 +2,9 @@ name: Security Audit & Scan
 
 on:
   push:
-    branches: [Cortexbuildpro, main, master, master-integrated]
+    branches: [main, master]
   pull_request:
-    branches: [Cortexbuildpro, main, master, master-integrated]
+    branches: [main, master]
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
   workflow_dispatch:
