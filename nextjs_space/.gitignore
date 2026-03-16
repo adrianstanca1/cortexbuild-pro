@@ -6,3 +6,5 @@ node_modules/
 .build
 *. 2.*
 *. 3.*
+playwright-report/
+test-results/
