@@ -11,6 +11,7 @@ import {
   Settings,
   X,
   BarChart3,
+  FileText,
   Shield,
   Building2,
   Truck,
@@ -111,6 +112,7 @@ const navigationFolders = [
     gradient: 'from-amber-500 to-orange-500',
     items: [
       { href: '/daily-reports', label: 'Daily Reports', icon: ClipboardList },
+      { href: '/dayworks', label: 'Daywork Manager', icon: FileText },
       { href: '/site-diary', label: 'Site Diary', icon: BookOpen },
       { href: '/time-tracking', label: 'Time Tracking', icon: Clock },
       { href: '/meetings', label: 'Meetings', icon: Calendar },

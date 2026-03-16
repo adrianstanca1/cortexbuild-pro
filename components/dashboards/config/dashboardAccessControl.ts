@@ -15,7 +15,8 @@ export type DashboardType =
   | 'sdk_workspace'          // SDK workspace environment
   | 'developer_dashboard'    // Developer dashboard with analytics
   | 'ai_marketplace'         // AI agents marketplace
-  | 'automation_studio';     // Workflow automation tools
+  | 'automation_studio'      // Workflow automation tools
+  | 'deployment_dashboard';  // Deployment and infrastructure monitoring
 
 export type DashboardCategory =
   | 'core'                   // Core project management
@@ -201,6 +202,25 @@ export const DASHBOARD_DEFINITIONS: Record<DashboardType, DashboardDefinition> =
     ],
     navigationGroup: 'development',
     priority: 8
+  },
+
+  deployment_dashboard: {
+    id: 'deployment_dashboard',
+    name: 'Deployment Dashboard',
+    description: 'Infrastructure monitoring and deployment management (PM2, Docker, system health)',
+    category: 'development',
+    icon: 'ServerIcon',
+    roles: ['super_admin', 'developer'],
+    features: [
+      'pm2_process_manager',
+      'docker_container_manager',
+      'system_health_monitor',
+      'deployment_logs',
+      'service_status',
+      'infrastructure_metrics'
+    ],
+    navigationGroup: 'development',
+    priority: 9
   }
 };
 
@@ -227,8 +247,8 @@ export const NAVIGATION_GROUPS: Record<string, NavigationGroup> = {
   development: {
     id: 'development',
     name: 'Development & SDK',
-    description: 'Developer tools, SDK workspace, and automation',
-    dashboards: ['developer_tools', 'sdk_workspace', 'developer_dashboard', 'automation_studio'],
+    description: 'Developer tools, SDK workspace, automation, and infrastructure',
+    dashboards: ['developer_tools', 'sdk_workspace', 'developer_dashboard', 'automation_studio', 'deployment_dashboard'],
     collapsible: true,
     defaultCollapsed: false
   },
@@ -305,7 +325,8 @@ export const getDashboardRoute = (dashboardType: DashboardType): string => {
     sdk_workspace: '/sdk-developer',
     developer_dashboard: '/developer-dashboard',
     ai_marketplace: '/ai-agents-marketplace',
-    automation_studio: '/automation-studio'
+    automation_studio: '/automation-studio',
+    deployment_dashboard: '/deployment'
   };
 
   return routeMap[dashboardType] || '/dashboard';

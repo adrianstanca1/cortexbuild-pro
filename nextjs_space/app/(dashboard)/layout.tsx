@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
+import { isTestMode, getSessionBypass } from "@/lib/test-auth-bypass";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { AIAssistant } from "@/components/ai-assistant";
@@ -14,7 +15,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  let session;
+
+  if (isTestMode()) {
+    session = getSessionBypass();
+  } else {
+    session = await getServerSession(authOptions);
+  }
 
   if (!session) {
     redirect("/login");

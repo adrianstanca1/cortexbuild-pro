@@ -61,6 +61,7 @@ export const PROJECT_OPERATIONS_TOOLS: ToolDefinition[] = [
 
 export const FINANCIAL_MANAGEMENT_TOOLS: ToolDefinition[] = [
     { title: 'Company Payroll', description: 'Process payroll for all employees.', icon: CurrencyPoundIcon, screen: 'placeholder-tool', permission: { subject: 'accounting', action: 'create' } },
+    { title: 'CIS Calculator', description: 'Calculate CIS deductions and retention.', icon: CalculatorIcon, screen: 'cis-calculator', permission: { subject: 'accounting', action: 'read' } },
     { title: 'Project Budgets', description: 'Track budgets and spending per project.', icon: CircleStackIcon, screen: 'placeholder-tool', permission: { subject: 'accounting', action: 'read' } },
 ];
 

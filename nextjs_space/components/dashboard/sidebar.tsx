@@ -29,6 +29,8 @@ import {
   ClipboardList,
   FileSignature,
   Receipt,
+  DollarSign,
+  Calculator,
   Brain,
   Activity,
   Layers,
@@ -107,6 +109,9 @@ const navigationFolders = [
       { href: '/forecasting/weather-impact', label: 'Weather Impact', icon: Activity, fileType: 'weather', badge: 'AI' },
       { href: '/progress-claims', label: 'Progress Claims', icon: Receipt, fileType: 'invoice' },
       { href: '/change-orders', label: 'Change Orders', icon: FileCheck, fileType: 'document' },
+      { href: '/variations', label: 'Variations', icon: FileText, fileType: 'variation' },
+      { href: '/payroll', label: 'Payroll', icon: DollarSign, fileType: 'payroll', adminOnly: true },
+      { href: '/cis-calculator', label: 'CIS Calculator', icon: Calculator, fileType: 'calculator' },
     ]
   },
   {
@@ -118,6 +123,7 @@ const navigationFolders = [
     gradient: 'from-amber-500 to-orange-500',
     items: [
       { href: '/daily-reports', label: 'Daily Reports', icon: ClipboardList, fileType: 'report' },
+      { href: '/dayworks', label: 'Daywork Manager', icon: FileText, fileType: 'daywork' },
       { href: '/site-diary', label: 'Site Diary', icon: BookOpen, fileType: 'journal' },
       { href: '/time-tracking', label: 'Time Tracking', icon: Clock, fileType: 'time' },
       { href: '/meetings', label: 'Meetings', icon: Calendar, fileType: 'calendar' },
@@ -152,6 +158,7 @@ const navigationFolders = [
       { href: '/risk-assessments', label: 'Risk Register', icon: AlertTriangle, fileType: 'warning' },
       { href: '/safety', label: 'Safety Hub', icon: Shield, fileType: 'shield' },
       { href: '/safety/predictive-dashboard', label: 'Predictive Safety', icon: Brain, fileType: 'predict', badge: 'AI' },
+      { href: '/safety/rams', label: 'RAMS Generator', icon: FileText, fileType: 'document', badge: 'AI' },
       { href: '/inspections', label: 'Inspections', icon: Eye, fileType: 'inspect' },
       { href: '/permits', label: 'Permits', icon: BadgeCheck, fileType: 'permit' },
       { href: '/defects', label: 'Defects', icon: Wrench, fileType: 'defect' },
@@ -584,8 +591,8 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
                       <span className="flex-1">Super Admin</span>
                       <Badge variant="outline" className={cn(
                         "text-[9px] px-1.5 py-0 h-4 border-0 font-bold",
-                        pathname?.startsWith("/admin") 
-                          ? "bg-white/20 text-white" 
+                        pathname?.startsWith("/admin")
+                          ? "bg-white/20 text-white"
                           : "bg-red-500/10 text-red-600 dark:text-red-400"
                       )}>
                         ROOT
@@ -594,7 +601,7 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
                   )}
                 </Link>
               )}
-              
+
               {isCompanyAdmin && (
                 <Link
                   href="/company"
@@ -618,6 +625,41 @@ export function DashboardSidebar({ userRole }: DashboardSidebarProps) {
                   {!collapsed && <span className="flex-1">Company Admin</span>}
                 </Link>
               )}
+
+              {/* Deployment - visible to all admins */}
+              <Link
+                href="/deployment"
+                className={cn(
+                  "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 mt-1",
+                  pathname?.startsWith("/deployment")
+                    ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/25"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 hover:text-purple-600 dark:hover:text-purple-400"
+                )}
+                title={collapsed ? "Deployment" : undefined}
+              >
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-all",
+                  pathname?.startsWith("/deployment") ? "bg-white/20" : "bg-purple-500/10"
+                )}>
+                  <HardDrive className={cn(
+                    "h-4 w-4",
+                    pathname?.startsWith("/deployment") ? "text-white" : "text-purple-500"
+                  )} />
+                </div>
+                {!collapsed && (
+                  <>
+                    <span className="flex-1">Deployment</span>
+                    <Badge variant="outline" className={cn(
+                      "text-[9px] px-1.5 py-0 h-4 border-0 font-bold",
+                      pathname?.startsWith("/deployment")
+                        ? "bg-white/20 text-white"
+                        : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    )}>
+                      OPS
+                    </Badge>
+                  </>
+                )}
+              </Link>
 
               {/* Settings */}
               <Link

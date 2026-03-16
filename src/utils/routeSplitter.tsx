@@ -170,6 +170,7 @@ export const RouteComponents = {
   'automation-studio': createRouteComponent(() => import('../../components/screens/developer/ConstructionAutomationStudio')),
   'developer-workspace': createRouteComponent(() => import('../../components/screens/developer/DeveloperWorkspaceScreen')),
   'developer-console': createRouteComponent(() => import('../../components/screens/developer/EnhancedDeveloperConsole')),
+  'deployment-dashboard': createRouteComponent(() => import('../../components/dashboard/DeploymentDashboard')),
 
   // Admin screens
   'platform-admin': createRouteComponent(() => import('../../components/screens/admin/PlatformAdminScreen')),

@@ -171,7 +171,8 @@ const getDashboardRoute = (dashboardType: DashboardType): string => {
     sdk_workspace: '/sdk-developer',
     developer_dashboard: '/developer-dashboard',
     ai_marketplace: '/ai-agents-marketplace',
-    automation_studio: '/automation-studio'
+    automation_studio: '/automation-studio',
+    deployment_dashboard: '/deployment'
   };
 
   return routeMap[dashboardType] || '/dashboard';

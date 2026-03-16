@@ -32,6 +32,7 @@ const FloatingMenu: React.FC<FloatingMenuProps> = ({ currentUser, navigateToModu
 
     const developerMenuItems: MenuItem[] = [
         { label: 'Developer Console', screen: 'developer-console' },
+        { label: 'Deployment Dashboard', screen: 'deployment-dashboard' },
         { label: 'SDK Workspace', screen: 'sdk-developer' },
         { label: 'Marketplace', screen: 'ai-agents-marketplace' }
     ];

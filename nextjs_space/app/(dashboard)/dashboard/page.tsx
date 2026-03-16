@@ -3,6 +3,12 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { DashboardClient } from "./_components/dashboard-client";
+import { CisWidget } from "../../../../components/dashboard/widgets/CisWidget";
+import { DayworksWidget } from "../../../../components/dashboard/widgets/DayworksWidget";
+import { VariationsWidget } from "../../../../components/dashboard/widgets/VariationsWidget";
+import { PayrollWidget } from "../../../../components/dashboard/widgets/PayrollWidget";
+import { RamsWidget } from "../../../../components/dashboard/widgets/RamsWidget";
+import { DeploymentWidget } from "../../../../components/dashboard/widgets/DeploymentWidget";
 
 export const dynamic = "force-dynamic";
 
@@ -201,27 +207,73 @@ export default async function DashboardPage() {
     riskAssessmentsCount: riskAssessments.length,
   };
 
+  // Construction features summary for widgets
+  const featuresSummary = {
+    cis: {
+      totalProjects: projects.length,
+      totalGross: payroll.reduce((sum, p) => sum + (Number(p.grossPay) || 0), 0),
+      totalDeductions: payroll.reduce((sum, p) => sum + (Number(p.cisDeduction) || 0), 0),
+    },
+    dayworks: {
+      count7Days: dayworks.length,
+      avgCrewSize: dayworks.length > 0
+        ? Math.round(dayworks.reduce((sum, d) => sum + (d.manpowerCount || 0), 0) / dayworks.length)
+        : 0,
+    },
+    variations: {
+      pending: changeOrders.filter((c) => c.status === "PENDING_APPROVAL").length,
+      totalCostChange: changeOrders.reduce((sum, c) => sum + (Number(c.costChange) || 0), 0),
+    },
+    payroll: {
+      draft: payroll.filter((p) => p.status === "draft").length,
+      totalNetPay: payroll.reduce((sum, p) => sum + (Number(p.netPay) || 0), 0),
+    },
+    rams: {
+      totalDocuments: riskAssessments.length,
+      documentsThisMonth: riskAssessments.filter(
+        (r) => new Date(r.createdAt).getMonth() === new Date().getMonth() &&
+               new Date(r.createdAt).getFullYear() === new Date().getFullYear()
+      ).length,
+    },
+    deployment: {
+      healthStatus: "healthy" as "healthy" | "warning" | "error",
+    },
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const serialize = (data: any) => JSON.parse(JSON.stringify(data));
 
   return (
-    <DashboardClient
-      stats={stats}
-      projects={serialize(projects)}
-      tasks={serialize(tasks)}
-      activities={serialize(activities)}
-      teamMembers={serialize(teamMembers)}
-      projectStatusCounts={projectStatusCounts}
-      constructionMetrics={constructionMetrics}
-      rfis={serialize(rfis)}
-      submittals={serialize(submittals)}
-      safetyIncidents={serialize(safetyIncidents)}
-      punchLists={serialize(punchLists)}
-      upcomingMilestones={serialize(upcomingMilestones)}
-      changeOrders={serialize(changeOrders)}
-      dayworks={serialize(dayworks)}
-      payroll={serialize(payroll)}
-      riskAssessments={serialize(riskAssessments)}
-    />
+    <div className="space-y-6">
+      {/* Construction Features Widgets Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <CisWidget />
+        <DayworksWidget />
+        <VariationsWidget />
+        <PayrollWidget />
+        <RamsWidget />
+        <DeploymentWidget />
+      </div>
+
+      <DashboardClient
+        stats={stats}
+        projects={serialize(projects)}
+        tasks={serialize(tasks)}
+        activities={serialize(activities)}
+        teamMembers={serialize(teamMembers)}
+        projectStatusCounts={projectStatusCounts}
+        constructionMetrics={constructionMetrics}
+        rfis={serialize(rfis)}
+        submittals={serialize(submittals)}
+        safetyIncidents={serialize(safetyIncidents)}
+        punchLists={serialize(punchLists)}
+        upcomingMilestones={serialize(upcomingMilestones)}
+        changeOrders={serialize(changeOrders)}
+        dayworks={serialize(dayworks)}
+        payroll={serialize(payroll)}
+        riskAssessments={serialize(riskAssessments)}
+        featuresSummary={serialize(featuresSummary)}
+      />
+    </div>
   );
 }

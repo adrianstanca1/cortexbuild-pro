@@ -149,6 +149,7 @@ export type Screen =
     | 'automation-studio'
     | 'developer-workspace'
     | 'developer-console'
+    | 'deployment-dashboard'
     | 'developer-workspace'
     | 'company-admin-dashboard'
     | 'company-admin-legacy'
@@ -173,7 +174,8 @@ export type Screen =
     | 'landing'
     | 'developer-landing'
     // Tool screens
-    | 'placeholder-tool';
+    | 'placeholder-tool'
+    | 'cis-calculator';
 
 
 export interface Comment {

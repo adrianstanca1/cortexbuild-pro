@@ -209,10 +209,16 @@ export async function GET(request: NextRequest) {
       dayworks: {
         count7Days: dayworks.length,
         totalManpower: dayworks.reduce((sum, d) => sum + (d.manpowerCount || 0), 0),
+        avgCrewSize: dayworks.length > 0
+          ? Math.round(dayworks.reduce((sum, d) => sum + (d.manpowerCount || 0), 0) / dayworks.length)
+          : 0,
+        lastReportDate: dayworks.length > 0 ? dayworks[0].reportDate.toISOString() : null,
       },
       variations: {
         total: variations.length,
         pending: variations.filter((v) => v.status === 'PENDING_APPROVAL').length,
+        approved: variations.filter((v) => v.status === 'APPROVED').length,
+        rejected: variations.filter((v) => v.status === 'REJECTED').length,
         totalValue: variations.reduce((sum, v) => sum + (Number(v.costChange) || 0), 0),
       },
       payroll: {
@@ -220,6 +226,7 @@ export async function GET(request: NextRequest) {
         totalNet: payroll.reduce((sum, p) => sum + (Number(p.netPay) || 0), 0),
         processed: payroll.filter((p) => p.status === 'processed').length,
         paid: payroll.filter((p) => p.status === 'paid').length,
+        draft: payroll.filter((p) => p.status === 'draft').length,
       },
       safety: {
         incidents30Days: safetyIncidents.length,
@@ -233,6 +240,31 @@ export async function GET(request: NextRequest) {
       },
       team: {
         total: teamMembers.length,
+      },
+      cis: {
+        totalProjects: projects.length,
+        totalGross: payroll.reduce((sum, p) => sum + (Number(p.grossPay) || 0), 0),
+        totalDeductions: payroll.reduce((sum, p) => sum + (Number(p.cisDeduction) || 0), 0),
+        averageRate: payroll.length > 0 && payroll.reduce((sum, p) => sum + (Number(p.grossPay) || 0), 0) > 0
+          ? Math.round((payroll.reduce((sum, p) => sum + (Number(p.cisDeduction) || 0), 0) /
+              payroll.reduce((sum, p) => sum + (Number(p.grossPay) || 0), 0)) * 100)
+          : 0,
+      },
+      rams: {
+        totalDocuments: riskAssessments.length,
+        documentsThisMonth: riskAssessments.filter(
+          (r) => new Date(r.createdAt).getMonth() === now.getMonth() &&
+                 new Date(r.createdAt).getFullYear() === now.getFullYear()
+        ).length,
+        activeProjects: new Set(riskAssessments.map((r) => r.projectId)).size,
+        lastGeneratedDate: riskAssessments.length > 0 ? riskAssessments[0].createdAt.toISOString() : null,
+      },
+      deployment: {
+        pm2Processes: 0,
+        pm2Running: 0,
+        dockerContainers: 0,
+        dockerRunning: 0,
+        healthStatus: 'healthy' as 'healthy' | 'warning' | 'error',
       },
     };
 

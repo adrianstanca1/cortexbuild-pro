@@ -3,6 +3,7 @@ import { User, UserRole } from '../../types';
 import { CompanyAdminDashboard } from './CompanyAdminDashboard';
 import GlobalMarketplace from '../marketplace/GlobalMarketplace';
 import { SDKWorkspace } from './SDKWorkspace';
+import { DeploymentDashboard } from '../../dashboard/DeploymentDashboard';
 import {
   getAccessibleDashboards,
   getDashboardRoute,
@@ -64,6 +65,7 @@ export const DashboardRouter: React.FC<DashboardRouterProps> = ({
       '/company-admin-dashboard': CompanyAdminDashboard,
       '/sdk-developer': SDKWorkspace,
       '/marketplace': GlobalMarketplace, // Added marketplace component
+      '/deployment': DeploymentDashboard,
     };
 
     const Component = routeComponentMap[currentRoute];
@@ -193,6 +195,7 @@ export const useDashboardRouting = (user: User | null) => {
       '/developer-dashboard': 'developer_dashboard',
       '/ai-agents-marketplace': 'ai_marketplace',
       '/automation-studio': 'automation_studio',
+      '/deployment': 'deployment_dashboard',
       '/marketplace': 'marketplace' // Added marketplace route
     };
 

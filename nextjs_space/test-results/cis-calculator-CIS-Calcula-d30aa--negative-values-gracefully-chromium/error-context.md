@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e9]:
+      - link "CortexBuild PRO" [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - generic [ref=e17]:
+          - generic [ref=e18]: CortexBuild
+          - generic [ref=e19]: PRO
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - heading "Welcome back to your projects" [level=1] [ref=e22]
+          - paragraph [ref=e23]: Sign in to continue managing your construction projects efficiently.
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - img [ref=e27]
+            - generic [ref=e31]: Manage unlimited projects
+          - generic [ref=e32]:
+            - img [ref=e34]
+            - generic [ref=e39]: Real-time team collaboration
+          - generic [ref=e40]:
+            - img [ref=e42]
+            - generic [ref=e44]: Enterprise-grade security
+      - paragraph [ref=e45]: © 2026 CortexBuild Pro. All rights reserved.
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - heading "Sign in to your account" [level=2] [ref=e49]
+        - paragraph [ref=e50]: Enter your credentials to access your dashboard
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]: Email address
+            - generic [ref=e55]:
+              - img [ref=e56]
+              - textbox "you@company.com" [ref=e59]
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [ref=e62]: Password
+              - button "Forgot password?" [ref=e63] [cursor=pointer]
+            - generic [ref=e64]:
+              - img [ref=e65]
+              - textbox "••••••••" [ref=e68]
+          - button "Sign In" [ref=e69] [cursor=pointer]:
+            - text: Sign In
+            - img [ref=e70]
+        - paragraph [ref=e73]:
+          - text: Don't have an account?
+          - link "Create account" [ref=e74] [cursor=pointer]:
+            - /url: /signup
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - img [ref=e77]
+          - generic [ref=e79]: Secure
+        - generic [ref=e80]:
+          - img [ref=e81]
+          - generic [ref=e84]: GDPR Ready
+  - button "Open Next.js Dev Tools" [ref=e90] [cursor=pointer]:
+    - img [ref=e91]
+  - alert [ref=e94]
+```

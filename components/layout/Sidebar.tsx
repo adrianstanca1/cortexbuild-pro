@@ -8,7 +8,7 @@ import {
     BuildingOfficeIcon, ListBulletIcon, DocumentIcon,
     CheckBadgeIcon, DocumentDuplicateIcon, CameraIcon, ClipboardDocumentListIcon,
     TicketIcon, SunIcon, QuestionMarkCircleIcon, ArrowLeftOnRectangleIcon,
-    WandSparklesIcon, ArrowPathIcon, ShieldCheckIcon
+    WandSparklesIcon, ArrowPathIcon, ShieldCheckIcon, Server
 } from '../Icons';
 import { NavigationErrorBoundary } from '../../src/components/ErrorBoundaries';
 import { RoleBasedNavigation } from './RoleBasedNavigation';
@@ -130,6 +130,12 @@ const Sidebar: React.FC<SidebarProps> = ({ project, navigateTo, navigateToModule
             label: 'Developer Console',
             screen: 'developer-console',
             icon: WandSparklesIcon,
+            isModule: true
+        },
+        {
+            label: 'Deployment Dashboard',
+            screen: 'deployment-dashboard',
+            icon: Server,
             isModule: true
         },
         {
