@@ -60,7 +60,13 @@ export default function CisCalculator() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Calculation result:', data.calculation);
+        console.log('Setting result state:', data.calculation);
         setResult(data.calculation);
+        // Force a re-render by toggling a state
+        setTimeout(() => {
+          console.log('Result state after timeout:', data.calculation);
+        }, 100);
         toast({
           title: "Calculation Complete",
           description: "CIS deduction calculated successfully",
@@ -229,7 +235,7 @@ export default function CisCalculator() {
 
         {/* Results Card */}
         {result && (
-          <Card className="border-emerald-200 dark:border-emerald-800 shadow-lg shadow-emerald-500/10">
+          <Card className="border-emerald-200 dark:border-emerald-800 shadow-lg shadow-emerald-500/10" data-testid="calculation-results">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
@@ -249,7 +255,7 @@ export default function CisCalculator() {
             <CardContent className="space-y-6">
               {/* Summary Grid */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800" data-testid="result-labour">
                   <p className="text-sm text-muted-foreground mb-1">Labour</p>
                   <p className="text-xl font-bold">{formatCurrency(result.labour)}</p>
                 </div>
