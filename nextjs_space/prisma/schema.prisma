@@ -93,6 +93,8 @@ model Organization {
   permissionGrants     PermissionGrant[]       @relation("OrgPermissionGrants")
   resourceQuotas       ResourceQuota[]         @relation("OrgResourceQuotas")
   rateLimits           OrganizationRateLimit[] @relation("OrgRateLimits")
+  // Payroll relations
+  payrollRecords       Payroll[]
 }
 
 model CompanyInvitation {
@@ -226,6 +228,9 @@ model User {
   grantedPermissions          PermissionGrant[]         @relation("GrantedPermissions")
   mfaMethods                  UserMFA[]                 @relation("UserMFAMethods")
   rateLimitUsage              RateLimitUsage[]          @relation("UserRateLimitUsage")
+  // RAMS and Variations relations
+  createdRAMSDocuments        RAMSDocument[]            @relation("RAMSCreator")
+  createdVariations           Variation[]               @relation("VariationCreator")
 }
 
 model Project {
@@ -298,6 +303,9 @@ model Project {
   vendorSubmissions    VendorSubmission[]      @relation("ProjectVendorSubmissions")
   // Advanced features relations
   permissionGrants     PermissionGrant[]       @relation("ProjectPermissionGrants")
+  // RAMS and Variations relations
+  ramsDocuments        RAMSDocument[]
+  variations           Variation[]
 }
 
 model Task {
@@ -343,6 +351,8 @@ model TeamMember {
   department         String?
   invitedAt          DateTime            @default(now())
   projectAssignments ProjectTeamMember[]
+  // Payroll relations
+  payrollRecords     Payroll[]
 
   @@unique([userId, organizationId])
 }
@@ -410,6 +420,31 @@ model ActivityLog {
   projectId  String?
   project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   createdAt  DateTime @default(now())
+}
+
+// Comprehensive AuditLog for construction features
+model AuditLog {
+  id         String   @id @default(cuid())
+  entity     String   // Entity type (Variation, DailyReport, Payroll, RiskAssessment, ToolboxTalk, MEWPCheck)
+  entityId   String   // ID of the affected entity
+  action     String   // CREATE, UPDATE, DELETE, STATUS_CHANGE
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  oldValues  Json?    // Snapshot of values before change
+  newValues  Json?    // Snapshot of values after change
+  changes    Json?    // Detailed field changes { field: { old, new } }
+  timestamp  DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?    // Additional context (projectId, organizationId, etc.)
+  createdAt  DateTime @default(now())
+
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+  @@index([entity, timestamp])
 }
 
 enum NotificationType {
@@ -607,6 +642,28 @@ model ChangeOrder {
   @@unique([projectId, number])
 }
 
+// Variation/Change Order (simplified for bill-master integration)
+model Variation {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  total       Float    @default(0)
+  status      VariationStatus @default(PENDING)
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation("VariationCreator", fields: [createdById], references: [id])
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum VariationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model DailyReport {
   id               String                 @id @default(cuid())
   reportDate       DateTime               @db.Date
@@ -676,6 +733,23 @@ model SafetyIncidentPhoto {
   incidentId       String
   incident         SafetyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
   createdAt        DateTime       @default(now())
+}
+
+// RAMS - Risk Assessment Method Statement
+model RAMSDocument {
+  id          String   @id @default(cuid())
+  name        String
+  location    String?
+  description String?  @db.Text
+  date        DateTime @db.Date
+  tasks       String[] @db.Text
+  htmlContent String   @db.Text
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation("RAMSCreator", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // =====================
@@ -4097,4 +4171,36 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Payroll management with CIS deductions (UK Construction Industry Scheme)
+model Payroll {
+  id             String        @id @default(cuid())
+  employeeId     String        // User ID of the employee
+  employee       TeamMember    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  period         String        // YYYY-MM format
+  baseSalary     Float         // Base salary for the period
+  overtime       Float         @default(0)
+  cisDeduction   Float         // CIS deduction amount
+  niContribution Float         @default(0) // National Insurance contribution
+  pension        Float         @default(0) // Pension contribution
+  netPay         Float         // Final net pay after all deductions
+  status         PayrollStatus @default(DRAFT)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([employeeId])
+  @@index([period])
+  @@index([status])
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSED
+  PAID
+  CANCELLED
 }
