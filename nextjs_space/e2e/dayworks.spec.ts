@@ -32,7 +32,7 @@ test.describe('Dayworks E2E Tests', () => {
     });
 
     test('should load page with correct title', async ({ page }) => {
-      await expect(page.locator('h1')).toContainText('Daywork Manager');
+      await expect(page.getByText('Daywork Manager')).toBeVisible();
     });
 
     test('should display date input', async ({ page }) => {

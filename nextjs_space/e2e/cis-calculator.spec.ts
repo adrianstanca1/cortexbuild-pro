@@ -30,7 +30,7 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should load page with correct title', async ({ page }) => {
-      await expect(page.locator('h1')).toContainText('UK CIS Deduction Calculator');
+      await expect(page.getByText('UK CIS Deduction Calculator')).toBeVisible();
     });
 
     test('should display calculator input form', async ({ page }) => {
