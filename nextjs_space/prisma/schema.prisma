@@ -232,7 +232,7 @@ model User {
   createdRAMSDocuments        RAMSDocument[]            @relation("RAMSCreator")
   createdVariations           Variation[]               @relation("VariationCreator")
   // Audit log relation
-  auditLogs                   AuditLog[]                @relation("UserAuditLogs")
+  auditLogs                   AuditLog[]                @relation("AuditLogUser")
 }
 
 model Project {
@@ -431,7 +431,7 @@ model AuditLog {
   entityId   String   // ID of the affected entity
   action     String   // CREATE, UPDATE, DELETE, STATUS_CHANGE
   userId     String
-  user       User     @relation(fields: [userId], references: [id], map: "AuditLog_userId")
+  user       User     @relation(fields: [userId], references: [id], map: "AuditLog_userId", name: "AuditLogUser")
   oldValues  Json?    // Snapshot of values before change
   newValues  Json?    // Snapshot of values after change
   changes    Json?    // Detailed field changes { field: { old, new } }
