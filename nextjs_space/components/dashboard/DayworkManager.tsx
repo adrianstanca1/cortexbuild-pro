@@ -398,22 +398,25 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
             <h4 className="font-semibold text-sm">Materials Used</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <Input
+                id="materialName"
                 placeholder="Material name"
                 value={newMaterialName}
                 onChange={(e) => setNewMaterialName(e.target.value)}
               />
               <Input
+                id="materialQuantity"
                 type="number"
                 placeholder="Quantity"
                 value={newMaterialQuantity}
                 onChange={(e) => setNewMaterialQuantity(e.target.value)}
               />
               <Input
+                id="materialUnit"
                 placeholder="Unit (kg, m, etc.)"
                 value={newMaterialUnit}
                 onChange={(e) => setNewMaterialUnit(e.target.value)}
               />
-              <Button onClick={addMaterial} variant="outline" size="icon">
+              <Button id="addMaterialBtn" onClick={addMaterial} variant="outline" size="icon" aria-label="Add Material">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -423,10 +426,12 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                   <Badge key={index} variant="secondary" className="gap-1">
                     {material.name}: {material.quantity} {material.unit}
                     <Button
+                      id={`removeMaterial-${index}`}
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5"
                       onClick={() => removeMaterial(index)}
+                      aria-label="Remove"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -441,18 +446,20 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
             <h4 className="font-semibold text-sm">Equipment Used</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <Input
+                id="equipmentName"
                 placeholder="Equipment name"
                 value={newEquipmentName}
                 onChange={(e) => setNewEquipmentName(e.target.value)}
               />
               <Input
+                id="equipmentHours"
                 type="number"
                 step="0.5"
                 placeholder="Hours"
                 value={newEquipmentHours}
                 onChange={(e) => setNewEquipmentHours(e.target.value)}
               />
-              <Button onClick={addEquipment} variant="outline" size="icon">
+              <Button id="addEquipmentBtn" onClick={addEquipment} variant="outline" size="icon" aria-label="Add Equipment">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -462,10 +469,12 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                   <Badge key={index} variant="secondary" className="gap-1">
                     {equip.name}: {equip.hours}h
                     <Button
+                      id={`removeEquipment-${index}`}
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5"
                       onClick={() => removeEquipment(index)}
+                      aria-label="Remove"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
