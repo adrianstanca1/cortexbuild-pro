@@ -1,7 +1,0 @@
-[master 83947d0] Enhanced plug-and-play API service system
- 8 files changed, 976 insertions(+), 32 deletions(-)
- create mode 100644 nextjs_space/app/api/admin/api-connections/entitlements/route.ts
- create mode 100644 nextjs_space/app/api/admin/api-connections/health/route.ts
- create mode 100644 nextjs_space/lib/service-entitlements.ts
- create mode 100644 nextjs_space/lib/service-health.ts
-###83947d0f12c281b9a512c5de3c5fa2316728fac7###

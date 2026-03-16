@@ -1,5 +1,0 @@
-app/(admin)/admin/api-management/_components/api-management-client.tsx(411,7): error TS2322: Type '"EXTERNAL" | "INTERNAL"' is not assignable to type '"EXTERNAL"'.
-  Type '"INTERNAL"' is not assignable to type '"EXTERNAL"'.
-app/(admin)/admin/api-management/_components/api-management-client.tsx(412,7): error TS2322: Type '"DEVELOPMENT" | "STAGING" | "PRODUCTION"' is not assignable to type '"PRODUCTION"'.
-  Type '"DEVELOPMENT"' is not assignable to type '"PRODUCTION"'.
-exit_code=2

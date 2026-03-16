@@ -1,8 +1,0 @@
-[master cc41ddb] be0df78d-5c6e-4869-abf2-8b27c9363f16
- 7 files changed, 976 insertions(+), 10 deletions(-)
- create mode 100644 nextjs_space/app/api/admin/invitations/[id]/route.ts
- create mode 100644 nextjs_space/app/api/admin/invitations/route.ts
- create mode 100644 nextjs_space/app/api/invitations/accept/route.ts
- create mode 100644 nextjs_space/app/api/invitations/validate/route.ts
- create mode 100644 nextjs_space/lib/entitlements.ts
-###cc41ddb5861a275b20c7692d2f1039db8ed14936###

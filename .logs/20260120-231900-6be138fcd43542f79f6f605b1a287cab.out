@@ -1,5 +1,0 @@
-app/api/admin/platform-config/route.ts(150,43): error TS2322: Type '{ size: true; }' is not assignable to type 'DocumentSumAggregateInputType'.
-  Object literal may only specify known properties, and 'size' does not exist in type 'DocumentSumAggregateInputType'.
-app/api/admin/platform-config/route.ts(166,29): error TS18048: 'storageUsed._sum' is possibly 'undefined'.
-app/api/admin/platform-config/route.ts(166,46): error TS2339: Property 'size' does not exist on type '{ fileSize?: number | null | undefined; }'.
-exit_code=2

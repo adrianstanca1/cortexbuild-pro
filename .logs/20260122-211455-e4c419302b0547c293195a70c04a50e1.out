@@ -1,2 +1,0 @@
-app/(dashboard)/dashboard/_components/dashboard-client.tsx(337,100): error TS2322: Type '"info"' is not assignable to type '"success" | "warning" | "danger" | "neutral" | undefined'.
-exit_code=2

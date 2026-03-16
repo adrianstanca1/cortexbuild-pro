@@ -1,9 +1,0 @@
-[master 8d79689] Plug-and-play API management system
- 11 files changed, 2588 insertions(+), 921 deletions(-)
- create mode 100644 nextjs_space/app/api/admin/api-connections/dependencies/route.ts
- create mode 100644 nextjs_space/app/api/admin/api-connections/services/[id]/test/route.ts
- create mode 100644 nextjs_space/app/api/admin/api-connections/services/route.ts
- create mode 100644 nextjs_space/lib/email-service.ts
- create mode 100644 nextjs_space/lib/service-adapters.ts
- create mode 100644 nextjs_space/lib/service-registry.ts
-###8d79689e0055a0d869b8cd1567f56d3b7b6da74b###

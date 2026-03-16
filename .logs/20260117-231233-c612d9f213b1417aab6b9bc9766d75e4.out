@@ -1,6 +1,0 @@
-app/api/tasks/route.ts(54,7): error TS2322: Type '{ title: any; description: any; project: { connect: { id: any; }; }; assigneeId: any; creatorId: string; priority: any; status: any; dueDate: Date | null; }' is not assignable to type '(Without<TaskCreateInput, TaskUncheckedCreateInput> & TaskUncheckedCreateInput) | (Without<...> & TaskCreateInput)'.
-  Types of property 'creatorId' are incompatible.
-    Type 'string' is not assignable to type 'undefined'.
-app/api/tasks/route.ts(93,31): error TS2551: Property 'project' does not exist on type '{ status: TaskStatus; id: string; createdAt: Date; updatedAt: Date; description: string | null; projectId: string; title: string; priority: TaskPriority; dueDate: Date | null; completedAt: Date | null; assigneeId: string | null; creatorId: string | null; }'. Did you mean 'projectId'?
-app/api/tasks/route.ts(95,32): error TS2551: Property 'assignee' does not exist on type '{ status: TaskStatus; id: string; createdAt: Date; updatedAt: Date; description: string | null; projectId: string; title: string; priority: TaskPriority; dueDate: Date | null; completedAt: Date | null; assigneeId: string | null; creatorId: string | null; }'. Did you mean 'assigneeId'?
-exit_code=2

@@ -1,7 +1,0 @@
-[master 0483689] Company invitation system with COMPANY_OWNER role
- 9 files changed, 1131 insertions(+), 16 deletions(-)
- create mode 100644 nextjs_space/app/(admin)/admin/invitations/invitations-client.tsx
- create mode 100644 nextjs_space/app/(admin)/admin/invitations/page.tsx
- create mode 100644 nextjs_space/app/invitation/accept/[token]/accept-client.tsx
- create mode 100644 nextjs_space/app/invitation/accept/[token]/page.tsx
-###048368978784a932e9561624f4080d4f216b194d###

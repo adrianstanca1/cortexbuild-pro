@@ -1,7 +1,0 @@
-app/(dashboard)/dashboard/page.tsx(134,57): error TS2367: This comparison appears to be unintentional because the types '"DRAFT" | "ANSWERED" | "CLOSED"' and '"PENDING"' have no overlap.
-app/(dashboard)/dashboard/page.tsx(138,48): error TS2367: This comparison appears to be unintentional because the types 'SubmittalStatus' and '"PENDING"' have no overlap.
-app/(dashboard)/dashboard/page.tsx(142,83): error TS2367: This comparison appears to be unintentional because the types '"LOW" | "MEDIUM" | "HIGH"' and '"MAJOR"' have no overlap.
-app/(dashboard)/dashboard/page.tsx(153,52): error TS2367: This comparison appears to be unintentional because the types 'ChangeOrderStatus' and '"PENDING"' have no overlap.
-app/(dashboard)/dashboard/page.tsx(153,79): error TS2367: This comparison appears to be unintentional because the types 'ChangeOrderStatus' and '"UNDER_REVIEW"' have no overlap.
-app/(dashboard)/dashboard/page.tsx(154,112): error TS2339: Property 'amount' does not exist on type '{ project: { name: string; }; } & { number: number; id: string; title: string; createdAt: Date; updatedAt: Date; description: string | null; status: ChangeOrderStatus; ... 9 more ...; executedAt: Date | null; }'.
-exit_code=2
