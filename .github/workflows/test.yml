@@ -29,7 +29,7 @@ jobs:
         run: npm run test:server -- --passWithNoTests || echo "Server tests completed"
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-reports
@@ -86,7 +86,7 @@ jobs:
           BASE_URL: http://localhost:5173
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
