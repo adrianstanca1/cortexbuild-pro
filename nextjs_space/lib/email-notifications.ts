@@ -41,7 +41,7 @@ function createTransporter() {
  * Generic notification sending function to eliminate code duplication.
  * All specific notification functions should use this internally.
  */
-async function sendNotificationEmail(params: {
+export async function sendNotificationEmail(params: {
   notificationId: string | undefined;
   subject: string;
   htmlBody: string;

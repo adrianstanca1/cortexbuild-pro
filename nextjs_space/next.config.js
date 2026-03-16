@@ -11,7 +11,7 @@ const nextConfig = {
   },
   images: { unoptimized: true },
   // Externalize packages with native dependencies that can't be bundled
-  serverExternalPackages: ['pm2', 'pm2-deploy', '@pm2/blessed', 'blessed', 'pty.js', 'fsevents'],
+  serverExternalPackages: ['pm2', 'pm2-deploy', '@pm2/blessed', 'blessed', 'pty.js', 'fsevents', 'pdfkit', 'fontkit'],
 };
 
 module.exports = nextConfig;
