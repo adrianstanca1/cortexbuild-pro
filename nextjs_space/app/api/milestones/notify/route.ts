@@ -120,42 +120,23 @@ export async function POST(request: NextRequest) {
     `;
 
     // Send email notification
+    const { sendEmail } = await import('@/lib/email-notifications');
     const appUrl = process.env.NEXTAUTH_URL || "";
-    const appName = "CortexBuild Pro";
     const email =
       recipientEmail || milestone.project.manager?.email || session.user.email;
 
-    const response = await fetch(
-      "https://apps.abacus.ai/api/sendNotificationEmail",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          app_id: process.env.WEB_APP_ID,
-          notification_id: process.env.NOTIF_ID_MILESTONE_DEADLINEREMINDER,
-          subject: `${isOverdue ? "[OVERDUE]" : "[Reminder]"} Milestone: ${milestone.name}`,
-          body: htmlBody,
-          is_html: true,
-          recipient_email: email,
-          sender_email: appUrl
-            ? `noreply@${new URL(appUrl).hostname}`
-            : undefined,
-          sender_alias: appName,
-        }),
-      },
-    );
-
-    const result = await response.json();
-
-    if (!result.success) {
-      if (result.notification_disabled) {
-        return NextResponse.json({
-          success: true,
-          message: "Notification disabled by user",
-        });
-      }
-      throw new Error(result.message || "Failed to send notification");
+    try {
+      await sendEmail({
+        to: email,
+        subject: `${isOverdue ? "[OVERDUE]" : "[Reminder]"} Milestone: ${milestone.name}`,
+        html: htmlBody,
+      });
+    } catch (error) {
+      console.error("Failed to send milestone notification:", error);
+      return NextResponse.json(
+        { error: "Failed to send notification" },
+        { status: 500 },
+      );
     }
 
     // Log the notification

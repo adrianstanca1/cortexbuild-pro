@@ -5,9 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, DollarSign, Percent, Info, CheckCircle, AlertTriangle } from "lucide-react";
+import { Calculator, DollarSign, Info, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
@@ -111,7 +109,7 @@ export default function CisCalculator() {
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Calculator className="h-7 w-7 text-emerald-600" />
-            CIS Calculator
+            UK CIS Deduction Calculator
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
             UK Construction Industry Scheme (CIS) deduction calculator
@@ -145,9 +143,9 @@ export default function CisCalculator() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="baseSalary">Base Salary / Labour Amount (GBP)</Label>
+                <Label htmlFor="gross">Gross Amount (GBP)</Label>
                 <Input
-                  id="baseSalary"
+                  id="gross"
                   type="number"
                   placeholder="e.g., 5000"
                   value={baseSalary}
@@ -157,9 +155,9 @@ export default function CisCalculator() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="overtime">Overtime (GBP)</Label>
+                <Label htmlFor="materials">Materials (GBP)</Label>
                 <Input
-                  id="overtime"
+                  id="materials"
                   type="number"
                   placeholder="e.g., 500"
                   value={overtime}
@@ -171,50 +169,25 @@ export default function CisCalculator() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="cisRate">CIS Rate</Label>
-                <Select value={cisRate} onValueChange={setCisRate}>
-                  <SelectTrigger id="cisRate">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-green-500/10 text-green-600">0%</Badge>
-                        <span>Gross Payment Status</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="20">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-600">20%</Badge>
-                        <span>Standard Rate (Registered)</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="30">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-red-500/10 text-red-600">30%</Badge>
-                        <span>Higher Rate (Unverified)</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="rate">CIS Rate</Label>
+                <select
+                  id="rate"
+                  value={cisRate}
+                  onChange={(e) => setCisRate(e.target.value)}
+                  className="flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5f46e5] focus:ring-offset-2"
+                >
+                  <option value="0">0% - Gross Payment Status</option>
+                  <option value="20">20% - Standard Rate (Registered)</option>
+                  <option value="30">30% - Higher Rate (Unverified)</option>
+                </select>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="ni">NI Contribution (GBP)</Label>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>National Insurance employee contribution</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Label htmlFor="retention">Retention (%)</Label>
                 <Input
-                  id="ni"
+                  id="retention"
                   type="number"
-                  placeholder="e.g., 200"
+                  placeholder="e.g., 5"
                   value={niContribution}
                   onChange={(e) => setNiContribution(e.target.value)}
                   className="font-mono"
@@ -222,17 +195,7 @@ export default function CisCalculator() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="pension">Pension (GBP)</Label>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Employee pension contribution</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Label htmlFor="pension">Pension (GBP)</Label>
                 <Input
                   id="pension"
                   type="number"
@@ -247,10 +210,18 @@ export default function CisCalculator() {
             <div className="flex gap-2">
               <Button onClick={handleCalculate} disabled={calculating || !baseSalary} className="flex-1">
                 <Calculator className="h-4 w-4 mr-2" />
-                {calculating ? "Calculating..." : "Calculate CIS"}
+                {calculating ? "Calculating..." : "Calculate"}
               </Button>
               <Button variant="outline" onClick={resetForm}>
                 Reset
+              </Button>
+              <Button variant="outline" onClick={() => {
+                if (result) {
+                  navigator.clipboard.writeText(`Labour: ${formatCurrency(result.labour)}, CIS: ${formatCurrency(result.cisDeduction)}, Net: ${formatCurrency(result.netPay)}`);
+                  toast({ title: "Copied", description: "Breakdown copied to clipboard" });
+                }
+              }}>
+                Copy breakdown
               </Button>
             </div>
           </CardContent>
@@ -279,7 +250,7 @@ export default function CisCalculator() {
               {/* Summary Grid */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
-                  <p className="text-sm text-muted-foreground mb-1">Gross Labour</p>
+                  <p className="text-sm text-muted-foreground mb-1">Labour</p>
                   <p className="text-xl font-bold">{formatCurrency(result.labour)}</p>
                 </div>
                 <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
@@ -295,7 +266,7 @@ export default function CisCalculator() {
                   <p className="text-xl font-bold text-purple-600 dark:text-purple-400">-{formatCurrency(result.pension)}</p>
                 </div>
                 <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">Net Pay</p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">Net payment</p>
                   <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(result.netPay)}</p>
                 </div>
               </div>

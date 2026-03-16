@@ -109,7 +109,7 @@ export function VariationsManagerClient({ initialVariations, projects, userRole 
 
   const fetchVariations = async () => {
     try {
-      const res = await fetch('/api/change-orders');
+      const res = await fetch('/api/variations');
       if (res.ok) {
         const data = await res.json();
         setVariations(data);
@@ -127,7 +127,7 @@ export function VariationsManagerClient({ initialVariations, projects, userRole 
 
     setLoading(true);
     try {
-      const res = await fetch('/api/change-orders', {
+      const res = await fetch('/api/variations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -159,7 +159,7 @@ export function VariationsManagerClient({ initialVariations, projects, userRole 
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/change-orders/${selectedVariation.id}`, {
+      const res = await fetch(`/api/variations/${selectedVariation.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })

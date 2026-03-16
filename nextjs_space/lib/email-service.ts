@@ -5,6 +5,7 @@
 
 import { SendGridAdapter } from "./service-adapters";
 import { isServiceConfigured } from "./service-registry";
+import { sendNotificationEmail } from "./email-notifications";
 
 export interface EmailOptions {
   to: string | string[];
@@ -17,18 +18,18 @@ export interface EmailOptions {
 
 export interface EmailResult {
   success: boolean;
-  provider: "sendgrid" | "abacus" | "none";
+  provider: "sendgrid" | "nodemailer" | "none";
   error?: string;
 }
 
 /**
  * Send an email using the best available provider
- * Priority: SendGrid (if configured) > Abacus AI API (fallback)
+ * Priority: SendGrid (if configured) > Nodemailer (local SMTP)
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   // First, try SendGrid if configured
   const sendGridConfigured = await isServiceConfigured("sendgrid");
-  
+
   if (sendGridConfigured) {
     try {
       const sendgrid = new SendGridAdapter();
@@ -54,53 +55,42 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     }
   }
 
-  // Fallback to Abacus AI email API
-  if (process.env.ABACUSAI_API_KEY && process.env.WEB_APP_ID) {
-    try {
-      const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-      
-      // Try the notification email API
-      const response = await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          app_id: process.env.WEB_APP_ID,
-          subject: options.subject,
-          body: options.html,
-          is_html: true,
-          recipient_email: toAddresses[0], // Primary recipient
-          sender_alias: options.from?.name || "CortexBuild Pro"
-        })
-      });
+  // Fallback to local SMTP via Nodemailer
+  try {
+    const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
+    const result = await sendNotificationEmail({
+      recipientEmail: toAddresses[0],
+      subject: options.subject,
+      htmlBody: options.html,
+      senderAlias: options.from?.name || "CortexBuild Pro",
+      senderEmail: options.from?.email || "noreply@cortexbuild.app"
+    });
 
-      if (response.ok) {
-        return {
-          success: true,
-          provider: "abacus"
-        };
-      }
-
-      // Abacus API failed, fall through to return error
+    if (result.success) {
       return {
-        success: false,
-        provider: "abacus",
-        error: `Abacus API error: ${response.status}`
-      };
-    } catch (error) {
-      return {
-        success: false,
-        provider: "abacus",
-        error: error instanceof Error ? error.message : "Unknown error"
+        success: true,
+        provider: "nodemailer"
       };
     }
+
+    return {
+      success: false,
+      provider: "nodemailer",
+      error: result.message
+    };
+  } catch (error) {
+    return {
+      success: false,
+      provider: "nodemailer",
+      error: error instanceof Error ? error.message : "Unknown error"
+    };
   }
 
   // No email provider available
   return {
     success: false,
     provider: "none",
-    error: "No email provider configured. Please configure SendGrid in API Management or ensure ABACUSAI_API_KEY is set."
+    error: "No email provider configured. Please configure SendGrid in API Management or ensure SMTP environment variables are set."
   };
 }
 

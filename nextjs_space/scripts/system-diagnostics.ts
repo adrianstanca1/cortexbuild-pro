@@ -41,8 +41,12 @@ async function checkEnvironmentVariables(): Promise<DiagnosticResult> {
   const optionalVars = [
     'AWS_BUCKET_NAME',
     'AWS_FOLDER_PREFIX',
-    'ABACUSAI_API_KEY',
-    'CLOUD_STORAGE_ENABLED'
+    'OLLAMA_URL',
+    'CLOUD_STORAGE_ENABLED',
+    'SMTP_HOST',
+    'SMTP_PORT',
+    'SMTP_USER',
+    'SMTP_PASS'
   ];
 
   const checks: Array<{ name: string; status: "pass" | "warn" | "fail"; value?: any; message?: string; }> = [];

@@ -676,24 +676,25 @@ async function main() {
 
   const apiConnections = [
     {
-      name: "Abacus AI LLM API",
-      serviceName: "abacusai",
-      description: "AI-powered features including document analysis, risk prediction, and intelligent insights",
-      type: "EXTERNAL" as const,
-      environment: "PRODUCTION" as const,
+      name: "Ollama Local LLM",
+      serviceName: "ollama",
+      description: "Local LLM inference for AI-powered features including document analysis, risk prediction, and intelligent insights",
+      type: "LOCAL" as const,
+      environment: "LOCAL" as const,
       category: "AI_PROCESSING" as const,
-      purpose: "Powers AI Assistant, Document Generator, Photo Analysis, and Predictive Analytics",
-      baseUrl: "https://apps.abacus.ai/v1",
-      version: "v1",
+      purpose: "Powers AI Assistant, Document Generator, Photo Analysis, and Predictive Analytics using local models",
+      baseUrl: process.env.OLLAMA_URL || "http://localhost:11434",
+      version: "latest",
       status: "ACTIVE" as const,
       dependentModules: ["ai-insights", "document-generator", "photo-analysis", "predictive-signals", "risk-assessment"],
-      credentials: JSON.stringify({ apiKey: process.env.ABACUSAI_API_KEY || "CONFIGURE_IN_ADMIN_PANEL" }),
+      credentials: JSON.stringify({ endpoint: process.env.OLLAMA_URL || "http://localhost:11434" }),
       configSchema: JSON.stringify({
         type: "object",
         properties: {
-          apiKey: { type: "string", description: "Abacus AI API Key" }
+          endpoint: { type: "string", description: "Ollama API endpoint URL" },
+          model: { type: "string", description: "Default model to use (e.g., llama3.2, qwen2.5)" }
         },
-        required: ["apiKey"]
+        required: ["endpoint"]
       })
     },
     {

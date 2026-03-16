@@ -5,6 +5,7 @@ import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { isTestMode } from "@/lib/test-auth-bypass";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -119,6 +120,16 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account }) {
+      // Test mode bypass - inject mock user data
+      if (isTestMode()) {
+        return {
+          id: 'test-user-001',
+          email: 'test@example.com',
+          name: 'Test User',
+          role: 'ADMIN',
+          organizationId: 'test-org-001',
+        };
+      }
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
@@ -141,6 +152,18 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      // Test mode bypass - return mock session
+      if (isTestMode()) {
+        return {
+          user: {
+            id: 'test-user-001',
+            email: 'test@example.com',
+            name: 'Test User',
+            role: 'ADMIN',
+            organizationId: 'test-org-001',
+          },
+        };
+      }
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;

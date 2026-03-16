@@ -114,77 +114,68 @@ export async function POST(req: NextRequest) {
 
     // Send welcome email
     try {
+      const { sendEmail } = await import('@/lib/email-notifications');
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-      
-      await fetch("https://apps.abacus.ai/api/sendEmail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          toEmails: [invitation.email],
-          subject: `Welcome to ${invitation.organization.name}!`,
-          body: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #059669, #047857); padding: 30px; text-align: center;">
-                <h1 style="color: white; margin: 0;">Welcome Aboard!</h1>
-              </div>
-              <div style="padding: 30px; background: #f9fafb;">
-                <p style="font-size: 16px;">Hello <strong>${invitation.name}</strong>,</p>
-                <p style="font-size: 16px;">
-                  Your account has been created successfully! You are now a member of 
-                  <strong>${invitation.organization.name}</strong>.
-                </p>
-                <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                  <p style="margin: 0; font-size: 14px;"><strong>Your Details:</strong></p>
-                  <p style="margin: 5px 0 0; font-size: 14px;">Email: ${invitation.email}</p>
-                  <p style="margin: 5px 0 0; font-size: 14px;">Role: ${invitation.role.replace("_", " ")}</p>
-                  ${invitation.jobTitle ? `<p style="margin: 5px 0 0; font-size: 14px;">Title: ${invitation.jobTitle}</p>` : ""}
-                </div>
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${baseUrl}/login" 
-                     style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                    Login to Your Account
-                  </a>
-                </div>
-              </div>
+
+      const welcomeHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #059669, #047857); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Welcome Aboard!</h1>
+          </div>
+          <div style="padding: 30px; background: #f9fafb;">
+            <p style="font-size: 16px;">Hello <strong>${invitation.name}</strong>,</p>
+            <p style="font-size: 16px;">
+              Your account has been created successfully! You are now a member of
+              <strong>${invitation.organization.name}</strong>.
+            </p>
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 14px;"><strong>Your Details:</strong></p>
+              <p style="margin: 5px 0 0; font-size: 14px;">Email: ${invitation.email}</p>
+              <p style="margin: 5px 0 0; font-size: 14px;">Role: ${invitation.role.replace("_", " ")}</p>
+              ${invitation.jobTitle ? `<p style="margin: 5px 0 0; font-size: 14px;">Title: ${invitation.jobTitle}</p>` : ""}
             </div>
-          `
-        })
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${baseUrl}/login"
+                 style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                Login to Your Account
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      await sendEmail({
+        to: invitation.email,
+        subject: `Welcome to ${invitation.organization.name}!`,
+        html: welcomeHtml,
       });
 
       // Notify the inviter
-      await fetch("https://apps.abacus.ai/api/sendEmail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.ABACUSAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          toEmails: [invitation.invitedBy.email],
-          subject: `${invitation.name} has joined ${invitation.organization.name}`,
-          body: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #059669, #047857); padding: 30px; text-align: center;">
-                <h1 style="color: white; margin: 0;">New Team Member</h1>
-              </div>
-              <div style="padding: 30px; background: #f9fafb;">
-                <p style="font-size: 16px;">Hello <strong>${invitation.invitedBy.name}</strong>,</p>
-                <p style="font-size: 16px;">
-                  <strong>${invitation.name}</strong> (${invitation.email}) has accepted your invitation 
-                  and joined <strong>${invitation.organization.name}</strong> as a <strong>${invitation.role.replace("_", " ")}</strong>.
-                </p>
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${baseUrl}/company/team" 
-                     style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                    View Team
-                  </a>
-                </div>
-              </div>
+      const inviterHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #059669, #047857); padding: 30px; text-align: center;">
+            <h1 style="color: white; margin: 0;">New Team Member</h1>
+          </div>
+          <div style="padding: 30px; background: #f9fafb;">
+            <p style="font-size: 16px;">Hello <strong>${invitation.invitedBy.name}</strong>,</p>
+            <p style="font-size: 16px;">
+              <strong>${invitation.name}</strong> (${invitation.email}) has accepted your invitation
+              and joined <strong>${invitation.organization.name}</strong> as a <strong>${invitation.role.replace("_", " ")}</strong>.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${baseUrl}/company/team"
+                 style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                View Team
+              </a>
             </div>
-          `
-        })
+          </div>
+        </div>
+      `;
+
+      await sendEmail({
+        to: invitation.invitedBy.email,
+        subject: `${invitation.name} has joined ${invitation.organization.name}`,
+        html: inviterHtml,
       });
     } catch (emailError) {
       console.error("Email sending error:", emailError);

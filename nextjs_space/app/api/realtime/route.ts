@@ -5,10 +5,16 @@ export const dynamic = 'force-dynamic';
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
+import { isTestMode, getSessionBypass } from '@/lib/test-auth-bypass';
 import { addClient, removeClient, getOrganizationClientCount } from '@/lib/realtime-clients';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
+  let session;
+  if (isTestMode()) {
+    session = getSessionBypass();
+  } else {
+    session = await getServerSession(authOptions);
+  }
   if (!session?.user?.id) {
     return new Response('Unauthorized', { status: 401 });
   }

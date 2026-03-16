@@ -154,6 +154,7 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email
     try {
+      const { sendEmail } = await import('@/lib/email-notifications');
       const appUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
       const loginUrl = `${appUrl}/login`;
 
@@ -163,28 +164,28 @@ export async function POST(request: NextRequest) {
             <h1 style="color: #7c3aed; margin: 0;">CortexBuild Pro</h1>
             <p style="color: #6b7280; margin: 5px 0;">Construction Management Platform</p>
           </div>
-          
+
           <h2 style="color: #1f2937; border-bottom: 2px solid #22c55e; padding-bottom: 10px;">
             🎉 Welcome to CortexBuild Pro!
           </h2>
-          
+
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
             Congratulations, ${result.user.name}! Your company <strong>${result.organization.name}</strong> has been successfully created.
           </p>
-          
+
           <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #22c55e;">
             <h3 style="color: #166534; margin-top: 0;">Your Account Details</h3>
             <p style="margin: 8px 0;"><strong>Email:</strong> ${result.user.email}</p>
             <p style="margin: 8px 0;"><strong>Company:</strong> ${result.organization.name}</p>
             <p style="margin: 8px 0;"><strong>Role:</strong> Company Owner</p>
           </div>
-          
+
           <div style="text-align: center; margin: 30px 0;">
             <a href="${loginUrl}" style="background: #7c3aed; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
               Login to Your Dashboard
             </a>
           </div>
-          
+
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0;">
             <h3 style="color: #374151; margin-top: 0;">Getting Started</h3>
             <ol style="color: #4b5563; padding-left: 20px;">
@@ -194,26 +195,19 @@ export async function POST(request: NextRequest) {
               <li style="margin: 8px 0;">Start managing your construction workflow</li>
             </ol>
           </div>
-          
+
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
-          
+
           <p style="color: #9ca3af; font-size: 12px; text-align: center;">
             Thank you for choosing CortexBuild Pro!
           </p>
         </div>
       `;
 
-      await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
-          body: htmlBody,
-          is_html: true,
-          recipient_email: result.user.email,
-          sender_alias: "CortexBuild Pro",
-        }),
+      await sendEmail({
+        to: result.user.email,
+        subject: `Welcome to CortexBuild Pro - ${result.organization.name}`,
+        html: htmlBody,
       });
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
@@ -221,6 +215,7 @@ export async function POST(request: NextRequest) {
 
     // Notify super admin
     try {
+      const { sendEmail } = await import('@/lib/email-notifications');
       const htmlBody = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #7c3aed;">New Company Onboarded</h2>
@@ -230,17 +225,10 @@ export async function POST(request: NextRequest) {
         </div>
       `;
 
-      await fetch("https://apps.abacus.ai/api/sendNotificationEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          subject: `[Admin] New Company: ${result.organization.name}`,
-          body: htmlBody,
-          is_html: true,
-          recipient_email: "adrian.stanca1@gmail.com",
-          sender_alias: "CortexBuild Pro Admin",
-        }),
+      await sendEmail({
+        to: "adrian.stanca1@gmail.com",
+        subject: `[Admin] New Company: ${result.organization.name}`,
+        html: htmlBody,
       });
     } catch (e) {
       console.error("Failed to notify admin:", e);

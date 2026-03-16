@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
+import { sendEmail } from '@/lib/email-notifications';
 import crypto from 'crypto';
 
 // GET /api/admin/invitations/[id] - Get invitation details
@@ -146,17 +147,10 @@ export async function PATCH(
           </div>
         `;
 
-        await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            deployment_token: process.env.ABACUSAI_API_KEY,
-            subject: `Reminder: You're invited to join ${updated.companyName} on CortexBuild Pro`,
-            body: htmlBody,
-            is_html: true,
-            recipient_email: updated.ownerEmail,
-            sender_alias: 'CortexBuild Pro',
-          }),
+        await sendEmail({
+          to: updated.ownerEmail,
+          subject: `Reminder: You're invited to join ${updated.companyName} on CortexBuild Pro`,
+          html: htmlBody,
         });
       } catch (emailError) {
         console.error('Failed to resend invitation email:', emailError);

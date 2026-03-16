@@ -1,16 +1,36 @@
 // Email notification helper functions for CortexBuild Pro
 
-import { 
+import {
   generateCompanyInvitationEmail,
   generateTeamInvitationEmail,
   type CompanyInvitationTemplateParams,
   type TeamInvitationTemplateParams
 } from './email-templates';
+import nodemailer from 'nodemailer';
 
 interface NotificationResult {
   success: boolean;
   message?: string;
   notification_disabled?: boolean;
+}
+
+// =====================================================
+// EMAIL TRANSPORTER
+// =====================================================
+
+function createTransporter() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const secure = process.env.SMTP_SECURE === 'true';
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: user && pass ? { user, pass } : undefined,
+  });
 }
 
 // =====================================================
@@ -30,26 +50,21 @@ async function sendNotificationEmail(params: {
   senderEmail?: string;
 }): Promise<NotificationResult> {
   try {
-    const response = await fetch('https://apps.abacus.ai/api/sendNotificationEmail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deployment_token: process.env.ABACUSAI_API_KEY,
-        app_id: process.env.WEB_APP_ID,
-        notification_id: params.notificationId,
-        subject: params.subject,
-        body: params.htmlBody,
-        is_html: true,
-        recipient_email: params.recipientEmail,
-        sender_alias: params.senderAlias || 'CortexBuild Pro',
-        ...(params.senderEmail && { sender_email: params.senderEmail }),
-      }),
+    const transporter = createTransporter();
+
+    const fromAddress = params.senderEmail || process.env.SMTP_FROM || 'noreply@cortexbuild.app';
+    const fromName = params.senderAlias || 'CortexBuild Pro';
+
+    await transporter.sendMail({
+      from: `${fromName} <${fromAddress}>`,
+      to: params.recipientEmail,
+      subject: params.subject,
+      html: params.htmlBody,
     });
 
-    const result = await response.json();
-    return result;
+    return { success: true, message: 'Email sent successfully' };
   } catch (error) {
-    // console.error('Error sending notification:', error);
+    console.error('Error sending notification:', error);
     return { success: false, message: 'Failed to send notification' };
   }
 }

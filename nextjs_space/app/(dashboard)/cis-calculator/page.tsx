@@ -1,10 +1,16 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth-options";
+import { isTestMode, getSessionBypass } from "@/lib/test-auth-bypass";
 import CisCalculator from "@/components/dashboard/CisCalculator";
 
 export default async function CisCalculatorPage() {
-  const session = await getServerSession(authOptions);
+  let session;
+  if (isTestMode()) {
+    session = getSessionBypass();
+  } else {
+    session = await getServerSession(authOptions);
+  }
   if (!session?.user) redirect("/login");
 
   return (

@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/db";
 import { format } from "date-fns";
+import { generateReportPDF } from "@/lib/pdf-generator";
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,80 +69,19 @@ export async function POST(request: NextRequest) {
       reportData = { projects, tasks, milestones };
     }
 
-    // Generate HTML content for PDF
-    const htmlContent = generateReportHTML(
+    // Generate PDF using pdfkit
+    const pdfBuffer = await generateReportPDF(
       reportType,
       reportData,
       session.user.name ?? "User",
     );
 
-    // Call HTML2PDF API
-    const createResponse = await fetch(
-      "https://apps.abacus.ai/api/createConvertHtmlToPdfRequest",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deployment_token: process.env.ABACUSAI_API_KEY,
-          html_content: htmlContent,
-          pdf_options: {
-            format: "A4",
-            margin: {
-              top: "20mm",
-              right: "15mm",
-              bottom: "20mm",
-              left: "15mm",
-            },
-            print_background: true,
-          },
-        }),
+    return new NextResponse(pdfBuffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="report-${format(new Date(), "yyyy-MM-dd")}.pdf"`,
       },
-    );
-
-    if (!createResponse.ok) {
-      throw new Error("Failed to create PDF request");
-    }
-
-    const { request_id } = await createResponse.json();
-
-    // Poll for completion
-    const maxAttempts = 60;
-    let attempts = 0;
-
-    while (attempts < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const statusResponse = await fetch(
-        "https://apps.abacus.ai/api/getConvertHtmlToPdfStatus",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            request_id,
-            deployment_token: process.env.ABACUSAI_API_KEY,
-          }),
-        },
-      );
-
-      const statusResult = await statusResponse.json();
-
-      if (statusResult?.status === "SUCCESS" && statusResult?.result?.result) {
-        const pdfBuffer = Buffer.from(statusResult.result.result, "base64");
-        const pdfArray = new Uint8Array(pdfBuffer);
-        return new NextResponse(pdfArray, {
-          headers: {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": `attachment; filename="report-${format(new Date(), "yyyy-MM-dd")}.pdf"`,
-          },
-        });
-      } else if (statusResult?.status === "FAILED") {
-        throw new Error("PDF generation failed");
-      }
-
-      attempts++;
-    }
-
-    throw new Error("PDF generation timed out");
+    });
   } catch (error) {
     console.error("Error generating PDF:", error);
     return NextResponse.json(
