@@ -40,18 +40,19 @@ export function createRateLimiter(config: RateLimitConfig) {
     maxRequests,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     message = 'Too many requests, please try again later.',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipSuccessfulRequests = false,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     skipFailedRequests = false,
   } = config;
 
-  return async (identifier: string): Promise<{ allowed: boolean; remaining: number; resetTime: number }> => {
+  return async (
+    identifier: string,
+    options?: { isSuccess?: boolean }
+  ): Promise<{ allowed: boolean; remaining: number; resetTime: number; message?: string }> => {
     const now = Date.now();
     const key = identifier;
-    
+
     let entry = rateLimitStore.get(key);
-    
+
     // Create or reset entry if window expired
     if (!entry || entry.resetTime < now) {
       entry = {
@@ -60,19 +61,37 @@ export function createRateLimiter(config: RateLimitConfig) {
       };
       rateLimitStore.set(key, entry);
     }
-    
+
     // Check if limit exceeded
     if (entry.count >= maxRequests) {
       return {
         allowed: false,
         remaining: 0,
         resetTime: entry.resetTime,
+        message: config.message,
       };
     }
-    
+
+    // Skip counting based on options
+    const isSuccess = options?.isSuccess;
+    if (skipSuccessfulRequests && isSuccess === true) {
+      return {
+        allowed: true,
+        remaining: maxRequests - entry.count,
+        resetTime: entry.resetTime,
+      };
+    }
+    if (skipFailedRequests && isSuccess === false) {
+      return {
+        allowed: true,
+        remaining: maxRequests - entry.count,
+        resetTime: entry.resetTime,
+      };
+    }
+
     // Increment count
     entry.count++;
-    
+
     return {
       allowed: true,
       remaining: maxRequests - entry.count,

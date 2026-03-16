@@ -13,7 +13,7 @@
     "prisma:db:push": "prisma db push",
     "prisma:db:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage"
   },
