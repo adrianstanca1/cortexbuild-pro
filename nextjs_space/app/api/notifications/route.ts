@@ -21,6 +21,14 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
 
+    // In test mode, return mock data to avoid database dependency
+    if (isTestMode()) {
+      return NextResponse.json({
+        notifications: [],
+        unreadCount: 0,
+      });
+    }
+
     const [notifications, unreadCount] = await Promise.all([
       prisma.notification.findMany({
         where: { userId: session.user.id },

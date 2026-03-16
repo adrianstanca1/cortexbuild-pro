@@ -11,7 +11,7 @@ export interface TestUser {
 }
 
 // Test users fixture - for documentation purposes
-const testUsers: Record<string, TestUser> = {
+export const testUsers: Record<string, TestUser> = {
   admin: {
     id: 'test-admin-001',
     email: 'admin@test.com',
