@@ -314,18 +314,18 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
             <div className="space-y-2">
               <Label htmlFor="project">Project</Label>
               <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger id="project">
+                <SelectTrigger id="project" data-testid="project-select">
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
                   {projects && projects.length > 0 ? (
                     projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
+                      <SelectItem key={project.id} value={project.id} data-testid={`project-${project.id}`}>
                         {project.name}
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="sample">Sample Project</SelectItem>
+                    <SelectItem value="sample" data-testid="project-sample">Sample Project</SelectItem>
                   )}
                 </SelectContent>
               </Select>
@@ -340,12 +340,12 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                 Weather
               </Label>
               <Select value={weather} onValueChange={setWeather}>
-                <SelectTrigger id="weather">
+                <SelectTrigger id="weather" data-testid="weather-select">
                   <SelectValue placeholder="Select weather" />
                 </SelectTrigger>
                 <SelectContent>
                   {weatherOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
+                    <SelectItem key={option} value={option} data-testid={`weather-${option.toLowerCase().replace(' ', '-')`}>
                       {option}
                     </SelectItem>
                   ))}
@@ -364,6 +364,7 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                 placeholder="Number of workers"
                 value={crewSize}
                 onChange={(e) => setCrewSize(e.target.value)}
+                data-testid="crew-size-input"
               />
             </div>
 
@@ -390,6 +391,7 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
               value={workDescription}
               onChange={(e) => setWorkDescription(e.target.value)}
               className="min-h-[120px]"
+              data-testid="description-textarea"
             />
           </div>
 
@@ -416,7 +418,7 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                 value={newMaterialUnit}
                 onChange={(e) => setNewMaterialUnit(e.target.value)}
               />
-              <Button id="addMaterialBtn" onClick={addMaterial} variant="outline" size="icon" aria-label="Add Material">
+              <Button id="addMaterialBtn" onClick={addMaterial} variant="outline" size="icon" aria-label="Add Material" data-testid="add-material-button">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -459,7 +461,7 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                 value={newEquipmentHours}
                 onChange={(e) => setNewEquipmentHours(e.target.value)}
               />
-              <Button id="addEquipmentBtn" onClick={addEquipment} variant="outline" size="icon" aria-label="Add Equipment">
+              <Button id="addEquipmentBtn" onClick={addEquipment} variant="outline" size="icon" aria-label="Add Equipment" data-testid="add-equipment-button">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>

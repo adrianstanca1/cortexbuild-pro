@@ -157,6 +157,7 @@ export default function CisCalculator() {
                   value={baseSalary}
                   onChange={(e) => setBaseSalary(e.target.value)}
                   className="font-mono"
+                  data-testid="gross-input"
                 />
               </div>
 
@@ -169,6 +170,7 @@ export default function CisCalculator() {
                   value={overtime}
                   onChange={(e) => setOvertime(e.target.value)}
                   className="font-mono"
+                  data-testid="materials-input"
                 />
               </div>
             </div>
@@ -181,6 +183,7 @@ export default function CisCalculator() {
                   value={cisRate}
                   onChange={(e) => setCisRate(e.target.value)}
                   className="flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#5f46e5] focus:ring-offset-2"
+                  data-testid="rate-select"
                 >
                   <option value="0">0% - Gross Payment Status</option>
                   <option value="20">20% - Standard Rate (Registered)</option>
@@ -197,6 +200,7 @@ export default function CisCalculator() {
                   value={niContribution}
                   onChange={(e) => setNiContribution(e.target.value)}
                   className="font-mono"
+                  data-testid="retention-input"
                 />
               </div>
 
@@ -209,6 +213,7 @@ export default function CisCalculator() {
                   value={pension}
                   onChange={(e) => setPension(e.target.value)}
                   className="font-mono"
+                  data-testid="pension-input"
                 />
               </div>
             </div>
