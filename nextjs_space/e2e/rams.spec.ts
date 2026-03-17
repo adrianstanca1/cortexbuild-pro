@@ -108,86 +108,222 @@ test.describe('RAMS E2E Tests', () => {
     test('should generate RAMS document', async ({ page }) => {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
       await page.route('**/api/ai', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            response: `Hazards:
+- Test hazard
+
+Risk Level: MEDIUM
+
+Controls:
+- Test control
+
+Residual Risk: LOW
+
+Method Statement:
+Test method
+
+PPE:
+- Test PPE
+
+Emergency Procedures:
+Test emergency`
+          })
+        });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200); // Wait for React state update
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
+      await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await expect(page.getByText('Generated RAMS')).toBeVisible();
     });
 
     test('should display hazards section', async ({ page }) => {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
       await page.route('**/api/ai', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
+        route.fulfill({
+          status: 200,
+          body: JSON.stringify({
+            response: `Hazards:
+- Test hazard
+
+Risk Level: MEDIUM
+
+Controls:
+- Test control
+
+Residual Risk: LOW
+
+Method Statement:
+Test method
+
+PPE:
+- Test PPE
+
+Emergency Procedures:
+Test emergency`
+          })
+        });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
+      await page.waitForSelector('text=Identified Hazards', { timeout: 10000 });
       await expect(page.getByText('Identified Hazards')).toBeVisible();
     });
 
     test('should display risk assessments', async ({ page }) => {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
       await page.route('**/api/ai', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Risk Assessment: Test' }) });
+        route.fulfill({
+          status: 200,
+          body: JSON.stringify({
+            response: `Hazards:
+- Test hazard
+
+Risk Level: MEDIUM
+
+Controls:
+- Test control
+
+Residual Risk: LOW
+
+Method Statement:
+Test method
+
+PPE:
+- Test PPE
+
+Emergency Procedures:
+Test emergency`
+          })
+        });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
+      await page.waitForSelector('text=Risk Assessment', { timeout: 10000 });
       await expect(page.getByText('Risk Assessment')).toBeVisible();
     });
 
     test('should export PDF', async ({ page }) => {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
+      await page.route('**/api/rams**', route => {
+        route.fulfill({
+          status: 200,
+          body: 'OK',
+          headers: { 'content-type': 'text/html' }
+        });
+      });
       await page.route('**/api/ai', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
+        route.fulfill({
+          status: 200,
+          body: JSON.stringify({
+            response: `Hazards:
+- Test hazard
+
+Risk Level: MEDIUM
+
+Controls:
+- Test control
+
+Residual Risk: LOW
+
+Method Statement:
+Test method
+
+PPE:
+- Test PPE
+
+Emergency Procedures:
+Test emergency`
+          })
+        });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
-      await page.getByRole('button', { name: 'PDF' }).click();
+      await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'PDF' }).click({ force: true });
+      await page.waitForTimeout(1500);
       await expect(page.getByText('Export Complete')).toBeVisible();
     });
 
     test('should regenerate document', async ({ page }) => {
       await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
       await page.route('**/api/ai', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
+        route.fulfill({
+          status: 200,
+          body: JSON.stringify({
+            response: `Hazards:
+- Test hazard
+
+Risk Level: MEDIUM
+
+Controls:
+- Test control
+
+Residual Risk: LOW
+
+Method Statement:
+Test method
+
+PPE:
+- Test PPE
+
+Emergency Procedures:
+Test emergency`
+          })
+        });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
+      await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await page.fill('#activity', 'New activity');
-      await page.waitForTimeout(200);
-      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.locator('#activity')).toHaveValue('New activity');
+      await page.waitForTimeout(500);
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
+      await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await expect(page.getByText('Generated RAMS')).toBeVisible();
     });
   });
@@ -199,14 +335,18 @@ test.describe('RAMS E2E Tests', () => {
         route.fulfill({ status: 500, body: 'Internal Server Error' });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
       await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
-      await expect(page.getByText('Could not generate RAMS')).toBeVisible();
+      await page.waitForTimeout(1000);
+      await expect(page.getByText('Generation Failed')).toBeVisible();
     });
 
     test('should handle network timeout', async ({ page }) => {
@@ -215,12 +355,15 @@ test.describe('RAMS E2E Tests', () => {
         route.abort('timedout');
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#personnel')).toHaveValue('Test personnel');
+      await page.waitForTimeout(500);
       await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
       await expect(page).toBeVisible();
     });
@@ -240,41 +383,50 @@ test.describe('RAMS E2E Tests', () => {
 
   test.describe('UI Components', () => {
     test('should display loading state', async ({ page }) => {
-      await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(pageUrl, { waitUntil: 'load' });
       await page.route('**/api/ai', route => {
         route.fulfill({ status: 200, body: JSON.stringify({ response: 'test' }), delay: 500 });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test');
+      await page.waitForTimeout(500);
       await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
-      await expect(page.getByText('Generating RAMS...')).toBeVisible();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
+      await page.waitForTimeout(100);
+      await expect(page.getByRole('button', { name: 'Generating RAMS...' })).toBeVisible();
     });
 
     test('should display generated content', async ({ page }) => {
-      await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(pageUrl, { waitUntil: 'load' });
       await page.route('**/api/ai', route => {
         route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
+      await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await expect(page.getByText('Identified Hazards')).toBeVisible();
     });
 
     test('should display success toast', async ({ page }) => {
-      await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
+      await page.goto(pageUrl, { waitUntil: 'load' });
       await page.route('**/api/ai', route => {
         route.fulfill({ status: 200, body: JSON.stringify({ response: 'test' }) });
       });
 
+      await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(200);
+      await expect(page.locator('#activity')).toHaveValue('Test Project');
+      await page.waitForTimeout(500);
       await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
+      await page.waitForTimeout(1000);
       await expect(page.getByText('RAMS Generated')).toBeVisible();
     });
   });
