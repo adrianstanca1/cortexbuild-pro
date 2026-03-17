@@ -137,11 +137,19 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Project', { delay: 50 });
-      await page.locator('#personnel').click();
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
-      await page.waitForTimeout(500);
+      await page.evaluate((text) => {
+        const textarea = document.getElementById('activity') as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test Project');
+      await page.evaluate((text) => {
+        const textarea = document.getElementById('personnel') as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test personnel');
+      await page.waitForTimeout(1000);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -179,10 +187,18 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Project', { delay: 50 });
-      await page.locator('#personnel').click();
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
+      await page.locator('#activity').evaluate((el, text) => {
+        const textarea = el as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test Project');
+      await page.locator('#personnel').evaluate((el, text) => {
+        const textarea = el as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test personnel');
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -221,10 +237,18 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Project', { delay: 50 });
-      await page.locator('#personnel').click();
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
+      await page.locator('#activity').evaluate((el, text) => {
+        const textarea = el as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test Project');
+      await page.locator('#personnel').evaluate((el, text) => {
+        const textarea = el as HTMLTextAreaElement;
+        textarea.value = text;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }, 'Test personnel');
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -270,11 +294,9 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Project', { delay: 50 });
-      await page.locator('#personnel').click();
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
-      await page.waitForTimeout(500);
+      await page.locator('#activity').fill('Test Project');
+      await page.locator('#personnel').fill('Test personnel');
+      await page.waitForTimeout(1000);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -317,18 +339,15 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Project', { delay: 50 });
-      await page.locator('#personnel').click();
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
-      await page.waitForTimeout(500);
+      await page.locator('#activity').fill('Test Project');
+      await page.locator('#personnel').fill('Test personnel');
+      await page.waitForTimeout(1000);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'New activity', { delay: 50 });
-      await page.waitForTimeout(500);
+      await page.locator('#activity').fill('New activity');
+      await page.waitForTimeout(1000);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -404,9 +423,8 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.locator('#activity').click();
-      await page.type('#activity', 'Test Activity', { delay: 50 });
-      await page.waitForTimeout(500);
+      await page.locator('#activity').fill('Test Activity');
+      await page.waitForTimeout(1000);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       // Button becomes disabled while generating

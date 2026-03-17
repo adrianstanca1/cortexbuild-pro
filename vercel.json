@@ -1,5 +1,0 @@
-{
-  "installCommand": "cd nextjs_space && npm install --legacy-peer-deps",
-  "buildCommand": "cd nextjs_space && npm run build",
-  "outputDirectory": "nextjs_space/.next"
-}
