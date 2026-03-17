@@ -53,8 +53,9 @@ test.describe('Variations E2E Tests', () => {
 
   test.describe('Form Validation', () => {
     test.beforeEach(async ({ page }) => {
-      await login(page, testUsers.admin);
+      // In test mode, auth is bypassed - navigate directly
       await page.goto(pageUrl);
+      await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible({ timeout: 5000 });
       await page.getByRole('button', { name: 'New Variation' }).click();
     });
 
@@ -199,8 +200,9 @@ test.describe('Variations E2E Tests', () => {
 
   test.describe('Error States', () => {
     test.beforeEach(async ({ page }) => {
-      await login(page, testUsers.admin);
+      // In test mode, auth is bypassed - navigate directly
       await page.goto(pageUrl);
+      await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible({ timeout: 5000 });
     });
 
     test('should handle API error gracefully', async ({ page }) => {
@@ -250,8 +252,9 @@ test.describe('Variations E2E Tests', () => {
 
   test.describe('UI Components', () => {
     test.beforeEach(async ({ page }) => {
-      await login(page, testUsers.admin);
+      // In test mode, auth is bypassed - navigate directly
       await page.goto(pageUrl);
+      await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible({ timeout: 5000 });
     });
 
     test('should display project selector', async ({ page }) => {

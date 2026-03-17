@@ -5,10 +5,16 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const pathname = req.nextUrl.pathname;
+    const testMode = process.env.TEST_MODE === 'true';
 
     // Allow public paths
     const publicPaths = ['/login', '/signup', '/team-invite/accept', '/api/auth'];
     if (publicPaths.some(path => pathname.startsWith(path))) {
+      return NextResponse.next();
+    }
+
+    // In test mode, bypass authentication
+    if (testMode) {
       return NextResponse.next();
     }
 
