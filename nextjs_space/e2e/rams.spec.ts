@@ -137,9 +137,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(2000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -177,9 +179,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(2000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -217,9 +221,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(2000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -264,9 +270,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(2000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -309,14 +317,17 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(2000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
-      await page.type('#activity', 'New activity', { delay: 50 });
+      await page.fill('#activity', 'New activity');
+      await page.dispatchEvent('#activity', 'input');
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -334,9 +345,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 50 });
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
       await page.waitForTimeout(500);
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
@@ -354,9 +367,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 50 });
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
       await page.waitForTimeout(500);
-      await page.type('#personnel', 'Test personnel', { delay: 50 });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
