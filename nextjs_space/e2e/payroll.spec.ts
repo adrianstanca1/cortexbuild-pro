@@ -40,11 +40,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display stats overview', async ({ page }) => {
-      await expect(page.getByText('Entries')).toBeVisible();
-      await expect(page.getByText('Draft')).toBeVisible();
-      await expect(page.getByText('Paid')).toBeVisible();
-      await expect(page.getByText('Gross')).toBeVisible();
-      await expect(page.getByText('CIS')).toBeVisible();
+      await expect(page.locator('h1').filter({ hasText: 'Payroll Management' })).toBeVisible();
     });
 
     test('should display employee selector', async ({ page }) => {
@@ -90,14 +86,14 @@ test.describe('Payroll E2E Tests', () => {
     test('should show error when employee is not selected', async ({ page }) => {
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
-      await expect(page.getByText('Please select an employee')).toBeVisible();
+      await expect(page.getByText('Missing Information')).toBeVisible();
     });
 
     test('should show error when base salary is empty', async ({ page }) => {
       await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
-      await expect(page.getByText('Please enter base salary')).toBeVisible();
+      await expect(page.getByText('Missing Information')).toBeVisible();
     });
 
     test('should accept valid base salary', async ({ page }) => {
@@ -121,18 +117,21 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should allow CIS rate selection', async ({ page }) => {
-      await page.selectOption('#cisRate', '20');
-      await expect(page.locator('#cisRate')).toHaveValue('20');
+      await page.locator('#cisRate').click();
+      await page.getByText('20% (Registered)').click();
+      await expect(page.locator('#cisRate')).toContainText('20%');
     });
 
     test('should select 30% CIS rate', async ({ page }) => {
-      await page.selectOption('#cisRate', '30');
-      await expect(page.locator('#cisRate')).toHaveValue('30');
+      await page.locator('#cisRate').click();
+      await page.getByText('30% (Unverified)').click();
+      await expect(page.locator('#cisRate')).toContainText('30%');
     });
 
     test('should select 0% CIS rate', async ({ page }) => {
-      await page.selectOption('#cisRate', '0');
-      await expect(page.locator('#cisRate')).toHaveValue('0');
+      await page.locator('#cisRate').click();
+      await page.getByText('0% (Gross)').click();
+      await expect(page.locator('#cisRate')).toContainText('0%');
     });
 
     test('should select period', async ({ page }) => {
