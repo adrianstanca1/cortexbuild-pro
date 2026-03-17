@@ -62,6 +62,13 @@ model Organization {
   name                 String
   slug                 String                  @unique
   logoUrl              String?
+  // Onboarding fields
+  industry             String?
+  size                 String?
+  description          String?
+  plan                 String?                 @default("starter")
+  onboardingStatus     String                  @default("NOT_STARTED")
+  onboardingCurrentStep Int                    @default(0)
   // Entitlements - JSON object defining enabled modules and limits
   entitlements         Json?                   @default("{\"modules\":{\"projects\":true,\"tasks\":true,\"documents\":true,\"rfis\":true,\"submittals\":true,\"changeOrders\":true,\"dailyReports\":true,\"safety\":true,\"reports\":true,\"team\":true},\"limits\":{\"storageGB\":10,\"maxUsers\":50,\"maxProjects\":100}}")
   storageUsedBytes     BigInt                  @default(0)
@@ -95,6 +102,9 @@ model Organization {
   rateLimits           OrganizationRateLimit[] @relation("OrgRateLimits")
   // Payroll relations
   payrollRecords       Payroll[]
+  // Stripe billing relations
+  subscriptions        Subscription[]
+  invoices             Invoice[]
 }
 
 model CompanyInvitation {
@@ -4205,4 +4215,75 @@ enum PayrollStatus {
   PROCESSED
   PAID
   CANCELLED
+}
+
+// Stripe subscription status
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  PAUSED
+  TRIALING
+  UNPAID
+}
+
+model Subscription {
+  id                    String             @id @default(cuid())
+  stripeSubscriptionId  String?            @unique // Stripe subscription ID
+  stripeCustomerId      String?            // Stripe customer ID
+  organizationId        String
+  organization          Organization       @relation(fields: [organizationId], references: [id])
+  planId                String             // Internal plan ID (starter, professional, enterprise)
+  status                SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean            @default(false)
+  trialStart            DateTime?
+  trialEnd              DateTime?
+  quantity              Int                @default(1)
+  metadata              Json?              // Store additional Stripe metadata
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  items                 SubscriptionItem[]
+
+  @@index([organizationId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+}
+
+model Invoice {
+  id                String       @id @default(cuid())
+  stripeInvoiceId   String       @unique // Stripe invoice ID
+  stripeCustomerId  String       // Stripe customer ID
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  subscriptionId    String?      // Reference to subscription if applicable
+  amountDue         Int          @default(0) // Amount due in cents
+  amountPaid        Int          @default(0) // Amount paid in cents
+  currency          String       @default("usd")
+  status            String       // paid, open, uncollectible, void
+  hostedInvoiceUrl  String?      // Stripe hosted invoice URL
+  invoicePdf        String?      // Invoice PDF URL
+  billingReason     String?      // subscription_cycle, subscription_create, etc.
+  metadata          Json?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([stripeInvoiceId])
+  @@index([status])
+}
+
+model SubscriptionItem {
+  id               String       @id @default(cuid())
+  subscriptionId   String
+  subscription     Subscription @relation(fields: [subscriptionId], references: [id])
+  stripeItemId     String       @unique // Stripe subscription item ID
+  stripePriceId    String       // Stripe price ID
+  quantity         Int          @default(1)
+  createdAt        DateTime     @default(now())
+
+  @@index([subscriptionId])
 }
