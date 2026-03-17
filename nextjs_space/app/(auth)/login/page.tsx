@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HardHat, Mail, Lock, Loader2, ArrowRight, CheckCircle, Building2, Shield, Users } from "lucide-react";
@@ -25,20 +24,27 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false
+      // Use direct login endpoint to avoid NextAuth CSRF issues
+      const response = await fetch("/api/auth/direct-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
       });
 
-      if (result?.error) {
-        toast.error("Invalid email or password");
-      } else {
-        toast.success("Welcome back!");
-        router.replace("/dashboard");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
       }
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
+
+      toast.success("Welcome back!");
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error?.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }

@@ -1,55 +1,62 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const pathname = req.nextUrl.pathname;
-    const testMode = process.env.TEST_MODE === 'true';
+const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "fallback");
 
-    // Allow public paths
-    const publicPaths = ['/login', '/signup', '/team-invite/accept', '/api/auth'];
-    if (publicPaths.some(path => pathname.startsWith(path))) {
-      return NextResponse.next();
-    }
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  const testMode = process.env.TEST_MODE === 'true';
 
-    // In test mode, bypass authentication
-    if (testMode) {
-      return NextResponse.next();
-    }
+  // Allow public paths
+  const publicPaths = ['/login', '/signup', '/team-invite/accept', '/api/auth'];
+  if (publicPaths.some(path => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
 
-    // If user is not authenticated, redirect to login
-    if (!token) {
-      const loginUrl = new URL('/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  // In test mode, bypass authentication
+  if (testMode) {
+    return NextResponse.next();
+  }
+
+  // Check for auth token cookie
+  const authToken = req.cookies.get('auth-token')?.value;
+
+  if (!authToken) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  try {
+    const verified = await jwtVerify(authToken, secret);
+    const payload = verified.payload as any;
 
     // Onboarding redirect logic
-    const organizationId = token.organizationId as string | null;
+    const organizationId = payload.organizationId as string | null;
 
     // If user has no organization, redirect to onboarding
     if (!organizationId && !pathname.startsWith('/onboarding')) {
       return NextResponse.redirect(new URL('/onboarding', req.url));
     }
 
-    // If onboarding is not complete, redirect to onboarding (except for API routes and onboarding itself)
-    if (organizationId && token.onboardingStatus === 'IN_PROGRESS' && !pathname.startsWith('/onboarding') && !pathname.startsWith('/api')) {
+    // If onboarding is not complete, redirect to onboarding
+    if (organizationId && payload.onboardingStatus === 'IN_PROGRESS' && !pathname.startsWith('/onboarding') && !pathname.startsWith('/api')) {
       return NextResponse.redirect(new URL('/onboarding', req.url));
     }
 
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        // Allow unauthenticated access to public paths
-        // This is handled by the function above
-        return true;
-      },
-    },
+    // Add user info to headers for downstream use
+    const response = NextResponse.next();
+    response.headers.set('x-user-id', payload.id as string);
+    response.headers.set('x-user-role', payload.role as string);
+    response.headers.set('x-organization-id', organizationId || '');
+    return response;
+  } catch (error) {
+    // Invalid token, redirect to login
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
   }
-);
+}
 
 export const config = {
   matcher: [

@@ -16,10 +16,9 @@ const globalForPrisma = globalThis as unknown as {
 function getDatabaseUrl(): string {
   const baseUrl = process.env.DATABASE_URL || '';
   // Add connection pool settings if not already present
-  // Increased connection_limit from 5 to 20 for better performance under load
   if (baseUrl && !baseUrl.includes('connection_limit')) {
     const separator = baseUrl.includes('?') ? '&' : '?';
-    return `${baseUrl}${separator}connection_limit=20&pool_timeout=10&connect_timeout=10`;
+    return `${baseUrl}${separator}connection_limit=5&pool_timeout=30&connect_timeout=30`;
   }
   return baseUrl;
 }

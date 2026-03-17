@@ -1,7 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
@@ -10,50 +8,39 @@ import { isTestMode } from "@/lib/test-auth-bypass";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [GoogleProvider({
-          clientId: process.env.GOOGLE_CLIENT_ID,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          allowDangerousEmailAccountLinking: true,
-        })]
-      : []),
-    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-      ? [GithubProvider({
-          clientId: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-          allowDangerousEmailAccountLinking: true,
-        } as any)]
-      : []),
     CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
           include: { organization: true }
         });
-        
+
         if (!user || !user.password) {
+          console.log("User not found or no password:", user?.email);
           return null;
         }
-        
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) {
+          console.log("Invalid password for:", user.email);
           return null;
         }
-        
+        console.log("Auth successful for:", user.email);
+
         await prisma.user.update({
           where: { id: user.id },
           data: { lastLogin: new Date() }
         });
-        
+
         return {
           id: user.id,
           email: user.email,
@@ -71,7 +58,6 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
-      // Create a unique organization for each new OAuth user
       const userName = user.name || user.email?.split("@")[0] || "User";
       const orgName = `${userName}'s Company`;
       const baseSlug = orgName
@@ -108,7 +94,6 @@ export const authOptions: NextAuthOptions = {
         }
       });
 
-      // Create team member record
       await prisma.teamMember.create({
         data: {
           userId: user.id,
@@ -120,7 +105,6 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account }) {
-      // Test mode bypass - inject mock user data
       if (isTestMode()) {
         return {
           id: 'test-user-001',
@@ -136,7 +120,6 @@ export const authOptions: NextAuthOptions = {
         token.organizationId = (user as any).organizationId;
         token.avatarUrl = (user as any).avatarUrl;
       }
-      // For Google OAuth, fetch user data from database if not present in token
       if (account?.provider === "google" && token.email && !token.organizationId) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
@@ -152,7 +135,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      // Test mode bypass - return mock session
       if (isTestMode()) {
         return {
           user: {
@@ -177,34 +159,35 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login"
   },
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: true,
+  useSecureCookies: false,
+  // Fix for Next.js 16 + NextAuth v4 CSRF issues
+  // Allow localhost without strict CSRF checking
   cookies: {
-    pkceCodeVerifier: {
-      name: '__Secure-next-auth.pkce.code_verifier',
+    sessionToken: {
+      name: `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: true
-      }
-    },
-    state: {
-      name: '__Secure-next-auth.state',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true,
-        maxAge: 900
+        secure: false
       }
     },
     callbackUrl: {
-      name: '__Secure-next-auth.callback-url',
+      name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: true
+        secure: false
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false
       }
     }
   }
