@@ -137,10 +137,16 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.dispatchEvent('#activity', 'input');
-      await page.fill('#personnel', 'Test personnel');
-      await page.dispatchEvent('#personnel', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'Test Project';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
+      await page.evaluate(() => {
+        const el = document.getElementById('personnel') as HTMLTextAreaElement;
+        el.value = 'Test personnel';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -179,10 +185,16 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.dispatchEvent('#activity', 'input');
-      await page.fill('#personnel', 'Test personnel');
-      await page.dispatchEvent('#personnel', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'Test Project';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
+      await page.evaluate(() => {
+        const el = document.getElementById('personnel') as HTMLTextAreaElement;
+        el.value = 'Test personnel';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -221,10 +233,16 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.dispatchEvent('#activity', 'input');
-      await page.fill('#personnel', 'Test personnel');
-      await page.dispatchEvent('#personnel', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'Test Project';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
+      await page.evaluate(() => {
+        const el = document.getElementById('personnel') as HTMLTextAreaElement;
+        el.value = 'Test personnel';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -270,10 +288,16 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.dispatchEvent('#activity', 'input');
-      await page.fill('#personnel', 'Test personnel');
-      await page.dispatchEvent('#personnel', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'Test Project';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
+      await page.evaluate(() => {
+        const el = document.getElementById('personnel') as HTMLTextAreaElement;
+        el.value = 'Test personnel';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -317,17 +341,26 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.dispatchEvent('#activity', 'input');
-      await page.fill('#personnel', 'Test personnel');
-      await page.dispatchEvent('#personnel', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'Test Project';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
+      await page.evaluate(() => {
+        const el = document.getElementById('personnel') as HTMLTextAreaElement;
+        el.value = 'Test personnel';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
-      await page.fill('#activity', 'New activity');
-      await page.dispatchEvent('#activity', 'input');
+      await page.evaluate(() => {
+        const el = document.getElementById('activity') as HTMLTextAreaElement;
+        el.value = 'New activity';
+        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+      });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -402,8 +435,9 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Activity', { delay: 100 });
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Activity');
+      await page.dispatchEvent('#activity', 'input');
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       // Button becomes disabled while generating
