@@ -8,3 +8,4 @@ node_modules/
 *. 3.*
 playwright-report/
 test-results/
+.vercel
