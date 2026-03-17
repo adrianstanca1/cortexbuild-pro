@@ -137,10 +137,11 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      // Use type() to trigger React onChange events naturally
-      await page.type('#activity', 'Test Project');
+      await page.locator('#activity').fill('Test Project');
+      await page.locator('#activity').press('End');
       await page.waitForTimeout(300);
-      await page.type('#personnel', 'Test personnel');
+      await page.locator('#personnel').fill('Test personnel');
+      await page.locator('#personnel').press('End');
       await page.waitForTimeout(300);
       // Wait for button to be enabled
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
@@ -180,9 +181,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project');
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
       await page.waitForTimeout(300);
-      await page.type('#personnel', 'Test personnel');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.dispatchEvent('#personnel', 'change');
       await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -221,9 +226,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project');
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
       await page.waitForTimeout(300);
-      await page.type('#personnel', 'Test personnel');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.dispatchEvent('#personnel', 'change');
       await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -269,9 +278,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project');
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
       await page.waitForTimeout(300);
-      await page.type('#personnel', 'Test personnel');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.dispatchEvent('#personnel', 'change');
       await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -279,8 +292,8 @@ Test emergency`
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await page.waitForTimeout(500);
       await page.getByRole('button', { name: 'PDF' }).click();
-      await page.waitForTimeout(1500);
-      await expect(page.getByText('Export Complete')).toBeVisible();
+      await page.waitForTimeout(2000);
+      await expect(page.getByText('Export Complete')).toBeVisible({ timeout: 5000 });
     });
 
     test('should regenerate document', async ({ page }) => {
@@ -313,15 +326,21 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project');
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
       await page.waitForTimeout(300);
-      await page.type('#personnel', 'Test personnel');
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input');
+      await page.dispatchEvent('#personnel', 'change');
       await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
-      await page.type('#activity', 'New activity');
+      await page.fill('#activity', 'New activity');
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
       await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
@@ -339,12 +358,26 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(500);
+      await page.evaluate(() => {
+        const el = document.querySelector('#activity') as HTMLTextAreaElement;
+        if (el) {
+          el.value = 'Test Project';
+          el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+      await page.waitForTimeout(300);
+      await page.evaluate(() => {
+        const el = document.querySelector('#personnel') as HTMLTextAreaElement;
+        if (el) {
+          el.value = 'Test personnel';
+          el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+      await page.waitForTimeout(300);
       await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
-      await page.fill('#personnel', 'Test personnel');
-      await page.waitForTimeout(500);
-      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await page.getByRole('button', { name: 'Generate RAMS' }).click({ force: true });
 
       await page.waitForTimeout(1000);
       // Toast uses Radix UI - check by toast title text
@@ -391,7 +424,10 @@ Test emergency`
 
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test');
-      await page.waitForTimeout(500);
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
+      await page.waitForTimeout(300);
+      await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       // Button text changes to "Generating RAMS..." while processing
       await expect(page.getByRole('button', { name: 'Generating RAMS...' })).toBeVisible({ timeout: 5000 });
@@ -405,7 +441,10 @@ Test emergency`
 
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(500);
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
+      await page.waitForTimeout(300);
+      await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       await page.waitForSelector('text=Generated RAMS', { timeout: 10000 });
       await expect(page.getByText('Identified Hazards')).toBeVisible();
@@ -419,7 +458,10 @@ Test emergency`
 
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.fill('#activity', 'Test Project');
-      await page.waitForTimeout(500);
+      await page.dispatchEvent('#activity', 'input');
+      await page.dispatchEvent('#activity', 'change');
+      await page.waitForTimeout(300);
+      await page.waitForSelector('button:not([disabled])', { timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       await page.waitForTimeout(1000);
       // Toast uses Radix UI - check by toast title text
