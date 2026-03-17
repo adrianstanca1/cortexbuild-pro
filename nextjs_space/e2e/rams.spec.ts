@@ -137,11 +137,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.click('#activity');
-      await page.keyboard.type('Test Project');
-      await page.click('#personnel');
-      await page.keyboard.type('Test personnel');
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#activity', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#personnel', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -179,11 +181,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.click('#activity');
-      await page.keyboard.type('Test Project');
-      await page.click('#personnel');
-      await page.keyboard.type('Test personnel');
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#activity', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#personnel', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -221,11 +225,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.click('#activity');
-      await page.keyboard.type('Test Project');
-      await page.click('#personnel');
-      await page.keyboard.type('Test personnel');
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#activity', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#personnel', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -270,11 +276,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.click('#activity');
-      await page.keyboard.type('Test Project');
-      await page.click('#personnel');
-      await page.keyboard.type('Test personnel');
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#activity', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#personnel', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
@@ -317,11 +325,13 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.click('#activity');
-      await page.keyboard.type('Test Project');
-      await page.click('#personnel');
-      await page.keyboard.type('Test personnel');
-      await page.waitForTimeout(1000);
+      await page.fill('#activity', 'Test Project');
+      await page.dispatchEvent('#activity', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#activity', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.fill('#personnel', 'Test personnel');
+      await page.dispatchEvent('#personnel', 'input', { 'eventInit': { 'bubbles': true } });
+      await page.dispatchEvent('#personnel', 'change', { 'eventInit': { 'bubbles': true } });
+      await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
