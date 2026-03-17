@@ -112,13 +112,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200); // Wait for React state update
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Generated RAMS')).toBeVisible();
@@ -131,13 +128,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Identified Hazards')).toBeVisible();
@@ -150,13 +144,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Risk Assessment')).toBeVisible();
@@ -169,13 +160,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.getByRole('button', { name: 'PDF' }).click();
@@ -189,16 +177,15 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await page.fill('#activity', 'New activity');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Generated RAMS')).toBeVisible();
@@ -213,13 +200,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Could not generate RAMS')).toBeVisible();
@@ -232,13 +216,10 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
       await page.fill('#personnel', 'Test personnel');
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page).toBeVisible();
@@ -265,12 +246,8 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       await expect(page.getByText('Generating RAMS...')).toBeVisible();
     });
@@ -282,12 +259,8 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       await expect(page.getByText('Identified Hazards')).toBeVisible();
     });
@@ -299,12 +272,8 @@ test.describe('RAMS E2E Tests', () => {
       });
 
       await page.fill('#activity', 'Test Project');
-      await page.locator('#location').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
-      await page.locator('#duration').click();
-      await page.waitForTimeout(1000);
-      await page.locator('[role="option"]').first().click({ force: true });
+      await page.waitForTimeout(200);
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeEnabled({ timeout: 5000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
       await expect(page.getByText('RAMS Generated')).toBeVisible();
     });
