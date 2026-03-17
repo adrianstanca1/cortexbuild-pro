@@ -137,10 +137,14 @@ Test emergency`
       });
 
       await page.waitForSelector('#activity', { state: 'visible' });
-      await page.type('#activity', 'Test Project', { delay: 100 });
-      await page.type('#personnel', 'Test personnel', { delay: 100 });
-      await page.waitForTimeout(1000);
-      // Wait for button to be enabled
+      await page.focus('#activity');
+      await page.fill('#activity', 'Test Project');
+      await page.focus('#personnel');
+      await page.fill('#personnel', 'Test personnel');
+      await page.waitForFunction(() => {
+        const activity = (document.getElementById('activity') as HTMLTextAreaElement)?.value;
+        return activity && activity.length > 0;
+      }, { timeout: 5000 });
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
       await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
