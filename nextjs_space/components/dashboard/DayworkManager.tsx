@@ -345,7 +345,7 @@ export function DayworkManager({ projects }: DayworkManagerProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {weatherOptions.map((option) => (
-                    <SelectItem key={option} value={option} data-testid={`weather-${option.toLowerCase().replace(' ', '-')`}>
+                    <SelectItem key={option} value={option} data-testid={`weather-${option.toLowerCase().replace(' ', '-')}`}>
                       {option}
                     </SelectItem>
                   ))}
