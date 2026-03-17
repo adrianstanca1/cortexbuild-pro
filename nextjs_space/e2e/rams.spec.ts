@@ -139,13 +139,23 @@ Test emergency`
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.evaluate(() => {
         const el = document.getElementById('activity') as HTMLTextAreaElement;
-        el.value = 'Test Project';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test Project');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.evaluate(() => {
         const el = document.getElementById('personnel') as HTMLTextAreaElement;
-        el.value = 'Test personnel';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test personnel');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
@@ -187,13 +197,23 @@ Test emergency`
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.evaluate(() => {
         const el = document.getElementById('activity') as HTMLTextAreaElement;
-        el.value = 'Test Project';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test Project');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.evaluate(() => {
         const el = document.getElementById('personnel') as HTMLTextAreaElement;
-        el.value = 'Test personnel';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test personnel');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
@@ -235,13 +255,23 @@ Test emergency`
       await page.waitForSelector('#activity', { state: 'visible' });
       await page.evaluate(() => {
         const el = document.getElementById('activity') as HTMLTextAreaElement;
-        el.value = 'Test Project';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test Project');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.evaluate(() => {
         const el = document.getElementById('personnel') as HTMLTextAreaElement;
-        el.value = 'Test personnel';
-        el.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+          (window as any).HTMLTextAreaElement.prototype,
+          'value'
+        )?.set;
+        nativeInputValueSetter?.call(el, 'Test personnel');
+        el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+        el.dispatchEvent(new InputEvent('change', { bubbles: true }));
       });
       await page.waitForTimeout(500);
       await page.waitForSelector('button:not([disabled])', { timeout: 10000 });
