@@ -61,15 +61,15 @@ test.describe('Variations E2E Tests', () => {
 
     test('should show error when project is not selected', async ({ page }) => {
       await page.fill('input[placeholder="Variation title"]', 'Test variation');
-      await page.getByRole('button', { name: 'Create' }).click();
-      await expect(page.getByText('required')).toBeVisible();
+      await page.getByRole('button', { name: 'Create Variation' }).click();
+      await expect(page.getByText('Please fill in all required fields')).toBeVisible();
     });
 
     test('should show error when title is empty', async ({ page }) => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
-      await page.getByRole('button', { name: 'Create' }).click();
-      await expect(page.getByText('required')).toBeVisible();
+      await page.getByRole('button', { name: 'Create Variation' }).click();
+      await expect(page.getByText('Please fill in all required fields')).toBeVisible();
     });
 
     test('should accept valid title', async ({ page }) => {
@@ -109,8 +109,8 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('input[placeholder="Cost change"]', '5000');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
 
       // In test mode, API returns mock response - verify form is present
       await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible();
@@ -120,9 +120,9 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('textarea[placeholder="Detailed description"]', 'Test description');
-      await page.fill('input[placeholder="Cost change"]', '5000');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('textarea[placeholder="Detailed description of the variation"]', 'Test description');
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
 
       // In test mode, API returns mock response - verify form is present
       await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible();
@@ -143,8 +143,8 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('input[placeholder="Cost change"]', '5000');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
       await page.getByRole('button', { name: 'Approve' }).click();
 
       // In test mode, API returns mock response - verify form is present
@@ -155,8 +155,8 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('input[placeholder="Cost change"]', '5000');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
       await page.getByRole('button', { name: 'Reject' }).click();
 
       // In test mode, API returns mock response - verify form is present
@@ -167,8 +167,8 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('input[placeholder="Cost change"]', '5000');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
       await page.getByRole('button', { name: 'Delete' }).click();
 
       // In test mode, API returns mock response - verify form is present
@@ -190,8 +190,8 @@ test.describe('Variations E2E Tests', () => {
       await page.getByText('Select project').click();
       await page.getByText('Project Alpha').click();
       await page.fill('input[placeholder="Variation title"]', 'Test Variation');
-      await page.fill('input[placeholder="Cost change"]', '5000.99');
-      await page.getByRole('button', { name: 'Create' }).click();
+      await page.fill('input[placeholder="e.g., 5000 or -2000"]', '5000.99');
+      await page.getByRole('button', { name: 'Create Variation' }).click();
 
       // In test mode, API returns mock response - verify form is present
       await expect(page.locator('h1').filter({ hasText: 'Variations Manager' })).toBeVisible();

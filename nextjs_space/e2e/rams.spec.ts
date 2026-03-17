@@ -35,28 +35,28 @@ test.describe('RAMS E2E Tests', () => {
       await expect(page.locator('h1')).toContainText('RAMS Generator');
     });
 
-    test('should display project name input', async ({ page }) => {
-      await expect(page.locator('#name')).toBeVisible();
+    test('should display activity textarea', async ({ page }) => {
+      await expect(page.locator('#activity')).toBeVisible();
     });
 
-    test('should display location input', async ({ page }) => {
+    test('should display location selector', async ({ page }) => {
       await expect(page.locator('#location')).toBeVisible();
     });
 
-    test('should display description textarea', async ({ page }) => {
-      await expect(page.getByLabel('Description')).toBeVisible();
+    test('should display activity placeholder', async ({ page }) => {
+      await expect(page.getByPlaceholder('Describe the work activity')).toBeVisible();
     });
 
-    test('should display date picker', async ({ page }) => {
-      await expect(page.getByText('Select date')).toBeVisible();
+    test('should display duration selector', async ({ page }) => {
+      await expect(page.locator('#duration')).toBeVisible();
     });
 
-    test('should display tasks input', async ({ page }) => {
-      await expect(page.getByLabel('Tasks')).toBeVisible();
+    test('should display personnel textarea', async ({ page }) => {
+      await expect(page.locator('#personnel')).toBeVisible();
     });
 
-    test('should display Generate button', async ({ page }) => {
-      await expect(page.getByRole('button', { name: 'Generate' })).toBeVisible();
+    test('should display Generate RAMS button', async ({ page }) => {
+      await expect(page.getByRole('button', { name: 'Generate RAMS' })).toBeVisible();
     });
 
     test('should display Print button', async ({ page }) => {
@@ -70,34 +70,36 @@ test.describe('RAMS E2E Tests', () => {
       await page.goto(pageUrl);
     });
 
-    test('should show error when project name is empty', async ({ page }) => {
-      await page.getByRole('button', { name: 'Generate' }).click();
-      await expect(page.getByText('Project name is required')).toBeVisible();
+    test('should show error when activity is empty', async ({ page }) => {
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.getByText('Please describe the work activity')).toBeVisible();
     });
 
-    test('should accept valid project name', async ({ page }) => {
-      await page.fill('#name', 'Construction Project');
-      await expect(page.locator('#name')).toHaveValue('Construction Project');
+    test('should accept valid activity', async ({ page }) => {
+      await page.fill('#activity', 'Construction Project');
+      await expect(page.locator('#activity')).toHaveValue('Construction Project');
     });
 
-    test('should accept location', async ({ page }) => {
-      await page.fill('#location', 'Site A');
-      await expect(page.locator('#location')).toHaveValue('Site A');
+    test('should select location', async ({ page }) => {
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await expect(page.getByText('Construction Site')).toBeVisible();
     });
 
-    test('should accept description', async ({ page }) => {
-      await page.fill('#description', 'Building construction');
-      await expect(page.locator('#description')).toHaveValue('Building construction');
+    test('should accept duration', async ({ page }) => {
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await expect(page.getByText('Full day')).toBeVisible();
     });
 
-    test('should accept tasks', async ({ page }) => {
-      await page.fill('#tasks', 'Excavation, Foundation, Framing');
-      await expect(page.locator('#tasks')).toHaveValue('Excavation, Foundation, Framing');
+    test('should accept personnel', async ({ page }) => {
+      await page.fill('#personnel', '2 roofers, 1 supervisor');
+      await expect(page.locator('#personnel')).toHaveValue('2 roofers, 1 supervisor');
     });
 
     test('should select date', async ({ page }) => {
-      await page.getByText('Select date').click();
-      await expect(page.locator('[role="dialog"]')).toBeVisible();
+      await page.locator('#duration').click();
+      await expect(page.getByText('Full day')).toBeVisible();
     });
   });
 
@@ -108,57 +110,67 @@ test.describe('RAMS E2E Tests', () => {
     });
 
     test('should generate RAMS document', async ({ page }) => {
-      await page.fill('#name', 'Test Project');
-      await page.fill('#location', 'Test Location');
-      await page.fill('#description', 'Test Description');
-      await page.fill('#tasks', 'Task 1, Task 2');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await page.fill('#personnel', 'Test personnel');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await expect(page.getByText('RAMS document generated')).toBeVisible();
+      await expect(page.getByText('Generated RAMS')).toBeVisible();
     });
 
     test('should display hazards section', async ({ page }) => {
-      await page.fill('#name', 'Test Project');
-      await page.fill('#location', 'Test Location');
-      await page.fill('#description', 'Test Description');
-      await page.fill('#tasks', 'Working at heights');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await page.fill('#personnel', 'Test personnel');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await expect(page.getByText('Hazards')).toBeVisible();
+      await expect(page.getByText('Identified Hazards')).toBeVisible();
     });
 
     test('should display risk assessments', async ({ page }) => {
-      await page.fill('#name', 'Test Project');
-      await page.fill('#location', 'Test Location');
-      await page.fill('#description', 'Test Description');
-      await page.fill('#tasks', 'Working at heights');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await page.fill('#personnel', 'Test personnel');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page.getByText('Risk Assessment')).toBeVisible();
     });
 
-    test('should print document', async ({ page }) => {
-      await page.fill('#name', 'Test Project');
-      await page.fill('#location', 'Test Location');
-      await page.fill('#description', 'Test Description');
-      await page.fill('#tasks', 'Working at heights');
-      await page.getByRole('button', { name: 'Generate' }).click();
+    test('should export PDF', async ({ page }) => {
+      await page.fill('#activity', 'Test Project');
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await page.fill('#personnel', 'Test personnel');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await page.getByRole('button', { name: 'Print' }).click();
-      await expect(page.getByText('Print')).toBeVisible();
+      await page.getByRole('button', { name: 'PDF' }).click();
+      await expect(page.getByText('Exp')).toBeVisible();
     });
 
     test('should regenerate document', async ({ page }) => {
-      await page.fill('#name', 'Test Project');
-      await page.fill('#location', 'Test Location');
-      await page.fill('#description', 'Test Description');
-      await page.fill('#tasks', 'Working at heights');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.locator('#location').click();
+      await page.getByText('Construction Site').click();
+      await page.locator('#duration').click();
+      await page.getByText('Full day').click();
+      await page.fill('#personnel', 'Test personnel');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await page.fill('#tasks', 'New tasks');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'New activity');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await expect(page.getByText('Regenerated')).toBeVisible();
+      await expect(page.getByText('Generated RAMS')).toBeVisible();
     });
   });
 
@@ -169,23 +181,23 @@ test.describe('RAMS E2E Tests', () => {
     });
 
     test('should handle API error gracefully', async ({ page }) => {
-      await page.route('**/api/rams/generate', route => {
+      await page.route('**/api/ai', route => {
         route.fulfill({ status: 500, body: 'Internal Server Error' });
       });
 
-      await page.fill('#name', 'Test Project');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
-      await expect(page.getByText('Failed to generate')).toBeVisible();
+      await expect(page.getByText('Could not generate RAMS')).toBeVisible();
     });
 
     test('should handle network timeout', async ({ page }) => {
-      await page.route('**/api/rams/generate', route => {
+      await page.route('**/api/ai', route => {
         route.abort('timedout');
       });
 
-      await page.fill('#name', 'Test Project');
-      await page.getByRole('button', { name: 'Generate' }).click();
+      await page.fill('#activity', 'Test Project');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
 
       await expect(page).toBeVisible();
     });
@@ -214,33 +226,33 @@ test.describe('RAMS E2E Tests', () => {
     });
 
     test('should display loading state', async ({ page }) => {
-      await page.route('**/api/rams/generate', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ html: '<div>test</div>' }), delay: 1000 });
+      await page.route('**/api/ai', route => {
+        route.fulfill({ status: 200, body: JSON.stringify({ response: 'test' }), delay: 1000 });
       });
 
-      await page.fill('#name', 'Test');
-      await page.getByRole('button', { name: 'Generate' }).click();
-      await expect(page.getByText('Generating')).toBeVisible();
+      await page.fill('#activity', 'Test');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.getByText('Generating RAMS')).toBeVisible();
     });
 
     test('should display generated content', async ({ page }) => {
-      await page.route('**/api/rams/generate', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ html: '<h2>Hazards</h2>' }) });
+      await page.route('**/api/ai', route => {
+        route.fulfill({ status: 200, body: JSON.stringify({ response: 'Hazards: Test hazard' }) });
       });
 
-      await page.fill('#name', 'Test Project');
-      await page.getByRole('button', { name: 'Generate' }).click();
-      await expect(page.getByText('Hazards')).toBeVisible();
+      await page.fill('#activity', 'Test Project');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.getByText('Identified Hazards')).toBeVisible();
     });
 
     test('should display success toast', async ({ page }) => {
-      await page.route('**/api/rams/generate', route => {
-        route.fulfill({ status: 200, body: JSON.stringify({ html: '<div>test</div>', id: '123' }) });
+      await page.route('**/api/ai', route => {
+        route.fulfill({ status: 200, body: JSON.stringify({ response: 'test' }) });
       });
 
-      await page.fill('#name', 'Test Project');
-      await page.getByRole('button', { name: 'Generate' }).click();
-      await expect(page.getByText('generated and saved')).toBeVisible();
+      await page.fill('#activity', 'Test Project');
+      await page.getByRole('button', { name: 'Generate RAMS' }).click();
+      await expect(page.getByText('Risk Assessment Method Statement has been created')).toBeVisible();
     });
   });
 });

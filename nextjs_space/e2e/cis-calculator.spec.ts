@@ -57,34 +57,34 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should accept valid gross amount', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await expect(page.locator('[data-testid="gross-input"]')).toHaveValue('5000');
+      await page.fill('#gross', '5000');
+      await expect(page.locator('#gross')).toHaveValue('5000');
     });
 
     test('should accept materials value', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await page.fill('[data-testid="materials-input"]', '1000');
-      await expect(page.locator('[data-testid="materials-input"]')).toHaveValue('1000');
+      await page.fill('#gross', '5000');
+      await page.fill('#materials', '1000');
+      await expect(page.locator('#materials')).toHaveValue('1000');
     });
 
     test('should accept retention percentage', async ({ page }) => {
-      await page.fill('[data-testid="retention-input"]', '5');
-      await expect(page.locator('[data-testid="retention-input"]')).toHaveValue('5');
+      await page.fill('#retention', '5');
+      await expect(page.locator('#retention')).toHaveValue('5');
     });
 
     test('should allow CIS rate selection', async ({ page }) => {
-      await page.selectOption('[data-testid="rate-select"]', '20');
-      await expect(page.locator('[data-testid="rate-select"]')).toHaveValue('20');
+      await page.selectOption('#rate', '20');
+      await expect(page.locator('#rate')).toHaveValue('20');
     });
 
     test('should select 30% CIS rate', async ({ page }) => {
-      await page.selectOption('[data-testid="rate-select"]', '30');
-      await expect(page.locator('[data-testid="rate-select"]')).toHaveValue('30');
+      await page.selectOption('#rate', '30');
+      await expect(page.locator('#rate')).toHaveValue('30');
     });
 
     test('should select 0% gross rate', async ({ page }) => {
-      await page.selectOption('[data-testid="rate-select"]', '0');
-      await expect(page.locator('[data-testid="rate-select"]')).toHaveValue('0');
+      await page.selectOption('#rate', '0');
+      await expect(page.locator('#rate')).toHaveValue('0');
     });
   });
 
@@ -95,10 +95,10 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should calculate CIS with standard rate', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await page.fill('[data-testid="materials-input"]', '1000');
-      await page.selectOption('[data-testid="rate-select"]', '20');
-      await page.fill('[data-testid="retention-input"]', '5');
+      await page.fill('#gross', '5000');
+      await page.fill('#materials', '1000');
+      await page.selectOption('#rate', '20');
+      await page.fill('#retention', '5');
 
       // Set up response listener, then click
       const responsePromise = page.waitForResponse('**/api/payroll/calculate');
@@ -115,8 +115,8 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should calculate CIS with gross payment status', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await page.selectOption('[data-testid="rate-select"]', '0');
+      await page.fill('#gross', '5000');
+      await page.selectOption('#rate', '0');
       const responsePromise = page.waitForResponse('**/api/payroll/calculate');
       await page.getByRole('button', { name: 'Calculate' }).click({ force: true });
       const response = await responsePromise;
@@ -127,8 +127,8 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should calculate CIS with higher rate', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await page.selectOption('[data-testid="rate-select"]', '30');
+      await page.fill('#gross', '5000');
+      await page.selectOption('#rate', '30');
       const responsePromise = page.waitForResponse('**/api/payroll/calculate');
       await page.getByRole('button', { name: 'Calculate' }).click({ force: true });
       const response = await responsePromise;
@@ -144,10 +144,10 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should display calculation results', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000');
-      await page.fill('[data-testid="materials-input"]', '1000');
-      await page.selectOption('[data-testid="rate-select"]', '20');
-      await page.fill('[data-testid="retention-input"]', '5');
+      await page.fill('#gross', '5000');
+      await page.fill('#materials', '1000');
+      await page.selectOption('#rate', '20');
+      await page.fill('#retention', '5');
       const responsePromise = page.waitForResponse('**/api/payroll/calculate');
       await page.getByRole('button', { name: 'Calculate' }).click({ force: true });
       const response = await responsePromise;
@@ -185,8 +185,8 @@ test.describe('CIS Calculator E2E Tests', () => {
     });
 
     test('should display currency formatting', async ({ page }) => {
-      await page.fill('[data-testid="gross-input"]', '5000.99');
-      await expect(page.locator('[data-testid="gross-input"]')).toHaveValue('5000.99');
+      await page.fill('#gross', '5000.99');
+      await expect(page.locator('#gross')).toHaveValue('5000.99');
     });
   });
 });

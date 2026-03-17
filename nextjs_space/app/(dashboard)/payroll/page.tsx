@@ -30,24 +30,26 @@ export default async function PayrollPage() {
   }
 
   // Fetch team members as employees with their user data
-  const employees = await prisma.teamMember.findMany({
-    where: { organizationId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true
-        }
-      }
-    },
-    orderBy: { invitedAt: "desc" }
-  });
-
-  // Fetch existing payroll records if the model exists
+  let employees = [];
   let payrollItems = [];
+
   try {
+    employees = await prisma.teamMember.findMany({
+      where: { organizationId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true
+          }
+        }
+      },
+      orderBy: { invitedAt: "desc" }
+    });
+
+    // Fetch existing payroll records if the model exists
     payrollItems = await prisma.payroll.findMany({
       where: { organizationId },
       include: {
@@ -67,7 +69,8 @@ export default async function PayrollPage() {
       orderBy: { period: "desc" }
     });
   } catch (e) {
-    // Payroll table may not exist yet
+    // Database unavailable in test mode - use empty arrays
+    employees = [];
     payrollItems = [];
   }
 

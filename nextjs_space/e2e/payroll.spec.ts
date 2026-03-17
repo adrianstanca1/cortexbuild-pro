@@ -48,7 +48,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display employee selector', async ({ page }) => {
-      await expect(page.getByPlaceholder('Select employee')).toBeVisible();
+      await expect(page.locator('#employee')).toBeVisible();
     });
 
     test('should display period input', async ({ page }) => {
@@ -90,14 +90,14 @@ test.describe('Payroll E2E Tests', () => {
     test('should show error when employee is not selected', async ({ page }) => {
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
-      await expect(page.getByText('Missing Information')).toBeVisible();
+      await expect(page.getByText('Please select an employee')).toBeVisible();
     });
 
     test('should show error when base salary is empty', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
-      await expect(page.getByText('Missing Information')).toBeVisible();
+      await expect(page.getByText('Please enter base salary')).toBeVisible();
     });
 
     test('should accept valid base salary', async ({ page }) => {
@@ -150,7 +150,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should create new payroll entry', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.fill('#overtime', '500');
@@ -164,7 +164,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should create payroll with overtime', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Mike').click();
       await page.fill('#baseSalary', '4000');
       await page.fill('#overtime', '800');
@@ -175,7 +175,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display calculation preview', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.fill('#overtime', '500');
@@ -186,7 +186,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display calculated CIS', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.selectOption('#cisRate', '20');
@@ -196,7 +196,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display calculated net pay', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
@@ -205,7 +205,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should process payroll entry', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
@@ -216,18 +216,18 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should mark payroll as paid', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
-      await page.getByRole('button', { name: 'Pay' }).click();
+      await page.getByRole('button', { name: 'Mark Paid' }).click();
 
       // In test mode, API returns mock response - verify form is present
       await expect(page.locator('h1').filter({ hasText: 'Payroll Management' })).toBeVisible();
     });
 
     test('should delete draft payroll', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
@@ -242,7 +242,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display status badge', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
@@ -314,7 +314,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display employee list', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await expect(page.getByText('Sarah')).toBeVisible();
       await expect(page.getByText('Mike')).toBeVisible();
     });
@@ -331,7 +331,7 @@ test.describe('Payroll E2E Tests', () => {
     });
 
     test('should display payroll breakdown', async ({ page }) => {
-      await page.getByPlaceholder('Select employee').click();
+      await page.locator('#employee').click();
       await page.getByText('Sarah').click();
       await page.fill('#baseSalary', '5000');
       await page.getByRole('button', { name: 'Add Payroll Entry' }).click();
