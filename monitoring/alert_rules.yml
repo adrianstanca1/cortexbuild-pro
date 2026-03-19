@@ -1,0 +1,302 @@
+# Prometheus Alert Rules
+# Production alerting configuration
+
+groups:
+  - name: cortexbuild_alerts
+    interval: 30s
+    rules:
+      # Error rate > 5%
+      - alert: HighErrorRate
+        expr: sum(rate(http_errors_total[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% (threshold: 5%) for the last 5 minutes"
+          runbook_url: "https://wiki.internal/runbooks/high-error-rate"
+
+      # Latency p99 > 2s
+      - alert: HighLatency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High latency detected"
+          description: "p99 latency is {{ $value }}s (threshold: 2s)"
+          runbook_url: "https://wiki.internal/runbooks/high-latency"
+
+      # Database down
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Database connection lost for {{ $value }} seconds"
+          runbook_url: "https://wiki.internal/runbooks/database-down"
+
+      # Database connection pool exhaustion
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: pg_stat_activity_count / pg_settings_max_connections > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "{{ $value | humanizePercentage }} of connections in use"
+          runbook_url: "https://wiki.internal/runbooks/db-pool-exhaustion"
+
+      # Disk space < 20%
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is {{ $value }}% available (threshold: 20%)"
+          runbook_url: "https://wiki.internal/runbooks/low-disk-space"
+
+      # Disk space < 10%
+      - alert: CriticalLowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Critical low disk space"
+          description: "Disk space is {{ $value }}% available (threshold: 10%)"
+          runbook_url: "https://wiki.internal/runbooks/low-disk-space"
+
+      # Memory > 90%
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% (threshold: 90%)"
+          runbook_url: "https://wiki.internal/runbooks/high-memory"
+
+      # Memory > 95%
+      - alert: CriticalHighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Critical high memory usage"
+          description: "Memory usage is {{ $value }}% (threshold: 95%)"
+          runbook_url: "https://wiki.internal/runbooks/high-memory"
+
+      # SSL cert expiry < 30 days
+      - alert: SSLCertExpirySoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 1h
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "Certificate expires in {{ $value | humanizeDuration }} (threshold: 30 days)"
+          runbook_url: "https://wiki.internal/runbooks/ssl-expiry"
+
+      # SSL cert expiry < 7 days
+      - alert: SSLCertExpiryCritical
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 30m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "SSL certificate expiring very soon"
+          description: "Certificate expires in {{ $value | humanizeDuration }} (threshold: 7 days)"
+          runbook_url: "https://wiki.internal/runbooks/ssl-expiry"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up{job="cortexbuild-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "CortexBuild API service is down"
+          description: "Service has been down for {{ $value }} seconds"
+          runbook_url: "https://wiki.internal/runbooks/service-down"
+
+      # Redis down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis connection lost"
+          runbook_url: "https://wiki.internal/runbooks/redis-down"
+
+      # Cache hit rate < 80%
+      - alert: LowCacheHitRate
+        expr: cache_hit_ratio < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 80%)"
+          runbook_url: "https://wiki.internal/runbooks/low-cache-hit-rate"
+
+      # Queue depth high
+      - alert: HighQueueDepth
+        expr: queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High queue depth"
+          description: "Queue depth is {{ $value }} (threshold: 1000)"
+          runbook_url: "https://wiki.internal/runbooks/high-queue-depth"
+
+      # CPU throttling
+      - alert: CPUThrottling
+        expr: rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "CPU throttling detected"
+          description: "Container is being CPU throttled"
+          runbook_url: "https://wiki.internal/runbooks/cpu-throttling"
+
+      # OOMKilled
+      - alert: OOMKilled
+        expr: kube_pod_container_status_reason{reason="OOMKilled"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Container OOMKilled"
+          description: "Container was killed due to out of memory"
+          runbook_url: "https://wiki.internal/runbooks/oomkilled"
+
+      # API 5xx errors spike
+      - alert: API5xxSpike
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "API 5xx error spike"
+          description: "High rate of 5xx errors: {{ $value }} errors/sec"
+          runbook_url: "https://wiki.internal/runbooks/5xx-spike"
+
+      # API 4xx errors spike (potential attack)
+      - alert: API4xxSpike
+        expr: sum(rate(http_requests_total{status=~"4.."}[5m])) > 100
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "API 4xx error spike"
+          description: "High rate of 4xx errors: {{ $value }} errors/sec (potential attack)"
+          runbook_url: "https://wiki.internal/runbooks/4xx-spike"
+
+  - name: business_alerts
+    interval: 1m
+    rules:
+      # No new signups in 1 hour
+      - alert: NoUserSignups
+        expr: increase(user_signups_total[1h]) == 0
+        for: 1h
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "No new user signups"
+          description: "No new signups in the last hour"
+          runbook_url: "https://wiki.internal/runbooks/no-signups"
+
+      # Payment failures
+      - alert: PaymentFailures
+        expr: sum(rate(payment_failures_total[5m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: billing
+        annotations:
+          summary: "Payment processing failures"
+          description: "High rate of payment failures: {{ $value }} failures/sec"
+          runbook_url: "https://wiki.internal/runbooks/payment-failures"
+
+      # User churn spike
+      - alert: UserChurnSpike
+        expr: sum(increase(user_churn_total[24h])) > 100
+        for: 1h
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "User churn spike"
+          description: "Unusual number of user churn in 24h: {{ $value }}"
+          runbook_url: "https://wiki.internal/runbooks/user-churn"
+
+  - name: recording_rules
+    interval: 30s
+    rules:
+      # Pre-compute error rate
+      - record: job:http_error_rate:ratio_rate5m
+        expr: sum(rate(http_errors_total[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job)
+
+      # Pre-compute request rate
+      - record: job:http_requests:rate_rate5m
+        expr: sum(rate(http_requests_total[5m])) by (job)
+
+      # Pre-compute latency percentiles
+      - record: job:http_request_duration_seconds:p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) by (job)
+
+      - record: job:http_request_duration_seconds:p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) by (job)
+
+      - record: job:http_request_duration_seconds:p50
+        expr: histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m])) by (job)
+
+      # Pre-compute memory usage
+      - record: process:memory_usage:ratio
+        expr: process_resident_memory_bytes / 1024 / 1024
+
+      # Pre-compute CPU usage
+      - record: process:cpu_usage:rate5m
+        expr: rate(process_cpu_seconds_total[5m]) * 100
+
+      # Pre-compute cache performance
+      - record: job:cache_hit_ratio:avg
+        expr: avg_over_time(cache_hit_ratio[5m])
+
+      # Pre-compute database performance
+      - record: job:db_query_duration_seconds:p99
+        expr: histogram_quantile(0.99, rate(db_query_duration_seconds_bucket[5m]))
+
+      # Pre-compute uptime
+      - record: job:uptime:ratio
+        expr: avg_over_time(up[24h])

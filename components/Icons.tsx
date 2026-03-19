@@ -215,3 +215,7 @@ export const CurrencyPoundIcon: React.FC<IconProps> = ({ className }) => (
 export const BriefcaseIcon: React.FC<IconProps> = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.072a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25v-4.072M20.25 14.15V12a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 12v2.15m16.5 0v-2.15" /></svg>
 );
+
+export const Server: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 4.5h13.5m-13.5-9h13.5m-13.5 4.5h13.5m-13.5-9h13.5m-13.5 4.5h13.5" /></svg>
+);

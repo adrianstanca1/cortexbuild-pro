@@ -1,0 +1,104 @@
+# ============================================================
+# CortexBuild Pro - Ultra-Optimized Production Dockerfile
+# ============================================================
+# Optimized for VPS deployment with minimal attack surface
+# and maximum performance
+# ============================================================
+
+# ------------------------------------------------------------------
+# Stage 1: Base - Minimal Alpine with required packages
+# ------------------------------------------------------------------
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl dumb-init
+
+# ------------------------------------------------------------------
+# Stage 2: Prisma Builder - Generate Prisma Client
+# ------------------------------------------------------------------
+FROM base AS prisma-builder
+WORKDIR /app
+COPY nextjs_space/prisma/ ./prisma/
+COPY nextjs_space/package*.json ./
+RUN npm install --only=production && npx prisma generate
+
+# ------------------------------------------------------------------
+# Stage 3: Dependencies - Production only with layer caching
+# ------------------------------------------------------------------
+FROM base AS deps
+WORKDIR /app
+COPY nextjs_space/package.json nextjs_space/package-lock.json* ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit --no-fund --production 2>/dev/null
+
+# ------------------------------------------------------------------
+# Stage 4: Builder - Full Next.js Build
+# ------------------------------------------------------------------
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=prisma-builder /app/prisma ./prisma
+COPY nextjs_space/ .
+
+# Build-time environment
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV NEXT_OUTPUT_MODE=standalone
+ENV PRISMA_SKIP_INIT=true
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build arguments (replaced at runtime)
+ARG DATABASE_URL="postgresql://build:build@localhost:5432/build"
+ARG NEXTAUTH_SECRET="build-secret"
+ARG NEXTAUTH_URL="http://localhost:3000"
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+
+# Build application
+RUN npm run build
+
+# ------------------------------------------------------------------
+# Stage 5: Production Runner - Minimal runtime image
+# ------------------------------------------------------------------
+FROM base AS runner
+WORKDIR /app
+
+# Runtime configuration
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --shell /bin/sh nextjs && \
+    chown -R nextjs:nodejs /app
+
+# Copy only necessary production files
+COPY --from=builder --chown=nextjs:nodejs /app/nextjs_space/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/nextjs_space/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/nextjs_space/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/nextjs_space/package.json ./package.json
+COPY --from=prisma-builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+# Create required directories
+RUN mkdir -p uploads temp && chown nextjs:nodejs uploads temp
+
+# Switch to non-root user
+USER nextjs
+
+# Expose application port
+EXPOSE 3000
+
+# Health check using built-in wget
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start Next.js standalone server
+CMD ["node", "server.js"]
