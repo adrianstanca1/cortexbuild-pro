@@ -117,6 +117,7 @@
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.1",
     "jsonwebtoken": "9.0.2",
+    "pm2": "^5.4.0",
     "lodash": "4.17.23",
     "lucide-react": "0.446.0",
     "mapbox-gl": "1.13.3",
