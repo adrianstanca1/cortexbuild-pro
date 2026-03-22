@@ -1,87 +1,62 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { broadcastToOrganization } from '@/lib/realtime-clients';
-import {
-  getOrganizationContext,
-  parseQueryParams,
-  successResponse,
-  errorResponse,
-  withAuthHandler,
-} from '@/lib/api-utils';
+import { z } from 'zod';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-export const GET = withAuthHandler(async (request: NextRequest) => {
-  const { context, error } = await getOrganizationContext();
-  if (error) return error;
-
-  const { status, searchParams } = parseQueryParams(request);
-  const category = searchParams.get('category');
-
-  const where: any = { organizationId: context!.organizationId };
-  if (status) where.status = status;
-  if (category) where.category = category;
-
-  const equipment = await prisma.equipment.findMany({
-    where,
-    include: {
-      currentProject: { select: { id: true, name: true } },
-      _count: { select: { maintenanceLogs: true, usageLogs: true } }
-    },
-    orderBy: { name: 'asc' }
-  });
-
-  return successResponse(equipment);
+const createEquipmentSchema = z.object({
+  name: z.string().min(1),
+  type: z.string().optional(),
+  status: z.string().default('AVAILABLE'),
+  organizationId: z.string().min(1),
+  projectId: z.string().optional(),
 });
 
-export const POST = withAuthHandler(async (request: NextRequest) => {
-  const { context, error } = await getOrganizationContext();
-  if (error) return error;
-
-  const body = await request.json();
-  const { name, equipmentNumber, category, manufacturer, model, serialNumber, purchaseDate, purchaseCost, notes, nextServiceDate } = body;
-
+export async function GET(request: Request) {
   try {
-    const equipment = await prisma.equipment.create({
-      data: {
-        name,
-        equipmentNumber,
-        category,
-        manufacturer,
-        model,
-        serialNumber,
-        purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
-        purchaseCost,
-        notes,
-        nextServiceDate: nextServiceDate ? new Date(nextServiceDate) : null,
-        organizationId: context!.organizationId!
-      }
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get('organizationId');
+    const projectId = searchParams.get('projectId');
+    const status = searchParams.get('status');
+
+    const where: Record<string, unknown> = {};
+    if (organizationId) where.organizationId = organizationId;
+    if (projectId) where.projectId = projectId;
+    if (status) where.status = status;
+
+    const equipment = await prisma.equipment.findMany({
+      where,
+      include: {
+        organization: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
     });
 
-    // Log activity
-    await prisma.activityLog.create({
-      data: {
-        action: 'added',
-        entityType: 'equipment',
-        entityId: equipment.id,
-        entityName: equipment.name,
-        userId: context!.userId
-      }
-    });
-
-    // Broadcast real-time event
-    broadcastToOrganization(context!.organizationId!, {
-      type: 'equipment_added',
-      payload: { id: equipment.id, name: equipment.name, category: equipment.category }
-    });
-
-    return NextResponse.json(equipment, { status: 201 });
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      return errorResponse('CONFLICT', 'Equipment number already exists');
-    }
-    throw error; // Let withErrorHandler handle other errors
+    return NextResponse.json({ equipment });
+  } catch (error) {
+    console.error('Failed to fetch equipment:', error);
+    return NextResponse.json({ error: 'Failed to fetch equipment' }, { status: 500 });
   }
-});
+}
 
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const data = createEquipmentSchema.parse(body);
+
+    const equipment = await prisma.equipment.create({
+      data,
+      include: {
+        organization: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true } },
+      },
+    });
+
+    return NextResponse.json({ equipment }, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
+    }
+    console.error('Failed to create equipment:', error);
+    return NextResponse.json({ error: 'Failed to create equipment' }, { status: 500 });
+  }
+}

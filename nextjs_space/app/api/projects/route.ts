@@ -1,123 +1,69 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { broadcastToOrganization } from "@/lib/realtime-clients";
-import {
-  withAuthHandler,
-  sanitizeEntityFields,
-  broadcastEntityEvent,
-  logActivity,
-  errorResponse,
-} from "@/lib/api-utils";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { z } from 'zod';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+const createProjectSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'ARCHIVED']).default('PLANNING'),
+  location: z.string().optional(),
+  clientName: z.string().optional(),
+  clientEmail: z.string().email().optional(),
+  budget: z.number().positive().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  organizationId: z.string().min(1),
+  managerId: z.string().optional(),
+});
 
-const bigintSafe = (obj: any) =>
-  JSON.parse(JSON.stringify(obj, (_, v) => (typeof v === 'bigint' ? Number(v) : v)));
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get('organizationId');
+    const status = searchParams.get('status');
 
+    const where: Record<string, unknown> = {};
+    if (organizationId) where.organizationId = organizationId;
+    if (status) where.status = status;
 
-export const GET = withAuthHandler(async (request: NextRequest, context) => {
-  if (!context.organizationId) {
-    return errorResponse("FORBIDDEN", "User must belong to an organization");
-  }
-
-  // Add pagination support
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '50');
-  const skip = (page - 1) * pageSize;
-
-  // Get projects with pagination
-  const [projects, totalCount] = await Promise.all([
-    prisma.project.findMany({
-      where: { organizationId: context.organizationId },
+    const projects = await prisma.project.findMany({
+      where,
       include: {
-        manager: { select: { id: true, name: true } },
-        _count: { select: { tasks: true, documents: true } }
+        manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        _count: { select: { tasks: true, rfis: true, submittals: true, changeOrders: true } },
       },
-      orderBy: { createdAt: "desc" },
-      take: pageSize,
-      skip: skip
-    }),
-    prisma.project.count({
-      where: { organizationId: context.organizationId }
-    })
-  ]);
+      orderBy: { createdAt: 'desc' },
+    });
 
-  return NextResponse.json(bigintSafe({ 
-    projects,
-    pagination: {
-      page,
-      pageSize,
-      totalCount,
-      totalPages: Math.ceil(totalCount / pageSize)
-    }
-  }));
-});
-
-export const POST = withAuthHandler(async (request: NextRequest, context) => {
-  if (!context.organizationId) {
-    return errorResponse("FORBIDDEN", "User must belong to an organization");
+    return NextResponse.json({ projects });
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+    return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
   }
+}
 
-  const body = await request.json();
-  const { name, description, location, clientName, clientEmail, budget, startDate, endDate, status } = body;
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const data = createProjectSchema.parse(body);
 
-  if (!name?.trim()) {
-    return errorResponse("BAD_REQUEST", "Project name is required");
-  }
+    const project = await prisma.project.create({
+      data: {
+        ...data,
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate ? new Date(data.endDate) : undefined,
+      },
+      include: {
+        manager: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      },
+    });
 
-  // Sanitize common fields
-  const sanitized = sanitizeEntityFields({
-    name,
-    description,
-    location,
-    clientName,
-    clientEmail,
-  });
-
-  const project = await prisma.project.create({
-    data: {
-      ...sanitized,
-      budget: budget ? parseFloat(budget) : null,
-      startDate: startDate ? new Date(startDate) : null,
-      endDate: endDate ? new Date(endDate) : null,
-      status: status || "PLANNING",
-      organizationId: context.organizationId,
-      managerId: context.userId || null
-    },
-    include: {
-      manager: { select: { id: true, name: true } }
+    return NextResponse.json({ project }, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
     }
-  });
-
-  // Log activity
-  await logActivity(
-    prisma,
-    context,
-    "created project",
-    "Project",
-    `Created project: ${project.name}`,
-    project.id,
-    project.name,
-    project.id
-  );
-
-  // Broadcast real-time event
-  broadcastEntityEvent(
-    broadcastToOrganization,
-    context.organizationId,
-    'project_created',
-    {
-      id: project.id,
-      name: project.name,
-      status: project.status,
-      location: project.location,
-      clientName: project.clientName,
-      managerName: project.manager?.name
-    },
-    context.userId
-  );
-
-  return NextResponse.json(bigintSafe({ project }));
-});
+    console.error('Failed to create project:', error);
+    return NextResponse.json({ error: 'Failed to create project' }, { status: 500 });
+  }
+}

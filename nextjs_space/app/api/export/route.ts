@@ -1,280 +1,253 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/db';
-import { format } from 'date-fns';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+import { generateProjectReportPDF, generateSafetyReportPDF, generateRFIReportPDF } from '@/lib/utils/pdf';
+import { exportProjectsToCsv, exportTasksToCsv, exportRfisToCsv, exportSafetyIncidentsToCsv, exportDailyReportsToCsv } from '@/lib/utils/csv';
 
 export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const type = searchParams.get('type');
+  const format = searchParams.get('format') || 'pdf';
+  const projectId = searchParams.get('projectId');
+
+  if (!type) {
+    return NextResponse.json({ error: 'Export type is required' }, { status: 400 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (format === 'csv') {
+      return handleCsvExport(type, projectId);
     }
-
-    const user = session.user as { id: string; organizationId?: string };
-    if (!user.organizationId) {
-      return NextResponse.json({ error: 'No organization' }, { status: 403 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const exportType = searchParams.get('type') || 'projects';
-    const projectId = searchParams.get('projectId');
-    const limit = parseInt(searchParams.get('limit') || '10000'); // Max 10k records per export
-
-    let data: any[] = [];
-    let filename = '';
-    let headers: string[] = [];
-
-    const projectFilter = projectId 
-      ? { id: projectId, organizationId: user.organizationId }
-      : { organizationId: user.organizationId };
-
-    switch (exportType) {
-      case 'projects':
-        data = await prisma.project.findMany({
-          where: projectFilter,
-          select: {
-            name: true,
-            status: true,
-            startDate: true,
-            endDate: true,
-            budget: true,
-            location: true,
-            manager: { select: { name: true } },
-            _count: { select: { tasks: true, documents: true } }
-          },
-          take: limit,
-          orderBy: { createdAt: 'desc' }
-        });
-        headers = ['Name', 'Status', 'Start Date', 'End Date', 'Budget', 'Manager', 'Tasks', 'Documents', 'Location'];
-        data = data.map(p => ([
-          p.name, p.status, formatDate(p.startDate), formatDate(p.endDate),
-          p.budget || 0, p.manager?.name || '', p._count.tasks, p._count.documents, p.location || ''
-        ]));
-        filename = 'projects-export';
-        break;
-
-      case 'tasks': {
-        const tasks = await prisma.task.findMany({
-          where: { project: projectFilter },
-          select: {
-            title: true,
-            status: true,
-            priority: true,
-            dueDate: true,
-            completedAt: true,
-            description: true,
-            project: { select: { name: true } },
-            assignee: { select: { name: true } }
-          },
-          take: limit,
-          orderBy: { createdAt: 'desc' }
-        });
-        headers = ['Title', 'Project', 'Status', 'Priority', 'Assignee', 'Due Date', 'Completed', 'Description'];
-        data = tasks.map(t => ([
-          t.title, t.project.name, t.status, t.priority,
-          t.assignee?.name || 'Unassigned', formatDate(t.dueDate),
-          formatDate(t.completedAt), t.description || ''
-        ]));
-        filename = 'tasks-export';
-        break;
-      }
-
-      case 'rfis': {
-        const rfis = await prisma.rFI.findMany({
-          where: { project: projectFilter },
-          select: {
-            number: true,
-            subject: true,
-            status: true,
-            dueDate: true,
-            createdAt: true,
-            answeredAt: true,
-            project: { select: { name: true } },
-            createdBy: { select: { name: true } },
-            assignedTo: { select: { name: true } }
-          },
-          take: limit,
-          orderBy: { createdAt: 'desc' }
-        });
-        headers = ['Number', 'Subject', 'Project', 'Status', 'Created By', 'Assigned To', 'Due Date', 'Created', 'Answered'];
-        data = rfis.map(r => ([
-          r.number, r.subject, r.project.name, r.status,
-          r.createdBy?.name || '', r.assignedTo?.name || '',
-          formatDate(r.dueDate), formatDate(r.createdAt), formatDate(r.answeredAt)
-        ]));
-        filename = 'rfis-export';
-        break;
-      }
-
-      case 'submittals': {
-        const submittals = await prisma.submittal.findMany({
-          where: { project: projectFilter },
-          select: {
-            number: true,
-            title: true,
-            status: true,
-            specSection: true,
-            dueDate: true,
-            reviewedAt: true,
-            project: { select: { name: true } },
-            submittedBy: { select: { name: true } }
-          },
-          take: limit,
-          orderBy: { createdAt: 'desc' }
-        });
-        headers = ['Number', 'Title', 'Project', 'Status', 'Spec Section', 'Submitted By', 'Due Date', 'Reviewed Date'];
-        data = submittals.map(s => ([
-          s.number, s.title, s.project.name, s.status, s.specSection || '',
-          s.submittedBy?.name || '', formatDate(s.dueDate), formatDate(s.reviewedAt)
-        ]));
-        filename = 'submittals-export';
-        break;
-      }
-
-      case 'budget': {
-        const costItems = await prisma.costItem.findMany({
-          where: { project: projectFilter },
-          select: {
-            description: true,
-            category: true,
-            status: true,
-            estimatedAmount: true,
-            committedAmount: true,
-            actualAmount: true,
-            vendor: true,
-            invoiceNumber: true,
-            project: { select: { name: true } },
-            subcontractor: { select: { companyName: true } }
-          },
-          take: limit,
-          orderBy: { createdAt: 'desc' }
-        });
-        headers = ['Description', 'Project', 'Category', 'Status', 'Estimated', 'Committed', 'Actual', 'Variance', 'Vendor', 'Invoice #'];
-        data = costItems.map(c => ([
-          c.description, c.project.name, c.category, c.status,
-          c.estimatedAmount, c.committedAmount, c.actualAmount,
-          (c.estimatedAmount || 0) - (c.actualAmount || 0),
-          c.vendor || c.subcontractor?.companyName || '', c.invoiceNumber || ''
-        ]));
-        filename = 'budget-export';
-        break;
-      }
-
-      case 'safety': {
-        const incidents = await prisma.safetyIncident.findMany({
-          where: { project: projectFilter },
-          select: {
-            description: true,
-            severity: true,
-            status: true,
-            incidentDate: true,
-            location: true,
-            injuryOccurred: true,
-            rootCause: true,
-            project: { select: { name: true } },
-            reportedBy: { select: { name: true } }
-          },
-          take: limit,
-          orderBy: { incidentDate: 'desc' }
-        });
-        headers = ['Description', 'Project', 'Severity', 'Status', 'Date', 'Location', 'Reported By', 'Injury Occurred', 'Root Cause'];
-        data = incidents.map(i => ([
-          i.description?.substring(0, 100) || '', i.project.name, i.severity, i.status,
-          formatDate(i.incidentDate), i.location || '', i.reportedBy?.name || '',
-          i.injuryOccurred ? 'Yes' : 'No', i.rootCause || ''
-        ]));
-        filename = 'safety-incidents-export';
-        break;
-      }
-
-      case 'time-entries': {
-        const timeEntries = await prisma.timeEntry.findMany({
-          where: { project: projectFilter },
-          select: {
-            date: true,
-            hours: true,
-            description: true,
-            status: true,
-            project: { select: { name: true } },
-            user: { select: { name: true } },
-            task: { select: { title: true } }
-          },
-          take: limit,
-          orderBy: { date: 'desc' }
-        });
-        headers = ['Date', 'Project', 'User', 'Task', 'Hours', 'Description', 'Status'];
-        data = timeEntries.map(t => ([
-          formatDate(t.date), t.project.name, t.user?.name || '',
-          t.task?.title || 'General', t.hours, t.description || '', t.status
-        ]));
-        filename = 'time-entries-export';
-        break;
-      }
-
-      case 'team': {
-        const teamMembers = await prisma.teamMember.findMany({
-          where: { organizationId: user.organizationId },
-          select: {
-            jobTitle: true,
-            department: true,
-            user: { select: { name: true, email: true, role: true } },
-            _count: { select: { projectAssignments: true } }
-          },
-          take: limit
-        });
-        headers = ['Name', 'Email', 'Role', 'Job Title', 'Department', 'Projects Assigned'];
-        data = teamMembers.map(m => ([
-          m.user?.name || '', m.user?.email || '', m.user?.role || '',
-          m.jobTitle || '', m.department || '', m._count.projectAssignments
-        ]));
-        filename = 'team-export';
-        break;
-      }
-
-      default:
-        return NextResponse.json({ error: 'Invalid export type' }, { status: 400 });
-    }
-
-    // Generate CSV
-    const csvContent = generateCSV(headers, data);
-    const timestamp = format(new Date(), 'yyyy-MM-dd');
-
-    return new NextResponse(csvContent, {
-      headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="${filename}-${timestamp}.csv"`
-      }
-    });
+    return handlePdfExport(type, projectId);
   } catch (error) {
     console.error('Export error:', error);
-    return NextResponse.json({ error: 'Failed to export data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate export' }, { status: 500 });
   }
 }
 
-function formatDate(date: Date | string | null | undefined): string {
-  if (!date) return '';
-  try {
-    return format(new Date(date), 'yyyy-MM-dd');
-  } catch {
-    return '';
-  }
-}
+async function handlePdfExport(type: string, projectId: string | null) {
+  switch (type) {
+    case 'project': {
+      if (!projectId) {
+        return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
+      }
 
-function generateCSV(headers: string[], rows: any[][]): string {
-  const escape = (val: any) => {
-    if (val === null || val === undefined) return '';
-    const str = String(val);
-    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`;
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+          tasks: { include: { assignee: { select: { name: true } } }, take: 50 },
+          rfis: { take: 50 },
+          dailyReports: { take: 50 },
+        },
+      });
+
+      if (!project) {
+        return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      }
+
+      const tasks = project.tasks.map((t: any) => ({
+        id: t.id,
+        title: t.title,
+        status: t.status,
+        priority: t.priority || 'MEDIUM',
+        dueDate: t.dueDate,
+        assignee: t.assignee,
+      }));
+
+      const rfis = project.rfis.map((r: any) => ({
+        id: r.id,
+        number: r.number,
+        title: r.title,
+        status: r.status,
+        createdAt: r.createdAt,
+      }));
+
+      const dailyReports = project.dailyReports.map((d: any) => ({
+        id: d.id,
+        date: d.date,
+        workPerformed: d.workPerformed,
+        workforceCount: d.workforceCount,
+      }));
+
+      const pdf = generateProjectReportPDF({ project, tasks, rfis, dailyReports });
+      const buffer = Buffer.from(pdf.output('arraybuffer'));
+      return new NextResponse(buffer, {
+        headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="project-report-${project.name}.pdf"` },
+      });
     }
-    return str;
-  };
 
-  const headerRow = headers.map(escape).join(',');
-  const dataRows = rows.map(row => row.map(escape).join(','));
-  return [headerRow, ...dataRows].join('\n');
+    case 'safety': {
+      if (!projectId) {
+        return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
+      }
+
+      const incidents = await prisma.safetyIncident.findMany({ where: { projectId }, take: 50 });
+      const inspections = await prisma.inspection.findMany({ where: { projectId }, take: 50 });
+
+      const safetyData = incidents.map((i: any) => ({
+        id: i.id,
+        title: i.title,
+        description: i.description,
+        severity: i.severity,
+        status: i.status,
+        createdAt: i.createdAt,
+      }));
+
+      const inspectionData = inspections.map((i: any) => ({
+        id: i.id,
+        title: i.title,
+        description: i.description,
+        status: i.status,
+      }));
+
+      const pdf = generateSafetyReportPDF({
+        project: { id: projectId, name: 'Project' },
+        incidents: safetyData,
+        inspections: inspectionData,
+        stats: { totalIncidents: incidents.length, openIncidents: incidents.filter((i: any) => i.status === 'OPEN').length },
+      });
+
+      const buffer = Buffer.from(pdf.output('arraybuffer'));
+      return new NextResponse(buffer, {
+        headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="safety-report.pdf"' },
+      });
+    }
+
+    case 'rfi': {
+      if (!projectId) {
+        return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
+      }
+
+      const rfis = await prisma.rFI.findMany({ where: { projectId }, include: { assignedTo: { select: { name: true } } } });
+
+      const rfiData = rfis.map((r: any) => ({
+        id: r.id,
+        number: r.number,
+        title: r.title,
+        status: r.status,
+        createdAt: r.createdAt,
+        answer: r.answer,
+        assignedTo: r.assignedTo,
+      }));
+
+      const stats = {
+        total: rfis.length,
+        open: rfis.filter((r: any) => r.status === 'OPEN').length,
+        answered: rfis.filter((r: any) => r.answer !== null).length,
+        closed: rfis.filter((r: any) => r.status === 'CLOSED').length,
+      };
+
+      const pdf = generateRFIReportPDF({ project: { id: projectId, name: 'Project' }, rfis: rfiData, stats });
+      const buffer = Buffer.from(pdf.output('arraybuffer'));
+      return new NextResponse(buffer, {
+        headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="rfi-report.pdf"' },
+      });
+    }
+
+    default:
+      return NextResponse.json({ error: 'Invalid export type' }, { status: 400 });
+  }
+}
+
+async function handleCsvExport(type: string, projectId: string | null) {
+  switch (type) {
+    case 'projects': {
+      const projects = await prisma.project.findMany({ where: projectId ? { id: projectId } : undefined, orderBy: { createdAt: 'desc' } });
+      const data = projects.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        status: p.status,
+        startDate: p.startDate?.toISOString() || null,
+        endDate: p.endDate?.toISOString() || null,
+        budget: p.budget,
+        createdAt: p.createdAt.toISOString(),
+      }));
+      const csv = exportProjectsToCsv(data);
+      return new NextResponse(csv, { headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="projects.csv"' } });
+    }
+
+    case 'tasks': {
+      const tasks = await prisma.task.findMany({
+        where: projectId ? { projectId } : undefined,
+        include: { project: { select: { name: true } }, assignee: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+      const data = tasks.map((t: any) => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        status: t.status,
+        priority: t.priority || 'MEDIUM',
+        dueDate: t.dueDate?.toISOString() || null,
+        projectName: t.project.name,
+        assigneeName: t.assignee?.name || null,
+      }));
+      const csv = exportTasksToCsv(data);
+      return new NextResponse(csv, { headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="tasks.csv"' } });
+    }
+
+    case 'rfis': {
+      const rfis = await prisma.rFI.findMany({
+        where: projectId ? { projectId } : undefined,
+        include: { project: { select: { name: true } }, assignedTo: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+      const data = rfis.map((r: any) => ({
+        id: r.id,
+        number: r.number,
+        title: r.title,
+        status: r.status,
+        question: r.question,
+        answer: r.answer,
+        projectName: r.project.name,
+        assignedToName: r.assignedTo?.name || null,
+        createdAt: r.createdAt.toISOString(),
+      }));
+      const csv = exportRfisToCsv(data);
+      return new NextResponse(csv, { headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="rfis.csv"' } });
+    }
+
+    case 'safety': {
+      const incidents = await prisma.safetyIncident.findMany({
+        where: projectId ? { projectId } : undefined,
+        include: { project: { select: { name: true } }, reportedBy: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+      const data = incidents.map((i: any) => ({
+        id: i.id,
+        title: i.title,
+        description: i.description,
+        severity: i.severity,
+        status: i.status,
+        projectName: i.project.name,
+        reportedByName: i.reportedBy?.name || null,
+        createdAt: i.createdAt.toISOString(),
+      }));
+      const csv = exportSafetyIncidentsToCsv(data);
+      return new NextResponse(csv, { headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="safety_incidents.csv"' } });
+    }
+
+    case 'daily-reports': {
+      const reports = await prisma.dailyReport.findMany({
+        where: projectId ? { projectId } : undefined,
+        include: { project: { select: { name: true } } },
+        orderBy: { date: 'desc' },
+        take: 100,
+      });
+      const data = reports.map((r: any) => ({
+        id: r.id,
+        date: r.date.toISOString(),
+        projectName: r.project.name,
+        workPerformed: r.workPerformed,
+        workforceCount: r.workforceCount,
+        weather: r.weather || '',
+        notes: r.notes,
+      }));
+      const csv = exportDailyReportsToCsv(data);
+      return new NextResponse(csv, { headers: { 'Content-Type': 'text/csv', 'Content-Disposition': 'attachment; filename="daily_reports.csv"' } });
+    }
+
+    default:
+      return NextResponse.json({ error: 'Invalid export type' }, { status: 400 });
+  }
 }

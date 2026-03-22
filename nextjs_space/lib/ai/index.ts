@@ -17,7 +17,7 @@ export {
 
 // Providers
 export { geminiProvider, default as GeminiProvider } from './gemini-provider';
-export { ollamaClient, default as OllamaClient } from '../ollama-client';
+export { ollamaClient, default as OllamaClient } from '@/lib/ollama-client';
 
 // Adapters
 export { localAIAdapter, LocalAIAdapter, DEFAULT_MODELS } from './local-ai-adapter';
@@ -29,4 +29,35 @@ export type {
   OllamaGenerateRequest,
   OllamaResponse,
   OllamaChatResponse,
-} from '../ollama-client';
+} from '@/lib/ollama-client';
+
+// Ollama Integration (from unified codebase)
+export {
+  chat as ollamaChat,
+  stream as ollamaStream,
+  checkConnection as checkOllamaConnection,
+  loadModel,
+  listModels,
+  generate as ollamaGenerate,
+  streamGenerate as ollamaStreamGenerate,
+  OllamaError,
+} from './ollama';
+export type {
+  Message as OllamaMessage,
+  ChatOptions as OllamaChatOptions,
+  StreamOptions as OllamaStreamOptions,
+  ChatResponse as OllamaChatResponse,
+} from './ollama';
+export { OLLAMA_BASE_URL, DEFAULT_MODEL } from './ollama';
+
+// Construction Domain Prompts
+export {
+  SYSTEM_PROMPTS,
+  ANALYSIS_PROMPTS,
+  buildChatPrompt,
+  buildRFIAnalysisPrompt,
+  buildSafetyAnalysisPrompt,
+  buildRiskAssessmentPrompt,
+  buildScheduleAnalysisPrompt,
+  buildCostAnalysisPrompt,
+} from './prompts';
