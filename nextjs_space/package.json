@@ -105,7 +105,7 @@
     "cookie": "1.0.2",
     "csv": "6.3.11",
     "date-fns": "4.1.0",
-    "dayjs": "1.11.13",
+    "dayjs": "1.11.20",
     "dotenv": "16.5.0",
     "embla-carousel-react": "8.3.0",
     "formik": "2.4.9",
