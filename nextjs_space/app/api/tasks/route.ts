@@ -1,118 +1,73 @@
-export const dynamic = "force-dynamic";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { z } from 'zod';
 
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { broadcastToOrganization } from "@/lib/realtime-clients";
-import {
-  withAuthHandler,
-  sanitizeEntityFields,
-  broadcastEntityEvent,
-  logActivity,
-  errorResponse,
-} from "@/lib/api-utils";
+const createTaskSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'COMPLETE', 'BLOCKED']).default('TODO'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
+  dueDate: z.string().datetime().optional(),
+  projectId: z.string().min(1),
+  assigneeId: z.string().optional(),
+  creatorId: z.string().min(1),
+});
 
-export const GET = withAuthHandler(async (request: NextRequest, context) => {
-  if (!context.organizationId) {
-    return errorResponse("FORBIDDEN", "User must belong to an organization");
-  }
+const updateTaskSchema = createTaskSchema.partial();
 
-  // Add pagination support
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '50');
-  const skip = (page - 1) * pageSize;
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+    const assigneeId = searchParams.get('assigneeId');
+    const status = searchParams.get('status');
 
-  // Get tasks with pagination
-  const [tasks, totalCount] = await Promise.all([
-    prisma.task.findMany({
-      where: { project: { organizationId: context.organizationId } },
+    const where: Record<string, unknown> = {};
+    if (projectId) where.projectId = projectId;
+    if (assigneeId) where.assigneeId = assigneeId;
+    if (status) where.status = status;
+
+    const tasks = await prisma.task.findMany({
+      where,
       include: {
         project: { select: { id: true, name: true } },
-        assignee: { select: { id: true, name: true, avatarUrl: true } }
+        assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        creator: { select: { id: true, name: true, email: true } },
+        _count: { select: { comments: true } },
       },
-      orderBy: { createdAt: "desc" },
-      take: pageSize,
-      skip: skip
-    }),
-    prisma.task.count({
-      where: { project: { organizationId: context.organizationId } }
-    })
-  ]);
+      orderBy: { createdAt: 'desc' },
+    });
 
-  return NextResponse.json({ 
-    tasks,
-    pagination: {
-      page,
-      pageSize,
-      totalCount,
-      totalPages: Math.ceil(totalCount / pageSize)
-    }
-  });
-});
-
-export const POST = withAuthHandler(async (request: NextRequest, context) => {
-  const body = await request.json();
-  const { title, description, projectId, assigneeId, priority, status, dueDate } = body;
-
-  if (!title?.trim()) {
-    return errorResponse("BAD_REQUEST", "Task title is required");
+    return NextResponse.json({ tasks });
+  } catch (error) {
+    console.error('Failed to fetch tasks:', error);
+    return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
   }
+}
 
-  if (!projectId) {
-    return errorResponse("BAD_REQUEST", "Project ID is required");
-  }
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const data = createTaskSchema.parse(body);
 
-  // Sanitize common fields
-  const sanitized = sanitizeEntityFields({
-    title,
-    description,
-  });
+    const task = await prisma.task.create({
+      data: {
+        ...data,
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+      },
+      include: {
+        project: { select: { id: true, name: true } },
+        assignee: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        creator: { select: { id: true, name: true, email: true } },
+      },
+    });
 
-  const task = await prisma.task.create({
-    data: {
-      ...sanitized,
-      projectId,
-      assigneeId: assigneeId || null,
-      creatorId: context.userId || null,
-      priority: priority || "MEDIUM",
-      status: status || "TODO",
-      dueDate: dueDate ? new Date(dueDate) : null
-    },
-    include: {
-      project: { select: { id: true, name: true, organizationId: true } },
-      assignee: { select: { id: true, name: true } }
+    return NextResponse.json({ task }, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
     }
-  });
-
-  // Log activity
-  await logActivity(
-    prisma,
-    context,
-    "created task",
-    "Task",
-    `Created task: ${task.title}`,
-    task.id,
-    task.title,
-    projectId
-  );
-
-  // Broadcast real-time event
-  broadcastEntityEvent(
-    broadcastToOrganization,
-    context.organizationId,
-    'task_created',
-    {
-      id: task.id,
-      title: task.title,
-      status: task.status,
-      priority: task.priority,
-      projectId: task.projectId,
-      projectName: task.project?.name,
-      assigneeId: task.assigneeId,
-      assigneeName: task.assignee?.name
-    },
-    context.userId
-  );
-
-  return NextResponse.json({ task });
-});
+    console.error('Failed to create task:', error);
+    return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
+  }
+}

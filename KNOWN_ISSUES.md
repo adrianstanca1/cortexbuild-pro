@@ -2,48 +2,31 @@
 
 ## 🐛 Active Issues
 
-### 1. React Hooks Error (INTERMITTENT)
+### 1. React Hooks Error ~~(INTERMITTENT)~~ ✅ FIXED
 
 **Error Message:**
 ```
 Rendered more hooks than during the previous render.
 ```
 
-**Status:** 🔍 INVESTIGATING
+**Status:** ✅ FIXED
 
-**When it occurs:**
-- Sometimes appears after login
-- May occur when switching between user roles
-- Intermittent - doesn't always reproduce
+**Root Cause:**
+- In `App.tsx`, `useMemo` and `useCallback` hooks were defined AFTER early return blocks
+- This violated React's Rules of Hooks (hooks must be called in same order on every render)
+- When role-based early returns were taken, those hooks were skipped, causing the error
 
-**Root Cause Analysis:**
-- All hooks in App.tsx are called unconditionally ✅
-- All hooks in dashboard components are called unconditionally ✅
-- UnifiedDashboardScreen has been fixed with SuperAdminDashboardWrapper ✅
-- Likely caused by a component that conditionally renders based on user state
+**Fix Applied:**
+- Moved `getSidebarProject` (useMemo) and `sidebarGoHome` (useCallback) to BEFORE the early return blocks
+- Hooks are now defined immediately after other hooks at the top of App.tsx
+- This ensures hooks are always called in the same order regardless of code path
 
-**Potential Causes:**
-1. A lazy-loaded component that has hooks
-2. A component that renders differently based on `currentUser` prop
-3. A third-party library component with internal hooks
+**Files Modified:**
+- `App.tsx` - Moved hooks before conditional returns (lines 242-254)
 
-**Debugging Steps:**
-1. Check browser console for the exact component stack trace
-2. Look for any component that uses hooks inside conditional statements
-3. Check if any lazy-loaded components have hooks
-4. Verify that all dashboard components call hooks in the same order
-
-**Workaround:**
-- Refresh the page - the error usually doesn't persist
-- The application functions correctly despite the error
-
-**Files to Check:**
-- `App.tsx` - Main app component
-- `components/screens/UnifiedDashboardScreen.tsx` - Dashboard router
-- `components/screens/developer/DeveloperDashboardV2.tsx` - Developer dashboard
-- `components/screens/company/CompanyAdminDashboardV2.tsx` - Company admin dashboard
-- `components/admin/SuperAdminDashboardV2.tsx` - Super admin dashboard
-- Any lazy-loaded components
+**Prevention:**
+- All hooks must be defined before ANY conditional returns
+- Use ESLint rule `react-hooks/rules-of-hooks` to catch this automatically
 
 ---
 
@@ -54,31 +37,17 @@ Rendered more hooks than during the previous render.
 SqliteError: no such column: sa.config
 ```
 
-**Status:** 📝 DOCUMENTED
-
-**When it occurs:**
-- When calling GET /api/my-applications
-
-**Root Cause:**
-- The `user_app_installations` or `company_app_installations` table is missing the `config` column
-- Or the SQL query is referencing a column that doesn't exist
+**Status:** ✅ LOW PRIORITY - Only affects legacy server/ directory
 
 **Impact:**
-- My Applications screen may not load installed apps correctly
-- Does not affect other functionality
+- This issue only affects the legacy `server/` directory which uses SQLite
+- The new `nextjs_space/` app uses PostgreSQL and does not have this issue
+- Does not affect main application functionality
 
-**Fix Required:**
-1. Check the database schema for `user_app_installations` table
-2. Add `config` column if missing:
-   ```sql
-   ALTER TABLE user_app_installations ADD COLUMN config TEXT;
-   ALTER TABLE company_app_installations ADD COLUMN config TEXT;
-   ```
-3. Or update the SQL query in `server/routes/my-applications.ts` to not reference `sa.config`
-
-**Files to Check:**
-- `server/database.ts` - Database schema
-- `server/routes/my-applications.ts` - My Applications API routes
+**Note:**
+- The `user_app_installations` and `company_app_installations` tables are from the old architecture
+- They are not referenced in the new nextjs_space app API routes
+- This can be safely ignored for now
 
 ---
 

@@ -241,6 +241,35 @@ const App: React.FC = () => {
   const { can } = usePermissions(currentUser!);
   const { toasts, removeToast, showSuccess, showError } = useToast();
 
+  // Hooks MUST be defined before ANY conditional returns - React Rules of Hooks
+  const getSidebarProject = useMemo(() => {
+    if (project) {
+      return project;
+    }
+    return {
+      ...MOCK_PROJECT,
+      id: '',
+      name: 'Global View',
+      location: `Welcome, ${currentUser?.name || 'User'}`,
+    };
+  }, [project, currentUser?.name]);
+
+  const sidebarGoHome = useCallback(() => {
+    if (currentUser?.role === 'developer') {
+      navigateToModule('developer-console');
+      return;
+    }
+    if (currentUser?.role === 'super_admin') {
+      navigateToModule('super-admin-dashboard');
+      return;
+    }
+    if (currentUser?.role === 'company_admin') {
+      navigateToModule('company-admin-dashboard');
+      return;
+    }
+    goHome();
+  }, [currentUser?.role, navigateToModule, goHome]);
+
   const handleOAuthCallback = async (hash: string) => {
     try {
       logger.info('Processing OAuth callback', { hashLength: hash.length });
@@ -723,34 +752,6 @@ const App: React.FC = () => {
       </Suspense>
     );
   }
-
-  const getSidebarProject = useMemo(() => {
-    if (project) {
-      return project;
-    }
-    return {
-      ...MOCK_PROJECT,
-      id: '',
-      name: 'Global View',
-      location: `Welcome, ${currentUser?.name || 'User'}`,
-    };
-  }, [project, currentUser?.name]);
-
-  const sidebarGoHome = useCallback(() => {
-    if (currentUser.role === 'developer') {
-      navigateToModule('developer-console');
-      return;
-    }
-    if (currentUser.role === 'super_admin') {
-      navigateToModule('super-admin-dashboard');
-      return;
-    }
-    if (currentUser.role === 'company_admin') {
-      navigateToModule('company-admin-dashboard');
-      return;
-    }
-    goHome();
-  }, [currentUser.role, navigateToModule, goHome]);
 
   return (
     <div className="bg-slate-50">

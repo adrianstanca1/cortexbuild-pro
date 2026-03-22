@@ -15,6 +15,7 @@ enum UserRole {
   ADMIN
   PROJECT_MANAGER
   FIELD_WORKER
+  VIEWER
 }
 
 enum InvitationStatus {
@@ -37,6 +38,7 @@ enum TaskStatus {
   IN_PROGRESS
   REVIEW
   COMPLETE
+  BLOCKED
 }
 
 enum TaskPriority {
@@ -54,6 +56,7 @@ enum DocumentType {
   REPORTS
   SPECIFICATIONS
   CONTRACTS
+  RAMS
   OTHER
 }
 
