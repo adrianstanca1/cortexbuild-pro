@@ -45,6 +45,7 @@ export const safeSupabase = {
         signUp: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
         signInWithOAuth: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
         getSession: async () => ({ data: { session: null }, error: null }),
+        setSession: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
         signOut: async () => ({ error: null })
     },
     from: () => ({
