@@ -49,7 +49,13 @@ export const safeSupabase = {
         signOut: async () => ({ error: null })
     },
     from: () => ({
-        select: () => ({ eq: () => ({ limit: () => ({ data: [], error: null }) }) }),
+        select: () => ({ 
+            eq: () => ({ 
+                limit: () => ({ data: [], error: null }),
+                single: () => ({ data: null, error: { message: 'Supabase not configured' } })
+            }),
+            single: () => ({ data: null, error: { message: 'Supabase not configured' } })
+        }),
         insert: () => ({ select: () => ({ single: () => ({ data: null, error: { message: 'Supabase not configured' } }) }) })
     })
 };
