@@ -1,0 +1,29 @@
+name: Fix CortexBuild Ultimate
+
+on:
+  push:
+    branches:
+      - fix-cortexbuild-ultimate
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebuild cortexbuild-ultimate on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          timeout: 600s
+          command_timeout: 10m
+          script: |
+            echo "=== Rebuilding cortexbuild-ultimate ==="
+            cd /var/www/cortexbuild-ultimate
+            git pull origin main
+            npm ci --production=false
+            npm run build
+            nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+            echo "=== Done ==="
+            curl -sf -o /dev/null -w "CSS status: %{http_code}" https://www.cortexbuildpro.com/assets/index-YtbV-2YG.css
