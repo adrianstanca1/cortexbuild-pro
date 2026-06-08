@@ -11,6 +11,26 @@ sh deploy-vps.sh cortexbuildpro.com you@email.com
 
 Brings up `db + api + ollama + web` (Postgres, Express, local LLM, Caddy w/ auto-HTTPS).
 
+### One-shot from your laptop (no manual SSH session)
+
+```sh
+ssh root@72.62.132.43 'git clone https://github.com/adrianstanca1/cortexbuild-pro cortexx 2>/dev/null; cd cortexx && git pull && sh deploy-vps.sh cortexbuildpro.com adrian.stanca1@gmail.com'
+```
+
+**Prerequisites:** DNS A-record `cortexbuildpro.com → 72.62.132.43`, and ports 80 + 443 open.
+
+### URLs once live
+
+| What | URL |
+|---|---|
+| Mobile app (PWA) | `https://cortexbuildpro.com` |
+| Admin console | `https://cortexbuildpro.com/admin` |
+| API health | `https://cortexbuildpro.com/api/health` |
+
+Admin console sign-in: set `ADMIN_EMAIL` + `ADMIN_PASSWORD_SHA256` in `server/.env`
+(generate the hash with `printf 'yourpass' | sha256sum`). Without them it falls back
+to the demo cred `admin@cortexbuildpro.com` / `cortexbuild` — change before going public.
+
 ## Auto-start on reboot (systemd)
 
 So the stack comes back automatically after a VPS reboot or crash:
