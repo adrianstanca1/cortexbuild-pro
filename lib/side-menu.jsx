@@ -79,6 +79,7 @@ function GlobalSideMenu({ accent = T.blue }) {
     { h: 'Settings', items: [
       { l: 'Settings', i: Ic.cog, k: 'settings' },
       { l: 'Cloud sync', i: Ic.cloud, k: 'cloudsync' },
+      { l: 'Diagnostics', i: Ic.activity || Ic.shield, k: 'diagnostics' },
       { l: 'Audit log', i: Ic.shield, k: 'auditlog' },
       { l: 'Admin', i: Ic.team, k: 'admin' },
       { l: 'Help', i: Ic.book, k: 'help' },
