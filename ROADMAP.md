@@ -143,7 +143,7 @@ This is the **single source of truth** for what's done, what's in-flight, and wh
 | | Issue | Workaround |
 |---|---|---|
 | ❌ | Live voice transcription on iOS WKWebView | Audio records fine; transcription happens after via AI. Add `@capacitor-community/speech-recognition` for real-time. |
-| ❌ | localStorage 5–10 MB quota | Photos auto-spill to IndexedDB; warn user at 80% capacity. |
+| ✅ | ~~localStorage 5–10 MB quota~~ | **Mitigated** — photos persist to IndexedDB (`screens-phase36`, separate from the 5 MB localStorage quota); a `StorageCapacityBanner` (`screens-phase110`) now mounts in the app shell and warns at 80% / alerts at 95% with a one-tap Export-backup action. |
 | ✅ | ~~No multi-user team sync~~ | **Fixed in v1.2** — Express + PostgreSQL backend, SSE realtime, magic-link auth, last-write-wins conflict resolution. |
 | ❌ | AI rate limits on free tier | **Mitigated in v1.6** — local LLM tier means no per-user cap when self-hosted; cloud tier still surfaces a friendly error. |
 

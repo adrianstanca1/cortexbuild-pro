@@ -333,6 +333,12 @@ function CortexxApp({ dashboardId = 'v1', accent = T.blue, openAI, onChangeDashb
       display: 'flex', flexDirection: 'column',
     }}>
       <IOSStatusBar dark={true}/>
+      {/* Storage capacity warning — self-hides under 80%; floats over content */}
+      {window.StorageCapacityBanner && (
+        <div style={{ position: 'absolute', top: 44, left: 0, right: 0, zIndex: 12 }}>
+          {React.createElement(window.StorageCapacityBanner, {})}
+        </div>
+      )}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         {tab === 'dashboard' && DashComp && (
           <div style={{ width: '100%', height: '100%' }}>
