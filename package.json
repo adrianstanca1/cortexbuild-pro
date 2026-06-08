@@ -1,0 +1,30 @@
+{
+  "name": "cortexx",
+  "version": "2.0.0",
+  "description": "The construction OS that thinks with you. UK SMB construction management with autonomous AI CEO.",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "npm run precompile",
+    "precompile": "babel lib --out-dir dist --presets @babel/preset-react --copy-files --extensions \".js,.jsx\"",
+    "precompile:watch": "babel lib --out-dir dist --presets @babel/preset-react --copy-files --extensions \".js,.jsx\" --watch",
+    "postinstall": "npm run precompile --silent || true",
+    "ios:add": "npx cap add ios",
+    "ios:sync": "npx cap copy && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "android:add": "npx cap add android",
+    "android:open": "npx cap open android",
+    "deploy:vercel": "vercel --prod"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/ios": "^6.1.0",
+    "@capacitor/android": "^6.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.0",
+    "@babel/cli": "^7.24.0",
+    "@babel/preset-react": "^7.24.0",
+    "serve": "^14.2.0"
+  }
+}
