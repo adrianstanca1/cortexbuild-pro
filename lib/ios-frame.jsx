@@ -12,7 +12,7 @@ function IOSStatusBar({ dark = false, time = '9:41' }) {
     <div style={{
       display: 'flex', gap: 154, alignItems: 'center', justifyContent: 'center',
       padding: '21px 24px 19px', boxSizing: 'border-box',
-      position: 'relative', zIndex: 20, width: '100%',
+      position: 'relative', zIndex: 20, width: '100%', pointerEvents: 'none',
     }}>
       <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 1.5 }}>
         <span style={{
@@ -204,8 +204,8 @@ function IOSDevice({
         position: 'absolute', top: 11, left: '50%', transform: 'translateX(-50%)',
         width: 126, height: 37, borderRadius: 24, background: '#000', zIndex: 50,
       }} />
-      {/* status bar (absolute) */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+      {/* status bar (absolute) — decorative, must not intercept taps */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, pointerEvents: 'none' }}>
         <IOSStatusBar dark={dark} />
       </div>
       {/* nav + content */}

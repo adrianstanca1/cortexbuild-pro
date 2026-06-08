@@ -13,7 +13,8 @@ function IOSStatusBar({
       boxSizing: 'border-box',
       position: 'relative',
       zIndex: 20,
-      width: '100%'
+      width: '100%',
+      pointerEvents: 'none'
     }
   }, React.createElement("div", {
     style: {
@@ -371,7 +372,8 @@ function IOSDevice({
       top: 0,
       left: 0,
       right: 0,
-      zIndex: 10
+      zIndex: 10,
+      pointerEvents: 'none'
     }
   }, React.createElement(IOSStatusBar, {
     dark: dark
