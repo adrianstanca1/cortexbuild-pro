@@ -42,9 +42,9 @@ This is a static site. Drop the project folder into:
 - **Netlify Drop** — drag folder to https://app.netlify.com/drop
 - **GitHub Pages** — push to a repo, enable Pages on `/ (root)` of main
 - **Cloudflare Pages** — connect the GitHub repo
-- **Self-hosted** — `deploy.sh` provisions Nginx + LE on a Hostinger VPS
+- **Self-hosted** — `deploy-vps.sh` brings up the full Docker stack (Postgres + API + local LLM + Caddy auto-HTTPS) on a VPS
 
-Full deploy guide: [`DEPLOY_NOW.md`](DEPLOY_NOW.md).
+Full deploy guide: [`DEPLOY.md`](DEPLOY.md) · ops runbook: [`deploy/README.md`](deploy/README.md).
 
 ## iOS App Store
 
@@ -89,7 +89,7 @@ App Store submission runbook: [`SHIP_TO_APP_STORE.md`](SHIP_TO_APP_STORE.md) and
 ├── icon-{192,512}.png · apple-touch-icon.png
 ├── robots.txt · sitemap.xml · vercel.json · deploy.sh
 │
-└── ROADMAP.md · SHIP_READY.md · DEPLOY_NOW.md · LAUNCH.md   Docs
+└── ROADMAP.md · SHIP_READY.md · DEPLOY.md · deploy/   Docs
 ```
 
 ## AI flows
@@ -145,7 +145,7 @@ Plus 4 supporting personas: Marcus Pound (CFO), Pip Carter (Site Manager), Ada W
 | Bundle size (dist/, gzipped) | ~280 KB |
 | Lighthouse PWA score | 100/100 (target; verify locally) |
 
-See [`PERF_PHASE_81.md`](PERF_PHASE_81.md) for the deep-dive.
+See [`deploy/README.md`](deploy/README.md) for the performance + ops deep-dive.
 
 ## Build (keep lib/ and dist/ in sync)
 

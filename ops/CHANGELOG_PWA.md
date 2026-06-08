@@ -135,4 +135,4 @@ Proprietary — CortexBuild Pro
 ---
 
 **Latest commit:** See GitHub Actions for CI/CD pipeline status.
-**Support:** Check DEPLOYMENT.md or open an issue.
+**Support:** Check DEPLOY.md or open an issue.

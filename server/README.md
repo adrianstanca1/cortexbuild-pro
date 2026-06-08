@@ -77,7 +77,7 @@ node index.js
 
 ## Deploy the API
 
-> **Full VPS runbook:** see [`DEPLOY_VPS.md`](../DEPLOY_VPS.md) — one-box deploy of
+> **Full VPS runbook:** see [`../DEPLOY.md`](../DEPLOY.md) and [`../deploy/README.md`](../deploy/README.md) — one-box deploy of
 > frontend + API + Postgres + AI webhooks with nginx, HTTPS, and the WhatsApp/email
 > webhook registration steps.
 
