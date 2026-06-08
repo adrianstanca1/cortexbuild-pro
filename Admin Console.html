@@ -43,10 +43,14 @@
 (async function () {
   const MODULES = ['admin-ui', 'admin-login', 'admin-overview', 'admin-workspaces', 'admin-users', 'admin-projects', 'admin-billing', 'admin-system', 'admin-app'];
   try {
-    for (const name of MODULES) {
+    // Fetch all module sources in PARALLEL, then transform + inject in order
+    // (order matters: components must exist on window before admin-app runs).
+    const sources = await Promise.all(MODULES.map(async (name) => {
       const res = await fetch('admin/' + name + '.jsx');
       if (!res.ok) throw new Error(name + ' HTTP ' + res.status);
-      const src = await res.text();
+      return { name, src: await res.text() };
+    }));
+    for (const { name, src } of sources) {
       const code = Babel.transform(src, { presets: ['react'] }).code;
       const s = document.createElement('script');
       s.textContent = code;
