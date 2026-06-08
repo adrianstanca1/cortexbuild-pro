@@ -132,12 +132,15 @@
       }
       return null;
     },
-    // Mirror a single create/update/delete to the cloud (queues when offline)
+    // Mirror a single create/update/delete to the cloud (queues when offline).
+    // All writes go through /api/sync/bulk — the one authoritative write path.
     push(collection, op, id, data) {
       if (!API || !TOKEN) return;
-      if (!online) { const q = readQueue(); q.push({ collection, op, id, data }); writeQueue(q); emit(status); return; }
-      if (op === 'create' || op === 'update') api(op === 'create' ? 'POST' : 'PUT', `/api/${collection}${op === 'update' ? '/' + id : ''}`, data);
-      if (op === 'delete') api('DELETE', `/api/${collection}/${id}`);
+      const entry = { collection, op, id, data };
+      if (!online) { const q = readQueue(); q.push(entry); writeQueue(q); emit(status); return; }
+      api('POST', '/api/sync/bulk', { ops: [entry] }).then((res) => {
+        if (!res || res.__error) { const q = readQueue(); q.push(entry); writeQueue(q); emit(status); }
+      });
     },
 
     // ── Portal inbox (server-backed) ────────────────────────
