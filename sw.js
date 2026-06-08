@@ -11,7 +11,7 @@
 // Strategy: network-first for the HTML shell (fresh code on refresh), cache-first
 // for immutable JS + CDN. Precaching is resilient — one missing file can't abort it.
 
-const CACHE = 'cortexx-v3-1-015';
+const CACHE = 'cortexx-v3-1-016';
 
 const SHELL = [
   './',
@@ -42,6 +42,7 @@ const MODULE_NAMES = [
   'dashboards','dashboards-v2','dashboards-v3','dashboards-v4','dashboards-v5',
   'backend','backend-extras','backend-v17','cloud-sync','qrcode','invoice-pdf',
   'llm-shim','crash','observability','push','e2ee','cis300','banking','i18n','riddor','retention','iap','hmrc',
+  'presence','presence-ui',
   'perf-phase71','perf-phase81',
   'app-screens','app-sheets','app-screens-2','app-utils',
   'screens-ops','screens-project',
@@ -65,7 +66,7 @@ const MODULE_NAMES = [
 ];
 
 // Plain-JS modules ship as .js even in dev; the rest are .jsx in lib/.
-const PLAIN_JS = new Set(['backend','backend-extras','backend-v17','backend-repair','cloud-sync','qrcode','invoice-pdf','llm-shim','crash','observability','push','e2ee','cis300','banking','i18n','riddor','retention','iap','hmrc','perf-phase71','perf-phase81']);
+const PLAIN_JS = new Set(['backend','backend-extras','backend-v17','backend-repair','cloud-sync','qrcode','invoice-pdf','llm-shim','crash','observability','push','e2ee','cis300','banking','i18n','riddor','retention','iap','hmrc','presence','perf-phase71','perf-phase81']);
 const LIB = MODULE_NAMES.map(n => `./lib/${n}.${PLAIN_JS.has(n) ? 'js' : 'jsx'}`);
 const DIST = MODULE_NAMES.map(n => `./dist/${n}.js`);
 

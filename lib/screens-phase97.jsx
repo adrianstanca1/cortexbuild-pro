@@ -105,6 +105,10 @@ function SiteAttendanceScreen({ accent }) {
         <MobileHeader title="On site now" subtitle={`${onSite.length} ${onSite.length === 1 ? 'person' : 'people'} checked in`}/>
         <div style={{ padding: '0 16px' }}>
 
+          {/* Live multiplayer presence — who's viewing this board right now */}
+          {window.PresenceBar && <PresenceBar screen="siteboard" label="viewing this board"/>}
+
+
           {/* Headcount hero */}
           <div style={{ background: `linear-gradient(135deg, ${accent}22, ${accent}08)`, border: `0.5px solid ${accent}33`, borderRadius: 16, padding: 20, marginBottom: 16, textAlign: 'center' }}>
             <div style={{ fontFamily: SF, fontSize: 44, fontWeight: 800, color: T.t1, letterSpacing: -1, lineHeight: 1 }}>{onSite.length}</div>
