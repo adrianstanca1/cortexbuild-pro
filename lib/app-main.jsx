@@ -637,7 +637,8 @@ function SheetWrap({ title, onClose, accent, children }) {
     <Sheet onClose={onClose} fullscreen>
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '12px 16px', borderBottom: `0.5px solid ${T.hair}`,
+        padding: '12px 16px', paddingTop: 'calc(12px + max(env(safe-area-inset-top, 0px), 44px))',
+        borderBottom: `0.5px solid ${T.hair}`,
         background: T.bg0, position: 'relative', zIndex: 5,
       }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', color: accent, fontFamily: SF, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2 }}>
