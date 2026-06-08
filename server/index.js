@@ -164,6 +164,7 @@ app.use('/api', apiLimiter, require('./routes/banking'));                       
 app.use('/api', apiLimiter, require('./routes/iap'));                            // In-app subscriptions (StoreKit + Stripe Checkout)
 app.use('/api', apiLimiter, require('./routes/hmrc'));                           // HMRC Transaction Engine (CIS300 + GovTalk envelope)
 app.use('/api', apiLimiter, require('./routes/intelligence')(pool, auth));       // v1.7 server-side intelligence (7 domains)
+app.use('/api', apiLimiter, require('./routes/admin')(pool, auth));              // platform admin console (multi-tenant operator view)
 
 // ── Generic collection REST (mirrors frontend Backend.db.*) ──
 // Typed collections — these have first-class DB tables. Anything else falls

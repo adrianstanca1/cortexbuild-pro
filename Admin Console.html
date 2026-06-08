@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>CortexBuild — Admin Console</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #0a1422; }
+  body { font-family: -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #root { height: 100vh; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  input, select, button { font-family: inherit; }
+  select option { color: #eef3fa; }
+  @keyframes admDrawer { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes admToast { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .adm-boot { height: 100vh; display: grid; place-items: center; color: #5e7a99; font-size: 14px; }
+</style>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1422"/>
+    <rect x="30" y="30" width="40" height="40" rx="9" fill="url(#g)"/>
+    <text x="50" y="58" font-size="26" font-weight="800" fill="#fff" text-anchor="middle" font-family="system-ui">C</text>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"><div class="adm-boot">Loading admin console…</div></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Core store (plain JS) -->
+<script src="admin/admin-core.js"></script>
+
+<!-- UI primitives + views + app (JSX, transformed in-browser, loaded in order) -->
+<script>
+(async function () {
+  const MODULES = ['admin-ui', 'admin-overview', 'admin-workspaces', 'admin-users', 'admin-projects', 'admin-billing', 'admin-system', 'admin-app'];
+  try {
+    for (const name of MODULES) {
+      const res = await fetch('admin/' + name + '.jsx');
+      if (!res.ok) throw new Error(name + ' HTTP ' + res.status);
+      const src = await res.text();
+      const code = Babel.transform(src, { presets: ['react'] }).code;
+      const s = document.createElement('script');
+      s.textContent = code;
+      document.body.appendChild(s);
+    }
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(window.AdminApp));
+  } catch (e) {
+    document.getElementById('root').innerHTML = '<div class="adm-boot">Failed to load: ' + e.message + '</div>';
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
