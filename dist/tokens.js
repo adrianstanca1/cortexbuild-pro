@@ -910,7 +910,7 @@ function MobileHeader({
   }), right) : right;
   return React.createElement("div", {
     style: {
-      padding: '4px 20px 12px',
+      padding: '4px 20px 12px 58px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center'

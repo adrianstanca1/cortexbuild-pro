@@ -357,6 +357,9 @@ function CortexxApp({ dashboardId = 'v1', accent = T.blue, openAI, onChangeDashb
       {/* Responsive sidebar — visible at ≥768px */}
       <ResponsiveSidebar tab={tab} setTab={setTab} accent={accent}/>
 
+      {/* Global side menu — hamburger + slide-out drawer, reachable on every page */}
+      {window.GlobalSideMenu && <GlobalSideMenu accent={accent}/>}
+
       {/* Interactive tab bar (overlays dashboards' static ones) */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 11 }}>
         <InteractiveTabBar tab={tab} setTab={setTab} onCapture={() => setSheet('capture')} accent={accent}/>

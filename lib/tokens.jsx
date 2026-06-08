@@ -148,7 +148,7 @@ function MobileHeader({ title, subtitle, accent = T.blue, right, ws }) {
     : right;
   return (
     <div style={{
-      padding: '4px 20px 12px',
+      padding: '4px 20px 12px 58px',
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     }}>
       <div style={{ flex: 1, minWidth: 0 }}>
