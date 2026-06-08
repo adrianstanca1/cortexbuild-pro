@@ -1,13 +1,22 @@
 // Cortexx — Phase 13: Photo annotation viewer for snags
 
 function PhotoAnnotateSheet({ snag, onClose, accent }) {
-  const [pins, setPins] = React.useState([]);
+  const photoSrc = snag?.photo || snag?.data || snag?.image || null;
+  const [pins, setPins] = React.useState(Array.isArray(snag?.pins) ? snag.pins : []);
   const [adding, setAdding] = React.useState(false);
   const [activePin, setActivePin] = React.useState(null);
   const [pinNote, setPinNote] = React.useState('');
 
+  // Persist annotations back onto the snag record whenever they change
+  const persistPins = (next) => {
+    setPins(next);
+    if (snag?.id && window.Backend?.db?.snags) {
+      Backend.db.snags.update(snag.id, { pins: next }).catch(() => {});
+    }
+  };
+
   const handleClick = (e) => {
-    if (!adding) return;
+    if (!adding || !photoSrc) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -19,14 +28,14 @@ function PhotoAnnotateSheet({ snag, onClose, accent }) {
   };
 
   const savePin = () => {
-    setPins(pins.map(p => p.id === activePin ? { ...p, note: pinNote || 'Annotation' } : p));
+    persistPins(pins.map(p => p.id === activePin ? { ...p, note: pinNote || 'Annotation' } : p));
     setActivePin(null);
     setPinNote('');
     toast('Annotation saved', 'success');
   };
 
   const deletePin = (id) => {
-    setPins(pins.filter(p => p.id !== id));
+    persistPins(pins.filter(p => p.id !== id));
     setActivePin(null);
     toast('Annotation removed', 'info');
   };
@@ -48,25 +57,23 @@ function PhotoAnnotateSheet({ snag, onClose, accent }) {
       <div style={{ flex: 1, background: '#0a0e16', position: 'relative', overflow: 'hidden' }}>
         <div onClick={handleClick} style={{
           width: '100%', height: '100%',
-          background: `linear-gradient(135deg, #1a3a5c, #2c3a5c, #3a2c5c)`,
-          cursor: adding ? 'crosshair' : 'default',
+          cursor: adding && photoSrc ? 'crosshair' : 'default',
           position: 'relative',
-          backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.04) 25%, transparent 25%), linear-gradient(225deg, rgba(255,255,255,0.04) 25%, transparent 25%)',
-          backgroundSize: '60px 60px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: photoSrc ? '#000' : 'linear-gradient(160deg, #0d1420, #11192a)',
         }}>
-          {/* Mock site photo - placeholder visual */}
-          <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-            {/* Simulated wall + skirting */}
-            <rect x="0" y="65%" width="100%" height="6%" fill="rgba(60,40,20,0.4)"/>
-            <rect x="0" y="71%" width="100%" height="3%" fill="rgba(80,60,40,0.3)"/>
-            {/* Door frame */}
-            <rect x="60%" y="20%" width="22%" height="55%" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2"/>
-            <rect x="60%" y="20%" width="22%" height="55%" fill="rgba(80,60,40,0.2)"/>
-            {/* Window */}
-            <rect x="10%" y="22%" width="20%" height="30%" fill="rgba(140,180,220,0.15)" stroke="rgba(255,255,255,0.2)" strokeWidth="2"/>
-            <line x1="20%" y1="22%" x2="20%" y2="52%" stroke="rgba(255,255,255,0.15)" strokeWidth="1"/>
-            <text x="50%" y="80%" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)" fontFamily={SFMono}>SITE PHOTO · CAMDEN · {new Date().toLocaleDateString('en-GB')}</text>
-          </svg>
+          {photoSrc ? (
+            <img src={photoSrc} alt={snag?.title || 'Site photo'} style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0 }}/>
+          ) : (
+            /* Honest empty state — no fake drawn room */
+            <div style={{ textAlign: 'center', padding: 32 }}>
+              <div style={{ width: 64, height: 64, borderRadius: 18, margin: '0 auto 16px', background: T.bg2, border: `0.5px solid ${T.hairMid}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.t3 }}>
+                {React.cloneElement(Ic.camera, { size: 28 })}
+              </div>
+              <div style={{ fontFamily: SF, fontSize: 15, fontWeight: 600, color: T.t1, marginBottom: 6 }}>No photo attached</div>
+              <div style={{ fontFamily: SF, fontSize: 12.5, color: T.t3, lineHeight: 1.5, maxWidth: 240 }}>Capture or upload a site photo for this item, then tap pins to annotate defects.</div>
+            </div>
+          )}
 
           {/* Pins */}
           {pins.map((p, i) => (
@@ -137,18 +144,19 @@ function PhotoAnnotateSheet({ snag, onClose, accent }) {
 
       {/* Toolbar */}
       <div style={{ padding: '10px 12px 30px', borderTop: `0.5px solid ${T.hair}`, display: 'flex', gap: 8, background: T.bg0 }}>
-        <button onClick={() => setAdding(!adding)} style={{
+        <button onClick={() => photoSrc && setAdding(!adding)} disabled={!photoSrc} style={{
           flex: 1, background: adding ? T.amber : T.bg2,
-          color: adding ? T.bg0 : T.t1,
+          color: adding ? T.bg0 : (photoSrc ? T.t1 : T.t3),
           border: adding ? 'none' : `0.5px solid ${T.hairMid}`,
           borderRadius: 12, padding: '12px',
-          fontFamily: SF, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+          fontFamily: SF, fontSize: 14, fontWeight: 700, cursor: photoSrc ? 'pointer' : 'not-allowed',
+          opacity: photoSrc ? 1 : 0.5,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
         }}>{React.cloneElement(Ic.pin, { size: 14 })} {adding ? 'Cancel' : 'Add pin'}</button>
-        <button onClick={() => { setPins([]); toast('Cleared', 'info'); }} style={{
-          background: 'transparent', color: T.t2, border: `0.5px solid ${T.hairMid}`,
+        <button onClick={() => { persistPins([]); toast('Cleared', 'info'); }} disabled={!pins.length} style={{
+          background: 'transparent', color: pins.length ? T.t2 : T.t3, border: `0.5px solid ${T.hairMid}`,
           borderRadius: 12, padding: '12px 14px',
-          fontFamily: SF, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          fontFamily: SF, fontSize: 13, fontWeight: 600, cursor: pins.length ? 'pointer' : 'not-allowed', opacity: pins.length ? 1 : 0.5,
         }}>Clear</button>
         <button onClick={async () => {
           await Backend.db.activity.create({ who: 'You', what: `annotated photo with ${pins.length} pins`, where: snag?.area || 'Site', when: new Date().toISOString().slice(0,16), icon: 'camera', color: '#8b5cf6' });

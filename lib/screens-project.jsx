@@ -406,13 +406,14 @@ function OnboardingSheet({ onClose, accent }) {
   const [seeding, setSeeding] = React.useState(false);
 
   const finish = async () => {
+    // Persist the company brief onto the user profile so it informs AI prompts
+    // (document generator, lead drafting). No fake delay — writes are synchronous.
     if (brief.trim()) {
       setSeeding(true);
-      // pretend to seed - the demo data is already there
-      await new Promise(r => setTimeout(r, 1200));
+      await Backend.db.user.update({ companyBrief: brief.trim() });
     }
     if (name.trim()) {
-      Backend.db.user.update({ name: name.trim() });
+      await Backend.db.user.update({ name: name.trim() });
     }
     localStorage.setItem('cortexx_onboarded', '1');
     onClose();

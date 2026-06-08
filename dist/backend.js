@@ -91,8 +91,11 @@ const Backend = (function() {
     return () => subs.delete(fn);
   };
 
-  // ── Simulated latency for "real backend" feel ─────────────
-  const delay = (ms = 80 + Math.random() * 160) => new Promise(r => setTimeout(r, ms));
+  // ── Local-first store ─────────────────────────────────────
+  // Operations run against an in-memory + localStorage-persisted state, so
+  // they complete synchronously. The API stays Promise-based (real async
+  // contract) but adds zero artificial latency — no simulated network delay.
+  const delay = () => Promise.resolve();
 
   // ── Table API factory ────────────────────────────────────
   // `arr` guarantees state[name] is always an array, even if a table was

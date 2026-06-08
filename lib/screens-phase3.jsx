@@ -61,7 +61,13 @@ function LoginSheet({ onClose, accent }) {
 
   const signIn = async () => {
     setWorking(true);
-    await new Promise(r => setTimeout(r, 800));
+    // Local-first auth: persist the identity to the user record and mark the
+    // session. No artificial delay — the write is synchronous.
+    const e = (email || '').trim();
+    if (e && window.Backend?.db?.user) {
+      await Backend.db.user.update({ email: e });
+    }
+    try { localStorage.setItem('cortexx_session', JSON.stringify({ email: e, at: Date.now() })); } catch (_) {}
     setWorking(false);
     toast('Signed in', 'success');
     onClose();

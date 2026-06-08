@@ -108,7 +108,7 @@
   // ── Extend table API ─────────────────────────────────────
   const tableNames = Object.keys(EXTRAS);
   const internalMakeTable = (name) => ({
-    list: async () => { await new Promise(r => setTimeout(r, 60 + Math.random()*120)); return [...Backend.db.snapshot()[name]]; },
+    list: async () => { return [...Backend.db.snapshot()[name]]; },
     listSync: () => [...Backend.db.snapshot()[name]],
     get: async (id) => Backend.db.snapshot()[name].find(x => x.id == id),
     getSync: (id) => Backend.db.snapshot()[name].find(x => x.id == id),

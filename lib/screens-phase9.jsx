@@ -34,30 +34,38 @@ function UploadSheet({ onClose, accent, target = 'document' }) {
     if (!f) return;
     const ext = f.name.split('.').pop().toLowerCase();
     const iconMap = { pdf: 'doc', dwg: 'layers', xls: 'box', xlsx: 'box', jpg: 'camera', jpeg: 'camera', png: 'camera', heic: 'camera' };
-    start({ name: f.name, size: +(f.size / 1024 / 1024).toFixed(2), type: ext, icon: iconMap[ext] || 'doc' });
+    start({ name: f.name, size: +(f.size / 1024 / 1024).toFixed(2), type: ext, icon: iconMap[ext] || 'doc', blob: f });
   };
 
   const start = (file) => {
     setFileMeta(file);
     setStage('uploading');
     setProgress(0);
-    let p = 0;
-    const t = setInterval(() => {
-      p += Math.random() * 15 + 5;
-      setProgress(Math.min(p, 100));
-      if (p >= 100) {
-        clearInterval(t);
-        setTimeout(async () => {
-          if (target === 'document') {
-            await Backend.db.documents.create({ name: file.name, type: file.type, size: file.size * 1000, projectId: 1, folder: 'Drawings', uploaded: '2026-05-22', updatedBy: 'You' });
-          } else if (target === 'drawing') {
-            await Backend.db.drawings.create({ name: file.name.replace(/\.[a-z]+$/i, ''), projectId: 1, version: 'v1', updated: '2026-05-22', markups: 0, type: 'plan' });
-          }
-          setStage('done');
-          toast(`${file.name} uploaded`, 'success');
-        }, 200);
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Real read of the chosen file via FileReader — progress events are genuine
+    // byte-by-byte read progress, and the file's data URL is actually persisted.
+    const finishUpload = async (dataUrl) => {
+      if (target === 'document') {
+        await Backend.db.documents.create({ name: file.name, type: file.type, size: Math.round(file.size * 1024 * 1024), projectId: 1, folder: 'Drawings', uploaded: today, updatedBy: 'You', data: dataUrl || null });
+      } else if (target === 'drawing') {
+        await Backend.db.drawings.create({ name: file.name.replace(/\.[a-z]+$/i, ''), projectId: 1, version: 'v1', updated: today, markups: 0, type: 'plan', data: dataUrl || null });
       }
-    }, 180);
+      setStage('done');
+      toast(`${file.name} uploaded`, 'success');
+    };
+
+    if (file.blob) {
+      const reader = new FileReader();
+      reader.onprogress = (ev) => { if (ev.lengthComputable) setProgress(Math.round((ev.loaded / ev.total) * 100)); };
+      reader.onload = () => { setProgress(100); finishUpload(reader.result); };
+      reader.onerror = () => { toast('Upload failed — could not read file', 'error'); setStage('pick'); };
+      reader.readAsDataURL(file.blob);
+    } else {
+      // Sample tile (no real File handle) — persist the record without blob data
+      setProgress(100);
+      finishUpload(null);
+    }
   };
 
   const files = FILES[target] || FILES.document;
