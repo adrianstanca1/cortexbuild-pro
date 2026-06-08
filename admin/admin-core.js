@@ -148,6 +148,22 @@
 
   function uid(prefix) { return prefix + '_' + Math.random().toString(36).slice(2, 9); }
 
+  // Optional server mirror — set by the app when the live API is reachable.
+  // Mutations call mirror(op, payload) fire-and-forget; failures are ignored
+  // because the local store remains the authoritative offline copy.
+  let mirror = null;
+  function setMirror(fn) { mirror = fn; }
+  function emit(op, payload) { if (mirror) { try { mirror(op, payload); } catch (e) {} } }
+
+  // Replace collections from an authoritative API payload (live-mode hydrate).
+  function hydrate(data) {
+    if (!data) return;
+    if (Array.isArray(data.workspaces)) state.workspaces = data.workspaces;
+    if (Array.isArray(data.users)) state.users = data.users;
+    if (Array.isArray(data.audit)) state.audit = data.audit;
+    persist();
+  }
+
   function pushAudit(action, target, meta) {
     state.audit.unshift({
       id: uid('a'), actor: 'admin@cortexbuild.app', action, target,
@@ -161,6 +177,7 @@
     subscribe(fn) { subs.add(fn); return () => subs.delete(fn); },
     snapshot() { return state; },
     reset() { state = clone(SEED); persist(); },
+    setMirror, hydrate,
 
     // Derived metrics
     metrics() {
@@ -181,6 +198,7 @@
       const w = state.workspaces.find(x => x.id === id); if (!w) return;
       const prev = w.status; w.status = status;
       pushAudit('workspace.status.changed', w.name, prev + ' → ' + status);
+      emit('patchWorkspace', { id, body: { status } });
       persist();
     },
     setWorkspacePlan(id, plan) {
@@ -191,12 +209,14 @@
       w.seats = PLAN_CAP[plan]; 
       w.mrr = plan === 'Starter' ? 0 : Math.round(w.seatsUsed * 49);
       pushAudit('workspace.plan.changed', w.name, prev + ' → ' + plan);
+      emit('patchWorkspace', { id, body: { plan } });
       persist();
     },
     addSeat(id, n) {
       const w = state.workspaces.find(x => x.id === id); if (!w) return;
       w.seats += (n || 1);
       pushAudit('workspace.seat.added', w.name, '+' + (n || 1) + ' seat');
+      emit('patchWorkspace', { id, body: { addSeat: n || 1 } });
       persist();
     },
     createWorkspace(data) {
@@ -209,6 +229,7 @@
       };
       state.workspaces.unshift(w);
       pushAudit('workspace.created', w.name, w.plan);
+      emit('createWorkspace', { name: w.name, owner: w.owner, plan: w.plan, region: w.region });
       persist();
       return w;
     },
@@ -217,6 +238,7 @@
       state.workspaces = state.workspaces.filter(x => x.id !== id);
       state.users = state.users.filter(u => u.ws !== id);
       if (w) pushAudit('workspace.deleted', w.name, '');
+      emit('deleteWorkspace', { id });
       persist();
     },
 
@@ -225,18 +247,21 @@
       const u = state.users.find(x => x.id === id); if (!u) return;
       const prev = u.role; u.role = role;
       pushAudit('user.role.changed', u.email, prev + ' → ' + role);
+      emit('patchUser', { id, body: { role } });
       persist();
     },
     setUserStatus(id, status) {
       const u = state.users.find(x => x.id === id); if (!u) return;
       u.status = status;
       pushAudit('user.status.changed', u.email, status);
+      emit('patchUser', { id, body: { status } });
       persist();
     },
     resetMfa(id) {
       const u = state.users.find(x => x.id === id); if (!u) return;
       u.mfa = false;
       pushAudit('user.mfa.reset', u.email, '');
+      emit('patchUser', { id, body: { resetMfa: true } });
       persist();
     },
     inviteUser(data) {

@@ -7,6 +7,18 @@
 // Tables are created on first use (idempotent), so this works on a fresh DB.
 
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'cortexx-dev-secret';
+// Platform-admin credentials. Override in server/.env:
+//   ADMIN_EMAIL=you@cortexbuildpro.com
+//   ADMIN_PASSWORD_SHA256=<sha256 hex of your password>
+// Falls back to a clearly-labelled demo cred when unset (dev only).
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@cortexbuildpro.com').toLowerCase();
+const ADMIN_PW_SHA = process.env.ADMIN_PASSWORD_SHA256 ||
+  crypto.createHash('sha256').update('cortexbuild').digest('hex'); // demo: "cortexbuild"
+const sha256 = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 
 module.exports = function adminRoutes(pool, auth) {
   const router = express.Router();
@@ -37,6 +49,17 @@ module.exports = function adminRoutes(pool, auth) {
     )`);
   }
   let ready = ensure().catch((e) => console.error('[admin] schema', e.message));
+
+  // ── Public: admin login (issues a platform_admin-scoped JWT) ──
+  router.post('/admin/login', async (req, res) => {
+    const email = String((req.body && req.body.email) || '').toLowerCase();
+    const password = (req.body && req.body.password) || '';
+    if (email !== ADMIN_EMAIL || sha256(password) !== ADMIN_PW_SHA) {
+      return res.status(401).json({ error: 'invalid_credentials' });
+    }
+    const token = jwt.sign({ email, role: 'platform_admin', admin: true }, JWT_SECRET, { expiresIn: '12h' });
+    res.json({ token, email, role: 'platform_admin' });
+  });
 
   // ── Admin-role gate ──────────────────────────────────────────
   function requireAdmin(req, res, next) {

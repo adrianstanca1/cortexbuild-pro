@@ -36,11 +36,12 @@
 
 <!-- Core store (plain JS) -->
 <script src="admin/admin-core.js"></script>
+<script src="admin/admin-api.js"></script>
 
 <!-- UI primitives + views + app (JSX, transformed in-browser, loaded in order) -->
 <script>
 (async function () {
-  const MODULES = ['admin-ui', 'admin-overview', 'admin-workspaces', 'admin-users', 'admin-projects', 'admin-billing', 'admin-system', 'admin-app'];
+  const MODULES = ['admin-ui', 'admin-login', 'admin-overview', 'admin-workspaces', 'admin-users', 'admin-projects', 'admin-billing', 'admin-system', 'admin-app'];
   try {
     for (const name of MODULES) {
       const res = await fetch('admin/' + name + '.jsx');
