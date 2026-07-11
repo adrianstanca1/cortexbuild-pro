@@ -92,6 +92,29 @@
       if (r && r.token) { return this._authed(r); }
       toast('Sign-in failed — check your details', 'error'); return false;
     },
+    // Create a NEW account + workspace (multi-tenant signup)
+    async register(name, email, password, company) {
+      const r = await api('POST', '/api/auth/register', { name, email, password, company }, false);
+      if (r && r.token) { return this._authed(r); }
+      toast(r && r.error === 'email_in_use' ? 'That email already has an account' : 'Registration failed', 'error');
+      return false;
+    },
+    // Invite a teammate into MY workspace → returns a shareable link
+    async invite(email, role) {
+      const r = await api('POST', '/api/auth/invite', { email, role });
+      if (r && r.link) { toast('Invite created', 'success'); return r; }
+      toast(r && r.error === 'email_in_use' ? 'That person already has an account' : 'Invite failed', 'error');
+      return false;
+    },
+    async listInvites() { return (await api('GET', '/api/auth/invites')) || []; },
+    async revokeInvite(token) { return api('DELETE', '/api/auth/invite/' + token); },
+    // Look up + accept an invite (public — no session needed)
+    async inviteInfo(token) { return api('GET', '/api/auth/invite/' + token, null, false); },
+    async acceptInvite(token, name, password) {
+      const r = await api('POST', '/api/auth/invite/accept', { token, name, password }, false);
+      if (r && r.token) { return this._authed(r); }
+      toast('Invite invalid or expired', 'error'); return false;
+    },
     async requestMagic(email) {
       const r = await api('POST', '/api/auth/magic/request', { email }, false);
       if (r && (r.ok || r.sent)) { toast('Magic link sent — check your email', 'success'); return r.devLink || true; }
@@ -133,12 +156,17 @@
       return null;
     },
     // Mirror a single create/update/delete to the cloud (queues when offline).
-    // All writes go through /api/sync/bulk — the one authoritative write path.
+    // All writes go through the server's /api/sync/bulk endpoint — the one
+    // authoritative write path — rather than per-collection REST routes (which
+    // the server does not expose). Offline writes queue and replay through the
+    // same endpoint, so online and offline paths are identical.
     push(collection, op, id, data) {
       if (!API || !TOKEN) return;
       const entry = { collection, op, id, data };
       if (!online) { const q = readQueue(); q.push(entry); writeQueue(q); emit(status); return; }
       api('POST', '/api/sync/bulk', { ops: [entry] }).then((res) => {
+        // If the write failed (server error / dropped), fall back to the queue
+        // so it replays later rather than being lost.
         if (!res || res.__error) { const q = readQueue(); q.push(entry); writeQueue(q); emit(status); }
       });
     },

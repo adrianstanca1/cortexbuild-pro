@@ -136,6 +136,83 @@ app.post('/api/auth/magic/verify', authLimiter, wrap(async (req, res) => {
   res.json({ token: signToken(user.id, user.workspace_id), user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 }));
 
+// ── Team invitations ────────────────────────────────────────
+// An authed user invites a teammate into THEIR workspace. The invitee opens
+// the link, sets name + password, and lands in the same tenant.
+app.post('/api/auth/invite', apiLimiter, auth, wrap(async (req, res) => {
+  const { email, role } = req.body;
+  if (!email) return res.status(400).json({ error: 'email required' });
+  const exists = await pool.query('SELECT 1 FROM users WHERE email=$1', [email]);
+  if (exists.rows[0]) return res.status(409).json({ error: 'email_in_use' });
+  const token = crypto.randomBytes(18).toString('base64url');
+  await pool.query(
+    `INSERT INTO invites(token, workspace_id, email, role, invited_by, expires_at)
+     VALUES($1,$2,$3,$4,$5,$6)
+     ON CONFLICT (workspace_id, email) DO UPDATE SET token=$1, role=$4, expires_at=$6, used=false`,
+    [token, req.user.ws, email, role || 'member', req.user.uid, new Date(Date.now() + 7 * 24 * 3600 * 1000)]
+  );
+  const link = `${APP_URL}/?invite=${token}`;
+  // Deliver via Resend when configured; always return the link so the inviter can share it.
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: process.env.MAIL_FROM || 'CortexBuild Pro <invites@cortexbuildpro.com>',
+          to: [email],
+          subject: "You're invited to CortexBuild Pro",
+          html: `<p>You've been invited to join a workspace on CortexBuild Pro.</p><p><a href="${link}">Accept your invitation</a> (valid 7 days)</p>`,
+        }),
+      });
+    } catch (e) { console.error('[invite] resend error', e.message); }
+  }
+  res.json({ ok: true, link, token });
+}));
+
+// Public: inspect an invite (who's inviting, which workspace) before accepting.
+app.get('/api/auth/invite/:token', authLimiter, wrap(async (req, res) => {
+  const r = await pool.query(
+    `SELECT i.email, i.role, i.expires_at, i.used, w.name AS workspace
+     FROM invites i JOIN workspaces w ON w.id = i.workspace_id WHERE i.token=$1`,
+    [req.params.token]);
+  const inv = r.rows[0];
+  if (!inv || inv.used || new Date(inv.expires_at) < new Date())
+    return res.status(400).json({ error: 'invalid_or_expired' });
+  res.json({ email: inv.email, role: inv.role, workspace: inv.workspace });
+}));
+
+// Public: accept an invite → creates the user INSIDE the inviter's workspace.
+app.post('/api/auth/invite/accept', authLimiter, wrap(async (req, res) => {
+  const { token, name, password } = req.body;
+  if (!token || !name || !password) return res.status(400).json({ error: 'token, name, password required' });
+  const r = await pool.query('SELECT * FROM invites WHERE token=$1', [token]);
+  const inv = r.rows[0];
+  if (!inv || inv.used || new Date(inv.expires_at) < new Date())
+    return res.status(400).json({ error: 'invalid_or_expired' });
+  const exists = await pool.query('SELECT 1 FROM users WHERE email=$1', [inv.email]);
+  if (exists.rows[0]) return res.status(409).json({ error: 'email_in_use' });
+  const hash = await bcrypt.hash(password, 10);
+  const u = await pool.query(
+    'INSERT INTO users(workspace_id, name, email, password_hash, role) VALUES($1,$2,$3,$4,$5) RETURNING id, workspace_id, name, email, role',
+    [inv.workspace_id, name, inv.email, hash, inv.role || 'member']);
+  await pool.query('UPDATE invites SET used=true WHERE token=$1', [token]);
+  const user = u.rows[0];
+  res.json({ token: signToken(user.id, user.workspace_id), user });
+}));
+
+// List + revoke pending invites for my workspace.
+app.get('/api/auth/invites', apiLimiter, auth, wrap(async (req, res) => {
+  const r = await pool.query(
+    'SELECT token, email, role, expires_at, used, created_at FROM invites WHERE workspace_id=$1 ORDER BY created_at DESC LIMIT 50',
+    [req.user.ws]);
+  res.json(r.rows);
+}));
+app.delete('/api/auth/invite/:token', apiLimiter, auth, wrap(async (req, res) => {
+  await pool.query('DELETE FROM invites WHERE token=$1 AND workspace_id=$2', [req.params.token, req.user.ws]);
+  res.json({ ok: true });
+}));
+
 // ── Realtime stream ─────────────────────────────────────────
 app.get('/api/stream', wrap(async (req, res) => {
   let ws;

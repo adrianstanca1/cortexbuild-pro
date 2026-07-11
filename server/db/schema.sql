@@ -391,3 +391,18 @@ CREATE TABLE IF NOT EXISTS hmrc_submissions (
   updated_at     TIMESTAMPTZ DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_hmrc_ws ON hmrc_submissions(workspace_id, created_at DESC);
+
+
+-- ── Team invitations (invite → accept joins the inviter's workspace) ──
+CREATE TABLE IF NOT EXISTS invites (
+  token        TEXT PRIMARY KEY,
+  workspace_id UUID REFERENCES workspaces(id) ON DELETE CASCADE,
+  email        TEXT NOT NULL,
+  role         TEXT DEFAULT 'member',
+  invited_by   UUID,
+  expires_at   TIMESTAMPTZ NOT NULL,
+  used         BOOLEAN DEFAULT false,
+  created_at   TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(workspace_id, email)
+);
+CREATE INDEX IF NOT EXISTS idx_invites_ws ON invites(workspace_id, created_at DESC);

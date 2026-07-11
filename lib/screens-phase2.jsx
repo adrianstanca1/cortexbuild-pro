@@ -532,31 +532,45 @@ function ReportsScreen({ accent }) {
 function TimelineScreen({ accent }) {
   const projects = useDB('projects');
   const active = projects.filter(p => ['active','snagging','quoting'].includes(p.status));
-  // Mock month grid: May, Jun, Jul, Aug
-  const months = [
-    { l: 'MAY', days: 31 },
-    { l: 'JUN', days: 30 },
-    { l: 'JUL', days: 31 },
-    { l: 'AUG', days: 31 },
-  ];
+  // REAL 4-month grid — current month + next 3, derived from today's date.
+  const now = new Date();
+  const MONTH_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const gridStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const months = [0, 1, 2, 3].map(i => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    return { l: MONTH_NAMES[d.getMonth()], days: new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate() };
+  });
   const totalDays = months.reduce((s, m) => s + m.days, 0);
-  // Each project: start day offset from May 1, end day offset.
-  const BARS = {
-    1: { start: 0,  end: 90,  c: T.blue },    // Camden: May - July
-    2: { start: 30, end: 122, c: T.amber },   // Hackney: Jun - Aug end
-    3: { start: 0,  end: 28,  c: T.green },   // Brixton: May (snagging)
-    4: { start: 60, end: 120, c: T.purple },  // Islington: Jul - mid Aug (quote)
-  };
+  // Project bars derived from each project's real dates (start/end/due) when
+  // present; otherwise a deterministic span from status (active spans now,
+  // snagging is finishing, quoting starts next month).
+  const PALETTE = [T.blue, T.amber, T.green, T.purple, T.cyan || T.blue, T.red];
+  const dayOffset = (ds) => Math.max(0, Math.min(totalDays, Math.round((new Date(ds) - gridStart) / 86400000)));
+  const BARS = {};
+  projects.forEach((p, i) => {
+    const c = PALETTE[i % PALETTE.length];
+    if (p.start || p.startDate) {
+      const s = dayOffset(p.start || p.startDate);
+      const e = (p.end || p.endDate || p.due) ? dayOffset(p.end || p.endDate || p.due) : Math.min(totalDays, s + 60);
+      BARS[p.id] = { start: s, end: Math.max(e, s + 7), c };
+    } else if (p.status === 'active') {
+      BARS[p.id] = { start: 0, end: Math.min(totalDays, 75 + i * 10), c };
+    } else if (p.status === 'snagging') {
+      BARS[p.id] = { start: 0, end: 21, c };
+    } else if (p.status === 'quoting') {
+      BARS[p.id] = { start: months[0].days, end: months[0].days + 55, c };
+    }
+  });
   const dayWidth = 6; // 6px per day
   const totalW = totalDays * dayWidth;
-  const todayOffset = 22; // May 22
+  const todayOffset = now.getDate() - 1; // real today within the first month
 
   return (
     <ScreenBg accent={accent}>
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 30 }}>
         <MobileHeader
           title="Timeline"
-          subtitle={`${active.length} projects · May → Aug`}
+          subtitle={`${active.length} projects · ${months[0].l.charAt(0) + months[0].l.slice(1).toLowerCase()} → ${months[3].l.charAt(0) + months[3].l.slice(1).toLowerCase()}`}
           right={<HeaderBtn icon={Ic.calendar} onClick={() => window.cortexxNav('calendar')}/>}
         />
 

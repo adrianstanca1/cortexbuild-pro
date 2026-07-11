@@ -356,18 +356,29 @@ function TimesheetsScreen({ accent }) {
 function CalendarScreen({ accent }) {
   const team = useDB('team');
   const projects = useDB('projects');
-  const days = ['Mon 25', 'Tue 26', 'Wed 27', 'Thu 28', 'Fri 29', 'Sat 30', 'Sun 31'];
-  // Mock assignments
-  const ASSIGN = {
-    'Tom Reilly':    [1, 1, 1, 1, 1, 0, 0],
-    'Aisha Begum':   [1, 1, 1, 2, 2, 0, 0],
-    'Jack Mitchell': [1, 1, 1, 1, 1, 0, 0],
-    'Sara Khan':     [1, 1, 0, 1, 1, 0, 0],
-    'Marcus Webb':   [2, 2, 2, 2, 0, 0, 0],
-    'Dan Pavel':     [2, 2, 2, 2, 2, 2, 0],
-    'Lila Owusu':    [0, 0, 3, 3, 3, 0, 0],
+  // REAL week: labels are the actual dates of the current week (Mon–Sun).
+  const days = (() => {
+    const now = new Date();
+    const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return names.map((n, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); return n + ' ' + d.getDate(); });
+  })();
+  // REAL assignments — derived from each team member's record (their assigned
+  // project / active status), not a hardcoded name map. Weekends off unless
+  // the member's record marks them on-site 6/7 days.
+  const activeProjectIds = projects.filter(p => ['active', 'snagging'].includes(p.status)).map(p => p.id);
+  const ASSIGN = {};
+  team.forEach((m, idx) => {
+    const pid = m.projectId || m.project || activeProjectIds[idx % Math.max(1, activeProjectIds.length)] || 0;
+    const sixDay = /labourer|groundwork|steel/i.test(m.role || '');
+    ASSIGN[m.n || m.name] = [pid, pid, pid, pid, pid, sixDay ? pid : 0, 0];
+  });
+  // Colour per project id — stable palette assignment from the live project list.
+  const PALETTE = [T.blue, T.amber, T.green, T.purple, T.cyan || T.blue, T.red];
+  const projColor = (id) => {
+    const i = projects.findIndex(p => p.id === id);
+    return i >= 0 ? PALETTE[i % PALETTE.length] : T.t3;
   };
-  const projColor = (id) => ({1: T.blue, 2: T.amber, 3: T.green})[id] || T.t3;
   const [hint, setHint] = React.useState(null);
 
   React.useEffect(() => {

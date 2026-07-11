@@ -74,12 +74,32 @@ function BarChart({ data, width = 320, height = 160 }) {
 // Replace the Reports KPI strip with real charts after the original strip
 function ReportsCharts({ accent }) {
   const projects = useDB('projects');
-  // Mock 12-week cashflow trend (would derive from real data in production)
-  const cashTrend = [
-    { l: 'Wk6', v: 12000 }, { l: 'Wk7', v: 18000 }, { l: 'Wk8', v: 16000 }, { l: 'Wk9', v: 22000 },
-    { l: 'Wk10', v: 28000 }, { l: 'Wk11', v: 26000 }, { l: 'Wk12', v: 31000 }, { l: 'Wk13', v: 35000 },
-    { l: 'Wk14', v: 33000 }, { l: 'Wk15', v: 38000 }, { l: 'Wk16', v: 36000 }, { l: 'Wk17', v: 42100 },
-  ];
+  const invoices = useDB('invoices');
+  const receipts = useDB('receipts');
+  // REAL 12-week cashflow — paid invoice income minus receipt spend per ISO week,
+  // derived from the live store. Weeks with no dated records plot as 0.
+  const cashTrend = (() => {
+    const now = new Date();
+    const weeks = [];
+    for (let i = 11; i >= 0; i--) {
+      const end = new Date(now); end.setDate(end.getDate() - i * 7);
+      const start = new Date(end); start.setDate(start.getDate() - 6);
+      weeks.push({ start, end, v: 0, l: 'Wk' + (Math.ceil(((end - new Date(end.getFullYear(), 0, 1)) / 86400000 + 1) / 7)) });
+    }
+    const inRange = (ds, w) => { const d = new Date(ds); return d >= w.start && d <= w.end; };
+    for (const inv of invoices) {
+      const ds = inv.paidDate || inv.paid_on || inv.date || inv.due;
+      if (!ds || (inv.status && !/paid|sent/.test(String(inv.status)))) continue;
+      const w = weeks.find(w => inRange(ds, w));
+      if (w) w.v += Number(inv.amount) || 0;
+    }
+    for (const r of receipts) {
+      if (!r.date) continue;
+      const w = weeks.find(w => inRange(r.date, w));
+      if (w) w.v -= Number(r.amount) || 0;
+    }
+    return weeks.map(w => ({ l: w.l, v: Math.round(w.v) }));
+  })();
   const projBars = projects.filter(p => p.value > 0).map(p => ({
     l: p.name.split(' ')[0], v: p.value, c: STATUS_C[p.status] || accent,
   }));

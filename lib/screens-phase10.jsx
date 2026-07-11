@@ -128,8 +128,26 @@ function PerformanceScreen({ accent }) {
   const achievements = useDB('achievements');
   const earned = achievements.filter(a => a.earned);
   const inProgress = achievements.filter(a => !a.earned);
-  const days = [4,5,8,6,3,2,7]; // mock weekly activity
-  const max = Math.max(...days);
+  // REAL weekly activity — count dated events (clock entries, diary, tasks,
+  // receipts, photos) per day over the last 7 days from the live store.
+  const days = (() => {
+    const snap = Backend.db.snapshot();
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+    const now = new Date();
+    const dayKeys = [];
+    for (let i = 6; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); dayKeys.push(d.toISOString().slice(0, 10)); }
+    const collections = ['clockEntries', 'diary', 'tasks', 'receipts', 'photos', 'notifications', 'activity'];
+    for (const c of collections) {
+      const rows = Array.isArray(snap[c]) ? snap[c] : [];
+      for (const r of rows) {
+        const dateStr = typeof (r.time || r.date || r.when || r.at || r.due) === 'string' ? (r.time || r.date || r.when || r.at || r.due).slice(0, 10) : null;
+        const idx = dateStr ? dayKeys.indexOf(dateStr) : -1;
+        if (idx >= 0) counts[idx]++;
+      }
+    }
+    return counts;
+  })();
+  const max = Math.max(1, ...days);
 
   const ACHIEVEMENT_ICONS = { star: Ic.star, money: Ic.money, clock: Ic.clock, list: Ic.list, calc: Ic.calc, spark: Ic.spark };
 

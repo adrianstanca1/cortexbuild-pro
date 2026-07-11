@@ -230,6 +230,8 @@ function CortexxApp({ dashboardId = 'v1', accent = T.blue, openAI, onChangeDashb
       else if (k === 'clientmsgs') setSheet('clientmsgs');
       else if (k === 'ledger') setSheet('ledger');
       else if (k === 'cloudsync') setSheet('cloudsync');
+      else if (k === 'account' || k === 'auth' || k === 'login' || k === 'signin') setSheet('account');
+      else if (k === 'inviteteam' || k === 'invite') setSheet('inviteteam');
       else if (k === 'diagnostics') setSheet('diagnostics');
       else if (k === 'aiengine') setSheet('aiengine');
       else if (k && k.indexOf('payinvoice:') === 0) {
@@ -479,6 +481,8 @@ function CortexxApp({ dashboardId = 'v1', accent = T.blue, openAI, onChangeDashb
       {sheet === 'ledger' && <SheetWrap title="Ledger export" onClose={closeSheet} accent={accent}><LedgerExportScreen accent={accent}/></SheetWrap>}
       {sheet === 'cloudsync' && <SheetWrap title="Cloud sync" onClose={closeSheet} accent={accent}><CloudSyncScreen accent={accent}/></SheetWrap>}
       {sheet === 'diagnostics' && window.BackendDiagnosticsScreen && <BackendDiagnosticsScreen onClose={closeSheet} accent={accent}/>}
+      {sheet === 'account' && window.AccountSheet && <AccountSheet onClose={closeSheet} accent={accent}/>}
+      {sheet === 'inviteteam' && window.InviteTeammateSheet && <InviteTeammateSheet onClose={closeSheet} accent={accent}/>}
       {sheet === 'aiengine' && <SheetWrap title="AI engine" onClose={closeSheet} accent={accent}><LLMSettingsScreen accent={accent}/></SheetWrap>}
       {sheet === 'payinvoice' && <SheetWrap title="Payment link" onClose={closeSheet} accent={accent}><PaymentLinkScreen accent={accent} invoiceId={window.__cortexxPayInvoice} onClose={closeSheet}/></SheetWrap>}
       {sheet === 'bankrec' && <SheetWrap title="Bank reconciliation" onClose={closeSheet} accent={accent}><BankRecScreen accent={accent}/></SheetWrap>}
